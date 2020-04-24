@@ -398,7 +398,56 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// "ntp": {},
+			// ntp_server Deprecated as of 4.3.0, use 'ntp' field instead. NTP servers to synchronize time.
+			// "ntp_servers": {
+			// 	Type:        schema.TypeSet,
+			// 	Description: "Array of tags.",
+			// 	Optional:    true,
+			// 	Elem:        &schema.Schema{Type: schema.TypeString},
+			// },
+			"ntp": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"servers": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"hostname": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+
+									"key_type": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+											s := v.(string)
+											enums := []string{"MD5", "SHA", "SHA1", "SHA256", "SHA512", "RMD160"}
+											if inArray(s, enums) {
+												return
+											}
+											errs = append(errs, fmt.Errorf(
+												"%s: is invalid option, expected %+v", name, enums,
+											))
+											return
+										},
+									},
+
+									"key": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"ssh_server": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -538,7 +587,6 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		for _, r := range cinterfaces {
 			cinterface := openapi.ApplianceAllOfClientInterface{}
 			raw := r.(map[string]interface{})
-			log.Printf("[DEBUG] client_interface RAW: %+v", raw)
 			if v, ok := raw["hostname"]; ok {
 				cinterface.SetHostname(v.(string))
 			}
@@ -675,6 +723,28 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		args.SetSshServer(sshServers[0])
 	}
 
+	var ntpList []openapi.ApplianceAllOfNtp
+	if n, ok := d.GetOk("ntp"); ok {
+		for _, ntp := range n.(*schema.Set).List() {
+			if ntp == nil {
+				continue
+			}
+			ntpCfg := openapi.ApplianceAllOfNtp{}
+			raw := ntp.(map[string]interface{})
+			if servers := raw["servers"]; len(servers.([]interface{})) > 0 {
+				ntpServers, err := readNtpServersFromConfig(servers.([]interface{}))
+				if err != nil {
+					return fmt.Errorf("Failed to resolve ntp servers: %+v", err)
+				}
+				ntpCfg.SetServers(ntpServers)
+			}
+			ntpList = append(ntpList, ntpCfg)
+		}
+	}
+	if len(ntpList) > 0 {
+		args.SetNtp(ntpList[0])
+	}
+
 	if v, ok := d.GetOk("controller"); ok {
 		for _, ctrl := range v.(*schema.Set).List() {
 			r := ctrl.(map[string]interface{})
@@ -794,6 +864,25 @@ func readNetworkIpv4DhcpFromConfig(ipv4raw map[string]interface{}) openapi.Appli
 		ipv4dhcp.SetDns(v.(bool))
 	}
 	return ipv4dhcp
+}
+
+func readNtpServersFromConfig(input []interface{}) ([]openapi.ApplianceAllOfNtpServers, error) {
+	var r []openapi.ApplianceAllOfNtpServers
+	for _, s := range input {
+		raw := s.(map[string]interface{})
+		row := openapi.ApplianceAllOfNtpServers{}
+		if v, ok := raw["hostname"]; ok {
+			row.SetHostname(v.(string))
+		}
+		if v, ok := raw["key_type"]; ok {
+			row.SetKeyType(v.(string))
+		}
+		if v, ok := raw["key"]; ok {
+			row.SetKey(v.(string))
+		}
+		r = append(r, row)
+	}
+	return r, nil
 }
 
 func readAllowSourcesFromConfig(input []interface{}) ([]map[string]interface{}, error) {
