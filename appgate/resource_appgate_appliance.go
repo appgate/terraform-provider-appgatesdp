@@ -1033,7 +1033,28 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("Failed to read Appliance, %+v", err)
 	}
-	// TODO check fields..
+
+	if d.HasChange("ntp") {
+		o, n := d.GetChange("ntp")
+		log.Printf("[DEBUG] Updating Appliance NTP O: %+v", o)
+		log.Printf("[DEBUG] Updating Appliance NTP N: %+v", n)
+		for _, ntp := range n.(*schema.Set).List() {
+			if ntp == nil {
+				continue
+			}
+			ntpCfg := openapi.ApplianceAllOfNtp{}
+			raw := ntp.(map[string]interface{})
+			if servers := raw["servers"]; len(servers.([]interface{})) > 0 {
+				ntpServers, err := readNtpServersFromConfig(servers.([]interface{}))
+				if err != nil {
+					return fmt.Errorf("Failed to resolve ntp servers: %+v", err)
+				}
+				ntpCfg.SetServers(ntpServers)
+			}
+			originalAppliance.SetNtp(ntpCfg)
+		}
+	}
+
 	originalAppliance.SetName(d.Get("name").(string))
 
 	req := api.AppliancesIdPut(ctx, d.Id())
