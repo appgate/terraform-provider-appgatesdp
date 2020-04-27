@@ -103,12 +103,6 @@ func resourceAppgateAppliance() *schema.Resource {
 				Optional:    true,
 			},
 
-			"connect_to_peers_using_client_port_with_spa": {
-				Type:        schema.TypeBool,
-				Description: "Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect.",
-				Optional:    true,
-			},
-
 			"client_interface": {
 				Type:     schema.TypeSet,
 				Required: true,
@@ -203,7 +197,7 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"networking": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -449,7 +443,7 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 			"ssh_server": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -580,233 +574,80 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))
 	args.SetSite(d.Get("site").(string))
+	args.SetCustomization(d.Get("customization").(string))
 
-	var ci []openapi.ApplianceAllOfClientInterface
 	if c, ok := d.GetOk("client_interface"); ok {
-		cinterfaces := c.(*schema.Set).List()
-		for _, r := range cinterfaces {
-			cinterface := openapi.ApplianceAllOfClientInterface{}
-			raw := r.(map[string]interface{})
-			if v, ok := raw["hostname"]; ok {
-				cinterface.SetHostname(v.(string))
-			}
-			if v, ok := raw["https_port"]; ok {
-				cinterface.SetHttpsPort(int32(v.(int)))
-			}
-			if v, ok := raw["dtls_port"]; ok {
-				cinterface.SetDtlsPort(int32(v.(int)))
-			}
-			if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-				allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
-				if err != nil {
-					return fmt.Errorf("Failed to resolve network hosts: %+v", err)
-				}
-				cinterface.SetAllowSources(allowSources)
-			}
-			if v, ok := raw["override_spa_mode"]; ok {
-				cinterface.SetOverrideSpaMode(v.(string))
-			}
-			ci = append(ci, cinterface)
+		cinterface, err := readClientInterfaceFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
 		}
+		args.SetClientInterface(cinterface)
 	}
-	if len(ci) > 0 {
-		args.ClientInterface = ci[0]
-	}
-	var pi []openapi.ApplianceAllOfPeerInterface
+
 	if p, ok := d.GetOk("peer_interface"); ok {
-		pinterfaces := p.(*schema.Set).List()
-		for _, r := range pinterfaces {
-			pinterf := openapi.ApplianceAllOfPeerInterface{}
-			raw := r.(map[string]interface{})
-			if v, ok := raw["hostname"]; ok {
-				pinterf.SetHostname(v.(string))
-			}
-			if v, ok := raw["https_port"]; ok {
-				pinterf.SetHttpsPort(int32(v.(int)))
-			}
-			if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-				allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
-				if err != nil {
-					return fmt.Errorf("Failed to resolve network hosts: %+v", err)
-				}
-				pinterf.SetAllowSources(allowSources)
-			}
-			pi = append(pi, pinterf)
+		pinterface, err := readPeerInterfaceFromConfig(p.(*schema.Set).List())
+		if err != nil {
+			return err
 		}
-	}
-	if len(pi) > 0 {
-		args.PeerInterface = pi[0]
+		args.SetPeerInterface(pinterface)
 	}
 
-	var networkings []openapi.ApplianceAllOfNetworking
+	if a, ok := d.GetOk("admin_interface"); ok {
+		ainterface, err := readAdminInterfaceFromConfig(a.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetAdminInterface(ainterface)
+	}
+
 	if n, ok := d.GetOk("networking"); ok {
-		networks := n.([]interface{})
-		for _, netw := range networks {
-			if netw == nil {
-				continue
-			}
-			network := openapi.ApplianceAllOfNetworking{}
-			rawNetwork := netw.(map[string]interface{})
-			if v := rawNetwork["hosts"]; len(v.([]interface{})) > 0 {
-				hosts, err := readNetworkHostFromConfig(v.([]interface{}))
-				if err != nil {
-					return fmt.Errorf("Failed to resolve network hosts: %+v", err)
-				}
-				network.SetHosts(hosts)
-			}
-
-			if v := rawNetwork["nics"]; len(v.([]interface{})) > 0 {
-				nics, err := readNetworkNicsFromConfig(v.([]interface{}))
-				if err != nil {
-					return fmt.Errorf("Failed to resolve network nics: %+v", err)
-				}
-				network.SetNics(nics)
-			}
-			if v := rawNetwork["dns_servers"].(*schema.Set); v.Len() > 0 {
-				d := make([]string, 0)
-				for _, dns := range v.List() {
-					d = append(d, dns.(string))
-				}
-				network.SetDnsServers(d)
-			}
-			if v := rawNetwork["dns_domains"].(*schema.Set); v.Len() > 0 {
-				d := make([]string, 0)
-				for _, dns := range v.List() {
-					d = append(d, dns.(string))
-				}
-				network.SetDnsDomains(d)
-			}
-			if v := rawNetwork["routes"]; len(v.([]interface{})) > 0 {
-				routes, err := readNetworkRoutesFromConfig(v.([]interface{}))
-				if err != nil {
-					return fmt.Errorf("Failed to resolve network routes: %+v", err)
-				}
-				network.SetRoutes(routes)
-			}
-			networkings = append(networkings, network)
+		network, err := readNetworkingFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
 		}
-	}
-	if len(networkings) > 0 {
-		args.Networking = networkings[0]
+		args.SetNetworking(network)
 	}
 
-	var sshServers []openapi.ApplianceAllOfSshServer
-	if s, ok := d.GetOk("ssh_server"); ok {
-		servers := s.([]interface{})
-		for _, srv := range servers {
-			if srv == nil {
-				continue
-			}
-			sshServer := openapi.ApplianceAllOfSshServer{}
-			rawServer := srv.(map[string]interface{})
-			if v, ok := rawServer["enabled"]; ok {
-				sshServer.SetEnabled(v.(bool))
-			}
-			if v, ok := rawServer["port"]; ok {
-				sshServer.SetPort(int32(v.(int)))
-			}
-			if v, ok := rawServer["password_authentication"]; ok {
-				sshServer.SetPasswordAuthentication(v.(bool))
-			}
-			if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-				allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
-				if err != nil {
-					return fmt.Errorf("Failed to resolve network hosts: %+v", err)
-				}
-				sshServer.SetAllowSources(allowSources)
-			}
-			sshServers = append(sshServers, sshServer)
+	if n, ok := d.GetOk("ssh_server"); ok {
+		sshServer, err := readSSHServerFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
 		}
+		args.SetSshServer(sshServer)
 	}
 
-	if len(sshServers) > 0 {
-		args.SetSshServer(sshServers[0])
-	}
-
-	var ntpList []openapi.ApplianceAllOfNtp
 	if n, ok := d.GetOk("ntp"); ok {
-		for _, ntp := range n.(*schema.Set).List() {
-			if ntp == nil {
-				continue
-			}
-			ntpCfg := openapi.ApplianceAllOfNtp{}
-			raw := ntp.(map[string]interface{})
-			if servers := raw["servers"]; len(servers.([]interface{})) > 0 {
-				ntpServers, err := readNtpServersFromConfig(servers.([]interface{}))
-				if err != nil {
-					return fmt.Errorf("Failed to resolve ntp servers: %+v", err)
-				}
-				ntpCfg.SetServers(ntpServers)
-			}
-			ntpList = append(ntpList, ntpCfg)
+		ntp, err := readNTPFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
 		}
+		args.SetNtp(ntp)
 	}
-	if len(ntpList) > 0 {
-		args.SetNtp(ntpList[0])
+
+	if v, ok := d.GetOk("log_server"); ok {
+		logSrv, err := readLogServerFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetLogServer(logSrv)
 	}
 
 	if v, ok := d.GetOk("controller"); ok {
-		for _, ctrl := range v.(*schema.Set).List() {
-			r := ctrl.(map[string]interface{})
-			if v, ok := r["enabled"]; ok {
-				val := openapi.ApplianceAllOfController{}
-				val.SetEnabled(v.(bool))
-				args.SetController(val)
-			}
+		ctrl, err := readControllerFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
 		}
+		args.SetController(ctrl)
 	}
-	if v, ok := d.GetOk("log_server"); ok {
-		for _, ctrl := range v.(*schema.Set).List() {
-			r := ctrl.(map[string]interface{})
-			val := openapi.ApplianceAllOfLogServer{}
-			if v, ok := r["enabled"]; ok {
-				val.SetEnabled(v.(bool))
-			}
-			if v, ok := r["retention_days"]; ok {
-				val.SetRetentionDays(int32(v.(int)))
-			}
-			args.SetLogServer(val)
-		}
-	}
+
 	if v, ok := d.GetOk("gateway"); ok {
-		val := openapi.ApplianceAllOfGateway{}
-		for _, ctrl := range v.(*schema.Set).List() {
-			r := ctrl.(map[string]interface{})
-			if v, ok := r["enabled"]; ok {
-				val.SetEnabled(v.(bool))
-			}
-			if v := r["vpn"].(*schema.Set); v.Len() > 0 {
-				vpn := openapi.ApplianceAllOfGatewayVpn{}
-				for _, s := range v.List() {
-					raw := s.(map[string]interface{})
-					if v, ok := raw["weight"]; ok {
-						vpn.SetWeight(int32(v.(int)))
-					}
-					if v := raw["allow_destinations"]; len(v.([]interface{})) > 0 {
-						rawAllowedDestinations := v.([]interface{})
-						allowDestinations := make([]openapi.ApplianceAllOfGatewayVpnAllowDestinations, 0)
-						for _, r := range rawAllowedDestinations {
-							raw := r.(map[string]interface{})
-							ad := openapi.ApplianceAllOfGatewayVpnAllowDestinations{}
-							if v := raw["address"].(string); v != "" {
-								ad.SetAddress(v)
-							}
-							if v, ok := raw["netmask"]; ok {
-								ad.SetNetmask(int32(v.(int)))
-							}
-							if v := raw["nic"].(string); v != "" {
-								ad.SetNic(v)
-							}
-							allowDestinations = append(allowDestinations, ad)
-						}
-						vpn.SetAllowDestinations(allowDestinations)
-					}
-				}
-				val.SetVpn(vpn)
-			}
+		gw, err := readGatewayFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
 		}
-		args.SetGateway(val)
+		args.SetGateway(gw)
 	}
+
 	log.Printf("\n appliance arguments: \n %+v \n", args)
 	request := api.AppliancesPost(ctx)
 	request = request.Appliance(*args)
@@ -959,44 +800,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("tags", appliance.Tags)
 	d.Set("appliance_id", appliance.Id)
 
-	localClientInterface := d.Get("client_interface").(*schema.Set).List()
-	var saveClientInterface []map[string]interface{}
-	for _, raw := range localClientInterface {
-		l := raw.(map[string]interface{})
-		o := make(map[string]interface{}, 0)
-		log.Printf("[DEBUG] raw client interface: %+v", l)
-		if v, ok := l["hostname"]; ok {
-			o["hostname"] = v
-		}
-		if v, ok := l["dtls_port"]; ok {
-			o["dtls_port"] = v.(int)
-		}
-		if v, ok := l["https_port"]; ok {
-			o["https_port"] = v.(int)
-		}
-		if v, ok := l["proxy_protocol"]; ok {
-			o["proxy_protocol"] = v.(bool)
-		}
-		if v, ok := l["allow_sources"]; ok {
-			os := make(map[string]interface{}, 0)
-			for _, y := range v.([]interface{}) {
-				z := y.(map[string]interface{})
-				if v, ok := z["address"]; ok {
-					os["address"] = v
-				}
-				if v, ok := z["nic"]; ok {
-					os["nic"] = v
-				}
-				if v, ok := z["netmask"]; ok {
-					os["netmask"] = v
-				}
-
-			}
-			o["allow_sources"] = os
-		}
-		saveClientInterface = append(saveClientInterface, o)
-	}
-	d.Set("client_interface", saveClientInterface)
+	// d.Set("client_interface", saveClientInterface)
 	// d.Set("networking", appliance.GetNetworking())
 	d.Set("notes", appliance.GetNotes())
 	d.Set("hostname", appliance.GetHostname())
@@ -1034,28 +838,110 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Failed to read Appliance, %+v", err)
 	}
 
-	if d.HasChange("ntp") {
-		o, n := d.GetChange("ntp")
-		log.Printf("[DEBUG] Updating Appliance NTP O: %+v", o)
-		log.Printf("[DEBUG] Updating Appliance NTP N: %+v", n)
-		for _, ntp := range n.(*schema.Set).List() {
-			if ntp == nil {
-				continue
-			}
-			ntpCfg := openapi.ApplianceAllOfNtp{}
-			raw := ntp.(map[string]interface{})
-			if servers := raw["servers"]; len(servers.([]interface{})) > 0 {
-				ntpServers, err := readNtpServersFromConfig(servers.([]interface{}))
-				if err != nil {
-					return fmt.Errorf("Failed to resolve ntp servers: %+v", err)
-				}
-				ntpCfg.SetServers(ntpServers)
-			}
-			originalAppliance.SetNtp(ntpCfg)
-		}
+	if d.HasChange("name") {
+		originalAppliance.SetName(d.Get("name").(string))
 	}
 
-	originalAppliance.SetName(d.Get("name").(string))
+	if d.HasChange("notes") {
+		originalAppliance.SetNotes(d.Get("notes").(string))
+	}
+
+	if d.HasChange("tags") {
+		originalAppliance.SetTags(schemaExtractTags(d))
+	}
+
+	if d.HasChange("hostname") {
+		originalAppliance.SetHostname(d.Get("hostname").(string))
+	}
+
+	if d.HasChange("site") {
+		originalAppliance.SetSite(d.Get("site").(string))
+	}
+
+	if d.HasChange("customization") {
+		originalAppliance.SetCustomization(d.Get("customization").(string))
+	}
+
+	if d.HasChange("client_interface") {
+		_, n := d.GetChange("client_interface")
+		cinterface, err := readClientInterfaceFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetClientInterface(cinterface)
+	}
+
+	if d.HasChange("peer_interface") {
+		_, n := d.GetChange("peer_interface")
+		pinterface, err := readPeerInterfaceFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetPeerInterface(pinterface)
+	}
+
+	if d.HasChange("admin_interface") {
+		_, a := d.GetChange("admin_interface")
+		ainterface, err := readAdminInterfaceFromConfig(a.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetAdminInterface(ainterface)
+	}
+
+	if d.HasChange("networking") {
+		_, n := d.GetChange("networking")
+		networking, err := readNetworkingFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetNetworking(networking)
+	}
+
+	if d.HasChange("ntp") {
+		_, n := d.GetChange("ntp")
+		ntp, err := readNTPFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetNtp(ntp)
+	}
+
+	if d.HasChange("ssh_server") {
+		_, n := d.GetChange("ssh_server")
+		sshServer, err := readSSHServerFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetSshServer(sshServer)
+	}
+
+	if d.HasChange("log_server") {
+		_, n := d.GetChange("log_server")
+		logSrv, err := readLogServerFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetLogServer(logSrv)
+	}
+
+	if d.HasChange("controller") {
+		_, n := d.GetChange("controller")
+		ctrl, err := readControllerFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetController(ctrl)
+	}
+
+	if d.HasChange("gateway") {
+		_, n := d.GetChange("gateway")
+		gw, err := readGatewayFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetGateway(gw)
+	}
 
 	req := api.AppliancesIdPut(ctx, d.Id())
 
@@ -1096,4 +982,243 @@ func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) er
 	}
 	d.SetId("")
 	return nil
+}
+
+func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.ApplianceAllOfClientInterface, error) {
+	cinterface := openapi.ApplianceAllOfClientInterface{}
+	for _, r := range cinterfaces {
+		raw := r.(map[string]interface{})
+		if v, ok := raw["hostname"]; ok {
+			cinterface.SetHostname(v.(string))
+		}
+		if v, ok := raw["https_port"]; ok {
+			cinterface.SetHttpsPort(int32(v.(int)))
+		}
+		if v, ok := raw["dtls_port"]; ok {
+			cinterface.SetDtlsPort(int32(v.(int)))
+		}
+		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
+			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			if err != nil {
+				return cinterface, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+			}
+			cinterface.SetAllowSources(allowSources)
+		}
+		if v, ok := raw["override_spa_mode"]; ok {
+			cinterface.SetOverrideSpaMode(v.(string))
+		}
+	}
+	return cinterface, nil
+}
+
+func readPeerInterfaceFromConfig(pinterfaces []interface{}) (openapi.ApplianceAllOfPeerInterface, error) {
+	pinterf := openapi.ApplianceAllOfPeerInterface{}
+	for _, r := range pinterfaces {
+		raw := r.(map[string]interface{})
+		if v, ok := raw["hostname"]; ok {
+			pinterf.SetHostname(v.(string))
+		}
+		if v, ok := raw["https_port"]; ok {
+			pinterf.SetHttpsPort(int32(v.(int)))
+		}
+		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
+			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			if err != nil {
+				return pinterf, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+			}
+			pinterf.SetAllowSources(allowSources)
+		}
+	}
+	return pinterf, nil
+}
+func readAdminInterfaceFromConfig(adminInterfaces []interface{}) (openapi.ApplianceAllOfAdminInterface, error) {
+	aInterface := openapi.ApplianceAllOfAdminInterface{}
+	for _, admin := range adminInterfaces {
+		if admin == nil {
+			continue
+		}
+
+		raw := admin.(map[string]interface{})
+		if v, ok := raw["hostname"]; ok {
+			aInterface.SetHostname(v.(string))
+		}
+		if v, ok := raw["https_port"]; ok {
+			aInterface.SetHttpsPort(int32(v.(int)))
+		}
+		if v := raw["https_ciphers"].(*schema.Set); v.Len() > 0 {
+			ciphers := make([]string, 0)
+			for _, c := range v.List() {
+				ciphers = append(ciphers, c.(string))
+			}
+			aInterface.SetHttpsCiphers(ciphers)
+		}
+		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
+			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			if err != nil {
+				return aInterface, fmt.Errorf("Failed to admin interface allowed sources: %+v", err)
+			}
+			aInterface.SetAllowSources(allowSources)
+		}
+	}
+	return aInterface, nil
+}
+
+func readNetworkingFromConfig(networks []interface{}) (openapi.ApplianceAllOfNetworking, error) {
+	network := openapi.ApplianceAllOfNetworking{}
+	for _, netw := range networks {
+		if netw == nil {
+			continue
+		}
+
+		rawNetwork := netw.(map[string]interface{})
+		if v := rawNetwork["hosts"]; len(v.([]interface{})) > 0 {
+			hosts, err := readNetworkHostFromConfig(v.([]interface{}))
+			if err != nil {
+				return network, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+			}
+			network.SetHosts(hosts)
+		}
+
+		if v := rawNetwork["nics"]; len(v.([]interface{})) > 0 {
+			nics, err := readNetworkNicsFromConfig(v.([]interface{}))
+			if err != nil {
+				return network, fmt.Errorf("Failed to resolve network nics: %+v", err)
+			}
+			network.SetNics(nics)
+		}
+		if v := rawNetwork["dns_servers"].(*schema.Set); v.Len() > 0 {
+			d := make([]string, 0)
+			for _, dns := range v.List() {
+				d = append(d, dns.(string))
+			}
+			network.SetDnsServers(d)
+		}
+		if v := rawNetwork["dns_domains"].(*schema.Set); v.Len() > 0 {
+			d := make([]string, 0)
+			for _, dns := range v.List() {
+				d = append(d, dns.(string))
+			}
+			network.SetDnsDomains(d)
+		}
+		if v := rawNetwork["routes"]; len(v.([]interface{})) > 0 {
+			routes, err := readNetworkRoutesFromConfig(v.([]interface{}))
+			if err != nil {
+				return network, fmt.Errorf("Failed to resolve network routes: %+v", err)
+			}
+			network.SetRoutes(routes)
+		}
+	}
+	return network, nil
+}
+
+func readSSHServerFromConfig(sshServers []interface{}) (openapi.ApplianceAllOfSshServer, error) {
+	sshServer := openapi.ApplianceAllOfSshServer{}
+	for _, srv := range sshServers {
+		if srv == nil {
+			continue
+		}
+		sshServer := openapi.ApplianceAllOfSshServer{}
+		rawServer := srv.(map[string]interface{})
+		if v, ok := rawServer["enabled"]; ok {
+			sshServer.SetEnabled(v.(bool))
+		}
+		if v, ok := rawServer["port"]; ok {
+			sshServer.SetPort(int32(v.(int)))
+		}
+		if v, ok := rawServer["password_authentication"]; ok {
+			sshServer.SetPasswordAuthentication(v.(bool))
+		}
+		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
+			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			if err != nil {
+				return sshServer, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+			}
+			sshServer.SetAllowSources(allowSources)
+		}
+	}
+	return sshServer, nil
+}
+
+func readNTPFromConfig(ntps []interface{}) (openapi.ApplianceAllOfNtp, error) {
+	ntpCfg := openapi.ApplianceAllOfNtp{}
+	for _, ntp := range ntps {
+		if ntp == nil {
+			continue
+		}
+		raw := ntp.(map[string]interface{})
+		if servers := raw["servers"]; len(servers.([]interface{})) > 0 {
+			ntpServers, err := readNtpServersFromConfig(servers.([]interface{}))
+			if err != nil {
+				return ntpCfg, fmt.Errorf("Failed to resolve ntp servers: %+v", err)
+			}
+			ntpCfg.SetServers(ntpServers)
+		}
+	}
+	return ntpCfg, nil
+}
+
+func readLogServerFromConfig(logServers []interface{}) (openapi.ApplianceAllOfLogServer, error) {
+	srv := openapi.ApplianceAllOfLogServer{}
+	for _, ctrl := range logServers {
+		r := ctrl.(map[string]interface{})
+		val := openapi.ApplianceAllOfLogServer{}
+		if v, ok := r["enabled"]; ok {
+			val.SetEnabled(v.(bool))
+		}
+		if v, ok := r["retention_days"]; ok {
+			val.SetRetentionDays(int32(v.(int)))
+		}
+	}
+	return srv, nil
+}
+
+func readControllerFromConfig(controllers []interface{}) (openapi.ApplianceAllOfController, error) {
+	val := openapi.ApplianceAllOfController{}
+	for _, ctrl := range controllers {
+		r := ctrl.(map[string]interface{})
+		if v, ok := r["enabled"]; ok {
+			val.SetEnabled(v.(bool))
+		}
+	}
+	return val, nil
+}
+
+func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGateway, error) {
+	val := openapi.ApplianceAllOfGateway{}
+	for _, ctrl := range gateways {
+		r := ctrl.(map[string]interface{})
+		if v, ok := r["enabled"]; ok {
+			val.SetEnabled(v.(bool))
+		}
+		if v := r["vpn"].(*schema.Set); v.Len() > 0 {
+			vpn := openapi.ApplianceAllOfGatewayVpn{}
+			for _, s := range v.List() {
+				raw := s.(map[string]interface{})
+				if v, ok := raw["weight"]; ok {
+					vpn.SetWeight(int32(v.(int)))
+				}
+				if v := raw["allow_destinations"]; len(v.([]interface{})) > 0 {
+					rawAllowedDestinations := v.([]interface{})
+					allowDestinations := make([]openapi.ApplianceAllOfGatewayVpnAllowDestinations, 0)
+					for _, r := range rawAllowedDestinations {
+						raw := r.(map[string]interface{})
+						ad := openapi.ApplianceAllOfGatewayVpnAllowDestinations{}
+						if v := raw["address"].(string); v != "" {
+							ad.SetAddress(v)
+						}
+						if v, ok := raw["netmask"]; ok {
+							ad.SetNetmask(int32(v.(int)))
+						}
+						if v := raw["nic"].(string); v != "" {
+							ad.SetNic(v)
+						}
+						allowDestinations = append(allowDestinations, ad)
+					}
+					vpn.SetAllowDestinations(allowDestinations)
+				}
+			}
+			val.SetVpn(vpn)
+		}
+	}
+	return val, nil
 }
