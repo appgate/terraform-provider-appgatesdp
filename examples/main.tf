@@ -161,6 +161,16 @@ resource "appgate_appliance" "new_gateway" {
     }
   }
 
+  healthcheck_server {
+    enabled = true
+    port    = 5555
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
   controller {
     enabled = true

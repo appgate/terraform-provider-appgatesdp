@@ -502,7 +502,29 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// "healthcheck_server": {},
+
+			"healthcheck_server": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+
+						"port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+
+						"allow_sources": reUsableSchemas["allow_sources"],
+					},
+				},
+			},
+
 			// "prometheus_exporter": {},
 			// "ping": {},
 			"log_server": {
@@ -652,6 +674,14 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetSnmpServer(srv)
+	}
+
+	if n, ok := d.GetOk("healthcheck_server"); ok {
+		srv, err := readHealthcheckServerFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetHealthcheckServer(srv)
 	}
 
 	if n, ok := d.GetOk("ntp"); ok {
@@ -963,6 +993,15 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		originalAppliance.SetSnmpServer(srv)
 	}
 
+	if d.HasChange("healthcheck_server") {
+		_, n := d.GetChange("healthcheck_server")
+		srv, err := readHealthcheckServerFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetHealthcheckServer(srv)
+	}
+
 	if d.HasChange("log_server") {
 		_, n := d.GetChange("log_server")
 		logSrv, err := readLogServerFromConfig(n.(*schema.Set).List())
@@ -994,7 +1033,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	_, _, err = req.Appliance(originalAppliance).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to update Appliance, %+v", err)
+		return fmt.Errorf("Could not update appliance %+v", prettyPrintAPIError(err))
 	}
 	return resourceAppgateApplianceRead(d, meta)
 }
@@ -1204,6 +1243,31 @@ func readSNMPServerFromConfig(snmpServers []interface{}) (openapi.ApplianceAllOf
 		}
 		if v, ok := rawServer["snmpd_conf"]; ok {
 			server.SetSnmpdConf(v.(string))
+		}
+		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
+			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			if err != nil {
+				return server, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+			}
+			server.SetAllowSources(allowSources)
+		}
+	}
+	return server, nil
+}
+
+func readHealthcheckServerFromConfig(healhCheckServers []interface{}) (openapi.ApplianceAllOfHealthcheckServer, error) {
+	server := openapi.ApplianceAllOfHealthcheckServer{}
+	for _, srv := range healhCheckServers {
+		if srv == nil {
+			continue
+		}
+
+		rawServer := srv.(map[string]interface{})
+		if v, ok := rawServer["enabled"]; ok {
+			server.SetEnabled(v.(bool))
+		}
+		if v, ok := rawServer["port"]; ok {
+			server.SetPort(int32(v.(int)))
 		}
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
 			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))

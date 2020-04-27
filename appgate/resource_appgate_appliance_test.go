@@ -69,6 +69,13 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.allow_sources.0.address", "1.3.3.7"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.allow_sources.0.netmask", "0"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.allow_sources.0.nic", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.1825715455.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.1825715455.port", "5555"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.1825715455.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.1825715455.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.1825715455.allow_sources.0.nic", "eth0"),
 				),
 			},
 			{
@@ -210,6 +217,15 @@ resource "appgate_appliance" "test_controller" {
         tcp_port   = 161
         udp_port   = 161
         snmpd_conf = "foo"
+        allow_sources {
+          address = "1.3.3.7"
+          netmask = 0
+          nic     = "eth0"
+        }
+    }
+    healthcheck_server {
+        enabled = true
+        port    = 5555
         allow_sources {
           address = "1.3.3.7"
           netmask = 0
