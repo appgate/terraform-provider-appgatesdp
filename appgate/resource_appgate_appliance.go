@@ -547,7 +547,16 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 
-			// "ping": {},
+			"ping": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allow_sources": reUsableSchemas["allow_sources"],
+					},
+				},
+			},
+
 			"log_server": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -711,6 +720,14 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetPrometheusExporter(exporter)
+	}
+
+	if n, ok := d.GetOk("ping"); ok {
+		p, err := readPingFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetPing(p)
 	}
 
 	if n, ok := d.GetOk("ntp"); ok {
@@ -1038,6 +1055,15 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		originalAppliance.SetPrometheusExporter(exporter)
+	}
+
+	if d.HasChange("ping") {
+		_, n := d.GetChange("ping")
+		p, err := readPingFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetPing(p)
 	}
 
 	if d.HasChange("log_server") {
@@ -1416,6 +1442,26 @@ func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.Applianc
 		if v, ok := rawServer["port"]; ok {
 			val.SetPort(int32(v.(int)))
 		}
+
+		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
+			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			if err != nil {
+				return val, err
+			}
+			val.SetAllowSources(allowSources)
+		}
+	}
+	return val, nil
+}
+
+func readPingFromConfig(pingers []interface{}) (openapi.ApplianceAllOfPing, error) {
+	val := openapi.ApplianceAllOfPing{}
+	for _, srv := range pingers {
+		if srv == nil {
+			continue
+		}
+
+		rawServer := srv.(map[string]interface{})
 
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
 			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))

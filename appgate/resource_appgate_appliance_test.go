@@ -83,6 +83,11 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.420734837.allow_sources.0.address", "1.3.3.7"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.420734837.allow_sources.0.netmask", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.420734837.allow_sources.0.nic", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ping.1092164059.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "ping.1092164059.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ping.1092164059.allow_sources.0.nic", "eth0"),
 				),
 			},
 			{
@@ -248,6 +253,13 @@ resource "appgate_appliance" "test_controller" {
           nic     = "eth0"
         }
     }
+    ping {
+        allow_sources {
+          address = "1.3.3.7"
+          netmask = 0
+          nic     = "eth0"
+        }
+      }
 
 }
 `)
