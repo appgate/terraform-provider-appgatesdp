@@ -525,7 +525,28 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 
-			// "prometheus_exporter": {},
+			"prometheus_exporter": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+
+						"port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+
+						"allow_sources": reUsableSchemas["allow_sources"],
+					},
+				},
+			},
+
 			// "ping": {},
 			"log_server": {
 				Type:     schema.TypeSet,
@@ -682,6 +703,14 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetHealthcheckServer(srv)
+	}
+
+	if n, ok := d.GetOk("prometheus_exporter"); ok {
+		exporter, err := readPrometheusExporterFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetPrometheusExporter(exporter)
 	}
 
 	if n, ok := d.GetOk("ntp"); ok {
@@ -1000,6 +1029,15 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		originalAppliance.SetHealthcheckServer(srv)
+	}
+
+	if d.HasChange("prometheus_exporter") {
+		_, n := d.GetChange("prometheus_exporter")
+		exporter, err := readPrometheusExporterFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetPrometheusExporter(exporter)
 	}
 
 	if d.HasChange("log_server") {
@@ -1359,6 +1397,32 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 				}
 			}
 			val.SetVpn(vpn)
+		}
+	}
+	return val, nil
+}
+
+func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.ApplianceAllOfPrometheusExporter, error) {
+	val := openapi.ApplianceAllOfPrometheusExporter{}
+	for _, srv := range exporters {
+		if srv == nil {
+			continue
+		}
+
+		rawServer := srv.(map[string]interface{})
+		if v, ok := rawServer["enabled"]; ok {
+			val.SetEnabled(v.(bool))
+		}
+		if v, ok := rawServer["port"]; ok {
+			val.SetPort(int32(v.(int)))
+		}
+
+		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
+			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			if err != nil {
+				return val, err
+			}
+			val.SetAllowSources(allowSources)
 		}
 	}
 	return val, nil

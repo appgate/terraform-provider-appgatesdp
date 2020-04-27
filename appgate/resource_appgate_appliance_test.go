@@ -76,6 +76,13 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.1825715455.allow_sources.0.address", "1.3.3.7"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.1825715455.allow_sources.0.netmask", "0"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.1825715455.allow_sources.0.nic", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.420734837.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.420734837.port", "1234"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.420734837.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.420734837.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.420734837.allow_sources.0.nic", "eth0"),
 				),
 			},
 			{
@@ -226,6 +233,15 @@ resource "appgate_appliance" "test_controller" {
     healthcheck_server {
         enabled = true
         port    = 5555
+        allow_sources {
+          address = "1.3.3.7"
+          netmask = 0
+          nic     = "eth0"
+        }
+    }
+    prometheus_exporter {
+        enabled = true
+        port    = 1234
         allow_sources {
           address = "1.3.3.7"
           netmask = 0

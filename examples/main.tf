@@ -170,6 +170,15 @@ resource "appgate_appliance" "new_gateway" {
       nic     = "eth0"
     }
   }
+  prometheus_exporter {
+    enabled = true
+    port    = 1234
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
 
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
   controller {
