@@ -20,7 +20,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 				Config: testAccCheckApplianceBasicController(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
-					// testAccCheckExampleWidgetExists(resourceName),
+					testAccCheckExampleWidgetExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", "controller-test"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1337.devops"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
@@ -60,6 +60,15 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.routes.0.gateway", "1.2.3.4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.routes.0.netmask", "24"),
 					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.routes.0.nic", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.snmpd_conf", "foo"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.tcp_port", "161"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.udp_port", "161"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.10952821.allow_sources.0.nic", "eth0"),
 				),
 			},
 			{
@@ -195,7 +204,19 @@ resource "appgate_appliance" "test_controller" {
 	}
 	controller {
 		enabled = true
-	}
+    }
+    snmp_server {
+        enabled    = true
+        tcp_port   = 161
+        udp_port   = 161
+        snmpd_conf = "foo"
+        allow_sources {
+          address = "1.3.3.7"
+          netmask = 0
+          nic     = "eth0"
+        }
+    }
+
 }
 `)
 }
@@ -252,7 +273,7 @@ resource "appgate_appliance" "test_controller" {
 	}
 	controller {
 		enabled = true
-	}
+    }
 }
 `)
 }

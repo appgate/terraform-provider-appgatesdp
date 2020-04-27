@@ -470,8 +470,38 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// TODO
-			// "snmp_server": {},
+
+			"snmp_server": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+
+						"tcp_port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+
+						"udp_port": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+
+						"snmpd_conf": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"allow_sources": reUsableSchemas["allow_sources"],
+					},
+				},
+			},
 			// "healthcheck_server": {},
 			// "prometheus_exporter": {},
 			// "ping": {},
@@ -614,6 +644,14 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetSshServer(sshServer)
+	}
+
+	if n, ok := d.GetOk("snmp_server"); ok {
+		srv, err := readSNMPServerFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetSnmpServer(srv)
 	}
 
 	if n, ok := d.GetOk("ntp"); ok {
@@ -916,6 +954,15 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		originalAppliance.SetSshServer(sshServer)
 	}
 
+	if d.HasChange("snmp_server") {
+		_, n := d.GetChange("ssh_server")
+		srv, err := readSNMPServerFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetSnmpServer(srv)
+	}
+
 	if d.HasChange("log_server") {
 		_, n := d.GetChange("log_server")
 		logSrv, err := readLogServerFromConfig(n.(*schema.Set).List())
@@ -1117,7 +1164,6 @@ func readSSHServerFromConfig(sshServers []interface{}) (openapi.ApplianceAllOfSs
 		if srv == nil {
 			continue
 		}
-		sshServer := openapi.ApplianceAllOfSshServer{}
 		rawServer := srv.(map[string]interface{})
 		if v, ok := rawServer["enabled"]; ok {
 			sshServer.SetEnabled(v.(bool))
@@ -1131,12 +1177,43 @@ func readSSHServerFromConfig(sshServers []interface{}) (openapi.ApplianceAllOfSs
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
 			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
 			if err != nil {
-				return sshServer, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+				return sshServer, fmt.Errorf("Failed to resolve ssh server allowed sources: %+v", err)
 			}
 			sshServer.SetAllowSources(allowSources)
 		}
 	}
 	return sshServer, nil
+}
+
+func readSNMPServerFromConfig(snmpServers []interface{}) (openapi.ApplianceAllOfSnmpServer, error) {
+	server := openapi.ApplianceAllOfSnmpServer{}
+	for _, srv := range snmpServers {
+		if srv == nil {
+			continue
+		}
+
+		rawServer := srv.(map[string]interface{})
+		if v, ok := rawServer["enabled"]; ok {
+			server.SetEnabled(v.(bool))
+		}
+		if v, ok := rawServer["tcp_port"]; ok {
+			server.SetTcpPort(int32(v.(int)))
+		}
+		if v, ok := rawServer["udp_port"]; ok {
+			server.SetUdpPort(int32(v.(int)))
+		}
+		if v, ok := rawServer["snmpd_conf"]; ok {
+			server.SetSnmpdConf(v.(string))
+		}
+		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
+			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			if err != nil {
+				return server, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+			}
+			server.SetAllowSources(allowSources)
+		}
+	}
+	return server, nil
 }
 
 func readNTPFromConfig(ntps []interface{}) (openapi.ApplianceAllOfNtp, error) {
