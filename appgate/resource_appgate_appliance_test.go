@@ -88,6 +88,24 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ping.1092164059.allow_sources.0.address", "1.3.3.7"),
 					resource.TestCheckResourceAttr(resourceName, "ping.1092164059.allow_sources.0.netmask", "0"),
 					resource.TestCheckResourceAttr(resourceName, "ping.1092164059.allow_sources.0.nic", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.elasticsearch.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.elasticsearch.1193666681.aws_id", "string"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.elasticsearch.1193666681.aws_region", "eu-west-2"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.elasticsearch.1193666681.aws_secret", ""),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.elasticsearch.1193666681.retention_days", "3"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.elasticsearch.1193666681.url", "https://aws.com/elasticsearch/instance/asdaxllkmda64"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.elasticsearch.1193666681.use_instance_credentials", "true"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.sites.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.sites.2312403857", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.0.format", "json"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.0.host", "siem.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.0.name", "Company SIEM"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.0.port", "8888"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.0.use_tls", "true"),
 				),
 			},
 			{
@@ -259,8 +277,28 @@ resource "appgate_appliance" "test_controller" {
           netmask = 0
           nic     = "eth0"
         }
-      }
+    }
+    log_forwarder {
+        enabled = true
+        elasticsearch {
+            url = "https://aws.com/elasticsearch/instance/asdaxllkmda64"
+            aws_id = "string"
+            aws_region = "eu-west-2"
+            use_instance_credentials = true
+            retention_days = 3
+        }
 
+        tcp_clients {
+            name = "Company SIEM"
+            host = "siem.company.com"
+            port = 8888
+            format = "json"
+            use_tls = true
+        }
+        sites = [
+            data.appgate_site.default_site.id
+        ]
+    }
 }
 `)
 }

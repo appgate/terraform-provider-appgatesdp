@@ -635,7 +635,100 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// "log_forwarder": {},
+			"log_forwarder": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+
+						"elasticsearch": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"url": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"aws_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"aws_secret": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"aws_region": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"use_instance_credentials": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"retention_days": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+								},
+							},
+						},
+
+						"tcp_clients": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"host": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"port": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"format": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+											s := v.(string)
+											enums := []string{"json", "syslog"}
+											if inArray(s, enums) {
+												return
+											}
+											errs = append(errs, fmt.Errorf(
+												"%s: is invalid option, expected %+v", name, enums,
+											))
+											return
+										},
+									},
+									"use_tls": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+								},
+							},
+						},
+
+						"sites": {
+							Type:        schema.TypeSet,
+							Description: "Array of sites.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			// "iot_connector": {},
 			// "rsyslog_destinations": {},
 			// "hostname_aliases": {},
@@ -760,6 +853,14 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetGateway(gw)
+	}
+
+	if v, ok := d.GetOk("log_forwarder"); ok {
+		lf, err := readLogForwardFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetLogForwarder(lf)
 	}
 
 	log.Printf("\n appliance arguments: \n %+v \n", args)
@@ -1091,6 +1192,15 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		originalAppliance.SetGateway(gw)
+	}
+
+	if d.HasChange("log_forwarder") {
+		_, n := d.GetChange("log_forwarder")
+		lf, err := readLogForwardFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetLogForwarder(lf)
 	}
 
 	req := api.AppliancesIdPut(ctx, d.Id())
@@ -1470,6 +1580,83 @@ func readPingFromConfig(pingers []interface{}) (openapi.ApplianceAllOfPing, erro
 			}
 			val.SetAllowSources(allowSources)
 		}
+	}
+	return val, nil
+}
+
+func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOfLogForwarder, error) {
+	val := openapi.ApplianceAllOfLogForwarder{}
+	for _, logforward := range logforwards {
+		if logforward == nil {
+			continue
+		}
+
+		raw := logforward.(map[string]interface{})
+
+		if v, ok := raw["enabled"]; ok {
+			val.SetEnabled(v.(bool))
+		}
+
+		if v := raw["elasticsearch"].(*schema.Set); v.Len() > 0 {
+			elasticsearch := openapi.ApplianceAllOfLogForwarderElasticsearch{}
+			for _, s := range v.List() {
+				r := s.(map[string]interface{})
+				if v, ok := r["url"]; ok {
+					elasticsearch.SetUrl(v.(string))
+				}
+				if v, ok := r["aws_id"]; ok {
+					elasticsearch.SetAwsId(v.(string))
+				}
+				if v, ok := r["aws_secret"]; ok {
+					elasticsearch.SetAwsSecret(v.(string))
+				}
+				if v, ok := r["aws_region"]; ok {
+					elasticsearch.SetAwsRegion(v.(string))
+				}
+				if v, ok := r["use_instance_credentials"]; ok {
+					elasticsearch.SetUseInstanceCredentials(v.(bool))
+				}
+				if v, ok := r["retention_days"]; ok {
+					elasticsearch.SetRetentionDays(int32(v.(int)))
+				}
+			}
+			val.SetElasticsearch(elasticsearch)
+		}
+
+		if v := raw["tcp_clients"]; len(v.([]interface{})) > 0 {
+			tcpClients := make([]openapi.TcpClient, 0)
+			for _, s := range v.([]interface{}) {
+				tcpClient := openapi.TcpClient{}
+				r := s.(map[string]interface{})
+				if v, ok := r["name"]; ok {
+					tcpClient.SetName(v.(string))
+				}
+				if v, ok := r["host"]; ok {
+					tcpClient.SetHost(v.(string))
+				}
+				if v, ok := r["port"]; ok {
+					tcpClient.SetPort(int32(v.(int)))
+				}
+				if v, ok := r["format"]; ok {
+					tcpClient.SetFormat(v.(string))
+				}
+				if v, ok := r["use_tls"]; ok {
+					tcpClient.SetUseTLS(v.(bool))
+				}
+				tcpClients = append(tcpClients, tcpClient)
+			}
+			val.SetTcpClients(tcpClients)
+		}
+		sites := make([]string, 0)
+		if v := raw["sites"].(*schema.Set); v.Len() > 0 {
+			for _, s := range v.List() {
+				site := s.(string)
+				if len(site) > 0 {
+					sites = append(sites, site)
+				}
+			}
+		}
+		val.SetSites(sites)
 	}
 	return val, nil
 }

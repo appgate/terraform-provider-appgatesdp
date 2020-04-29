@@ -188,6 +188,28 @@ resource "appgate_appliance" "new_gateway" {
     }
   }
 
+  log_forwarder {
+    enabled = true
+    elasticsearch {
+      url = "https://aws.com/elasticsearch/instance/asdaxllkmda64"
+      aws_id = "string"
+      aws_region = "eu-west-2"
+      use_instance_credentials = true
+      retention_days = 3
+    }
+
+    tcp_clients {
+      name = "Company SIEM"
+      host = "siem.company.com"
+      port = 8888
+      format = "json"
+      use_tls = true
+    }
+    sites = [
+      data.appgate_site.default_site.id
+    ]
+  }
+
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
   controller {
     enabled = true
