@@ -27,7 +27,7 @@ type EntitlementAllOf struct {
 	// List of Condition IDs applies to this Entitlement.
 	Conditions []string `json:"conditions"`
 	// List of all IP Access actions in this Entitlement.
-	Actions     []EntitlementAllOfActions    `json:"actions"`
+	Actions []EntitlementAllOfActions `json:"actions"`
 	AppShortcut *EntitlementAllOfAppShortcut `json:"appShortcut,omitempty"`
 }
 
@@ -35,7 +35,7 @@ type EntitlementAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewEntitlementAllOf(displayName string, site string, conditions []string, actions []EntitlementAllOfActions) *EntitlementAllOf {
+func NewEntitlementAllOf(displayName string, site string, conditions []string, actions []EntitlementAllOfActions, ) *EntitlementAllOf {
 	this := EntitlementAllOf{}
 	this.DisplayName = displayName
 	var disabled bool = false
@@ -62,7 +62,7 @@ func NewEntitlementAllOfWithDefaults() *EntitlementAllOf {
 
 // GetDisplayName returns the DisplayName field value
 func (o *EntitlementAllOf) GetDisplayName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -73,7 +73,7 @@ func (o *EntitlementAllOf) GetDisplayName() string {
 // GetDisplayNameOk returns a tuple with the DisplayName field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOf) GetDisplayNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.DisplayName, true
@@ -118,7 +118,7 @@ func (o *EntitlementAllOf) SetDisabled(v bool) {
 
 // GetSite returns the Site field value
 func (o *EntitlementAllOf) GetSite() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -129,7 +129,7 @@ func (o *EntitlementAllOf) GetSite() string {
 // GetSiteOk returns a tuple with the Site field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOf) GetSiteOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Site, true
@@ -174,7 +174,7 @@ func (o *EntitlementAllOf) SetConditionLogic(v string) {
 
 // GetConditions returns the Conditions field value
 func (o *EntitlementAllOf) GetConditions() []string {
-	if o == nil {
+	if o == nil  {
 		var ret []string
 		return ret
 	}
@@ -185,7 +185,7 @@ func (o *EntitlementAllOf) GetConditions() []string {
 // GetConditionsOk returns a tuple with the Conditions field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOf) GetConditionsOk() (*[]string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Conditions, true
@@ -198,7 +198,7 @@ func (o *EntitlementAllOf) SetConditions(v []string) {
 
 // GetActions returns the Actions field value
 func (o *EntitlementAllOf) GetActions() []EntitlementAllOfActions {
-	if o == nil {
+	if o == nil  {
 		var ret []EntitlementAllOfActions
 		return ret
 	}
@@ -209,7 +209,7 @@ func (o *EntitlementAllOf) GetActions() []EntitlementAllOfActions {
 // GetActionsOk returns a tuple with the Actions field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOf) GetActionsOk() (*[]EntitlementAllOfActions, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Actions, true

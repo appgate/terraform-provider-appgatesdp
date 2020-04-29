@@ -17,8 +17,9 @@ import (
 // ApplianceAllOfIotConnector IoT Connector settings.
 type ApplianceAllOfIotConnector struct {
 	// Whether the Iot Connector is enabled on this appliance or not.
-	Enabled *bool                              `json:"enabled,omitempty"`
-	Clients *ApplianceAllOfIotConnectorClients `json:"clients,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	// A list of clients to run on the appliance with the given configuration.
+	Clients *[]ApplianceAllOfIotConnectorClients `json:"clients,omitempty"`
 }
 
 // NewApplianceAllOfIotConnector instantiates a new ApplianceAllOfIotConnector object
@@ -75,9 +76,9 @@ func (o *ApplianceAllOfIotConnector) SetEnabled(v bool) {
 }
 
 // GetClients returns the Clients field value if set, zero value otherwise.
-func (o *ApplianceAllOfIotConnector) GetClients() ApplianceAllOfIotConnectorClients {
+func (o *ApplianceAllOfIotConnector) GetClients() []ApplianceAllOfIotConnectorClients {
 	if o == nil || o.Clients == nil {
-		var ret ApplianceAllOfIotConnectorClients
+		var ret []ApplianceAllOfIotConnectorClients
 		return ret
 	}
 	return *o.Clients
@@ -85,7 +86,7 @@ func (o *ApplianceAllOfIotConnector) GetClients() ApplianceAllOfIotConnectorClie
 
 // GetClientsOk returns a tuple with the Clients field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ApplianceAllOfIotConnector) GetClientsOk() (*ApplianceAllOfIotConnectorClients, bool) {
+func (o *ApplianceAllOfIotConnector) GetClientsOk() (*[]ApplianceAllOfIotConnectorClients, bool) {
 	if o == nil || o.Clients == nil {
 		return nil, false
 	}
@@ -101,8 +102,8 @@ func (o *ApplianceAllOfIotConnector) HasClients() bool {
 	return false
 }
 
-// SetClients gets a reference to the given ApplianceAllOfIotConnectorClients and assigns it to the Clients field.
-func (o *ApplianceAllOfIotConnector) SetClients(v ApplianceAllOfIotConnectorClients) {
+// SetClients gets a reference to the given []ApplianceAllOfIotConnectorClients and assigns it to the Clients field.
+func (o *ApplianceAllOfIotConnector) SetClients(v []ApplianceAllOfIotConnectorClients) {
 	o.Clients = &v
 }
 

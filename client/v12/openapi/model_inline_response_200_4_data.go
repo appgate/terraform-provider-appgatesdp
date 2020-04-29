@@ -16,7 +16,7 @@ import (
 
 // InlineResponse2004Data Session Details reported by the Gateway.
 type InlineResponse2004Data struct {
-	UserClaims   *map[string]map[string]interface{} `json:"userClaims,omitempty"`
+	UserClaims *map[string]map[string]interface{} `json:"userClaims,omitempty"`
 	DeviceClaims *map[string]map[string]interface{} `json:"deviceClaims,omitempty"`
 	SystemClaims *map[string]map[string]interface{} `json:"systemClaims,omitempty"`
 	// Entitlement information reported by the Gateway. The key is the Entitlement name.

@@ -17,8 +17,8 @@ import (
 // ApplianceAllOfGateway Gateway settings.
 type ApplianceAllOfGateway struct {
 	// Whether the Gateway is enabled on this appliance or not.
-	Enabled *bool                     `json:"enabled,omitempty"`
-	Vpn     *ApplianceAllOfGatewayVpn `json:"vpn,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Vpn *ApplianceAllOfGatewayVpn `json:"vpn,omitempty"`
 }
 
 // NewApplianceAllOfGateway instantiates a new ApplianceAllOfGateway object

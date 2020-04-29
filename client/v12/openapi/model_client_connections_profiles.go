@@ -30,7 +30,7 @@ type ClientConnectionsProfiles struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewClientConnectionsProfiles(name string, spaKeyName string, identityProviderName string) *ClientConnectionsProfiles {
+func NewClientConnectionsProfiles(name string, spaKeyName string, identityProviderName string, ) *ClientConnectionsProfiles {
 	this := ClientConnectionsProfiles{}
 	this.Name = name
 	this.SpaKeyName = spaKeyName
@@ -48,7 +48,7 @@ func NewClientConnectionsProfilesWithDefaults() *ClientConnectionsProfiles {
 
 // GetName returns the Name field value
 func (o *ClientConnectionsProfiles) GetName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -59,7 +59,7 @@ func (o *ClientConnectionsProfiles) GetName() string {
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *ClientConnectionsProfiles) GetNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Name, true
@@ -72,7 +72,7 @@ func (o *ClientConnectionsProfiles) SetName(v string) {
 
 // GetSpaKeyName returns the SpaKeyName field value
 func (o *ClientConnectionsProfiles) GetSpaKeyName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -83,7 +83,7 @@ func (o *ClientConnectionsProfiles) GetSpaKeyName() string {
 // GetSpaKeyNameOk returns a tuple with the SpaKeyName field value
 // and a boolean to check if the value has been set.
 func (o *ClientConnectionsProfiles) GetSpaKeyNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.SpaKeyName, true
@@ -96,7 +96,7 @@ func (o *ClientConnectionsProfiles) SetSpaKeyName(v string) {
 
 // GetIdentityProviderName returns the IdentityProviderName field value
 func (o *ClientConnectionsProfiles) GetIdentityProviderName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -107,7 +107,7 @@ func (o *ClientConnectionsProfiles) GetIdentityProviderName() string {
 // GetIdentityProviderNameOk returns a tuple with the IdentityProviderName field value
 // and a boolean to check if the value has been set.
 func (o *ClientConnectionsProfiles) GetIdentityProviderNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.IdentityProviderName, true

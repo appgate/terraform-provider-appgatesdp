@@ -27,11 +27,12 @@ var (
 type OnBoardedDevicesApiService service
 
 type apiOnBoardedDevicesDistinguishedNameDeleteRequest struct {
-	ctx               _context.Context
-	apiService        *OnBoardedDevicesApiService
-	authorization     *string
+	ctx _context.Context
+	apiService *OnBoardedDevicesApiService
+	authorization *string
 	distinguishedName string
 }
+
 
 func (r apiOnBoardedDevicesDistinguishedNameDeleteRequest) Authorization(authorization string) apiOnBoardedDevicesDistinguishedNameDeleteRequest {
 	r.authorization = &authorization
@@ -47,8 +48,8 @@ Remove an On-Boarded Device for the given Distinguished Name. The device will ne
 */
 func (a *OnBoardedDevicesApiService) OnBoardedDevicesDistinguishedNameDelete(ctx _context.Context, distinguishedName string) apiOnBoardedDevicesDistinguishedNameDeleteRequest {
 	return apiOnBoardedDevicesDistinguishedNameDeleteRequest{
-		apiService:        a,
-		ctx:               ctx,
+		apiService: a,
+		ctx: ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -64,6 +65,7 @@ func (r apiOnBoardedDevicesDistinguishedNameDeleteRequest) Execute() (*_nethttp.
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "OnBoardedDevicesApiService.OnBoardedDevicesDistinguishedNameDelete")
@@ -72,15 +74,16 @@ func (r apiOnBoardedDevicesDistinguishedNameDeleteRequest) Execute() (*_nethttp.
 	}
 
 	localVarPath := localBasePath + "/on-boarded-devices/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -165,16 +168,16 @@ func (r apiOnBoardedDevicesDistinguishedNameDeleteRequest) Execute() (*_nethttp.
 
 	return localVarHTTPResponse, nil
 }
-
 type apiOnBoardedDevicesGetRequest struct {
-	ctx           _context.Context
-	apiService    *OnBoardedDevicesApiService
+	ctx _context.Context
+	apiService *OnBoardedDevicesApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiOnBoardedDevicesGetRequest) Authorization(authorization string) apiOnBoardedDevicesGetRequest {
 	r.authorization = &authorization
@@ -210,7 +213,7 @@ List all On-Boarded Devices.
 func (a *OnBoardedDevicesApiService) OnBoardedDevicesGet(ctx _context.Context) apiOnBoardedDevicesGetRequest {
 	return apiOnBoardedDevicesGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -238,11 +241,11 @@ func (r apiOnBoardedDevicesGetRequest) Execute() (OnBoardedDeviceList, *_nethttp
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}

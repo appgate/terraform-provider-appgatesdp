@@ -45,7 +45,7 @@ type Appliance struct {
 	Controller         *ApplianceAllOfController         `json:"controller,omitempty"`
 	Gateway            *ApplianceAllOfGateway            `json:"gateway,omitempty"`
 	LogForwarder       *ApplianceAllOfLogForwarder       `json:"logForwarder,omitempty"`
-	// IotConnector       *ApplianceAllOfIotConnector       `json:"iotConnector,omitempty"`
+	IotConnector       *ApplianceAllOfIotConnector       `json:"iotConnector,omitempty"`
 	// Rsyslog destination settings to forward appliance logs.
 	RsyslogDestinations *[]ApplianceAllOfRsyslogDestinations `json:"rsyslogDestinations,omitempty"`
 	// Hostname aliases. They are added to the Appliance certificate as Subject Alternative Names so it is trusted using different IPs or hostnames. Requires manual certificate renewal to apply changes to the certificate.
@@ -713,37 +713,37 @@ func (o *Appliance) SetLogForwarder(v ApplianceAllOfLogForwarder) {
 	o.LogForwarder = &v
 }
 
-// // GetIotConnector returns the IotConnector field value if set, zero value otherwise.
-// func (o *Appliance) GetIotConnector() ApplianceAllOfIotConnector {
-// 	if o == nil || o.IotConnector == nil {
-// 		var ret ApplianceAllOfIotConnector
-// 		return ret
-// 	}
-// 	return *o.IotConnector
-// }
+// GetIotConnector returns the IotConnector field value if set, zero value otherwise.
+func (o *Appliance) GetIotConnector() ApplianceAllOfIotConnector {
+	if o == nil || o.IotConnector == nil {
+		var ret ApplianceAllOfIotConnector
+		return ret
+	}
+	return *o.IotConnector
+}
 
-// // GetIotConnectorOk returns a tuple with the IotConnector field value if set, nil otherwise
-// // and a boolean to check if the value has been set.
-// func (o *Appliance) GetIotConnectorOk() (*ApplianceAllOfIotConnector, bool) {
-// 	if o == nil || o.IotConnector == nil {
-// 		return nil, false
-// 	}
-// 	return o.IotConnector, true
-// }
+// GetIotConnectorOk returns a tuple with the IotConnector field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Appliance) GetIotConnectorOk() (*ApplianceAllOfIotConnector, bool) {
+	if o == nil || o.IotConnector == nil {
+		return nil, false
+	}
+	return o.IotConnector, true
+}
 
-// // HasIotConnector returns a boolean if a field has been set.
-// func (o *Appliance) HasIotConnector() bool {
-// 	if o != nil && o.IotConnector != nil {
-// 		return true
-// 	}
+// HasIotConnector returns a boolean if a field has been set.
+func (o *Appliance) HasIotConnector() bool {
+	if o != nil && o.IotConnector != nil {
+		return true
+	}
 
-// 	return false
-// }
+	return false
+}
 
-// // SetIotConnector gets a reference to the given ApplianceAllOfIotConnector and assigns it to the IotConnector field.
-// func (o *Appliance) SetIotConnector(v ApplianceAllOfIotConnector) {
-// 	o.IotConnector = &v
-// }
+// SetIotConnector gets a reference to the given ApplianceAllOfIotConnector and assigns it to the IotConnector field.
+func (o *Appliance) SetIotConnector(v ApplianceAllOfIotConnector) {
+	o.IotConnector = &v
+}
 
 // GetRsyslogDestinations returns the RsyslogDestinations field value if set, zero value otherwise.
 func (o *Appliance) GetRsyslogDestinations() []ApplianceAllOfRsyslogDestinations {
@@ -882,9 +882,9 @@ func (o Appliance) MarshalJSON() ([]byte, error) {
 	if o.LogForwarder != nil {
 		toSerialize["logForwarder"] = o.LogForwarder
 	}
-	// if o.IotConnector != nil {
-	// 	toSerialize["iotConnector"] = o.IotConnector
-	// }
+	if o.IotConnector != nil {
+		toSerialize["iotConnector"] = o.IotConnector
+	}
 	if o.RsyslogDestinations != nil {
 		toSerialize["rsyslogDestinations"] = o.RsyslogDestinations
 	}

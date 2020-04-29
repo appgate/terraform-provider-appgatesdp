@@ -26,10 +26,11 @@ var (
 type DevicesOnBoardedPerHourApiService service
 
 type apiStatsOnBoardedDevicesGetRequest struct {
-	ctx           _context.Context
-	apiService    *DevicesOnBoardedPerHourApiService
+	ctx _context.Context
+	apiService *DevicesOnBoardedPerHourApiService
 	authorization *string
 }
+
 
 func (r apiStatsOnBoardedDevicesGetRequest) Authorization(authorization string) apiStatsOnBoardedDevicesGetRequest {
 	r.authorization = &authorization
@@ -45,7 +46,7 @@ Get the Device On-Boardings Per Hour for the last 24 hours.
 func (a *DevicesOnBoardedPerHourApiService) StatsOnBoardedDevicesGet(ctx _context.Context) apiStatsOnBoardedDevicesGetRequest {
 	return apiStatsOnBoardedDevicesGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -73,7 +74,7 @@ func (r apiStatsOnBoardedDevicesGetRequest) Execute() (BaseStats, *_nethttp.Resp
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}

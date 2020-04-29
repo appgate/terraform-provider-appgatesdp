@@ -28,7 +28,7 @@ type ApplianceAllOfPeerInterface struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfPeerInterface(hostname string) *ApplianceAllOfPeerInterface {
+func NewApplianceAllOfPeerInterface(hostname string, ) *ApplianceAllOfPeerInterface {
 	this := ApplianceAllOfPeerInterface{}
 	this.Hostname = hostname
 	var httpsPort int32 = 444
@@ -48,7 +48,7 @@ func NewApplianceAllOfPeerInterfaceWithDefaults() *ApplianceAllOfPeerInterface {
 
 // GetHostname returns the Hostname field value
 func (o *ApplianceAllOfPeerInterface) GetHostname() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -59,7 +59,7 @@ func (o *ApplianceAllOfPeerInterface) GetHostname() string {
 // GetHostnameOk returns a tuple with the Hostname field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfPeerInterface) GetHostnameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Hostname, true

@@ -27,14 +27,15 @@ var (
 type MFAProvidersApiService service
 
 type apiMfaProvidersGetRequest struct {
-	ctx           _context.Context
-	apiService    *MFAProvidersApiService
+	ctx _context.Context
+	apiService *MFAProvidersApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiMfaProvidersGetRequest) Authorization(authorization string) apiMfaProvidersGetRequest {
 	r.authorization = &authorization
@@ -70,7 +71,7 @@ List all MFA Providers visible to current user.
 func (a *MFAProvidersApiService) MfaProvidersGet(ctx _context.Context) apiMfaProvidersGetRequest {
 	return apiMfaProvidersGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -98,11 +99,11 @@ func (r apiMfaProvidersGetRequest) Execute() (MfaProviderList, *_nethttp.Respons
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -207,13 +208,13 @@ func (r apiMfaProvidersGetRequest) Execute() (MfaProviderList, *_nethttp.Respons
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiMfaProvidersIdDeleteRequest struct {
-	ctx           _context.Context
-	apiService    *MFAProvidersApiService
+	ctx _context.Context
+	apiService *MFAProvidersApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiMfaProvidersIdDeleteRequest) Authorization(authorization string) apiMfaProvidersIdDeleteRequest {
 	r.authorization = &authorization
@@ -230,8 +231,8 @@ Delete a specific MFA Provider.
 func (a *MFAProvidersApiService) MfaProvidersIdDelete(ctx _context.Context, id string) apiMfaProvidersIdDeleteRequest {
 	return apiMfaProvidersIdDeleteRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -246,6 +247,7 @@ func (r apiMfaProvidersIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "MFAProvidersApiService.MfaProvidersIdDelete")
@@ -254,15 +256,16 @@ func (r apiMfaProvidersIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/mfa-providers/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -347,13 +350,13 @@ func (r apiMfaProvidersIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
-
 type apiMfaProvidersIdGetRequest struct {
-	ctx           _context.Context
-	apiService    *MFAProvidersApiService
+	ctx _context.Context
+	apiService *MFAProvidersApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiMfaProvidersIdGetRequest) Authorization(authorization string) apiMfaProvidersIdGetRequest {
 	r.authorization = &authorization
@@ -370,8 +373,8 @@ Get a specific MFA Provider.
 func (a *MFAProvidersApiService) MfaProvidersIdGet(ctx _context.Context, id string) apiMfaProvidersIdGetRequest {
 	return apiMfaProvidersIdGetRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -395,15 +398,16 @@ func (r apiMfaProvidersIdGetRequest) Execute() (MfaProvider, *_nethttp.Response,
 	}
 
 	localVarPath := localBasePath + "/mfa-providers/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -507,14 +511,14 @@ func (r apiMfaProvidersIdGetRequest) Execute() (MfaProvider, *_nethttp.Response,
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiMfaProvidersIdPutRequest struct {
-	ctx           _context.Context
-	apiService    *MFAProvidersApiService
+	ctx _context.Context
+	apiService *MFAProvidersApiService
 	authorization *string
-	id            string
-	mfaProvider   *MfaProvider
+	id string
+	mfaProvider *MfaProvider
 }
+
 
 func (r apiMfaProvidersIdPutRequest) Authorization(authorization string) apiMfaProvidersIdPutRequest {
 	r.authorization = &authorization
@@ -536,8 +540,8 @@ Update an existing MFA Provider.
 func (a *MFAProvidersApiService) MfaProvidersIdPut(ctx _context.Context, id string) apiMfaProvidersIdPutRequest {
 	return apiMfaProvidersIdPutRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -561,16 +565,17 @@ func (r apiMfaProvidersIdPutRequest) Execute() (MfaProvider, *_nethttp.Response,
 	}
 
 	localVarPath := localBasePath + "/mfa-providers/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
+	
 	if r.mfaProvider == nil {
 		return localVarReturnValue, nil, reportError("mfaProvider is required and must be specified")
 	}
@@ -699,13 +704,13 @@ func (r apiMfaProvidersIdPutRequest) Execute() (MfaProvider, *_nethttp.Response,
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiMfaProvidersPostRequest struct {
-	ctx           _context.Context
-	apiService    *MFAProvidersApiService
+	ctx _context.Context
+	apiService *MFAProvidersApiService
 	authorization *string
-	mfaProvider   *MfaProvider
+	mfaProvider *MfaProvider
 }
+
 
 func (r apiMfaProvidersPostRequest) Authorization(authorization string) apiMfaProvidersPostRequest {
 	r.authorization = &authorization
@@ -726,7 +731,7 @@ Create a new MFA Provider.
 func (a *MFAProvidersApiService) MfaProvidersPost(ctx _context.Context) apiMfaProvidersPostRequest {
 	return apiMfaProvidersPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -754,11 +759,11 @@ func (r apiMfaProvidersPostRequest) Execute() (MfaProvider, *_nethttp.Response, 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	if r.mfaProvider == nil {
 		return localVarReturnValue, nil, reportError("mfaProvider is required and must be specified")
 	}
@@ -887,13 +892,13 @@ func (r apiMfaProvidersPostRequest) Execute() (MfaProvider, *_nethttp.Response, 
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiMfaProvidersTestPostRequest struct {
-	ctx           _context.Context
-	apiService    *MFAProvidersApiService
+	ctx _context.Context
+	apiService *MFAProvidersApiService
 	authorization *string
-	mfaProvider   *MfaProvider
+	mfaProvider *MfaProvider
 }
+
 
 func (r apiMfaProvidersTestPostRequest) Authorization(authorization string) apiMfaProvidersTestPostRequest {
 	r.authorization = &authorization
@@ -914,7 +919,7 @@ Test connection for the given MFA Provider JSON.
 func (a *MFAProvidersApiService) MfaProvidersTestPost(ctx _context.Context) apiMfaProvidersTestPostRequest {
 	return apiMfaProvidersTestPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -942,11 +947,11 @@ func (r apiMfaProvidersTestPostRequest) Execute() (InlineResponse2009, *_nethttp
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	if r.mfaProvider == nil {
 		return localVarReturnValue, nil, reportError("mfaProvider is required and must be specified")
 	}

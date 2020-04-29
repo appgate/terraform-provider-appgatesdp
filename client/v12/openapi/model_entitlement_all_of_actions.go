@@ -25,7 +25,7 @@ type EntitlementAllOfActions struct {
 	// Destination port. Multiple ports can be entered comma separated. Port ranges can be entered dash separated. Only valid for tcp and udp subtypes
 	Ports *[]string `json:"ports,omitempty"`
 	// ICMP type. Only valid for icmp subtypes.
-	Types   *[]string                `json:"types,omitempty"`
+	Types *[]string `json:"types,omitempty"`
 	Monitor *EntitlementAllOfMonitor `json:"monitor,omitempty"`
 }
 
@@ -33,7 +33,7 @@ type EntitlementAllOfActions struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewEntitlementAllOfActions(subtype string, action string, hosts []string) *EntitlementAllOfActions {
+func NewEntitlementAllOfActions(subtype string, action string, hosts []string, ) *EntitlementAllOfActions {
 	this := EntitlementAllOfActions{}
 	this.Subtype = subtype
 	this.Action = action
@@ -51,7 +51,7 @@ func NewEntitlementAllOfActionsWithDefaults() *EntitlementAllOfActions {
 
 // GetSubtype returns the Subtype field value
 func (o *EntitlementAllOfActions) GetSubtype() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -62,7 +62,7 @@ func (o *EntitlementAllOfActions) GetSubtype() string {
 // GetSubtypeOk returns a tuple with the Subtype field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOfActions) GetSubtypeOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Subtype, true
@@ -75,7 +75,7 @@ func (o *EntitlementAllOfActions) SetSubtype(v string) {
 
 // GetAction returns the Action field value
 func (o *EntitlementAllOfActions) GetAction() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -86,7 +86,7 @@ func (o *EntitlementAllOfActions) GetAction() string {
 // GetActionOk returns a tuple with the Action field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOfActions) GetActionOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Action, true
@@ -99,7 +99,7 @@ func (o *EntitlementAllOfActions) SetAction(v string) {
 
 // GetHosts returns the Hosts field value
 func (o *EntitlementAllOfActions) GetHosts() []string {
-	if o == nil {
+	if o == nil  {
 		var ret []string
 		return ret
 	}
@@ -110,7 +110,7 @@ func (o *EntitlementAllOfActions) GetHosts() []string {
 // GetHostsOk returns a tuple with the Hosts field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOfActions) GetHostsOk() (*[]string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Hosts, true

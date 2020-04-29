@@ -20,11 +20,11 @@ type AutoUpdateSettings struct {
 	Enabled *bool `json:"enabled,omitempty"`
 	// The Criteria Script to evaluate the Client claims during authorization in order to decide whether the Client Auto-Update will be applied or not.
 	CriteriaScript *string `json:"criteriaScript,omitempty"`
-	Windows        *Client `json:"windows,omitempty"`
-	MacOS          *Client `json:"macOS,omitempty"`
-	Ubuntu         *Client `json:"ubuntu,omitempty"`
-	Fedora         *Client `json:"fedora,omitempty"`
-	RedHat7        *Client `json:"redHat7,omitempty"`
+	Windows *Client `json:"windows,omitempty"`
+	MacOS *Client `json:"macOS,omitempty"`
+	Ubuntu *Client `json:"ubuntu,omitempty"`
+	Fedora *Client `json:"fedora,omitempty"`
+	RedHat7 *Client `json:"redHat7,omitempty"`
 }
 
 // NewAutoUpdateSettings instantiates a new AutoUpdateSettings object

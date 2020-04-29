@@ -26,9 +26,10 @@ var (
 type CAApiService service
 
 type apiCertificateAuthorityCaGetRequest struct {
-	ctx        _context.Context
+	ctx _context.Context
 	apiService *CAApiService
 }
+
 
 /*
 CertificateAuthorityCaGet Get the current CA Certificate.
@@ -39,7 +40,7 @@ Get the current CA Certificate.
 func (a *CAApiService) CertificateAuthorityCaGet(ctx _context.Context) apiCertificateAuthorityCaGetRequest {
 	return apiCertificateAuthorityCaGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -139,12 +140,12 @@ func (r apiCertificateAuthorityCaGetRequest) Execute() (CertificateDetails, *_ne
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiCertificateAuthorityCaNextDeleteRequest struct {
-	ctx           _context.Context
-	apiService    *CAApiService
+	ctx _context.Context
+	apiService *CAApiService
 	authorization *string
 }
+
 
 func (r apiCertificateAuthorityCaNextDeleteRequest) Authorization(authorization string) apiCertificateAuthorityCaNextDeleteRequest {
 	r.authorization = &authorization
@@ -160,7 +161,7 @@ Delete the next CA certificate in order to be able to generate a new one.
 func (a *CAApiService) CertificateAuthorityCaNextDelete(ctx _context.Context) apiCertificateAuthorityCaNextDeleteRequest {
 	return apiCertificateAuthorityCaNextDeleteRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -175,6 +176,7 @@ func (r apiCertificateAuthorityCaNextDeleteRequest) Execute() (*_nethttp.Respons
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "CAApiService.CertificateAuthorityCaNextDelete")
@@ -187,7 +189,7 @@ func (r apiCertificateAuthorityCaNextDeleteRequest) Execute() (*_nethttp.Respons
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
@@ -275,13 +277,13 @@ func (r apiCertificateAuthorityCaNextDeleteRequest) Execute() (*_nethttp.Respons
 
 	return localVarHTTPResponse, nil
 }
-
 type apiCertificateAuthorityCaNextGeneratePostRequest struct {
-	ctx           _context.Context
-	apiService    *CAApiService
+	ctx _context.Context
+	apiService *CAApiService
 	authorization *string
 	inlineObject5 *InlineObject5
 }
+
 
 func (r apiCertificateAuthorityCaNextGeneratePostRequest) Authorization(authorization string) apiCertificateAuthorityCaNextGeneratePostRequest {
 	r.authorization = &authorization
@@ -302,7 +304,7 @@ Generate a new self-signed next CA certificate for migration.
 func (a *CAApiService) CertificateAuthorityCaNextGeneratePost(ctx _context.Context) apiCertificateAuthorityCaNextGeneratePostRequest {
 	return apiCertificateAuthorityCaNextGeneratePostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -330,11 +332,11 @@ func (r apiCertificateAuthorityCaNextGeneratePostRequest) Execute() (Certificate
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 
@@ -429,12 +431,12 @@ func (r apiCertificateAuthorityCaNextGeneratePostRequest) Execute() (Certificate
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiCertificateAuthorityCaNextGetRequest struct {
-	ctx           _context.Context
-	apiService    *CAApiService
+	ctx _context.Context
+	apiService *CAApiService
 	authorization *string
 }
+
 
 func (r apiCertificateAuthorityCaNextGetRequest) Authorization(authorization string) apiCertificateAuthorityCaNextGetRequest {
 	r.authorization = &authorization
@@ -450,7 +452,7 @@ Get the next CA Certificate which will be migrated.
 func (a *CAApiService) CertificateAuthorityCaNextGet(ctx _context.Context) apiCertificateAuthorityCaNextGetRequest {
 	return apiCertificateAuthorityCaNextGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -478,7 +480,7 @@ func (r apiCertificateAuthorityCaNextGetRequest) Execute() (CertificateDetails, 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -585,13 +587,13 @@ func (r apiCertificateAuthorityCaNextGetRequest) Execute() (CertificateDetails, 
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiCertificateAuthorityCaNextSwitchPostRequest struct {
-	ctx           _context.Context
-	apiService    *CAApiService
+	ctx _context.Context
+	apiService *CAApiService
 	authorization *string
 	inlineObject6 *InlineObject6
 }
+
 
 func (r apiCertificateAuthorityCaNextSwitchPostRequest) Authorization(authorization string) apiCertificateAuthorityCaNextSwitchPostRequest {
 	r.authorization = &authorization
@@ -612,7 +614,7 @@ Switch to the next CA certificate. Note that this is a highly disruptive action.
 func (a *CAApiService) CertificateAuthorityCaNextSwitchPost(ctx _context.Context) apiCertificateAuthorityCaNextSwitchPostRequest {
 	return apiCertificateAuthorityCaNextSwitchPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -627,6 +629,7 @@ func (r apiCertificateAuthorityCaNextSwitchPostRequest) Execute() (*_nethttp.Res
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "CAApiService.CertificateAuthorityCaNextSwitchPost")
@@ -639,11 +642,11 @@ func (r apiCertificateAuthorityCaNextSwitchPostRequest) Execute() (*_nethttp.Res
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 
@@ -729,11 +732,11 @@ func (r apiCertificateAuthorityCaNextSwitchPostRequest) Execute() (*_nethttp.Res
 
 	return localVarHTTPResponse, nil
 }
-
 type apiCertificateAuthorityCaPemGetRequest struct {
-	ctx        _context.Context
+	ctx _context.Context
 	apiService *CAApiService
 }
+
 
 /*
 CertificateAuthorityCaPemGet Get the current CA Certificate in PEM format.
@@ -744,7 +747,7 @@ Get the current CA Certificate in PEM format.
 func (a *CAApiService) CertificateAuthorityCaPemGet(ctx _context.Context) apiCertificateAuthorityCaPemGetRequest {
 	return apiCertificateAuthorityCaPemGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 

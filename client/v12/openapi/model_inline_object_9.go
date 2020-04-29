@@ -26,7 +26,7 @@ type InlineObject9 struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewInlineObject9(url string, filename string) *InlineObject9 {
+func NewInlineObject9(url string, filename string, ) *InlineObject9 {
 	this := InlineObject9{}
 	this.Url = url
 	this.Filename = filename
@@ -43,7 +43,7 @@ func NewInlineObject9WithDefaults() *InlineObject9 {
 
 // GetUrl returns the Url field value
 func (o *InlineObject9) GetUrl() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -54,7 +54,7 @@ func (o *InlineObject9) GetUrl() string {
 // GetUrlOk returns a tuple with the Url field value
 // and a boolean to check if the value has been set.
 func (o *InlineObject9) GetUrlOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Url, true
@@ -67,7 +67,7 @@ func (o *InlineObject9) SetUrl(v string) {
 
 // GetFilename returns the Filename field value
 func (o *InlineObject9) GetFilename() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -78,7 +78,7 @@ func (o *InlineObject9) GetFilename() string {
 // GetFilenameOk returns a tuple with the Filename field value
 // and a boolean to check if the value has been set.
 func (o *InlineObject9) GetFilenameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Filename, true

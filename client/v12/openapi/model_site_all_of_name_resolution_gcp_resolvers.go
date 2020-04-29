@@ -30,7 +30,7 @@ type SiteAllOfNameResolutionGcpResolvers struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSiteAllOfNameResolutionGcpResolvers(name string) *SiteAllOfNameResolutionGcpResolvers {
+func NewSiteAllOfNameResolutionGcpResolvers(name string, ) *SiteAllOfNameResolutionGcpResolvers {
 	this := SiteAllOfNameResolutionGcpResolvers{}
 	this.Name = name
 	var updateInterval int32 = 60
@@ -50,7 +50,7 @@ func NewSiteAllOfNameResolutionGcpResolversWithDefaults() *SiteAllOfNameResoluti
 
 // GetName returns the Name field value
 func (o *SiteAllOfNameResolutionGcpResolvers) GetName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -61,7 +61,7 @@ func (o *SiteAllOfNameResolutionGcpResolvers) GetName() string {
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *SiteAllOfNameResolutionGcpResolvers) GetNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Name, true

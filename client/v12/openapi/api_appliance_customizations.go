@@ -27,14 +27,15 @@ var (
 type ApplianceCustomizationsApiService service
 
 type apiApplianceCustomizationsGetRequest struct {
-	ctx           _context.Context
-	apiService    *ApplianceCustomizationsApiService
+	ctx _context.Context
+	apiService *ApplianceCustomizationsApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiApplianceCustomizationsGetRequest) Authorization(authorization string) apiApplianceCustomizationsGetRequest {
 	r.authorization = &authorization
@@ -70,7 +71,7 @@ List all Appliance Customizations visible to current user.
 func (a *ApplianceCustomizationsApiService) ApplianceCustomizationsGet(ctx _context.Context) apiApplianceCustomizationsGetRequest {
 	return apiApplianceCustomizationsGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -98,11 +99,11 @@ func (r apiApplianceCustomizationsGetRequest) Execute() (ApplianceCustomizationL
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -207,13 +208,13 @@ func (r apiApplianceCustomizationsGetRequest) Execute() (ApplianceCustomizationL
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiApplianceCustomizationsIdDeleteRequest struct {
-	ctx           _context.Context
-	apiService    *ApplianceCustomizationsApiService
+	ctx _context.Context
+	apiService *ApplianceCustomizationsApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiApplianceCustomizationsIdDeleteRequest) Authorization(authorization string) apiApplianceCustomizationsIdDeleteRequest {
 	r.authorization = &authorization
@@ -230,8 +231,8 @@ Delete a specific Appliance Customization.
 func (a *ApplianceCustomizationsApiService) ApplianceCustomizationsIdDelete(ctx _context.Context, id string) apiApplianceCustomizationsIdDeleteRequest {
 	return apiApplianceCustomizationsIdDeleteRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -246,6 +247,7 @@ func (r apiApplianceCustomizationsIdDeleteRequest) Execute() (*_nethttp.Response
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "ApplianceCustomizationsApiService.ApplianceCustomizationsIdDelete")
@@ -254,15 +256,16 @@ func (r apiApplianceCustomizationsIdDeleteRequest) Execute() (*_nethttp.Response
 	}
 
 	localVarPath := localBasePath + "/appliance-customizations/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -347,13 +350,13 @@ func (r apiApplianceCustomizationsIdDeleteRequest) Execute() (*_nethttp.Response
 
 	return localVarHTTPResponse, nil
 }
-
 type apiApplianceCustomizationsIdGetRequest struct {
-	ctx           _context.Context
-	apiService    *ApplianceCustomizationsApiService
+	ctx _context.Context
+	apiService *ApplianceCustomizationsApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiApplianceCustomizationsIdGetRequest) Authorization(authorization string) apiApplianceCustomizationsIdGetRequest {
 	r.authorization = &authorization
@@ -370,8 +373,8 @@ Get a specific Appliance Customization.
 func (a *ApplianceCustomizationsApiService) ApplianceCustomizationsIdGet(ctx _context.Context, id string) apiApplianceCustomizationsIdGetRequest {
 	return apiApplianceCustomizationsIdGetRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -395,15 +398,16 @@ func (r apiApplianceCustomizationsIdGetRequest) Execute() (ApplianceCustomizatio
 	}
 
 	localVarPath := localBasePath + "/appliance-customizations/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -507,14 +511,14 @@ func (r apiApplianceCustomizationsIdGetRequest) Execute() (ApplianceCustomizatio
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiApplianceCustomizationsIdPutRequest struct {
-	ctx                    _context.Context
-	apiService             *ApplianceCustomizationsApiService
-	authorization          *string
-	id                     string
+	ctx _context.Context
+	apiService *ApplianceCustomizationsApiService
+	authorization *string
+	id string
 	applianceCustomization *ApplianceCustomization
 }
+
 
 func (r apiApplianceCustomizationsIdPutRequest) Authorization(authorization string) apiApplianceCustomizationsIdPutRequest {
 	r.authorization = &authorization
@@ -536,8 +540,8 @@ Update an existing Appliance Customization.
 func (a *ApplianceCustomizationsApiService) ApplianceCustomizationsIdPut(ctx _context.Context, id string) apiApplianceCustomizationsIdPutRequest {
 	return apiApplianceCustomizationsIdPutRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -561,16 +565,17 @@ func (r apiApplianceCustomizationsIdPutRequest) Execute() (ApplianceCustomizatio
 	}
 
 	localVarPath := localBasePath + "/appliance-customizations/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
+	
 	if r.applianceCustomization == nil {
 		return localVarReturnValue, nil, reportError("applianceCustomization is required and must be specified")
 	}
@@ -699,13 +704,13 @@ func (r apiApplianceCustomizationsIdPutRequest) Execute() (ApplianceCustomizatio
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiApplianceCustomizationsPostRequest struct {
-	ctx                    _context.Context
-	apiService             *ApplianceCustomizationsApiService
-	authorization          *string
+	ctx _context.Context
+	apiService *ApplianceCustomizationsApiService
+	authorization *string
 	applianceCustomization *ApplianceCustomization
 }
+
 
 func (r apiApplianceCustomizationsPostRequest) Authorization(authorization string) apiApplianceCustomizationsPostRequest {
 	r.authorization = &authorization
@@ -726,7 +731,7 @@ Create a new Appliance Customization.
 func (a *ApplianceCustomizationsApiService) ApplianceCustomizationsPost(ctx _context.Context) apiApplianceCustomizationsPostRequest {
 	return apiApplianceCustomizationsPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -754,11 +759,11 @@ func (r apiApplianceCustomizationsPostRequest) Execute() (ApplianceCustomization
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	if r.applianceCustomization == nil {
 		return localVarReturnValue, nil, reportError("applianceCustomization is required and must be specified")
 	}

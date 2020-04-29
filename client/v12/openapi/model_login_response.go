@@ -18,8 +18,8 @@ import (
 // LoginResponse struct for LoginResponse
 type LoginResponse struct {
 	// The controller version
-	Version *string            `json:"version,omitempty"`
-	User    *LoginResponseUser `json:"user,omitempty"`
+	Version *string `json:"version,omitempty"`
+	User *LoginResponseUser `json:"user,omitempty"`
 	// The AuthToken required for subsequent API calls.
 	Token *string `json:"token,omitempty"`
 	// Token expiration time.

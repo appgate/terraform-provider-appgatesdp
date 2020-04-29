@@ -35,7 +35,7 @@ type BaseEntity struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewBaseEntity(id string, name string) *BaseEntity {
+func NewBaseEntity(id string, name string, ) *BaseEntity {
 	this := BaseEntity{}
 	this.Id = id
 	this.Name = name
@@ -52,7 +52,7 @@ func NewBaseEntityWithDefaults() *BaseEntity {
 
 // GetId returns the Id field value
 func (o *BaseEntity) GetId() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -63,7 +63,7 @@ func (o *BaseEntity) GetId() string {
 // GetIdOk returns a tuple with the Id field value
 // and a boolean to check if the value has been set.
 func (o *BaseEntity) GetIdOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Id, true
@@ -76,7 +76,7 @@ func (o *BaseEntity) SetId(v string) {
 
 // GetName returns the Name field value
 func (o *BaseEntity) GetName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -87,7 +87,7 @@ func (o *BaseEntity) GetName() string {
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *BaseEntity) GetNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Name, true

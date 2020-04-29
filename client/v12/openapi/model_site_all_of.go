@@ -22,11 +22,11 @@ type SiteAllOf struct {
 	NetworkSubnets *[]string `json:"networkSubnets,omitempty"`
 	// List of IP Pool mappings for this specific Site. When IPs are allocated this Site, they will be mapped to a new one using this setting.
 	IpPoolMappings *[]SiteAllOfIpPoolMappings `json:"ipPoolMappings,omitempty"`
-	DefaultGateway *SiteAllOfDefaultGateway   `json:"defaultGateway,omitempty"`
+	DefaultGateway *SiteAllOfDefaultGateway `json:"defaultGateway,omitempty"`
 	// When enabled, the routes are sent to the Client by the Gateways according to the user's Entitlements \"networkSubnets\" should be left be empty if it's enabled.
-	EntitlementBasedRouting *bool                    `json:"entitlementBasedRouting,omitempty"`
-	Vpn                     *SiteAllOfVpn            `json:"vpn,omitempty"`
-	NameResolution          *SiteAllOfNameResolution `json:"nameResolution,omitempty"`
+	EntitlementBasedRouting *bool `json:"entitlementBasedRouting,omitempty"`
+	Vpn *SiteAllOfVpn `json:"vpn,omitempty"`
+	NameResolution *SiteAllOfNameResolution `json:"nameResolution,omitempty"`
 }
 
 // NewSiteAllOf instantiates a new SiteAllOf object

@@ -25,7 +25,7 @@ type IdentityProviderAllOf struct {
 	// Whether the provider will be listed in the Client UI or not. Deprecated as of 5.1 since the Client does not have the option to choose Identity Provider anymore.
 	ClientProvider *bool `json:"clientProvider,omitempty"`
 	// Whether the provider will be listed in the Admin UI or not.
-	AdminProvider *bool                               `json:"adminProvider,omitempty"`
+	AdminProvider *bool `json:"adminProvider,omitempty"`
 	OnBoarding2FA *IdentityProviderAllOfOnBoarding2FA `json:"onBoarding2FA,omitempty"`
 	// Client on-boarding type. Deprecated as of 5.0. Use onBoarding2FA object instead.
 	OnBoardingType *string `json:"onBoardingType,omitempty"`
@@ -55,7 +55,7 @@ type IdentityProviderAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewIdentityProviderAllOf(type_ string) *IdentityProviderAllOf {
+func NewIdentityProviderAllOf(type_ string, ) *IdentityProviderAllOf {
 	this := IdentityProviderAllOf{}
 	this.Type = type_
 	var default_ bool = false
@@ -91,7 +91,7 @@ func NewIdentityProviderAllOfWithDefaults() *IdentityProviderAllOf {
 
 // GetType returns the Type field value
 func (o *IdentityProviderAllOf) GetType() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -102,7 +102,7 @@ func (o *IdentityProviderAllOf) GetType() string {
 // GetTypeOk returns a tuple with the Type field value
 // and a boolean to check if the value has been set.
 func (o *IdentityProviderAllOf) GetTypeOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Type, true

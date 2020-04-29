@@ -36,15 +36,15 @@ type LdapProvider struct {
 	// The filter to use while querying users' nested groups.
 	MembershipFilter *string `json:"membershipFilter,omitempty"`
 	// The subset of the LDAP server to search groups from. If not set, \"baseDn\" is used.
-	MembershipBaseDn *string                           `json:"membershipBaseDn,omitempty"`
-	PasswordWarning  *LdapProviderAllOfPasswordWarning `json:"passwordWarning,omitempty"`
+	MembershipBaseDn *string `json:"membershipBaseDn,omitempty"`
+	PasswordWarning *LdapProviderAllOfPasswordWarning `json:"passwordWarning,omitempty"`
 }
 
 // NewLdapProvider instantiates a new LdapProvider object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLdapProvider(hostnames []string, port int32, adminDistinguishedName string) *LdapProvider {
+func NewLdapProvider(hostnames []string, port int32, adminDistinguishedName string, ) *LdapProvider {
 	this := LdapProvider{}
 	this.Hostnames = hostnames
 	this.Port = port
@@ -78,7 +78,7 @@ func NewLdapProviderWithDefaults() *LdapProvider {
 
 // GetHostnames returns the Hostnames field value
 func (o *LdapProvider) GetHostnames() []string {
-	if o == nil {
+	if o == nil  {
 		var ret []string
 		return ret
 	}
@@ -89,7 +89,7 @@ func (o *LdapProvider) GetHostnames() []string {
 // GetHostnamesOk returns a tuple with the Hostnames field value
 // and a boolean to check if the value has been set.
 func (o *LdapProvider) GetHostnamesOk() (*[]string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Hostnames, true
@@ -102,7 +102,7 @@ func (o *LdapProvider) SetHostnames(v []string) {
 
 // GetPort returns the Port field value
 func (o *LdapProvider) GetPort() int32 {
-	if o == nil {
+	if o == nil  {
 		var ret int32
 		return ret
 	}
@@ -113,7 +113,7 @@ func (o *LdapProvider) GetPort() int32 {
 // GetPortOk returns a tuple with the Port field value
 // and a boolean to check if the value has been set.
 func (o *LdapProvider) GetPortOk() (*int32, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Port, true
@@ -158,7 +158,7 @@ func (o *LdapProvider) SetSslEnabled(v bool) {
 
 // GetAdminDistinguishedName returns the AdminDistinguishedName field value
 func (o *LdapProvider) GetAdminDistinguishedName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -169,7 +169,7 @@ func (o *LdapProvider) GetAdminDistinguishedName() string {
 // GetAdminDistinguishedNameOk returns a tuple with the AdminDistinguishedName field value
 // and a boolean to check if the value has been set.
 func (o *LdapProvider) GetAdminDistinguishedNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.AdminDistinguishedName, true

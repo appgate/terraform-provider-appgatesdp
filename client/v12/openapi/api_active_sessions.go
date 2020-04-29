@@ -27,11 +27,12 @@ var (
 type ActiveSessionsApiService service
 
 type apiSessionInfoDistinguishedNameGetRequest struct {
-	ctx               _context.Context
-	apiService        *ActiveSessionsApiService
-	authorization     *string
+	ctx _context.Context
+	apiService *ActiveSessionsApiService
+	authorization *string
 	distinguishedName string
 }
+
 
 func (r apiSessionInfoDistinguishedNameGetRequest) Authorization(authorization string) apiSessionInfoDistinguishedNameGetRequest {
 	r.authorization = &authorization
@@ -47,8 +48,8 @@ Get the details of a specific Active Client Session from all Gateways. This API 
 */
 func (a *ActiveSessionsApiService) SessionInfoDistinguishedNameGet(ctx _context.Context, distinguishedName string) apiSessionInfoDistinguishedNameGetRequest {
 	return apiSessionInfoDistinguishedNameGetRequest{
-		apiService:        a,
-		ctx:               ctx,
+		apiService: a,
+		ctx: ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -73,15 +74,16 @@ func (r apiSessionInfoDistinguishedNameGetRequest) Execute() (InlineResponse2004
 	}
 
 	localVarPath := localBasePath + "/session-info/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -185,16 +187,16 @@ func (r apiSessionInfoDistinguishedNameGetRequest) Execute() (InlineResponse2004
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiStatsActiveSessionsGetRequest struct {
-	ctx           _context.Context
-	apiService    *ActiveSessionsApiService
+	ctx _context.Context
+	apiService *ActiveSessionsApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiStatsActiveSessionsGetRequest) Authorization(authorization string) apiStatsActiveSessionsGetRequest {
 	r.authorization = &authorization
@@ -230,7 +232,7 @@ Get currently Active Client Sessions. This API makes the Controller to query eve
 func (a *ActiveSessionsApiService) StatsActiveSessionsGet(ctx _context.Context) apiStatsActiveSessionsGetRequest {
 	return apiStatsActiveSessionsGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -258,11 +260,11 @@ func (r apiStatsActiveSessionsGetRequest) Execute() (BaseStats, *_nethttp.Respon
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}

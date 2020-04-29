@@ -19,7 +19,7 @@ type ApplianceAllOfNetworkingNics struct {
 	// Whether the NIC is active or not.
 	Enabled *bool `json:"enabled,omitempty"`
 	// NIC name
-	Name string                        `json:"name"`
+	Name string `json:"name"`
 	Ipv4 *ApplianceAllOfNetworkingIpv4 `json:"ipv4,omitempty"`
 	Ipv6 *ApplianceAllOfNetworkingIpv6 `json:"ipv6,omitempty"`
 }
@@ -28,7 +28,7 @@ type ApplianceAllOfNetworkingNics struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfNetworkingNics(name string) *ApplianceAllOfNetworkingNics {
+func NewApplianceAllOfNetworkingNics(name string, ) *ApplianceAllOfNetworkingNics {
 	this := ApplianceAllOfNetworkingNics{}
 	this.Name = name
 	return &this
@@ -76,7 +76,7 @@ func (o *ApplianceAllOfNetworkingNics) SetEnabled(v bool) {
 
 // GetName returns the Name field value
 func (o *ApplianceAllOfNetworkingNics) GetName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -87,7 +87,7 @@ func (o *ApplianceAllOfNetworkingNics) GetName() string {
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfNetworkingNics) GetNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Name, true

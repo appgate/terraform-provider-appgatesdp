@@ -26,14 +26,15 @@ var (
 type DiscoveredAppsApiService service
 
 type apiStatsAppDiscoveryGetRequest struct {
-	ctx           _context.Context
-	apiService    *DiscoveredAppsApiService
+	ctx _context.Context
+	apiService *DiscoveredAppsApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiStatsAppDiscoveryGetRequest) Authorization(authorization string) apiStatsAppDiscoveryGetRequest {
 	r.authorization = &authorization
@@ -69,7 +70,7 @@ Get Discovered Apps for the last 7 days. Rebooting a Gateway resets the Discover
 func (a *DiscoveredAppsApiService) StatsAppDiscoveryGet(ctx _context.Context) apiStatsAppDiscoveryGetRequest {
 	return apiStatsAppDiscoveryGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -97,11 +98,11 @@ func (r apiStatsAppDiscoveryGetRequest) Execute() (BaseStats, *_nethttp.Response
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}

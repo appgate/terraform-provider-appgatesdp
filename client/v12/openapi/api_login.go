@@ -26,11 +26,12 @@ var (
 type LoginApiService service
 
 type apiAuthenticationOtpInitializePostRequest struct {
-	ctx           _context.Context
-	apiService    *LoginApiService
+	ctx _context.Context
+	apiService *LoginApiService
 	authorization *string
-	inlineObject  *InlineObject
+	inlineObject *InlineObject
 }
+
 
 func (r apiAuthenticationOtpInitializePostRequest) Authorization(authorization string) apiAuthenticationOtpInitializePostRequest {
 	r.authorization = &authorization
@@ -51,7 +52,7 @@ This API starts the Multi-Factor Authentication process. It requires the partial
 func (a *LoginApiService) AuthenticationOtpInitializePost(ctx _context.Context) apiAuthenticationOtpInitializePostRequest {
 	return apiAuthenticationOtpInitializePostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -79,11 +80,11 @@ func (r apiAuthenticationOtpInitializePostRequest) Execute() (InlineResponse2001
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 
@@ -188,13 +189,13 @@ func (r apiAuthenticationOtpInitializePostRequest) Execute() (InlineResponse2001
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiAuthenticationOtpPostRequest struct {
-	ctx           _context.Context
-	apiService    *LoginApiService
+	ctx _context.Context
+	apiService *LoginApiService
 	authorization *string
 	inlineObject1 *InlineObject1
 }
+
 
 func (r apiAuthenticationOtpPostRequest) Authorization(authorization string) apiAuthenticationOtpPostRequest {
 	r.authorization = &authorization
@@ -215,7 +216,7 @@ This API starts the Multi-Factor Authentication process. It requires the partial
 func (a *LoginApiService) AuthenticationOtpPost(ctx _context.Context) apiAuthenticationOtpPostRequest {
 	return apiAuthenticationOtpPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -243,11 +244,11 @@ func (r apiAuthenticationOtpPostRequest) Execute() (LoginResponse, *_nethttp.Res
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	if r.inlineObject1 == nil {
 		return localVarReturnValue, nil, reportError("inlineObject1 is required and must be specified")
 	}
@@ -356,12 +357,12 @@ func (r apiAuthenticationOtpPostRequest) Execute() (LoginResponse, *_nethttp.Res
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiAuthenticationPostRequest struct {
-	ctx          _context.Context
-	apiService   *LoginApiService
+	ctx _context.Context
+	apiService *LoginApiService
 	loginRequest *LoginRequest
 }
+
 
 func (r apiAuthenticationPostRequest) LoginRequest(loginRequest LoginRequest) apiAuthenticationPostRequest {
 	r.loginRequest = &loginRequest
@@ -381,7 +382,7 @@ MFA process must be completed before Authorization.
 func (a *LoginApiService) AuthenticationPost(ctx _context.Context) apiAuthenticationPostRequest {
 	return apiAuthenticationPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -409,7 +410,7 @@ func (r apiAuthenticationPostRequest) Execute() (LoginResponse, *_nethttp.Respon
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.loginRequest == nil {
 		return localVarReturnValue, nil, reportError("loginRequest is required and must be specified")
 	}
@@ -517,12 +518,12 @@ func (r apiAuthenticationPostRequest) Execute() (LoginResponse, *_nethttp.Respon
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiAuthorizationGetRequest struct {
-	ctx           _context.Context
-	apiService    *LoginApiService
+	ctx _context.Context
+	apiService *LoginApiService
 	authorization *string
 }
+
 
 func (r apiAuthorizationGetRequest) Authorization(authorization string) apiAuthorizationGetRequest {
 	r.authorization = &authorization
@@ -539,7 +540,7 @@ Last step for logging in is sending the partial AuthToken for authorization and 
 func (a *LoginApiService) AuthorizationGet(ctx _context.Context) apiAuthorizationGetRequest {
 	return apiAuthorizationGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -567,7 +568,7 @@ func (r apiAuthorizationGetRequest) Execute() (LoginResponse, *_nethttp.Response
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -684,11 +685,11 @@ func (r apiAuthorizationGetRequest) Execute() (LoginResponse, *_nethttp.Response
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiIdentityProvidersNamesGetRequest struct {
-	ctx        _context.Context
+	ctx _context.Context
 	apiService *LoginApiService
 }
+
 
 /*
 IdentityProvidersNamesGet Get the list of identity providers available for admin login.
@@ -699,7 +700,7 @@ Get the list of identity providers available for admin login.
 func (a *LoginApiService) IdentityProvidersNamesGet(ctx _context.Context) apiIdentityProvidersNamesGetRequest {
 	return apiIdentityProvidersNamesGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -799,12 +800,12 @@ func (r apiIdentityProvidersNamesGetRequest) Execute() (InlineResponse200, *_net
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiLoginPostRequest struct {
-	ctx          _context.Context
-	apiService   *LoginApiService
+	ctx _context.Context
+	apiService *LoginApiService
 	loginRequest *LoginRequest
 }
+
 
 func (r apiLoginPostRequest) LoginRequest(loginRequest LoginRequest) apiLoginPostRequest {
 	r.loginRequest = &loginRequest
@@ -820,7 +821,7 @@ First step for any API call is retrieving AuthToken using Login API. All other c
 func (a *LoginApiService) LoginPost(ctx _context.Context) apiLoginPostRequest {
 	return apiLoginPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -848,7 +849,7 @@ func (r apiLoginPostRequest) Execute() (LoginResponse, *_nethttp.Response, error
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.loginRequest == nil {
 		return localVarReturnValue, nil, reportError("loginRequest is required and must be specified")
 	}

@@ -27,11 +27,12 @@ var (
 type DefaultTimeBasedOTPProviderSeedsApiService service
 
 type apiOtpSeedsDistinguishedNameDeleteRequest struct {
-	ctx               _context.Context
-	apiService        *DefaultTimeBasedOTPProviderSeedsApiService
-	authorization     *string
+	ctx _context.Context
+	apiService *DefaultTimeBasedOTPProviderSeedsApiService
+	authorization *string
 	distinguishedName string
 }
+
 
 func (r apiOtpSeedsDistinguishedNameDeleteRequest) Authorization(authorization string) apiOtpSeedsDistinguishedNameDeleteRequest {
 	r.authorization = &authorization
@@ -47,8 +48,8 @@ Delete a Default Time-Based OTP Provider Seed for the given Distinguished Name.
 */
 func (a *DefaultTimeBasedOTPProviderSeedsApiService) OtpSeedsDistinguishedNameDelete(ctx _context.Context, distinguishedName string) apiOtpSeedsDistinguishedNameDeleteRequest {
 	return apiOtpSeedsDistinguishedNameDeleteRequest{
-		apiService:        a,
-		ctx:               ctx,
+		apiService: a,
+		ctx: ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -64,6 +65,7 @@ func (r apiOtpSeedsDistinguishedNameDeleteRequest) Execute() (*_nethttp.Response
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "DefaultTimeBasedOTPProviderSeedsApiService.OtpSeedsDistinguishedNameDelete")
@@ -72,15 +74,16 @@ func (r apiOtpSeedsDistinguishedNameDeleteRequest) Execute() (*_nethttp.Response
 	}
 
 	localVarPath := localBasePath + "/otp/seeds/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -165,16 +168,16 @@ func (r apiOtpSeedsDistinguishedNameDeleteRequest) Execute() (*_nethttp.Response
 
 	return localVarHTTPResponse, nil
 }
-
 type apiOtpSeedsGetRequest struct {
-	ctx           _context.Context
-	apiService    *DefaultTimeBasedOTPProviderSeedsApiService
+	ctx _context.Context
+	apiService *DefaultTimeBasedOTPProviderSeedsApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiOtpSeedsGetRequest) Authorization(authorization string) apiOtpSeedsGetRequest {
 	r.authorization = &authorization
@@ -210,7 +213,7 @@ List all Default Time-Based OTP Provider Seeds.
 func (a *DefaultTimeBasedOTPProviderSeedsApiService) OtpSeedsGet(ctx _context.Context) apiOtpSeedsGetRequest {
 	return apiOtpSeedsGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -238,11 +241,11 @@ func (r apiOtpSeedsGetRequest) Execute() (OtpSeedList, *_nethttp.Response, error
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}

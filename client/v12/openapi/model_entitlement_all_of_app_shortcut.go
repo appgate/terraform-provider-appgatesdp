@@ -20,7 +20,7 @@ type EntitlementAllOfAppShortcut struct {
 	Name string `json:"name"`
 	// The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL.
 	Url string `json:"url"`
-	// The code of the published app on the client. - 1: Light Green - 2: Green - 3: Indigo - 4: Deep Purple - 5: Yellow - 6: Lime - 7: Light Blue - 8: Blue - 9: Amber - 10: Orange - 11: Cyan - 12: Teal - 13: Deep Orange - 14: Red - 15: Gray - 16: Brown - 17: Pink - 18: Purple - 19: Blue Gray - 20: Near Black
+	// The code of the published app on the client. - 1: Light Green - 2: Green - 3: Indigo - 4: Deep Purple - 5: Yellow - 6: Lime - 7: Light Blue - 8: Blue - 9: Amber - 10: Orange - 11: Cyan - 12: Teal - 13: Deep Orange - 14: Red - 15: Gray - 16: Brown - 17: Pink - 18: Purple - 19: Blue Gray - 20: Near Black 
 	ColorCode *int32 `json:"colorCode,omitempty"`
 }
 
@@ -28,7 +28,7 @@ type EntitlementAllOfAppShortcut struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewEntitlementAllOfAppShortcut(name string, url string) *EntitlementAllOfAppShortcut {
+func NewEntitlementAllOfAppShortcut(name string, url string, ) *EntitlementAllOfAppShortcut {
 	this := EntitlementAllOfAppShortcut{}
 	this.Name = name
 	this.Url = url
@@ -49,7 +49,7 @@ func NewEntitlementAllOfAppShortcutWithDefaults() *EntitlementAllOfAppShortcut {
 
 // GetName returns the Name field value
 func (o *EntitlementAllOfAppShortcut) GetName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -60,7 +60,7 @@ func (o *EntitlementAllOfAppShortcut) GetName() string {
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOfAppShortcut) GetNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Name, true
@@ -73,7 +73,7 @@ func (o *EntitlementAllOfAppShortcut) SetName(v string) {
 
 // GetUrl returns the Url field value
 func (o *EntitlementAllOfAppShortcut) GetUrl() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -84,7 +84,7 @@ func (o *EntitlementAllOfAppShortcut) GetUrl() string {
 // GetUrlOk returns a tuple with the Url field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementAllOfAppShortcut) GetUrlOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Url, true

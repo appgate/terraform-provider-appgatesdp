@@ -24,7 +24,7 @@ type EntitlementScriptAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewEntitlementScriptAllOf(expression string) *EntitlementScriptAllOf {
+func NewEntitlementScriptAllOf(expression string, ) *EntitlementScriptAllOf {
 	this := EntitlementScriptAllOf{}
 	this.Expression = expression
 	return &this
@@ -40,7 +40,7 @@ func NewEntitlementScriptAllOfWithDefaults() *EntitlementScriptAllOf {
 
 // GetExpression returns the Expression field value
 func (o *EntitlementScriptAllOf) GetExpression() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -51,7 +51,7 @@ func (o *EntitlementScriptAllOf) GetExpression() string {
 // GetExpressionOk returns a tuple with the Expression field value
 // and a boolean to check if the value has been set.
 func (o *EntitlementScriptAllOf) GetExpressionOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Expression, true

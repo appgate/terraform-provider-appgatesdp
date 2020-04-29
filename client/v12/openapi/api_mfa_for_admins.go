@@ -26,10 +26,11 @@ var (
 type MFAForAdminsApiService service
 
 type apiAdminMfaSettingsDeleteRequest struct {
-	ctx           _context.Context
-	apiService    *MFAForAdminsApiService
+	ctx _context.Context
+	apiService *MFAForAdminsApiService
 	authorization *string
 }
+
 
 func (r apiAdminMfaSettingsDeleteRequest) Authorization(authorization string) apiAdminMfaSettingsDeleteRequest {
 	r.authorization = &authorization
@@ -45,7 +46,7 @@ Reset Admin MFA settings to disabled.
 func (a *MFAForAdminsApiService) AdminMfaSettingsDelete(ctx _context.Context) apiAdminMfaSettingsDeleteRequest {
 	return apiAdminMfaSettingsDeleteRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -60,6 +61,7 @@ func (r apiAdminMfaSettingsDeleteRequest) Execute() (*_nethttp.Response, error) 
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "MFAForAdminsApiService.AdminMfaSettingsDelete")
@@ -72,7 +74,7 @@ func (r apiAdminMfaSettingsDeleteRequest) Execute() (*_nethttp.Response, error) 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
@@ -150,12 +152,12 @@ func (r apiAdminMfaSettingsDeleteRequest) Execute() (*_nethttp.Response, error) 
 
 	return localVarHTTPResponse, nil
 }
-
 type apiAdminMfaSettingsGetRequest struct {
-	ctx           _context.Context
-	apiService    *MFAForAdminsApiService
+	ctx _context.Context
+	apiService *MFAForAdminsApiService
 	authorization *string
 }
+
 
 func (r apiAdminMfaSettingsGetRequest) Authorization(authorization string) apiAdminMfaSettingsGetRequest {
 	r.authorization = &authorization
@@ -171,7 +173,7 @@ View Admin MFA settings.
 func (a *MFAForAdminsApiService) AdminMfaSettingsGet(ctx _context.Context) apiAdminMfaSettingsGetRequest {
 	return apiAdminMfaSettingsGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -199,7 +201,7 @@ func (r apiAdminMfaSettingsGetRequest) Execute() (AdminMfaSettings, *_nethttp.Re
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -296,13 +298,13 @@ func (r apiAdminMfaSettingsGetRequest) Execute() (AdminMfaSettings, *_nethttp.Re
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiAdminMfaSettingsPutRequest struct {
-	ctx              _context.Context
-	apiService       *MFAForAdminsApiService
-	authorization    *string
+	ctx _context.Context
+	apiService *MFAForAdminsApiService
+	authorization *string
 	adminMfaSettings *AdminMfaSettings
 }
+
 
 func (r apiAdminMfaSettingsPutRequest) Authorization(authorization string) apiAdminMfaSettingsPutRequest {
 	r.authorization = &authorization
@@ -323,7 +325,7 @@ Update Admin MFA settings.
 func (a *MFAForAdminsApiService) AdminMfaSettingsPut(ctx _context.Context) apiAdminMfaSettingsPutRequest {
 	return apiAdminMfaSettingsPutRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -338,6 +340,7 @@ func (r apiAdminMfaSettingsPutRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "MFAForAdminsApiService.AdminMfaSettingsPut")
@@ -350,11 +353,11 @@ func (r apiAdminMfaSettingsPutRequest) Execute() (*_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 

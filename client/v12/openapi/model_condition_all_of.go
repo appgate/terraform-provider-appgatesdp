@@ -28,7 +28,7 @@ type ConditionAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewConditionAllOf(expression string) *ConditionAllOf {
+func NewConditionAllOf(expression string, ) *ConditionAllOf {
 	this := ConditionAllOf{}
 	this.Expression = expression
 	return &this
@@ -44,7 +44,7 @@ func NewConditionAllOfWithDefaults() *ConditionAllOf {
 
 // GetExpression returns the Expression field value
 func (o *ConditionAllOf) GetExpression() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -55,7 +55,7 @@ func (o *ConditionAllOf) GetExpression() string {
 // GetExpressionOk returns a tuple with the Expression field value
 // and a boolean to check if the value has been set.
 func (o *ConditionAllOf) GetExpressionOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Expression, true

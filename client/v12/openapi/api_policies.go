@@ -27,14 +27,15 @@ var (
 type PoliciesApiService service
 
 type apiPoliciesGetRequest struct {
-	ctx           _context.Context
-	apiService    *PoliciesApiService
+	ctx _context.Context
+	apiService *PoliciesApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiPoliciesGetRequest) Authorization(authorization string) apiPoliciesGetRequest {
 	r.authorization = &authorization
@@ -70,7 +71,7 @@ List all Policies visible to current user.
 func (a *PoliciesApiService) PoliciesGet(ctx _context.Context) apiPoliciesGetRequest {
 	return apiPoliciesGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -98,11 +99,11 @@ func (r apiPoliciesGetRequest) Execute() (PolicyList, *_nethttp.Response, error)
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -207,13 +208,13 @@ func (r apiPoliciesGetRequest) Execute() (PolicyList, *_nethttp.Response, error)
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiPoliciesIdDeleteRequest struct {
-	ctx           _context.Context
-	apiService    *PoliciesApiService
+	ctx _context.Context
+	apiService *PoliciesApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiPoliciesIdDeleteRequest) Authorization(authorization string) apiPoliciesIdDeleteRequest {
 	r.authorization = &authorization
@@ -230,8 +231,8 @@ Delete a specific Policy.
 func (a *PoliciesApiService) PoliciesIdDelete(ctx _context.Context, id string) apiPoliciesIdDeleteRequest {
 	return apiPoliciesIdDeleteRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -246,6 +247,7 @@ func (r apiPoliciesIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "PoliciesApiService.PoliciesIdDelete")
@@ -254,15 +256,16 @@ func (r apiPoliciesIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/policies/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -347,13 +350,13 @@ func (r apiPoliciesIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
-
 type apiPoliciesIdGetRequest struct {
-	ctx           _context.Context
-	apiService    *PoliciesApiService
+	ctx _context.Context
+	apiService *PoliciesApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiPoliciesIdGetRequest) Authorization(authorization string) apiPoliciesIdGetRequest {
 	r.authorization = &authorization
@@ -370,8 +373,8 @@ Get a specific Policy.
 func (a *PoliciesApiService) PoliciesIdGet(ctx _context.Context, id string) apiPoliciesIdGetRequest {
 	return apiPoliciesIdGetRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -395,15 +398,16 @@ func (r apiPoliciesIdGetRequest) Execute() (Policy, *_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/policies/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -507,14 +511,14 @@ func (r apiPoliciesIdGetRequest) Execute() (Policy, *_nethttp.Response, error) {
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiPoliciesIdPutRequest struct {
-	ctx           _context.Context
-	apiService    *PoliciesApiService
+	ctx _context.Context
+	apiService *PoliciesApiService
 	authorization *string
-	id            string
-	policy        *Policy
+	id string
+	policy *Policy
 }
+
 
 func (r apiPoliciesIdPutRequest) Authorization(authorization string) apiPoliciesIdPutRequest {
 	r.authorization = &authorization
@@ -536,8 +540,8 @@ Update an existing Policy.
 func (a *PoliciesApiService) PoliciesIdPut(ctx _context.Context, id string) apiPoliciesIdPutRequest {
 	return apiPoliciesIdPutRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -561,16 +565,17 @@ func (r apiPoliciesIdPutRequest) Execute() (Policy, *_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/policies/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
+	
 	if r.policy == nil {
 		return localVarReturnValue, nil, reportError("policy is required and must be specified")
 	}
@@ -699,13 +704,13 @@ func (r apiPoliciesIdPutRequest) Execute() (Policy, *_nethttp.Response, error) {
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiPoliciesPostRequest struct {
-	ctx           _context.Context
-	apiService    *PoliciesApiService
+	ctx _context.Context
+	apiService *PoliciesApiService
 	authorization *string
-	policy        *Policy
+	policy *Policy
 }
+
 
 func (r apiPoliciesPostRequest) Authorization(authorization string) apiPoliciesPostRequest {
 	r.authorization = &authorization
@@ -726,7 +731,7 @@ Create a new Policy.
 func (a *PoliciesApiService) PoliciesPost(ctx _context.Context) apiPoliciesPostRequest {
 	return apiPoliciesPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -754,11 +759,11 @@ func (r apiPoliciesPostRequest) Execute() (Policy, *_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	if r.policy == nil {
 		return localVarReturnValue, nil, reportError("policy is required and must be specified")
 	}

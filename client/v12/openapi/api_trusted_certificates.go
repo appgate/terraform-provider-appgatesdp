@@ -27,14 +27,15 @@ var (
 type TrustedCertificatesApiService service
 
 type apiTrustedCertificatesGetRequest struct {
-	ctx           _context.Context
-	apiService    *TrustedCertificatesApiService
+	ctx _context.Context
+	apiService *TrustedCertificatesApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiTrustedCertificatesGetRequest) Authorization(authorization string) apiTrustedCertificatesGetRequest {
 	r.authorization = &authorization
@@ -70,7 +71,7 @@ List all Trusted Certificates visible to current user.
 func (a *TrustedCertificatesApiService) TrustedCertificatesGet(ctx _context.Context) apiTrustedCertificatesGetRequest {
 	return apiTrustedCertificatesGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -98,11 +99,11 @@ func (r apiTrustedCertificatesGetRequest) Execute() (TrustedCertificateList, *_n
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -207,13 +208,13 @@ func (r apiTrustedCertificatesGetRequest) Execute() (TrustedCertificateList, *_n
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiTrustedCertificatesIdDeleteRequest struct {
-	ctx           _context.Context
-	apiService    *TrustedCertificatesApiService
+	ctx _context.Context
+	apiService *TrustedCertificatesApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiTrustedCertificatesIdDeleteRequest) Authorization(authorization string) apiTrustedCertificatesIdDeleteRequest {
 	r.authorization = &authorization
@@ -230,8 +231,8 @@ Delete a specific Trusted Certificate.
 func (a *TrustedCertificatesApiService) TrustedCertificatesIdDelete(ctx _context.Context, id string) apiTrustedCertificatesIdDeleteRequest {
 	return apiTrustedCertificatesIdDeleteRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -246,6 +247,7 @@ func (r apiTrustedCertificatesIdDeleteRequest) Execute() (*_nethttp.Response, er
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "TrustedCertificatesApiService.TrustedCertificatesIdDelete")
@@ -254,15 +256,16 @@ func (r apiTrustedCertificatesIdDeleteRequest) Execute() (*_nethttp.Response, er
 	}
 
 	localVarPath := localBasePath + "/trusted-certificates/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -347,13 +350,13 @@ func (r apiTrustedCertificatesIdDeleteRequest) Execute() (*_nethttp.Response, er
 
 	return localVarHTTPResponse, nil
 }
-
 type apiTrustedCertificatesIdGetRequest struct {
-	ctx           _context.Context
-	apiService    *TrustedCertificatesApiService
+	ctx _context.Context
+	apiService *TrustedCertificatesApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiTrustedCertificatesIdGetRequest) Authorization(authorization string) apiTrustedCertificatesIdGetRequest {
 	r.authorization = &authorization
@@ -370,8 +373,8 @@ Get a specific Trusted Certificate.
 func (a *TrustedCertificatesApiService) TrustedCertificatesIdGet(ctx _context.Context, id string) apiTrustedCertificatesIdGetRequest {
 	return apiTrustedCertificatesIdGetRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -395,15 +398,16 @@ func (r apiTrustedCertificatesIdGetRequest) Execute() (TrustedCertificate, *_net
 	}
 
 	localVarPath := localBasePath + "/trusted-certificates/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -507,14 +511,14 @@ func (r apiTrustedCertificatesIdGetRequest) Execute() (TrustedCertificate, *_net
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiTrustedCertificatesIdPutRequest struct {
-	ctx                _context.Context
-	apiService         *TrustedCertificatesApiService
-	authorization      *string
-	id                 string
+	ctx _context.Context
+	apiService *TrustedCertificatesApiService
+	authorization *string
+	id string
 	trustedCertificate *TrustedCertificate
 }
+
 
 func (r apiTrustedCertificatesIdPutRequest) Authorization(authorization string) apiTrustedCertificatesIdPutRequest {
 	r.authorization = &authorization
@@ -536,8 +540,8 @@ Update an existing Trusted Certificate.
 func (a *TrustedCertificatesApiService) TrustedCertificatesIdPut(ctx _context.Context, id string) apiTrustedCertificatesIdPutRequest {
 	return apiTrustedCertificatesIdPutRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -561,16 +565,17 @@ func (r apiTrustedCertificatesIdPutRequest) Execute() (TrustedCertificate, *_net
 	}
 
 	localVarPath := localBasePath + "/trusted-certificates/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
+	
 	if r.trustedCertificate == nil {
 		return localVarReturnValue, nil, reportError("trustedCertificate is required and must be specified")
 	}
@@ -699,13 +704,13 @@ func (r apiTrustedCertificatesIdPutRequest) Execute() (TrustedCertificate, *_net
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiTrustedCertificatesPostRequest struct {
-	ctx                _context.Context
-	apiService         *TrustedCertificatesApiService
-	authorization      *string
+	ctx _context.Context
+	apiService *TrustedCertificatesApiService
+	authorization *string
 	trustedCertificate *TrustedCertificate
 }
+
 
 func (r apiTrustedCertificatesPostRequest) Authorization(authorization string) apiTrustedCertificatesPostRequest {
 	r.authorization = &authorization
@@ -726,7 +731,7 @@ Create a new Trusted Certificate.
 func (a *TrustedCertificatesApiService) TrustedCertificatesPost(ctx _context.Context) apiTrustedCertificatesPostRequest {
 	return apiTrustedCertificatesPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -754,11 +759,11 @@ func (r apiTrustedCertificatesPostRequest) Execute() (TrustedCertificate, *_neth
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	if r.trustedCertificate == nil {
 		return localVarReturnValue, nil, reportError("trustedCertificate is required and must be specified")
 	}

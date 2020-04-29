@@ -32,7 +32,7 @@ type SiteAllOfNameResolutionEsxResolvers struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSiteAllOfNameResolutionEsxResolvers(name string, hostname string, username string) *SiteAllOfNameResolutionEsxResolvers {
+func NewSiteAllOfNameResolutionEsxResolvers(name string, hostname string, username string, ) *SiteAllOfNameResolutionEsxResolvers {
 	this := SiteAllOfNameResolutionEsxResolvers{}
 	this.Name = name
 	var updateInterval int32 = 60
@@ -54,7 +54,7 @@ func NewSiteAllOfNameResolutionEsxResolversWithDefaults() *SiteAllOfNameResoluti
 
 // GetName returns the Name field value
 func (o *SiteAllOfNameResolutionEsxResolvers) GetName() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -65,7 +65,7 @@ func (o *SiteAllOfNameResolutionEsxResolvers) GetName() string {
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *SiteAllOfNameResolutionEsxResolvers) GetNameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Name, true
@@ -110,7 +110,7 @@ func (o *SiteAllOfNameResolutionEsxResolvers) SetUpdateInterval(v int32) {
 
 // GetHostname returns the Hostname field value
 func (o *SiteAllOfNameResolutionEsxResolvers) GetHostname() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -121,7 +121,7 @@ func (o *SiteAllOfNameResolutionEsxResolvers) GetHostname() string {
 // GetHostnameOk returns a tuple with the Hostname field value
 // and a boolean to check if the value has been set.
 func (o *SiteAllOfNameResolutionEsxResolvers) GetHostnameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Hostname, true
@@ -134,7 +134,7 @@ func (o *SiteAllOfNameResolutionEsxResolvers) SetHostname(v string) {
 
 // GetUsername returns the Username field value
 func (o *SiteAllOfNameResolutionEsxResolvers) GetUsername() string {
-	if o == nil {
+	if o == nil  {
 		var ret string
 		return ret
 	}
@@ -145,7 +145,7 @@ func (o *SiteAllOfNameResolutionEsxResolvers) GetUsername() string {
 // GetUsernameOk returns a tuple with the Username field value
 // and a boolean to check if the value has been set.
 func (o *SiteAllOfNameResolutionEsxResolvers) GetUsernameOk() (*string, bool) {
-	if o == nil {
+	if o == nil  {
 		return nil, false
 	}
 	return &o.Username, true

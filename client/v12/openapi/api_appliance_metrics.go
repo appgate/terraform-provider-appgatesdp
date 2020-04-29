@@ -27,11 +27,12 @@ var (
 type ApplianceMetricsApiService service
 
 type apiAppliancesIdMetricsGetRequest struct {
-	ctx           _context.Context
-	apiService    *ApplianceMetricsApiService
+	ctx _context.Context
+	apiService *ApplianceMetricsApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiAppliancesIdMetricsGetRequest) Authorization(authorization string) apiAppliancesIdMetricsGetRequest {
 	r.authorization = &authorization
@@ -48,8 +49,8 @@ Get all the Prometheus metrics for the given Appliance. This API call must be ma
 func (a *ApplianceMetricsApiService) AppliancesIdMetricsGet(ctx _context.Context, id string) apiAppliancesIdMetricsGetRequest {
 	return apiAppliancesIdMetricsGetRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -73,15 +74,16 @@ func (r apiAppliancesIdMetricsGetRequest) Execute() (string, *_nethttp.Response,
 	}
 
 	localVarPath := localBasePath + "/appliances/{id}/metrics"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -185,14 +187,14 @@ func (r apiAppliancesIdMetricsGetRequest) Execute() (string, *_nethttp.Response,
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiAppliancesIdMetricsNameGetRequest struct {
-	ctx           _context.Context
-	apiService    *ApplianceMetricsApiService
+	ctx _context.Context
+	apiService *ApplianceMetricsApiService
 	authorization *string
-	id            string
-	name          string
+	id string
+	name string
 }
+
 
 func (r apiAppliancesIdMetricsNameGetRequest) Authorization(authorization string) apiAppliancesIdMetricsNameGetRequest {
 	r.authorization = &authorization
@@ -210,9 +212,9 @@ Get a specific Prometheus metrics for the given Appliance. This API call must be
 func (a *ApplianceMetricsApiService) AppliancesIdMetricsNameGet(ctx _context.Context, id string, name string) apiAppliancesIdMetricsNameGetRequest {
 	return apiAppliancesIdMetricsNameGetRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
-		name:       name,
+		ctx: ctx,
+		id: id,
+		name: name,
 	}
 }
 
@@ -236,16 +238,18 @@ func (r apiAppliancesIdMetricsNameGetRequest) Execute() (string, *_nethttp.Respo
 	}
 
 	localVarPath := localBasePath + "/appliances/{id}/metrics/{name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", _neturl.QueryEscape(parameterToString(r.name, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", _neturl.QueryEscape(parameterToString(r.name, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
+	
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

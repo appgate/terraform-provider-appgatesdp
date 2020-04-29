@@ -27,11 +27,12 @@ var (
 type LicensedUsersApiService service
 
 type apiLicenseUsersDistinguishedNameDeleteRequest struct {
-	ctx               _context.Context
-	apiService        *LicensedUsersApiService
-	authorization     *string
+	ctx _context.Context
+	apiService *LicensedUsersApiService
+	authorization *string
 	distinguishedName string
 }
+
 
 func (r apiLicenseUsersDistinguishedNameDeleteRequest) Authorization(authorization string) apiLicenseUsersDistinguishedNameDeleteRequest {
 	r.authorization = &authorization
@@ -47,8 +48,8 @@ Delete a User License for the given Distinguished Name.
 */
 func (a *LicensedUsersApiService) LicenseUsersDistinguishedNameDelete(ctx _context.Context, distinguishedName string) apiLicenseUsersDistinguishedNameDeleteRequest {
 	return apiLicenseUsersDistinguishedNameDeleteRequest{
-		apiService:        a,
-		ctx:               ctx,
+		apiService: a,
+		ctx: ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -64,6 +65,7 @@ func (r apiLicenseUsersDistinguishedNameDeleteRequest) Execute() (*_nethttp.Resp
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "LicensedUsersApiService.LicenseUsersDistinguishedNameDelete")
@@ -72,15 +74,16 @@ func (r apiLicenseUsersDistinguishedNameDeleteRequest) Execute() (*_nethttp.Resp
 	}
 
 	localVarPath := localBasePath + "/license/users/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -165,16 +168,16 @@ func (r apiLicenseUsersDistinguishedNameDeleteRequest) Execute() (*_nethttp.Resp
 
 	return localVarHTTPResponse, nil
 }
-
 type apiLicenseUsersGetRequest struct {
-	ctx           _context.Context
-	apiService    *LicensedUsersApiService
+	ctx _context.Context
+	apiService *LicensedUsersApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiLicenseUsersGetRequest) Authorization(authorization string) apiLicenseUsersGetRequest {
 	r.authorization = &authorization
@@ -210,7 +213,7 @@ List all User Licenses.
 func (a *LicensedUsersApiService) LicenseUsersGet(ctx _context.Context) apiLicenseUsersGetRequest {
 	return apiLicenseUsersGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -238,11 +241,11 @@ func (r apiLicenseUsersGetRequest) Execute() (UserLicenseList, *_nethttp.Respons
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}

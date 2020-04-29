@@ -16,9 +16,9 @@ import (
 
 // InlineResponse2006 struct for InlineResponse2006
 type InlineResponse2006 struct {
-	User     *[]map[string]interface{} `json:"user,omitempty"`
-	Device   *[]map[string]interface{} `json:"device,omitempty"`
-	System   *[]map[string]interface{} `json:"system,omitempty"`
+	User *[]map[string]interface{} `json:"user,omitempty"`
+	Device *[]map[string]interface{} `json:"device,omitempty"`
+	System *[]map[string]interface{} `json:"system,omitempty"`
 	OnDemand *[]map[string]interface{} `json:"onDemand,omitempty"`
 }
 

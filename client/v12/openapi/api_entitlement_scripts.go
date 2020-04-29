@@ -27,14 +27,15 @@ var (
 type EntitlementScriptsApiService service
 
 type apiEntitlementScriptsGetRequest struct {
-	ctx           _context.Context
-	apiService    *EntitlementScriptsApiService
+	ctx _context.Context
+	apiService *EntitlementScriptsApiService
 	authorization *string
-	query         *string
-	range_        *string
-	orderBy       *string
-	descending    *string
+	query *string
+	range_ *string
+	orderBy *string
+	descending *string
 }
+
 
 func (r apiEntitlementScriptsGetRequest) Authorization(authorization string) apiEntitlementScriptsGetRequest {
 	r.authorization = &authorization
@@ -70,7 +71,7 @@ List all Entitlement Scripts visible to current user.
 func (a *EntitlementScriptsApiService) EntitlementScriptsGet(ctx _context.Context) apiEntitlementScriptsGetRequest {
 	return apiEntitlementScriptsGetRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -98,11 +99,11 @@ func (r apiEntitlementScriptsGetRequest) Execute() (EntitlementScriptList, *_net
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+				
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -207,13 +208,13 @@ func (r apiEntitlementScriptsGetRequest) Execute() (EntitlementScriptList, *_net
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiEntitlementScriptsIdDeleteRequest struct {
-	ctx           _context.Context
-	apiService    *EntitlementScriptsApiService
+	ctx _context.Context
+	apiService *EntitlementScriptsApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiEntitlementScriptsIdDeleteRequest) Authorization(authorization string) apiEntitlementScriptsIdDeleteRequest {
 	r.authorization = &authorization
@@ -230,8 +231,8 @@ Delete a specific Entitlement Script.
 func (a *EntitlementScriptsApiService) EntitlementScriptsIdDelete(ctx _context.Context, id string) apiEntitlementScriptsIdDeleteRequest {
 	return apiEntitlementScriptsIdDeleteRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -246,6 +247,7 @@ func (r apiEntitlementScriptsIdDeleteRequest) Execute() (*_nethttp.Response, err
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
+		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "EntitlementScriptsApiService.EntitlementScriptsIdDelete")
@@ -254,15 +256,16 @@ func (r apiEntitlementScriptsIdDeleteRequest) Execute() (*_nethttp.Response, err
 	}
 
 	localVarPath := localBasePath + "/entitlement-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -347,13 +350,13 @@ func (r apiEntitlementScriptsIdDeleteRequest) Execute() (*_nethttp.Response, err
 
 	return localVarHTTPResponse, nil
 }
-
 type apiEntitlementScriptsIdGetRequest struct {
-	ctx           _context.Context
-	apiService    *EntitlementScriptsApiService
+	ctx _context.Context
+	apiService *EntitlementScriptsApiService
 	authorization *string
-	id            string
+	id string
 }
+
 
 func (r apiEntitlementScriptsIdGetRequest) Authorization(authorization string) apiEntitlementScriptsIdGetRequest {
 	r.authorization = &authorization
@@ -370,8 +373,8 @@ Get a specific Entitlement Script.
 func (a *EntitlementScriptsApiService) EntitlementScriptsIdGet(ctx _context.Context, id string) apiEntitlementScriptsIdGetRequest {
 	return apiEntitlementScriptsIdGetRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -395,15 +398,16 @@ func (r apiEntitlementScriptsIdGetRequest) Execute() (EntitlementScript, *_netht
 	}
 
 	localVarPath := localBasePath + "/entitlement-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
+	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -507,14 +511,14 @@ func (r apiEntitlementScriptsIdGetRequest) Execute() (EntitlementScript, *_netht
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiEntitlementScriptsIdPutRequest struct {
-	ctx               _context.Context
-	apiService        *EntitlementScriptsApiService
-	authorization     *string
-	id                string
+	ctx _context.Context
+	apiService *EntitlementScriptsApiService
+	authorization *string
+	id string
 	entitlementScript *EntitlementScript
 }
+
 
 func (r apiEntitlementScriptsIdPutRequest) Authorization(authorization string) apiEntitlementScriptsIdPutRequest {
 	r.authorization = &authorization
@@ -536,8 +540,8 @@ Update an existing Entitlement Script.
 func (a *EntitlementScriptsApiService) EntitlementScriptsIdPut(ctx _context.Context, id string) apiEntitlementScriptsIdPutRequest {
 	return apiEntitlementScriptsIdPutRequest{
 		apiService: a,
-		ctx:        ctx,
-		id:         id,
+		ctx: ctx,
+		id: id,
 	}
 }
 
@@ -561,16 +565,17 @@ func (r apiEntitlementScriptsIdPutRequest) Execute() (EntitlementScript, *_netht
 	}
 
 	localVarPath := localBasePath + "/entitlement-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
+	
 	if r.entitlementScript == nil {
 		return localVarReturnValue, nil, reportError("entitlementScript is required and must be specified")
 	}
@@ -699,13 +704,13 @@ func (r apiEntitlementScriptsIdPutRequest) Execute() (EntitlementScript, *_netht
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-
 type apiEntitlementScriptsPostRequest struct {
-	ctx               _context.Context
-	apiService        *EntitlementScriptsApiService
-	authorization     *string
+	ctx _context.Context
+	apiService *EntitlementScriptsApiService
+	authorization *string
 	entitlementScript *EntitlementScript
 }
+
 
 func (r apiEntitlementScriptsPostRequest) Authorization(authorization string) apiEntitlementScriptsPostRequest {
 	r.authorization = &authorization
@@ -726,7 +731,7 @@ Create a new Entitlement Script.
 func (a *EntitlementScriptsApiService) EntitlementScriptsPost(ctx _context.Context) apiEntitlementScriptsPostRequest {
 	return apiEntitlementScriptsPostRequest{
 		apiService: a,
-		ctx:        ctx,
+		ctx: ctx,
 	}
 }
 
@@ -754,11 +759,11 @@ func (r apiEntitlementScriptsPostRequest) Execute() (EntitlementScript, *_nethtt
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-
+	
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-
+	
 	if r.entitlementScript == nil {
 		return localVarReturnValue, nil, reportError("entitlementScript is required and must be specified")
 	}
