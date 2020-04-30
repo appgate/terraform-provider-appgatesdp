@@ -589,8 +589,9 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 			"gateway": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ConflictsWith: []string{"iot_connector"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -729,7 +730,46 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// "iot_connector": {},
+
+			"iot_connector": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ConflictsWith: []string{"gateway"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+
+						"clients": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"device_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+
+									"sources": reUsableSchemas["allow_sources"],
+
+									"snat": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			// "rsyslog_destinations": {},
 			// "hostname_aliases": {},
 		},
@@ -861,6 +901,14 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetLogForwarder(lf)
+	}
+
+	if v, ok := d.GetOk("iot_connector"); ok {
+		iot, err := readIotConnectorFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetIotConnector(iot)
 	}
 
 	log.Printf("\n appliance arguments: \n %+v \n", args)
@@ -1203,6 +1251,14 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		originalAppliance.SetLogForwarder(lf)
 	}
 
+	if d.HasChange("iot_connector") {
+		_, n := d.GetChange("iot_connector")
+		iot, err := readIotConnectorFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetIotConnector(iot)
+	}
 	req := api.AppliancesIdPut(ctx, d.Id())
 
 	_, _, err = req.Appliance(originalAppliance).Authorization(token).Execute()
@@ -1657,6 +1713,47 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 			}
 		}
 		val.SetSites(sites)
+	}
+	return val, nil
+}
+func readIotConnectorFromConfig(iots []interface{}) (openapi.ApplianceAllOfIotConnector, error) {
+	val := openapi.ApplianceAllOfIotConnector{}
+	for _, iot := range iots {
+		if iot == nil {
+			continue
+		}
+
+		raw := iot.(map[string]interface{})
+
+		if v, ok := raw["enabled"]; ok {
+			val.SetEnabled(v.(bool))
+		}
+		if v := raw["clients"]; len(v.([]interface{})) > 0 {
+			clients := make([]openapi.ApplianceAllOfIotConnectorClients, 0)
+			for _, c := range v.([]interface{}) {
+				client := openapi.ApplianceAllOfIotConnectorClients{}
+				r := c.(map[string]interface{})
+				if v, ok := r["name"]; ok {
+					client.SetName(v.(string))
+				}
+				if v, ok := r["device_id"]; ok {
+					client.SetDeviceId(v.(string))
+				}
+				// allowed sources
+				if v := r["sources"]; len(v.([]interface{})) > 0 {
+					sources, err := readAllowSourcesFromConfig(v.([]interface{}))
+					if err != nil {
+						return val, err
+					}
+					client.SetSources(sources)
+				}
+				if v, ok := r["snat"]; ok {
+					client.SetSnat(v.(bool))
+				}
+				clients = append(clients, client)
+			}
+			val.SetClients(clients)
+		}
 	}
 	return val, nil
 }

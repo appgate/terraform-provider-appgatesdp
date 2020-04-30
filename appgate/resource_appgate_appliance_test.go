@@ -359,6 +359,160 @@ resource "appgate_appliance" "test_controller" {
 }
 `)
 }
+
+func TestAccApplianceIoTConnector(t *testing.T) {
+	resourceName := "appgate_appliance.iot_connector"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckApplianceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckApplianceBasicIotConnector(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", "iot-connector-test"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1234.devops"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+
+					resource.TestCheckResourceAttr(resourceName, "controller.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "gateway.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "log_server.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.3170980607.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.3170980607.dtls_port", "445"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.3170980607.https_port", "444"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.3170980607.proxy_protocol", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.dns_domains.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.dns_domains.112524683", "aa.com"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.dns_servers.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.dns_servers.251826590", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.dns_servers.2609393598", "8.8.8.8"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.0.name", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.0.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.0.ipv4.3519857096.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.0.ipv4.3519857096.dhcp.2319808068.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.0.ipv4.3519857096.dhcp.2319808068.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.0.ipv4.3519857096.dhcp.2319808068.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.nics.0.ipv4.3519857096.dhcp.2319808068.routers", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.routes.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.routes.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.routes.0.gateway", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.routes.0.netmask", "24"),
+					resource.TestCheckResourceAttr(resourceName, "networking.1914549515.routes.0.nic", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.device_id", "12699e27-b584-464a-81ee-5b4784b6d425"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.name", "Printers"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.snat", "true"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.sources.0.netmask", "24"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.enabled", "true"),
+				),
+			},
+			{
+				ResourceName: resourceName,
+				ImportState:  true,
+				// ImportStateVerify: true,
+				ImportStateCheck: testAccApplianceImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+func testAccCheckApplianceBasicIotConnector() string {
+	return fmt.Sprintf(`
+data "appgate_site" "default_site" {
+	   site_name = "Default site"
+}
+
+resource "appgate_appliance" "iot_connector" {
+	name     = "iot-connector-test"
+	hostname = "envy-10-97-168-1234.devops"
+
+	client_interface {
+        hostname = "envy-10-97-168-1234.devops"
+        proxy_protocol = true
+        https_port     = 444
+        dtls_port      = 445
+        allow_sources {
+          address = "1.3.3.7"
+          netmask = 0
+          nic     = "eth0"
+        }
+        override_spa_mode = "TCP"
+	}
+
+	peer_interface {
+		hostname   = "envy-10-97-168-1234.devops"
+		https_port = "1337"
+	}
+	tags = [
+		"terraform",
+		"api-test-created"
+	]
+	networking {
+
+		hosts {
+		  hostname = "bla"
+		  address  = "0.0.0.0"
+		}
+
+		nics {
+		  enabled = true
+		  name    = "eth0"
+		  ipv4 {
+			dhcp {
+			  enabled = true
+			  dns     = true
+			  routers = true
+			  ntp     = true
+			}
+		  }
+		}
+		dns_servers = [
+		  "8.8.8.8",
+		  "1.1.1.1",
+		]
+		dns_domains = [
+		  "aa.com"
+        ]
+        routes {
+            address = "0.0.0.0"
+            netmask = 24
+            gateway = "1.2.3.4"
+            nic = "eth0"
+        }
+	}
+    iot_connector {
+        enabled = true
+        clients {
+          name      = "Printers"
+          device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
+
+          sources {
+            address = "1.3.3.7"
+            netmask = 24
+            nic     = "eth0"
+          }
+          snat = true
+        }
+      }
+}
+`)
+}
+
 func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		token := testAccProvider.Meta().(*Client).Token

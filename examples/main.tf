@@ -191,23 +191,38 @@ resource "appgate_appliance" "new_gateway" {
   log_forwarder {
     enabled = true
     elasticsearch {
-      url = "https://aws.com/elasticsearch/instance/asdaxllkmda64"
-      aws_id = "string"
-      aws_region = "eu-west-2"
+      url                      = "https://aws.com/elasticsearch/instance/asdaxllkmda64"
+      aws_id                   = "string"
+      aws_region               = "eu-west-2"
       use_instance_credentials = true
-      retention_days = 3
+      retention_days           = 3
     }
 
     tcp_clients {
-      name = "Company SIEM"
-      host = "siem.company.com"
-      port = 8888
-      format = "json"
+      name    = "Company SIEM"
+      host    = "siem.company.com"
+      port    = 8888
+      format  = "json"
       use_tls = true
     }
     sites = [
       data.appgate_site.default_site.id
     ]
+  }
+
+  iot_connector {
+    enabled = true
+    clients {
+      name      = "Printers"
+      device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
+
+      sources {
+        address = "1.3.3.7"
+        netmask = 24
+        nic     = "eth0"
+      }
+      snat = true
+    }
   }
 
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
@@ -221,17 +236,17 @@ resource "appgate_appliance" "new_gateway" {
     # retention_days = 2
   }
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=gateway-a
-  gateway {
-    enabled = true
-    vpn {
-      weight = 60
-      allow_destinations {
-        address = "127.0.0.1"
-        netmask = 0
-        nic     = "eth0"
-      }
-    }
-  }
+  # gateway {
+  #   enabled = true
+  #   vpn {
+  #     weight = 60
+  #     allow_destinations {
+  #       address = "127.0.0.1"
+  #       netmask = 0
+  #       nic     = "eth0"
+  #     }
+  #   }
+  # }
   # Save the seed file locally in base 64 format.
   provisioner "local-exec" {
     command = "echo ${appgate_appliance.new_gateway.seed_file} > seed.b64"
