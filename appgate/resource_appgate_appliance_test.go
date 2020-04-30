@@ -425,6 +425,10 @@ func TestAccApplianceIoTConnector(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.0.destination", "10.10.10.2"),
 					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.0.selector", "*.*"),
 					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.0.template", "hostname"),
+
+					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.0", "appgatealias.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.1", "alias2.appgate.company.com"),
 				),
 			},
 			{
@@ -520,6 +524,10 @@ resource "appgate_appliance" "iot_connector" {
         template    = "hostname"
         destination = "10.10.10.2"
     }
+    hostname_aliases = [
+        "appgatealias.company.com",
+        "alias2.appgate.company.com"
+    ]
 }
 `)
 }

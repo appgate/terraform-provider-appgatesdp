@@ -236,6 +236,11 @@ resource "appgate_appliance" "new_gateway" {
     destination = "10.30.20.3"
   }
 
+  hostname_aliases = [
+    "appgatealias.company.com",
+    "alias2.appgate.company.com"
+  ]
+
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
   controller {
     enabled = true

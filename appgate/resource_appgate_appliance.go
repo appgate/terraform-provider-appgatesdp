@@ -770,6 +770,7 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
+
 			"rsyslog_destinations": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -793,7 +794,12 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// "hostname_aliases": {},
+
+			"hostname_aliases": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -939,6 +945,14 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetRsyslogDestinations(rsyslog)
+	}
+
+	if v, ok := d.GetOk("hostname_aliases"); ok {
+		hostnames, err := readHostnameAliasesFromConfig(v.([]interface{}))
+		if err != nil {
+			return err
+		}
+		args.SetHostnameAliases(hostnames)
 	}
 
 	log.Printf("\n appliance arguments: \n %+v \n", args)
@@ -1297,6 +1311,15 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		originalAppliance.SetRsyslogDestinations(rsys)
+	}
+
+	if d.HasChange("hostname_aliases") {
+		_, n := d.GetChange("hostname_aliases")
+		hostnames, err := readHostnameAliasesFromConfig(n.([]interface{}))
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetHostnameAliases(hostnames)
 	}
 
 	req := api.AppliancesIdPut(ctx, d.Id())
@@ -1816,6 +1839,17 @@ func readRsyslogDestinationFromConfig(rsyslogs []interface{}) ([]openapi.Applian
 			r.SetDestination(v.(string))
 		}
 		result = append(result, r)
+	}
+	return result, nil
+}
+
+func readHostnameAliasesFromConfig(hostnameAliases []interface{}) ([]string, error) {
+	result := make([]string, 0)
+	for _, hostname := range hostnameAliases {
+		if hostname == nil {
+			continue
+		}
+		result = append(result, hostname.(string))
 	}
 	return result, nil
 }
