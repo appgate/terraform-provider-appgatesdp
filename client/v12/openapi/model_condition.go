@@ -29,7 +29,7 @@ type Condition struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCondition(expression string, ) *Condition {
+func NewCondition(expression string) *Condition {
 	this := Condition{}
 	this.Expression = expression
 	return &this
@@ -45,7 +45,7 @@ func NewConditionWithDefaults() *Condition {
 
 // GetExpression returns the Expression field value
 func (o *Condition) GetExpression() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -56,7 +56,7 @@ func (o *Condition) GetExpression() string {
 // GetExpressionOk returns a tuple with the Expression field value
 // and a boolean to check if the value has been set.
 func (o *Condition) GetExpressionOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Expression, true

@@ -24,7 +24,7 @@ type RingfenceRule struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewRingfenceRule(actions RingfenceRuleAllOfActions, ) *RingfenceRule {
+func NewRingfenceRule(actions RingfenceRuleAllOfActions) *RingfenceRule {
 	this := RingfenceRule{}
 	this.Actions = actions
 	return &this
@@ -40,7 +40,7 @@ func NewRingfenceRuleWithDefaults() *RingfenceRule {
 
 // GetActions returns the Actions field value
 func (o *RingfenceRule) GetActions() RingfenceRuleAllOfActions {
-	if o == nil  {
+	if o == nil {
 		var ret RingfenceRuleAllOfActions
 		return ret
 	}
@@ -51,7 +51,7 @@ func (o *RingfenceRule) GetActions() RingfenceRuleAllOfActions {
 // GetActionsOk returns a tuple with the Actions field value
 // and a boolean to check if the value has been set.
 func (o *RingfenceRule) GetActionsOk() (*RingfenceRuleAllOfActions, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Actions, true

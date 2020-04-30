@@ -18,7 +18,7 @@ import (
 type TrustedCertificate struct {
 	BaseEntity
 	// A certificate in PEM format.
-	Pem string `json:"pem"`
+	Pem     string              `json:"pem"`
 	Details *CertificateDetails `json:"details,omitempty"`
 }
 
@@ -26,7 +26,7 @@ type TrustedCertificate struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewTrustedCertificate(pem string, ) *TrustedCertificate {
+func NewTrustedCertificate(pem string) *TrustedCertificate {
 	this := TrustedCertificate{}
 	this.Pem = pem
 	return &this
@@ -42,7 +42,7 @@ func NewTrustedCertificateWithDefaults() *TrustedCertificate {
 
 // GetPem returns the Pem field value
 func (o *TrustedCertificate) GetPem() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -53,7 +53,7 @@ func (o *TrustedCertificate) GetPem() string {
 // GetPemOk returns a tuple with the Pem field value
 // and a boolean to check if the value has been set.
 func (o *TrustedCertificate) GetPemOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Pem, true

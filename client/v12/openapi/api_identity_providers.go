@@ -27,15 +27,14 @@ var (
 type IdentityProvidersApiService service
 
 type apiIdentityProvidersGetRequest struct {
-	ctx _context.Context
-	apiService *IdentityProvidersApiService
+	ctx           _context.Context
+	apiService    *IdentityProvidersApiService
 	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiIdentityProvidersGetRequest) Authorization(authorization string) apiIdentityProvidersGetRequest {
 	r.authorization = &authorization
@@ -71,7 +70,7 @@ List all Identity Providers visible to current user.
 func (a *IdentityProvidersApiService) IdentityProvidersGet(ctx _context.Context) apiIdentityProvidersGetRequest {
 	return apiIdentityProvidersGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -99,11 +98,11 @@ func (r apiIdentityProvidersGetRequest) Execute() (IdentityProviderList, *_netht
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -208,14 +207,14 @@ func (r apiIdentityProvidersGetRequest) Execute() (IdentityProviderList, *_netht
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiIdentityProvidersIdAttributesPostRequest struct {
-	ctx _context.Context
-	apiService *IdentityProvidersApiService
+	ctx           _context.Context
+	apiService    *IdentityProvidersApiService
 	authorization *string
-	id string
+	id            string
 	inlineObject4 *InlineObject4
 }
-
 
 func (r apiIdentityProvidersIdAttributesPostRequest) Authorization(authorization string) apiIdentityProvidersIdAttributesPostRequest {
 	r.authorization = &authorization
@@ -237,8 +236,8 @@ Get raw attributes and mapped claims for a user.
 func (a *IdentityProvidersApiService) IdentityProvidersIdAttributesPost(ctx _context.Context, id string) apiIdentityProvidersIdAttributesPostRequest {
 	return apiIdentityProvidersIdAttributesPostRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -262,17 +261,16 @@ func (r apiIdentityProvidersIdAttributesPostRequest) Execute() (InlineResponse20
 	}
 
 	localVarPath := localBasePath + "/identity-providers/{id}/attributes"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 
@@ -397,13 +395,13 @@ func (r apiIdentityProvidersIdAttributesPostRequest) Execute() (InlineResponse20
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiIdentityProvidersIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *IdentityProvidersApiService
-	authorization *string
-	id string
-}
 
+type apiIdentityProvidersIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *IdentityProvidersApiService
+	authorization *string
+	id            string
+}
 
 func (r apiIdentityProvidersIdDeleteRequest) Authorization(authorization string) apiIdentityProvidersIdDeleteRequest {
 	r.authorization = &authorization
@@ -420,8 +418,8 @@ Delete a specific Identity Provider.
 func (a *IdentityProvidersApiService) IdentityProvidersIdDelete(ctx _context.Context, id string) apiIdentityProvidersIdDeleteRequest {
 	return apiIdentityProvidersIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -436,7 +434,6 @@ func (r apiIdentityProvidersIdDeleteRequest) Execute() (*_nethttp.Response, erro
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "IdentityProvidersApiService.IdentityProvidersIdDelete")
@@ -445,16 +442,15 @@ func (r apiIdentityProvidersIdDeleteRequest) Execute() (*_nethttp.Response, erro
 	}
 
 	localVarPath := localBasePath + "/identity-providers/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -539,13 +535,13 @@ func (r apiIdentityProvidersIdDeleteRequest) Execute() (*_nethttp.Response, erro
 
 	return localVarHTTPResponse, nil
 }
-type apiIdentityProvidersIdGetRequest struct {
-	ctx _context.Context
-	apiService *IdentityProvidersApiService
-	authorization *string
-	id string
-}
 
+type apiIdentityProvidersIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *IdentityProvidersApiService
+	authorization *string
+	id            string
+}
 
 func (r apiIdentityProvidersIdGetRequest) Authorization(authorization string) apiIdentityProvidersIdGetRequest {
 	r.authorization = &authorization
@@ -562,8 +558,8 @@ Get a specific Identity Provider.
 func (a *IdentityProvidersApiService) IdentityProvidersIdGet(ctx _context.Context, id string) apiIdentityProvidersIdGetRequest {
 	return apiIdentityProvidersIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -587,16 +583,15 @@ func (r apiIdentityProvidersIdGetRequest) Execute() (IdentityProvider, *_nethttp
 	}
 
 	localVarPath := localBasePath + "/identity-providers/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -700,14 +695,14 @@ func (r apiIdentityProvidersIdGetRequest) Execute() (IdentityProvider, *_nethttp
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiIdentityProvidersIdPutRequest struct {
-	ctx _context.Context
-	apiService *IdentityProvidersApiService
-	authorization *string
-	id string
+	ctx              _context.Context
+	apiService       *IdentityProvidersApiService
+	authorization    *string
+	id               string
 	identityProvider *IdentityProvider
 }
-
 
 func (r apiIdentityProvidersIdPutRequest) Authorization(authorization string) apiIdentityProvidersIdPutRequest {
 	r.authorization = &authorization
@@ -729,8 +724,8 @@ Update an existing Identity Provider.
 func (a *IdentityProvidersApiService) IdentityProvidersIdPut(ctx _context.Context, id string) apiIdentityProvidersIdPutRequest {
 	return apiIdentityProvidersIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -754,17 +749,16 @@ func (r apiIdentityProvidersIdPutRequest) Execute() (IdentityProvider, *_nethttp
 	}
 
 	localVarPath := localBasePath + "/identity-providers/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.identityProvider == nil {
 		return localVarReturnValue, nil, reportError("identityProvider is required and must be specified")
 	}
@@ -893,13 +887,13 @@ func (r apiIdentityProvidersIdPutRequest) Execute() (IdentityProvider, *_nethttp
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiIdentityProvidersPostRequest struct {
-	ctx _context.Context
-	apiService *IdentityProvidersApiService
-	authorization *string
+	ctx              _context.Context
+	apiService       *IdentityProvidersApiService
+	authorization    *string
 	identityProvider *IdentityProvider
 }
-
 
 func (r apiIdentityProvidersPostRequest) Authorization(authorization string) apiIdentityProvidersPostRequest {
 	r.authorization = &authorization
@@ -920,7 +914,7 @@ Create a new Identity Provider.
 func (a *IdentityProvidersApiService) IdentityProvidersPost(ctx _context.Context) apiIdentityProvidersPostRequest {
 	return apiIdentityProvidersPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -948,11 +942,11 @@ func (r apiIdentityProvidersPostRequest) Execute() (IdentityProvider, *_nethttp.
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.identityProvider == nil {
 		return localVarReturnValue, nil, reportError("identityProvider is required and must be specified")
 	}
@@ -1081,13 +1075,13 @@ func (r apiIdentityProvidersPostRequest) Execute() (IdentityProvider, *_nethttp.
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiIdentityProvidersTestPostRequest struct {
-	ctx _context.Context
-	apiService *IdentityProvidersApiService
-	authorization *string
+	ctx              _context.Context
+	apiService       *IdentityProvidersApiService
+	authorization    *string
 	identityProvider *IdentityProvider
 }
-
 
 func (r apiIdentityProvidersTestPostRequest) Authorization(authorization string) apiIdentityProvidersTestPostRequest {
 	r.authorization = &authorization
@@ -1108,7 +1102,7 @@ Test connection for the given Identity Provider JSON.
 func (a *IdentityProvidersApiService) IdentityProvidersTestPost(ctx _context.Context) apiIdentityProvidersTestPostRequest {
 	return apiIdentityProvidersTestPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -1136,11 +1130,11 @@ func (r apiIdentityProvidersTestPostRequest) Execute() (InlineResponse2009, *_ne
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.identityProvider == nil {
 		return localVarReturnValue, nil, reportError("identityProvider is required and must be specified")
 	}

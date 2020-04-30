@@ -15,8 +15,8 @@ import (
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
-	"strings"
 	"os"
+	"strings"
 )
 
 // Linger please
@@ -28,13 +28,12 @@ var (
 type ApplianceBackupApiService service
 
 type apiAppliancesIdBackupBackupIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *ApplianceBackupApiService
+	ctx           _context.Context
+	apiService    *ApplianceBackupApiService
 	authorization *string
-	id string
-	backupId string
+	id            string
+	backupId      string
 }
-
 
 func (r apiAppliancesIdBackupBackupIdDeleteRequest) Authorization(authorization string) apiAppliancesIdBackupBackupIdDeleteRequest {
 	r.authorization = &authorization
@@ -52,9 +51,9 @@ Delete an Appliance Backup file from an Appliance.
 func (a *ApplianceBackupApiService) AppliancesIdBackupBackupIdDelete(ctx _context.Context, id string, backupId string) apiAppliancesIdBackupBackupIdDeleteRequest {
 	return apiAppliancesIdBackupBackupIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
-		backupId: backupId,
+		ctx:        ctx,
+		id:         id,
+		backupId:   backupId,
 	}
 }
 
@@ -69,7 +68,6 @@ func (r apiAppliancesIdBackupBackupIdDeleteRequest) Execute() (*_nethttp.Respons
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "ApplianceBackupApiService.AppliancesIdBackupBackupIdDelete")
@@ -78,18 +76,16 @@ func (r apiAppliancesIdBackupBackupIdDeleteRequest) Execute() (*_nethttp.Respons
 	}
 
 	localVarPath := localBasePath + "/appliances/{id}/backup/{backupId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"backupId"+"}", _neturl.QueryEscape(parameterToString(r.backupId, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"backupId"+"}", _neturl.QueryEscape(parameterToString(r.backupId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -174,14 +170,14 @@ func (r apiAppliancesIdBackupBackupIdDeleteRequest) Execute() (*_nethttp.Respons
 
 	return localVarHTTPResponse, nil
 }
-type apiAppliancesIdBackupBackupIdGetRequest struct {
-	ctx _context.Context
-	apiService *ApplianceBackupApiService
-	authorization *string
-	id string
-	backupId string
-}
 
+type apiAppliancesIdBackupBackupIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *ApplianceBackupApiService
+	authorization *string
+	id            string
+	backupId      string
+}
 
 func (r apiAppliancesIdBackupBackupIdGetRequest) Authorization(authorization string) apiAppliancesIdBackupBackupIdGetRequest {
 	r.authorization = &authorization
@@ -199,9 +195,9 @@ Download a completed Appliance Backup with the given ID of an Appliance. This AP
 func (a *ApplianceBackupApiService) AppliancesIdBackupBackupIdGet(ctx _context.Context, id string, backupId string) apiAppliancesIdBackupBackupIdGetRequest {
 	return apiAppliancesIdBackupBackupIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
-		backupId: backupId,
+		ctx:        ctx,
+		id:         id,
+		backupId:   backupId,
 	}
 }
 
@@ -225,18 +221,16 @@ func (r apiAppliancesIdBackupBackupIdGetRequest) Execute() (*os.File, *_nethttp.
 	}
 
 	localVarPath := localBasePath + "/appliances/{id}/backup/{backupId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"backupId"+"}", _neturl.QueryEscape(parameterToString(r.backupId, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"backupId"+"}", _neturl.QueryEscape(parameterToString(r.backupId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -340,14 +334,14 @@ func (r apiAppliancesIdBackupBackupIdGetRequest) Execute() (*os.File, *_nethttp.
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiAppliancesIdBackupBackupIdStatusGetRequest struct {
-	ctx _context.Context
-	apiService *ApplianceBackupApiService
-	authorization *string
-	id string
-	backupId string
-}
 
+type apiAppliancesIdBackupBackupIdStatusGetRequest struct {
+	ctx           _context.Context
+	apiService    *ApplianceBackupApiService
+	authorization *string
+	id            string
+	backupId      string
+}
 
 func (r apiAppliancesIdBackupBackupIdStatusGetRequest) Authorization(authorization string) apiAppliancesIdBackupBackupIdStatusGetRequest {
 	r.authorization = &authorization
@@ -365,9 +359,9 @@ Get the status of the given Appliance Backup ID. If the status is "done", it can
 func (a *ApplianceBackupApiService) AppliancesIdBackupBackupIdStatusGet(ctx _context.Context, id string, backupId string) apiAppliancesIdBackupBackupIdStatusGetRequest {
 	return apiAppliancesIdBackupBackupIdStatusGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
-		backupId: backupId,
+		ctx:        ctx,
+		id:         id,
+		backupId:   backupId,
 	}
 }
 
@@ -391,18 +385,16 @@ func (r apiAppliancesIdBackupBackupIdStatusGetRequest) Execute() (InlineResponse
 	}
 
 	localVarPath := localBasePath + "/appliances/{id}/backup/{backupId}/status"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"backupId"+"}", _neturl.QueryEscape(parameterToString(r.backupId, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"backupId"+"}", _neturl.QueryEscape(parameterToString(r.backupId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -506,14 +498,14 @@ func (r apiAppliancesIdBackupBackupIdStatusGetRequest) Execute() (InlineResponse
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiAppliancesIdBackupPostRequest struct {
-	ctx _context.Context
-	apiService *ApplianceBackupApiService
-	authorization *string
-	id string
+	ctx            _context.Context
+	apiService     *ApplianceBackupApiService
+	authorization  *string
+	id             string
 	inlineObject10 *InlineObject10
 }
-
 
 func (r apiAppliancesIdBackupPostRequest) Authorization(authorization string) apiAppliancesIdBackupPostRequest {
 	r.authorization = &authorization
@@ -535,8 +527,8 @@ Initiate an Appliance Backup. The progress can be followed by polling the Applia
 func (a *ApplianceBackupApiService) AppliancesIdBackupPost(ctx _context.Context, id string) apiAppliancesIdBackupPostRequest {
 	return apiAppliancesIdBackupPostRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -560,17 +552,16 @@ func (r apiAppliancesIdBackupPostRequest) Execute() (InlineResponse20017, *_neth
 	}
 
 	localVarPath := localBasePath + "/appliances/{id}/backup"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 

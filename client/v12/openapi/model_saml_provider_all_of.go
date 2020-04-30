@@ -32,7 +32,7 @@ type SamlProviderAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSamlProviderAllOf(redirectUrl string, issuer string, audience string, providerCertificate string, ) *SamlProviderAllOf {
+func NewSamlProviderAllOf(redirectUrl string, issuer string, audience string, providerCertificate string) *SamlProviderAllOf {
 	this := SamlProviderAllOf{}
 	this.RedirectUrl = redirectUrl
 	this.Issuer = issuer
@@ -51,7 +51,7 @@ func NewSamlProviderAllOfWithDefaults() *SamlProviderAllOf {
 
 // GetRedirectUrl returns the RedirectUrl field value
 func (o *SamlProviderAllOf) GetRedirectUrl() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -62,7 +62,7 @@ func (o *SamlProviderAllOf) GetRedirectUrl() string {
 // GetRedirectUrlOk returns a tuple with the RedirectUrl field value
 // and a boolean to check if the value has been set.
 func (o *SamlProviderAllOf) GetRedirectUrlOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.RedirectUrl, true
@@ -75,7 +75,7 @@ func (o *SamlProviderAllOf) SetRedirectUrl(v string) {
 
 // GetIssuer returns the Issuer field value
 func (o *SamlProviderAllOf) GetIssuer() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -86,7 +86,7 @@ func (o *SamlProviderAllOf) GetIssuer() string {
 // GetIssuerOk returns a tuple with the Issuer field value
 // and a boolean to check if the value has been set.
 func (o *SamlProviderAllOf) GetIssuerOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Issuer, true
@@ -99,7 +99,7 @@ func (o *SamlProviderAllOf) SetIssuer(v string) {
 
 // GetAudience returns the Audience field value
 func (o *SamlProviderAllOf) GetAudience() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -110,7 +110,7 @@ func (o *SamlProviderAllOf) GetAudience() string {
 // GetAudienceOk returns a tuple with the Audience field value
 // and a boolean to check if the value has been set.
 func (o *SamlProviderAllOf) GetAudienceOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Audience, true
@@ -123,7 +123,7 @@ func (o *SamlProviderAllOf) SetAudience(v string) {
 
 // GetProviderCertificate returns the ProviderCertificate field value
 func (o *SamlProviderAllOf) GetProviderCertificate() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -134,7 +134,7 @@ func (o *SamlProviderAllOf) GetProviderCertificate() string {
 // GetProviderCertificateOk returns a tuple with the ProviderCertificate field value
 // and a boolean to check if the value has been set.
 func (o *SamlProviderAllOf) GetProviderCertificateOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.ProviderCertificate, true

@@ -27,11 +27,10 @@ var (
 type ConditionsApiService service
 
 type apiClaimsNamesGetRequest struct {
-	ctx _context.Context
-	apiService *ConditionsApiService
+	ctx           _context.Context
+	apiService    *ConditionsApiService
 	authorization *string
 }
-
 
 func (r apiClaimsNamesGetRequest) Authorization(authorization string) apiClaimsNamesGetRequest {
 	r.authorization = &authorization
@@ -47,7 +46,7 @@ Claim Names list includes available User, Device and System claims. Some of thes
 func (a *ConditionsApiService) ClaimsNamesGet(ctx _context.Context) apiClaimsNamesGetRequest {
 	return apiClaimsNamesGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -75,7 +74,7 @@ func (r apiClaimsNamesGetRequest) Execute() (InlineResponse2006, *_nethttp.Respo
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -172,16 +171,16 @@ func (r apiClaimsNamesGetRequest) Execute() (InlineResponse2006, *_nethttp.Respo
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiConditionsGetRequest struct {
-	ctx _context.Context
-	apiService *ConditionsApiService
-	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
-}
 
+type apiConditionsGetRequest struct {
+	ctx           _context.Context
+	apiService    *ConditionsApiService
+	authorization *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
+}
 
 func (r apiConditionsGetRequest) Authorization(authorization string) apiConditionsGetRequest {
 	r.authorization = &authorization
@@ -217,7 +216,7 @@ List all Conditions visible to current user.
 func (a *ConditionsApiService) ConditionsGet(ctx _context.Context) apiConditionsGetRequest {
 	return apiConditionsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -245,11 +244,11 @@ func (r apiConditionsGetRequest) Execute() (ConditionList, *_nethttp.Response, e
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -354,13 +353,13 @@ func (r apiConditionsGetRequest) Execute() (ConditionList, *_nethttp.Response, e
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiConditionsIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *ConditionsApiService
-	authorization *string
-	id string
-}
 
+type apiConditionsIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *ConditionsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiConditionsIdDeleteRequest) Authorization(authorization string) apiConditionsIdDeleteRequest {
 	r.authorization = &authorization
@@ -377,8 +376,8 @@ Delete a specific Condition.
 func (a *ConditionsApiService) ConditionsIdDelete(ctx _context.Context, id string) apiConditionsIdDeleteRequest {
 	return apiConditionsIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -393,7 +392,6 @@ func (r apiConditionsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "ConditionsApiService.ConditionsIdDelete")
@@ -402,16 +400,15 @@ func (r apiConditionsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/conditions/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -496,13 +493,13 @@ func (r apiConditionsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
-type apiConditionsIdGetRequest struct {
-	ctx _context.Context
-	apiService *ConditionsApiService
-	authorization *string
-	id string
-}
 
+type apiConditionsIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *ConditionsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiConditionsIdGetRequest) Authorization(authorization string) apiConditionsIdGetRequest {
 	r.authorization = &authorization
@@ -519,8 +516,8 @@ Get a specific Condition.
 func (a *ConditionsApiService) ConditionsIdGet(ctx _context.Context, id string) apiConditionsIdGetRequest {
 	return apiConditionsIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -544,16 +541,15 @@ func (r apiConditionsIdGetRequest) Execute() (Condition, *_nethttp.Response, err
 	}
 
 	localVarPath := localBasePath + "/conditions/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -657,14 +653,14 @@ func (r apiConditionsIdGetRequest) Execute() (Condition, *_nethttp.Response, err
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiConditionsIdPutRequest struct {
-	ctx _context.Context
-	apiService *ConditionsApiService
-	authorization *string
-	id string
-	condition *Condition
-}
 
+type apiConditionsIdPutRequest struct {
+	ctx           _context.Context
+	apiService    *ConditionsApiService
+	authorization *string
+	id            string
+	condition     *Condition
+}
 
 func (r apiConditionsIdPutRequest) Authorization(authorization string) apiConditionsIdPutRequest {
 	r.authorization = &authorization
@@ -686,8 +682,8 @@ Update an existing Condition.
 func (a *ConditionsApiService) ConditionsIdPut(ctx _context.Context, id string) apiConditionsIdPutRequest {
 	return apiConditionsIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -711,17 +707,16 @@ func (r apiConditionsIdPutRequest) Execute() (Condition, *_nethttp.Response, err
 	}
 
 	localVarPath := localBasePath + "/conditions/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.condition == nil {
 		return localVarReturnValue, nil, reportError("condition is required and must be specified")
 	}
@@ -850,13 +845,13 @@ func (r apiConditionsIdPutRequest) Execute() (Condition, *_nethttp.Response, err
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiConditionsPostRequest struct {
-	ctx _context.Context
-	apiService *ConditionsApiService
-	authorization *string
-	condition *Condition
-}
 
+type apiConditionsPostRequest struct {
+	ctx           _context.Context
+	apiService    *ConditionsApiService
+	authorization *string
+	condition     *Condition
+}
 
 func (r apiConditionsPostRequest) Authorization(authorization string) apiConditionsPostRequest {
 	r.authorization = &authorization
@@ -877,7 +872,7 @@ Create a new Condition.
 func (a *ConditionsApiService) ConditionsPost(ctx _context.Context) apiConditionsPostRequest {
 	return apiConditionsPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -905,11 +900,11 @@ func (r apiConditionsPostRequest) Execute() (Condition, *_nethttp.Response, erro
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.condition == nil {
 		return localVarReturnValue, nil, reportError("condition is required and must be specified")
 	}
@@ -1038,13 +1033,13 @@ func (r apiConditionsPostRequest) Execute() (Condition, *_nethttp.Response, erro
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiConditionsTestPostRequest struct {
-	ctx _context.Context
-	apiService *ConditionsApiService
+	ctx           _context.Context
+	apiService    *ConditionsApiService
 	authorization *string
 	inlineObject2 *InlineObject2
 }
-
 
 func (r apiConditionsTestPostRequest) Authorization(authorization string) apiConditionsTestPostRequest {
 	r.authorization = &authorization
@@ -1065,7 +1060,7 @@ Simulate a given expression for a Condition, Policy or Criteria Script.
 func (a *ConditionsApiService) ConditionsTestPost(ctx _context.Context) apiConditionsTestPostRequest {
 	return apiConditionsTestPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -1093,11 +1088,11 @@ func (r apiConditionsTestPostRequest) Execute() (InlineResponse2005, *_nethttp.R
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.inlineObject2 == nil {
 		return localVarReturnValue, nil, reportError("inlineObject2 is required and must be specified")
 	}

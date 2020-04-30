@@ -27,15 +27,14 @@ var (
 type SitesApiService service
 
 type apiSitesGetRequest struct {
-	ctx _context.Context
-	apiService *SitesApiService
+	ctx           _context.Context
+	apiService    *SitesApiService
 	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiSitesGetRequest) Authorization(authorization string) apiSitesGetRequest {
 	r.authorization = &authorization
@@ -71,7 +70,7 @@ List all Sites visible to current user.
 func (a *SitesApiService) SitesGet(ctx _context.Context) apiSitesGetRequest {
 	return apiSitesGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -99,11 +98,11 @@ func (r apiSitesGetRequest) Execute() (SiteList, *_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -208,13 +207,13 @@ func (r apiSitesGetRequest) Execute() (SiteList, *_nethttp.Response, error) {
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiSitesIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *SitesApiService
-	authorization *string
-	id string
-}
 
+type apiSitesIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *SitesApiService
+	authorization *string
+	id            string
+}
 
 func (r apiSitesIdDeleteRequest) Authorization(authorization string) apiSitesIdDeleteRequest {
 	r.authorization = &authorization
@@ -231,8 +230,8 @@ Delete a specific Site.
 func (a *SitesApiService) SitesIdDelete(ctx _context.Context, id string) apiSitesIdDeleteRequest {
 	return apiSitesIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -247,7 +246,6 @@ func (r apiSitesIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "SitesApiService.SitesIdDelete")
@@ -256,16 +254,15 @@ func (r apiSitesIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/sites/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -350,13 +347,13 @@ func (r apiSitesIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
-type apiSitesIdGetRequest struct {
-	ctx _context.Context
-	apiService *SitesApiService
-	authorization *string
-	id string
-}
 
+type apiSitesIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *SitesApiService
+	authorization *string
+	id            string
+}
 
 func (r apiSitesIdGetRequest) Authorization(authorization string) apiSitesIdGetRequest {
 	r.authorization = &authorization
@@ -373,8 +370,8 @@ Get a specific Site.
 func (a *SitesApiService) SitesIdGet(ctx _context.Context, id string) apiSitesIdGetRequest {
 	return apiSitesIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -398,16 +395,15 @@ func (r apiSitesIdGetRequest) Execute() (Site, *_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/sites/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -511,14 +507,14 @@ func (r apiSitesIdGetRequest) Execute() (Site, *_nethttp.Response, error) {
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiSitesIdPutRequest struct {
-	ctx _context.Context
-	apiService *SitesApiService
-	authorization *string
-	id string
-	site *Site
-}
 
+type apiSitesIdPutRequest struct {
+	ctx           _context.Context
+	apiService    *SitesApiService
+	authorization *string
+	id            string
+	site          *Site
+}
 
 func (r apiSitesIdPutRequest) Authorization(authorization string) apiSitesIdPutRequest {
 	r.authorization = &authorization
@@ -540,8 +536,8 @@ Update an existing Site.
 func (a *SitesApiService) SitesIdPut(ctx _context.Context, id string) apiSitesIdPutRequest {
 	return apiSitesIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -565,17 +561,16 @@ func (r apiSitesIdPutRequest) Execute() (Site, *_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/sites/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.site == nil {
 		return localVarReturnValue, nil, reportError("site is required and must be specified")
 	}
@@ -704,13 +699,13 @@ func (r apiSitesIdPutRequest) Execute() (Site, *_nethttp.Response, error) {
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiSitesPostRequest struct {
-	ctx _context.Context
-	apiService *SitesApiService
-	authorization *string
-	site *Site
-}
 
+type apiSitesPostRequest struct {
+	ctx           _context.Context
+	apiService    *SitesApiService
+	authorization *string
+	site          *Site
+}
 
 func (r apiSitesPostRequest) Authorization(authorization string) apiSitesPostRequest {
 	r.authorization = &authorization
@@ -731,7 +726,7 @@ Create a new Site.
 func (a *SitesApiService) SitesPost(ctx _context.Context) apiSitesPostRequest {
 	return apiSitesPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -759,11 +754,11 @@ func (r apiSitesPostRequest) Execute() (Site, *_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.site == nil {
 		return localVarReturnValue, nil, reportError("site is required and must be specified")
 	}

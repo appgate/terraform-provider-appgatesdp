@@ -27,15 +27,14 @@ var (
 type ActiveDevicesApiService service
 
 type apiTokenRecordsDnGetRequest struct {
-	ctx _context.Context
-	apiService *ActiveDevicesApiService
+	ctx           _context.Context
+	apiService    *ActiveDevicesApiService
 	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiTokenRecordsDnGetRequest) Authorization(authorization string) apiTokenRecordsDnGetRequest {
 	r.authorization = &authorization
@@ -71,7 +70,7 @@ List all Distinguished Names active in the past 24 hour. Includes the users who 
 func (a *ActiveDevicesApiService) TokenRecordsDnGet(ctx _context.Context) apiTokenRecordsDnGetRequest {
 	return apiTokenRecordsDnGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -99,11 +98,11 @@ func (r apiTokenRecordsDnGetRequest) Execute() (DistinguishedNameList, *_nethttp
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -208,13 +207,13 @@ func (r apiTokenRecordsDnGetRequest) Execute() (DistinguishedNameList, *_nethttp
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiTokenRecordsReevalByDnDistinguishedNamePostRequest struct {
-	ctx _context.Context
-	apiService *ActiveDevicesApiService
-	authorization *string
+	ctx               _context.Context
+	apiService        *ActiveDevicesApiService
+	authorization     *string
 	distinguishedName string
 }
-
 
 func (r apiTokenRecordsReevalByDnDistinguishedNamePostRequest) Authorization(authorization string) apiTokenRecordsReevalByDnDistinguishedNamePostRequest {
 	r.authorization = &authorization
@@ -230,8 +229,8 @@ Reevaluate all sessions belongs to the user&devices ending with the given Distin
 */
 func (a *ActiveDevicesApiService) TokenRecordsReevalByDnDistinguishedNamePost(ctx _context.Context, distinguishedName string) apiTokenRecordsReevalByDnDistinguishedNamePostRequest {
 	return apiTokenRecordsReevalByDnDistinguishedNamePostRequest{
-		apiService: a,
-		ctx: ctx,
+		apiService:        a,
+		ctx:               ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -256,16 +255,15 @@ func (r apiTokenRecordsReevalByDnDistinguishedNamePostRequest) Execute() (Inline
 	}
 
 	localVarPath := localBasePath + "/token-records/reeval/by-dn/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -369,15 +367,15 @@ func (r apiTokenRecordsReevalByDnDistinguishedNamePostRequest) Execute() (Inline
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiTokenRecordsRevokedByDnDistinguishedNamePutRequest struct {
-	ctx _context.Context
-	apiService *ActiveDevicesApiService
-	authorization *string
-	distinguishedName string
-	tokenType *string
+	ctx                    _context.Context
+	apiService             *ActiveDevicesApiService
+	authorization          *string
+	distinguishedName      string
+	tokenType              *string
 	tokenRevocationRequest *TokenRevocationRequest
 }
-
 
 func (r apiTokenRecordsRevokedByDnDistinguishedNamePutRequest) Authorization(authorization string) apiTokenRecordsRevokedByDnDistinguishedNamePutRequest {
 	r.authorization = &authorization
@@ -403,8 +401,8 @@ Revoke all Tokens belong to the user&devices ending with the given Distinguished
 */
 func (a *ActiveDevicesApiService) TokenRecordsRevokedByDnDistinguishedNamePut(ctx _context.Context, distinguishedName string) apiTokenRecordsRevokedByDnDistinguishedNamePutRequest {
 	return apiTokenRecordsRevokedByDnDistinguishedNamePutRequest{
-		apiService: a,
-		ctx: ctx,
+		apiService:        a,
+		ctx:               ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -420,7 +418,6 @@ func (r apiTokenRecordsRevokedByDnDistinguishedNamePutRequest) Execute() (*_neth
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "ActiveDevicesApiService.TokenRecordsRevokedByDnDistinguishedNamePut")
@@ -429,17 +426,16 @@ func (r apiTokenRecordsRevokedByDnDistinguishedNamePutRequest) Execute() (*_neth
 	}
 
 	localVarPath := localBasePath + "/token-records/revoked/by-dn/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
-		
+
 	if r.tokenType != nil {
 		localVarQueryParams.Add("tokenType", parameterToString(*r.tokenType, ""))
 	}
@@ -538,14 +534,14 @@ func (r apiTokenRecordsRevokedByDnDistinguishedNamePutRequest) Execute() (*_neth
 
 	return localVarHTTPResponse, nil
 }
+
 type apiTokenRecordsRevokedByTypeTokenTypePutRequest struct {
-	ctx _context.Context
-	apiService *ActiveDevicesApiService
-	authorization *string
-	tokenType string
+	ctx                    _context.Context
+	apiService             *ActiveDevicesApiService
+	authorization          *string
+	tokenType              string
 	tokenRevocationRequest *TokenRevocationRequest
 }
-
 
 func (r apiTokenRecordsRevokedByTypeTokenTypePutRequest) Authorization(authorization string) apiTokenRecordsRevokedByTypeTokenTypePutRequest {
 	r.authorization = &authorization
@@ -567,8 +563,8 @@ Revoke all Tokens with given type.
 func (a *ActiveDevicesApiService) TokenRecordsRevokedByTypeTokenTypePut(ctx _context.Context, tokenType string) apiTokenRecordsRevokedByTypeTokenTypePutRequest {
 	return apiTokenRecordsRevokedByTypeTokenTypePutRequest{
 		apiService: a,
-		ctx: ctx,
-		tokenType: tokenType,
+		ctx:        ctx,
+		tokenType:  tokenType,
 	}
 }
 
@@ -583,7 +579,6 @@ func (r apiTokenRecordsRevokedByTypeTokenTypePutRequest) Execute() (*_nethttp.Re
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "ActiveDevicesApiService.TokenRecordsRevokedByTypeTokenTypePut")
@@ -592,17 +587,16 @@ func (r apiTokenRecordsRevokedByTypeTokenTypePutRequest) Execute() (*_nethttp.Re
 	}
 
 	localVarPath := localBasePath + "/token-records/revoked/by-type/{token-type}"
-	localVarPath = strings.Replace(localVarPath, "{"+"token-type"+"}", _neturl.QueryEscape(parameterToString(r.tokenType, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"token-type"+"}", _neturl.QueryEscape(parameterToString(r.tokenType, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 

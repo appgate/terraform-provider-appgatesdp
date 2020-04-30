@@ -27,15 +27,14 @@ var (
 type EntitlementsApiService service
 
 type apiEntitlementsGetRequest struct {
-	ctx _context.Context
-	apiService *EntitlementsApiService
+	ctx           _context.Context
+	apiService    *EntitlementsApiService
 	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiEntitlementsGetRequest) Authorization(authorization string) apiEntitlementsGetRequest {
 	r.authorization = &authorization
@@ -71,7 +70,7 @@ List all Entitlements visible to current user.
 func (a *EntitlementsApiService) EntitlementsGet(ctx _context.Context) apiEntitlementsGetRequest {
 	return apiEntitlementsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -99,11 +98,11 @@ func (r apiEntitlementsGetRequest) Execute() (EntitlementList, *_nethttp.Respons
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -208,13 +207,13 @@ func (r apiEntitlementsGetRequest) Execute() (EntitlementList, *_nethttp.Respons
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiEntitlementsIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *EntitlementsApiService
-	authorization *string
-	id string
-}
 
+type apiEntitlementsIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *EntitlementsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiEntitlementsIdDeleteRequest) Authorization(authorization string) apiEntitlementsIdDeleteRequest {
 	r.authorization = &authorization
@@ -231,8 +230,8 @@ Delete a specific Entitlement.
 func (a *EntitlementsApiService) EntitlementsIdDelete(ctx _context.Context, id string) apiEntitlementsIdDeleteRequest {
 	return apiEntitlementsIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -247,7 +246,6 @@ func (r apiEntitlementsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "EntitlementsApiService.EntitlementsIdDelete")
@@ -256,16 +254,15 @@ func (r apiEntitlementsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/entitlements/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -350,13 +347,13 @@ func (r apiEntitlementsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
-type apiEntitlementsIdGetRequest struct {
-	ctx _context.Context
-	apiService *EntitlementsApiService
-	authorization *string
-	id string
-}
 
+type apiEntitlementsIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *EntitlementsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiEntitlementsIdGetRequest) Authorization(authorization string) apiEntitlementsIdGetRequest {
 	r.authorization = &authorization
@@ -373,8 +370,8 @@ Get a specific Entitlement.
 func (a *EntitlementsApiService) EntitlementsIdGet(ctx _context.Context, id string) apiEntitlementsIdGetRequest {
 	return apiEntitlementsIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -398,16 +395,15 @@ func (r apiEntitlementsIdGetRequest) Execute() (Entitlement, *_nethttp.Response,
 	}
 
 	localVarPath := localBasePath + "/entitlements/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -511,14 +507,14 @@ func (r apiEntitlementsIdGetRequest) Execute() (Entitlement, *_nethttp.Response,
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiEntitlementsIdPutRequest struct {
-	ctx _context.Context
-	apiService *EntitlementsApiService
-	authorization *string
-	id string
-	entitlement *Entitlement
-}
 
+type apiEntitlementsIdPutRequest struct {
+	ctx           _context.Context
+	apiService    *EntitlementsApiService
+	authorization *string
+	id            string
+	entitlement   *Entitlement
+}
 
 func (r apiEntitlementsIdPutRequest) Authorization(authorization string) apiEntitlementsIdPutRequest {
 	r.authorization = &authorization
@@ -540,8 +536,8 @@ Update an existing Entitlement.
 func (a *EntitlementsApiService) EntitlementsIdPut(ctx _context.Context, id string) apiEntitlementsIdPutRequest {
 	return apiEntitlementsIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -565,17 +561,16 @@ func (r apiEntitlementsIdPutRequest) Execute() (Entitlement, *_nethttp.Response,
 	}
 
 	localVarPath := localBasePath + "/entitlements/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.entitlement == nil {
 		return localVarReturnValue, nil, reportError("entitlement is required and must be specified")
 	}
@@ -704,13 +699,13 @@ func (r apiEntitlementsIdPutRequest) Execute() (Entitlement, *_nethttp.Response,
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiEntitlementsPostRequest struct {
-	ctx _context.Context
-	apiService *EntitlementsApiService
-	authorization *string
-	entitlement *Entitlement
-}
 
+type apiEntitlementsPostRequest struct {
+	ctx           _context.Context
+	apiService    *EntitlementsApiService
+	authorization *string
+	entitlement   *Entitlement
+}
 
 func (r apiEntitlementsPostRequest) Authorization(authorization string) apiEntitlementsPostRequest {
 	r.authorization = &authorization
@@ -731,7 +726,7 @@ Create a new Entitlement.
 func (a *EntitlementsApiService) EntitlementsPost(ctx _context.Context) apiEntitlementsPostRequest {
 	return apiEntitlementsPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -759,11 +754,11 @@ func (r apiEntitlementsPostRequest) Execute() (Entitlement, *_nethttp.Response, 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.entitlement == nil {
 		return localVarReturnValue, nil, reportError("entitlement is required and must be specified")
 	}

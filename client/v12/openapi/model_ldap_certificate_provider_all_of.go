@@ -26,7 +26,7 @@ type LdapCertificateProviderAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLdapCertificateProviderAllOf(caCertificates []string, ) *LdapCertificateProviderAllOf {
+func NewLdapCertificateProviderAllOf(caCertificates []string) *LdapCertificateProviderAllOf {
 	this := LdapCertificateProviderAllOf{}
 	this.CaCertificates = caCertificates
 	var certificateUserAttribute string = "userPrincipalName"
@@ -46,7 +46,7 @@ func NewLdapCertificateProviderAllOfWithDefaults() *LdapCertificateProviderAllOf
 
 // GetCaCertificates returns the CaCertificates field value
 func (o *LdapCertificateProviderAllOf) GetCaCertificates() []string {
-	if o == nil  {
+	if o == nil {
 		var ret []string
 		return ret
 	}
@@ -57,7 +57,7 @@ func (o *LdapCertificateProviderAllOf) GetCaCertificates() []string {
 // GetCaCertificatesOk returns a tuple with the CaCertificates field value
 // and a boolean to check if the value has been set.
 func (o *LdapCertificateProviderAllOf) GetCaCertificatesOk() (*[]string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.CaCertificates, true

@@ -28,7 +28,7 @@ type ApplianceAllOfNtpServers struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfNtpServers(hostname string, ) *ApplianceAllOfNtpServers {
+func NewApplianceAllOfNtpServers(hostname string) *ApplianceAllOfNtpServers {
 	this := ApplianceAllOfNtpServers{}
 	this.Hostname = hostname
 	return &this
@@ -44,7 +44,7 @@ func NewApplianceAllOfNtpServersWithDefaults() *ApplianceAllOfNtpServers {
 
 // GetHostname returns the Hostname field value
 func (o *ApplianceAllOfNtpServers) GetHostname() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -55,7 +55,7 @@ func (o *ApplianceAllOfNtpServers) GetHostname() string {
 // GetHostnameOk returns a tuple with the Hostname field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfNtpServers) GetHostnameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Hostname, true

@@ -27,12 +27,11 @@ var (
 type BlacklistedUsersApiService service
 
 type apiBlacklistDistinguishedNameDeleteRequest struct {
-	ctx _context.Context
-	apiService *BlacklistedUsersApiService
-	authorization *string
+	ctx               _context.Context
+	apiService        *BlacklistedUsersApiService
+	authorization     *string
 	distinguishedName string
 }
-
 
 func (r apiBlacklistDistinguishedNameDeleteRequest) Authorization(authorization string) apiBlacklistDistinguishedNameDeleteRequest {
 	r.authorization = &authorization
@@ -48,8 +47,8 @@ Remove the blacklist of a User for the given Distinguished Name.
 */
 func (a *BlacklistedUsersApiService) BlacklistDistinguishedNameDelete(ctx _context.Context, distinguishedName string) apiBlacklistDistinguishedNameDeleteRequest {
 	return apiBlacklistDistinguishedNameDeleteRequest{
-		apiService: a,
-		ctx: ctx,
+		apiService:        a,
+		ctx:               ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -65,7 +64,6 @@ func (r apiBlacklistDistinguishedNameDeleteRequest) Execute() (*_nethttp.Respons
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "BlacklistedUsersApiService.BlacklistDistinguishedNameDelete")
@@ -74,16 +72,15 @@ func (r apiBlacklistDistinguishedNameDeleteRequest) Execute() (*_nethttp.Respons
 	}
 
 	localVarPath := localBasePath + "/blacklist/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -168,16 +165,16 @@ func (r apiBlacklistDistinguishedNameDeleteRequest) Execute() (*_nethttp.Respons
 
 	return localVarHTTPResponse, nil
 }
-type apiBlacklistGetRequest struct {
-	ctx _context.Context
-	apiService *BlacklistedUsersApiService
-	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
-}
 
+type apiBlacklistGetRequest struct {
+	ctx           _context.Context
+	apiService    *BlacklistedUsersApiService
+	authorization *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
+}
 
 func (r apiBlacklistGetRequest) Authorization(authorization string) apiBlacklistGetRequest {
 	r.authorization = &authorization
@@ -213,7 +210,7 @@ List all blacklisted Users.
 func (a *BlacklistedUsersApiService) BlacklistGet(ctx _context.Context) apiBlacklistGetRequest {
 	return apiBlacklistGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -241,11 +238,11 @@ func (r apiBlacklistGetRequest) Execute() (BlacklistEntry, *_nethttp.Response, e
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -350,13 +347,13 @@ func (r apiBlacklistGetRequest) Execute() (BlacklistEntry, *_nethttp.Response, e
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiBlacklistPostRequest struct {
-	ctx _context.Context
-	apiService *BlacklistedUsersApiService
-	authorization *string
+	ctx            _context.Context
+	apiService     *BlacklistedUsersApiService
+	authorization  *string
 	blacklistEntry *BlacklistEntry
 }
-
 
 func (r apiBlacklistPostRequest) Authorization(authorization string) apiBlacklistPostRequest {
 	r.authorization = &authorization
@@ -377,7 +374,7 @@ Blacklists a User.
 func (a *BlacklistedUsersApiService) BlacklistPost(ctx _context.Context) apiBlacklistPostRequest {
 	return apiBlacklistPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -405,11 +402,11 @@ func (r apiBlacklistPostRequest) Execute() (BlacklistEntry, *_nethttp.Response, 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.blacklistEntry == nil {
 		return localVarReturnValue, nil, reportError("blacklistEntry is required and must be specified")
 	}

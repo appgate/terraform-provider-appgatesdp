@@ -19,9 +19,9 @@ type SiteAllOfVpn struct {
 	// Configuration for keeping track of states.
 	StateSharing *bool `json:"stateSharing,omitempty"`
 	// Source NAT.
-	Snat *bool `json:"snat,omitempty"`
-	Tls *SiteAllOfVpnTls `json:"tls,omitempty"`
-	Dtls *SiteAllOfVpnDtls `json:"dtls,omitempty"`
+	Snat     *bool                 `json:"snat,omitempty"`
+	Tls      *SiteAllOfVpnTls      `json:"tls,omitempty"`
+	Dtls     *SiteAllOfVpnDtls     `json:"dtls,omitempty"`
 	RouteVia *SiteAllOfVpnRouteVia `json:"routeVia,omitempty"`
 	// Flag for manipulating web proxy p12 file. Setting this false will delete the existing p12 file from database.
 	WebProxyEnabled *bool `json:"webProxyEnabled,omitempty"`

@@ -32,7 +32,7 @@ type LoginRequest struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLoginRequest(providerName string, deviceId string, ) *LoginRequest {
+func NewLoginRequest(providerName string, deviceId string) *LoginRequest {
 	this := LoginRequest{}
 	this.ProviderName = providerName
 	this.DeviceId = deviceId
@@ -49,7 +49,7 @@ func NewLoginRequestWithDefaults() *LoginRequest {
 
 // GetProviderName returns the ProviderName field value
 func (o *LoginRequest) GetProviderName() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -60,7 +60,7 @@ func (o *LoginRequest) GetProviderName() string {
 // GetProviderNameOk returns a tuple with the ProviderName field value
 // and a boolean to check if the value has been set.
 func (o *LoginRequest) GetProviderNameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.ProviderName, true
@@ -137,7 +137,7 @@ func (o *LoginRequest) SetPassword(v string) {
 
 // GetDeviceId returns the DeviceId field value
 func (o *LoginRequest) GetDeviceId() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -148,7 +148,7 @@ func (o *LoginRequest) GetDeviceId() string {
 // GetDeviceIdOk returns a tuple with the DeviceId field value
 // and a boolean to check if the value has been set.
 func (o *LoginRequest) GetDeviceIdOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.DeviceId, true

@@ -30,7 +30,7 @@ type ConditionAllOfRemedyMethods struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewConditionAllOfRemedyMethods(type_ string, message string, ) *ConditionAllOfRemedyMethods {
+func NewConditionAllOfRemedyMethods(type_ string, message string) *ConditionAllOfRemedyMethods {
 	this := ConditionAllOfRemedyMethods{}
 	this.Type = type_
 	this.Message = message
@@ -47,7 +47,7 @@ func NewConditionAllOfRemedyMethodsWithDefaults() *ConditionAllOfRemedyMethods {
 
 // GetType returns the Type field value
 func (o *ConditionAllOfRemedyMethods) GetType() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -58,7 +58,7 @@ func (o *ConditionAllOfRemedyMethods) GetType() string {
 // GetTypeOk returns a tuple with the Type field value
 // and a boolean to check if the value has been set.
 func (o *ConditionAllOfRemedyMethods) GetTypeOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Type, true
@@ -71,7 +71,7 @@ func (o *ConditionAllOfRemedyMethods) SetType(v string) {
 
 // GetMessage returns the Message field value
 func (o *ConditionAllOfRemedyMethods) GetMessage() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -82,7 +82,7 @@ func (o *ConditionAllOfRemedyMethods) GetMessage() string {
 // GetMessageOk returns a tuple with the Message field value
 // and a boolean to check if the value has been set.
 func (o *ConditionAllOfRemedyMethods) GetMessageOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Message, true

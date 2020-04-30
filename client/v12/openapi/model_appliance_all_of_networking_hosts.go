@@ -26,7 +26,7 @@ type ApplianceAllOfNetworkingHosts struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfNetworkingHosts(hostname string, address string, ) *ApplianceAllOfNetworkingHosts {
+func NewApplianceAllOfNetworkingHosts(hostname string, address string) *ApplianceAllOfNetworkingHosts {
 	this := ApplianceAllOfNetworkingHosts{}
 	this.Hostname = hostname
 	this.Address = address
@@ -43,7 +43,7 @@ func NewApplianceAllOfNetworkingHostsWithDefaults() *ApplianceAllOfNetworkingHos
 
 // GetHostname returns the Hostname field value
 func (o *ApplianceAllOfNetworkingHosts) GetHostname() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -54,7 +54,7 @@ func (o *ApplianceAllOfNetworkingHosts) GetHostname() string {
 // GetHostnameOk returns a tuple with the Hostname field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfNetworkingHosts) GetHostnameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Hostname, true
@@ -67,7 +67,7 @@ func (o *ApplianceAllOfNetworkingHosts) SetHostname(v string) {
 
 // GetAddress returns the Address field value
 func (o *ApplianceAllOfNetworkingHosts) GetAddress() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -78,7 +78,7 @@ func (o *ApplianceAllOfNetworkingHosts) GetAddress() string {
 // GetAddressOk returns a tuple with the Address field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfNetworkingHosts) GetAddressOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Address, true

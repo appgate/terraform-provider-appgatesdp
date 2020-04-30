@@ -30,7 +30,7 @@ type DeviceScriptAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewDeviceScriptAllOf(filename string, ) *DeviceScriptAllOf {
+func NewDeviceScriptAllOf(filename string) *DeviceScriptAllOf {
 	this := DeviceScriptAllOf{}
 	this.Filename = filename
 	return &this
@@ -46,7 +46,7 @@ func NewDeviceScriptAllOfWithDefaults() *DeviceScriptAllOf {
 
 // GetFilename returns the Filename field value
 func (o *DeviceScriptAllOf) GetFilename() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -57,7 +57,7 @@ func (o *DeviceScriptAllOf) GetFilename() string {
 // GetFilenameOk returns a tuple with the Filename field value
 // and a boolean to check if the value has been set.
 func (o *DeviceScriptAllOf) GetFilenameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Filename, true

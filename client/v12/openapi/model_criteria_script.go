@@ -25,7 +25,7 @@ type CriteriaScript struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCriteriaScript(expression string, ) *CriteriaScript {
+func NewCriteriaScript(expression string) *CriteriaScript {
 	this := CriteriaScript{}
 	this.Expression = expression
 	return &this
@@ -41,7 +41,7 @@ func NewCriteriaScriptWithDefaults() *CriteriaScript {
 
 // GetExpression returns the Expression field value
 func (o *CriteriaScript) GetExpression() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -52,7 +52,7 @@ func (o *CriteriaScript) GetExpression() string {
 // GetExpressionOk returns a tuple with the Expression field value
 // and a boolean to check if the value has been set.
 func (o *CriteriaScript) GetExpressionOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Expression, true

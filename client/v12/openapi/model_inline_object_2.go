@@ -18,18 +18,18 @@ import (
 // InlineObject2 struct for InlineObject2
 type InlineObject2 struct {
 	// The javascript expression to evaluate.
-	Expression string `json:"expression"`
-	UserClaims *map[string]map[string]interface{} `json:"userClaims,omitempty"`
+	Expression   string                             `json:"expression"`
+	UserClaims   *map[string]map[string]interface{} `json:"userClaims,omitempty"`
 	DeviceClaims *map[string]map[string]interface{} `json:"deviceClaims,omitempty"`
 	SystemClaims *map[string]map[string]interface{} `json:"systemClaims,omitempty"`
-	Time *time.Time `json:"time,omitempty"`
+	Time         *time.Time                         `json:"time,omitempty"`
 }
 
 // NewInlineObject2 instantiates a new InlineObject2 object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewInlineObject2(expression string, ) *InlineObject2 {
+func NewInlineObject2(expression string) *InlineObject2 {
 	this := InlineObject2{}
 	this.Expression = expression
 	return &this
@@ -45,7 +45,7 @@ func NewInlineObject2WithDefaults() *InlineObject2 {
 
 // GetExpression returns the Expression field value
 func (o *InlineObject2) GetExpression() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -56,7 +56,7 @@ func (o *InlineObject2) GetExpression() string {
 // GetExpressionOk returns a tuple with the Expression field value
 // and a boolean to check if the value has been set.
 func (o *InlineObject2) GetExpressionOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Expression, true

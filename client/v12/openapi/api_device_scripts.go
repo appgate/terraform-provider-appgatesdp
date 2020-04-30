@@ -27,12 +27,11 @@ var (
 type DeviceScriptsApiService service
 
 type apiDeviceScriptsDownloadIdGetRequest struct {
-	ctx _context.Context
-	apiService *DeviceScriptsApiService
+	ctx           _context.Context
+	apiService    *DeviceScriptsApiService
 	authorization *string
-	id string
+	id            string
 }
-
 
 func (r apiDeviceScriptsDownloadIdGetRequest) Authorization(authorization string) apiDeviceScriptsDownloadIdGetRequest {
 	r.authorization = &authorization
@@ -49,8 +48,8 @@ Download the raw script.
 func (a *DeviceScriptsApiService) DeviceScriptsDownloadIdGet(ctx _context.Context, id string) apiDeviceScriptsDownloadIdGetRequest {
 	return apiDeviceScriptsDownloadIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -74,16 +73,15 @@ func (r apiDeviceScriptsDownloadIdGetRequest) Execute() (InlineResponse20012, *_
 	}
 
 	localVarPath := localBasePath + "/device-scripts/download/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -187,16 +185,16 @@ func (r apiDeviceScriptsDownloadIdGetRequest) Execute() (InlineResponse20012, *_
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiDeviceScriptsGetRequest struct {
-	ctx _context.Context
-	apiService *DeviceScriptsApiService
-	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
-}
 
+type apiDeviceScriptsGetRequest struct {
+	ctx           _context.Context
+	apiService    *DeviceScriptsApiService
+	authorization *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
+}
 
 func (r apiDeviceScriptsGetRequest) Authorization(authorization string) apiDeviceScriptsGetRequest {
 	r.authorization = &authorization
@@ -232,7 +230,7 @@ List all Device Scripts visible to current user.
 func (a *DeviceScriptsApiService) DeviceScriptsGet(ctx _context.Context) apiDeviceScriptsGetRequest {
 	return apiDeviceScriptsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -260,11 +258,11 @@ func (r apiDeviceScriptsGetRequest) Execute() (DeviceScriptList, *_nethttp.Respo
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -369,13 +367,13 @@ func (r apiDeviceScriptsGetRequest) Execute() (DeviceScriptList, *_nethttp.Respo
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiDeviceScriptsIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *DeviceScriptsApiService
-	authorization *string
-	id string
-}
 
+type apiDeviceScriptsIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *DeviceScriptsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiDeviceScriptsIdDeleteRequest) Authorization(authorization string) apiDeviceScriptsIdDeleteRequest {
 	r.authorization = &authorization
@@ -392,8 +390,8 @@ Delete a specific Device Script.
 func (a *DeviceScriptsApiService) DeviceScriptsIdDelete(ctx _context.Context, id string) apiDeviceScriptsIdDeleteRequest {
 	return apiDeviceScriptsIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -408,7 +406,6 @@ func (r apiDeviceScriptsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "DeviceScriptsApiService.DeviceScriptsIdDelete")
@@ -417,16 +414,15 @@ func (r apiDeviceScriptsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/device-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -511,13 +507,13 @@ func (r apiDeviceScriptsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
-type apiDeviceScriptsIdGetRequest struct {
-	ctx _context.Context
-	apiService *DeviceScriptsApiService
-	authorization *string
-	id string
-}
 
+type apiDeviceScriptsIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *DeviceScriptsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiDeviceScriptsIdGetRequest) Authorization(authorization string) apiDeviceScriptsIdGetRequest {
 	r.authorization = &authorization
@@ -534,8 +530,8 @@ Get a specific Device Script.
 func (a *DeviceScriptsApiService) DeviceScriptsIdGet(ctx _context.Context, id string) apiDeviceScriptsIdGetRequest {
 	return apiDeviceScriptsIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -559,16 +555,15 @@ func (r apiDeviceScriptsIdGetRequest) Execute() (DeviceScript, *_nethttp.Respons
 	}
 
 	localVarPath := localBasePath + "/device-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -672,14 +667,14 @@ func (r apiDeviceScriptsIdGetRequest) Execute() (DeviceScript, *_nethttp.Respons
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiDeviceScriptsIdPutRequest struct {
-	ctx _context.Context
-	apiService *DeviceScriptsApiService
-	authorization *string
-	id string
-	deviceScript *DeviceScript
-}
 
+type apiDeviceScriptsIdPutRequest struct {
+	ctx           _context.Context
+	apiService    *DeviceScriptsApiService
+	authorization *string
+	id            string
+	deviceScript  *DeviceScript
+}
 
 func (r apiDeviceScriptsIdPutRequest) Authorization(authorization string) apiDeviceScriptsIdPutRequest {
 	r.authorization = &authorization
@@ -701,8 +696,8 @@ Update an existing Device Script.
 func (a *DeviceScriptsApiService) DeviceScriptsIdPut(ctx _context.Context, id string) apiDeviceScriptsIdPutRequest {
 	return apiDeviceScriptsIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -726,17 +721,16 @@ func (r apiDeviceScriptsIdPutRequest) Execute() (DeviceScript, *_nethttp.Respons
 	}
 
 	localVarPath := localBasePath + "/device-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.deviceScript == nil {
 		return localVarReturnValue, nil, reportError("deviceScript is required and must be specified")
 	}
@@ -865,13 +859,13 @@ func (r apiDeviceScriptsIdPutRequest) Execute() (DeviceScript, *_nethttp.Respons
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiDeviceScriptsPostRequest struct {
-	ctx _context.Context
-	apiService *DeviceScriptsApiService
-	authorization *string
-	deviceScript *DeviceScript
-}
 
+type apiDeviceScriptsPostRequest struct {
+	ctx           _context.Context
+	apiService    *DeviceScriptsApiService
+	authorization *string
+	deviceScript  *DeviceScript
+}
 
 func (r apiDeviceScriptsPostRequest) Authorization(authorization string) apiDeviceScriptsPostRequest {
 	r.authorization = &authorization
@@ -892,7 +886,7 @@ Create a new Device Script.
 func (a *DeviceScriptsApiService) DeviceScriptsPost(ctx _context.Context) apiDeviceScriptsPostRequest {
 	return apiDeviceScriptsPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -920,11 +914,11 @@ func (r apiDeviceScriptsPostRequest) Execute() (DeviceScript, *_nethttp.Response
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.deviceScript == nil {
 		return localVarReturnValue, nil, reportError("deviceScript is required and must be specified")
 	}

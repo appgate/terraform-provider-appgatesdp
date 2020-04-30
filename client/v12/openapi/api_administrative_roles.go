@@ -27,15 +27,14 @@ var (
 type AdministrativeRolesApiService service
 
 type apiAdministrativeRolesGetRequest struct {
-	ctx _context.Context
-	apiService *AdministrativeRolesApiService
+	ctx           _context.Context
+	apiService    *AdministrativeRolesApiService
 	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiAdministrativeRolesGetRequest) Authorization(authorization string) apiAdministrativeRolesGetRequest {
 	r.authorization = &authorization
@@ -71,7 +70,7 @@ List all Administrative Roles visible to current user.
 func (a *AdministrativeRolesApiService) AdministrativeRolesGet(ctx _context.Context) apiAdministrativeRolesGetRequest {
 	return apiAdministrativeRolesGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -99,11 +98,11 @@ func (r apiAdministrativeRolesGetRequest) Execute() (AdministrativeRoleList, *_n
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -208,13 +207,13 @@ func (r apiAdministrativeRolesGetRequest) Execute() (AdministrativeRoleList, *_n
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiAdministrativeRolesIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *AdministrativeRolesApiService
-	authorization *string
-	id string
-}
 
+type apiAdministrativeRolesIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *AdministrativeRolesApiService
+	authorization *string
+	id            string
+}
 
 func (r apiAdministrativeRolesIdDeleteRequest) Authorization(authorization string) apiAdministrativeRolesIdDeleteRequest {
 	r.authorization = &authorization
@@ -231,8 +230,8 @@ Delete a specific Administrative Role.
 func (a *AdministrativeRolesApiService) AdministrativeRolesIdDelete(ctx _context.Context, id string) apiAdministrativeRolesIdDeleteRequest {
 	return apiAdministrativeRolesIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -247,7 +246,6 @@ func (r apiAdministrativeRolesIdDeleteRequest) Execute() (*_nethttp.Response, er
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "AdministrativeRolesApiService.AdministrativeRolesIdDelete")
@@ -256,16 +254,15 @@ func (r apiAdministrativeRolesIdDeleteRequest) Execute() (*_nethttp.Response, er
 	}
 
 	localVarPath := localBasePath + "/administrative-roles/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -350,13 +347,13 @@ func (r apiAdministrativeRolesIdDeleteRequest) Execute() (*_nethttp.Response, er
 
 	return localVarHTTPResponse, nil
 }
-type apiAdministrativeRolesIdGetRequest struct {
-	ctx _context.Context
-	apiService *AdministrativeRolesApiService
-	authorization *string
-	id string
-}
 
+type apiAdministrativeRolesIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *AdministrativeRolesApiService
+	authorization *string
+	id            string
+}
 
 func (r apiAdministrativeRolesIdGetRequest) Authorization(authorization string) apiAdministrativeRolesIdGetRequest {
 	r.authorization = &authorization
@@ -373,8 +370,8 @@ Get a specific Administrative Role.
 func (a *AdministrativeRolesApiService) AdministrativeRolesIdGet(ctx _context.Context, id string) apiAdministrativeRolesIdGetRequest {
 	return apiAdministrativeRolesIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -398,16 +395,15 @@ func (r apiAdministrativeRolesIdGetRequest) Execute() (AdministrativeRole, *_net
 	}
 
 	localVarPath := localBasePath + "/administrative-roles/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -511,14 +507,14 @@ func (r apiAdministrativeRolesIdGetRequest) Execute() (AdministrativeRole, *_net
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiAdministrativeRolesIdPutRequest struct {
-	ctx _context.Context
-	apiService *AdministrativeRolesApiService
-	authorization *string
-	id string
+	ctx                _context.Context
+	apiService         *AdministrativeRolesApiService
+	authorization      *string
+	id                 string
 	administrativeRole *AdministrativeRole
 }
-
 
 func (r apiAdministrativeRolesIdPutRequest) Authorization(authorization string) apiAdministrativeRolesIdPutRequest {
 	r.authorization = &authorization
@@ -540,8 +536,8 @@ Update an existing Administrative Role.
 func (a *AdministrativeRolesApiService) AdministrativeRolesIdPut(ctx _context.Context, id string) apiAdministrativeRolesIdPutRequest {
 	return apiAdministrativeRolesIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -565,17 +561,16 @@ func (r apiAdministrativeRolesIdPutRequest) Execute() (AdministrativeRole, *_net
 	}
 
 	localVarPath := localBasePath + "/administrative-roles/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.administrativeRole == nil {
 		return localVarReturnValue, nil, reportError("administrativeRole is required and must be specified")
 	}
@@ -704,13 +699,13 @@ func (r apiAdministrativeRolesIdPutRequest) Execute() (AdministrativeRole, *_net
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiAdministrativeRolesPostRequest struct {
-	ctx _context.Context
-	apiService *AdministrativeRolesApiService
-	authorization *string
+	ctx                _context.Context
+	apiService         *AdministrativeRolesApiService
+	authorization      *string
 	administrativeRole *AdministrativeRole
 }
-
 
 func (r apiAdministrativeRolesPostRequest) Authorization(authorization string) apiAdministrativeRolesPostRequest {
 	r.authorization = &authorization
@@ -731,7 +726,7 @@ Create a new Administrative Role.
 func (a *AdministrativeRolesApiService) AdministrativeRolesPost(ctx _context.Context) apiAdministrativeRolesPostRequest {
 	return apiAdministrativeRolesPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -759,11 +754,11 @@ func (r apiAdministrativeRolesPostRequest) Execute() (AdministrativeRole, *_neth
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.administrativeRole == nil {
 		return localVarReturnValue, nil, reportError("administrativeRole is required and must be specified")
 	}
@@ -892,12 +887,12 @@ func (r apiAdministrativeRolesPostRequest) Execute() (AdministrativeRole, *_neth
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiAdministrativeRolesTypeTargetMapGetRequest struct {
-	ctx _context.Context
-	apiService *AdministrativeRolesApiService
+	ctx           _context.Context
+	apiService    *AdministrativeRolesApiService
 	authorization *string
 }
-
 
 func (r apiAdministrativeRolesTypeTargetMapGetRequest) Authorization(authorization string) apiAdministrativeRolesTypeTargetMapGetRequest {
 	r.authorization = &authorization
@@ -913,7 +908,7 @@ The type target map summarizes what kind of Privileges one can create.
 func (a *AdministrativeRolesApiService) AdministrativeRolesTypeTargetMapGet(ctx _context.Context) apiAdministrativeRolesTypeTargetMapGetRequest {
 	return apiAdministrativeRolesTypeTargetMapGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -941,7 +936,7 @@ func (r apiAdministrativeRolesTypeTargetMapGetRequest) Execute() (InlineResponse
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}

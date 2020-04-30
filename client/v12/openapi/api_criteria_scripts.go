@@ -27,15 +27,14 @@ var (
 type CriteriaScriptsApiService service
 
 type apiCriteriaScriptsGetRequest struct {
-	ctx _context.Context
-	apiService *CriteriaScriptsApiService
+	ctx           _context.Context
+	apiService    *CriteriaScriptsApiService
 	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiCriteriaScriptsGetRequest) Authorization(authorization string) apiCriteriaScriptsGetRequest {
 	r.authorization = &authorization
@@ -71,7 +70,7 @@ List all Criteria Scripts visible to current user.
 func (a *CriteriaScriptsApiService) CriteriaScriptsGet(ctx _context.Context) apiCriteriaScriptsGetRequest {
 	return apiCriteriaScriptsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -99,11 +98,11 @@ func (r apiCriteriaScriptsGetRequest) Execute() (CriteriaScriptList, *_nethttp.R
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -208,13 +207,13 @@ func (r apiCriteriaScriptsGetRequest) Execute() (CriteriaScriptList, *_nethttp.R
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiCriteriaScriptsIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *CriteriaScriptsApiService
-	authorization *string
-	id string
-}
 
+type apiCriteriaScriptsIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *CriteriaScriptsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiCriteriaScriptsIdDeleteRequest) Authorization(authorization string) apiCriteriaScriptsIdDeleteRequest {
 	r.authorization = &authorization
@@ -231,8 +230,8 @@ Delete a specific Criteria Script.
 func (a *CriteriaScriptsApiService) CriteriaScriptsIdDelete(ctx _context.Context, id string) apiCriteriaScriptsIdDeleteRequest {
 	return apiCriteriaScriptsIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -247,7 +246,6 @@ func (r apiCriteriaScriptsIdDeleteRequest) Execute() (*_nethttp.Response, error)
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "CriteriaScriptsApiService.CriteriaScriptsIdDelete")
@@ -256,16 +254,15 @@ func (r apiCriteriaScriptsIdDeleteRequest) Execute() (*_nethttp.Response, error)
 	}
 
 	localVarPath := localBasePath + "/criteria-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -350,13 +347,13 @@ func (r apiCriteriaScriptsIdDeleteRequest) Execute() (*_nethttp.Response, error)
 
 	return localVarHTTPResponse, nil
 }
-type apiCriteriaScriptsIdGetRequest struct {
-	ctx _context.Context
-	apiService *CriteriaScriptsApiService
-	authorization *string
-	id string
-}
 
+type apiCriteriaScriptsIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *CriteriaScriptsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiCriteriaScriptsIdGetRequest) Authorization(authorization string) apiCriteriaScriptsIdGetRequest {
 	r.authorization = &authorization
@@ -373,8 +370,8 @@ Get a specific Criteria Script.
 func (a *CriteriaScriptsApiService) CriteriaScriptsIdGet(ctx _context.Context, id string) apiCriteriaScriptsIdGetRequest {
 	return apiCriteriaScriptsIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -398,16 +395,15 @@ func (r apiCriteriaScriptsIdGetRequest) Execute() (CriteriaScript, *_nethttp.Res
 	}
 
 	localVarPath := localBasePath + "/criteria-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -511,14 +507,14 @@ func (r apiCriteriaScriptsIdGetRequest) Execute() (CriteriaScript, *_nethttp.Res
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiCriteriaScriptsIdPutRequest struct {
-	ctx _context.Context
-	apiService *CriteriaScriptsApiService
-	authorization *string
-	id string
+	ctx            _context.Context
+	apiService     *CriteriaScriptsApiService
+	authorization  *string
+	id             string
 	criteriaScript *CriteriaScript
 }
-
 
 func (r apiCriteriaScriptsIdPutRequest) Authorization(authorization string) apiCriteriaScriptsIdPutRequest {
 	r.authorization = &authorization
@@ -540,8 +536,8 @@ Update an existing Criteria Script.
 func (a *CriteriaScriptsApiService) CriteriaScriptsIdPut(ctx _context.Context, id string) apiCriteriaScriptsIdPutRequest {
 	return apiCriteriaScriptsIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -565,17 +561,16 @@ func (r apiCriteriaScriptsIdPutRequest) Execute() (CriteriaScript, *_nethttp.Res
 	}
 
 	localVarPath := localBasePath + "/criteria-scripts/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.criteriaScript == nil {
 		return localVarReturnValue, nil, reportError("criteriaScript is required and must be specified")
 	}
@@ -704,13 +699,13 @@ func (r apiCriteriaScriptsIdPutRequest) Execute() (CriteriaScript, *_nethttp.Res
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiCriteriaScriptsPostRequest struct {
-	ctx _context.Context
-	apiService *CriteriaScriptsApiService
-	authorization *string
+	ctx            _context.Context
+	apiService     *CriteriaScriptsApiService
+	authorization  *string
 	criteriaScript *CriteriaScript
 }
-
 
 func (r apiCriteriaScriptsPostRequest) Authorization(authorization string) apiCriteriaScriptsPostRequest {
 	r.authorization = &authorization
@@ -731,7 +726,7 @@ Create a new Criteria Script.
 func (a *CriteriaScriptsApiService) CriteriaScriptsPost(ctx _context.Context) apiCriteriaScriptsPostRequest {
 	return apiCriteriaScriptsPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -759,11 +754,11 @@ func (r apiCriteriaScriptsPostRequest) Execute() (CriteriaScript, *_nethttp.Resp
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.criteriaScript == nil {
 		return localVarReturnValue, nil, reportError("criteriaScript is required and must be specified")
 	}

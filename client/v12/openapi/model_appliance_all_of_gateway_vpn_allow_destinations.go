@@ -28,7 +28,7 @@ type ApplianceAllOfGatewayVpnAllowDestinations struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfGatewayVpnAllowDestinations(nic string, ) *ApplianceAllOfGatewayVpnAllowDestinations {
+func NewApplianceAllOfGatewayVpnAllowDestinations(nic string) *ApplianceAllOfGatewayVpnAllowDestinations {
 	this := ApplianceAllOfGatewayVpnAllowDestinations{}
 	this.Nic = nic
 	return &this
@@ -108,7 +108,7 @@ func (o *ApplianceAllOfGatewayVpnAllowDestinations) SetNetmask(v int32) {
 
 // GetNic returns the Nic field value
 func (o *ApplianceAllOfGatewayVpnAllowDestinations) GetNic() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -119,7 +119,7 @@ func (o *ApplianceAllOfGatewayVpnAllowDestinations) GetNic() string {
 // GetNicOk returns a tuple with the Nic field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfGatewayVpnAllowDestinations) GetNicOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Nic, true

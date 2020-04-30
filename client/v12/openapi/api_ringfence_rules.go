@@ -27,15 +27,14 @@ var (
 type RingfenceRulesApiService service
 
 type apiRingfenceRulesGetRequest struct {
-	ctx _context.Context
-	apiService *RingfenceRulesApiService
+	ctx           _context.Context
+	apiService    *RingfenceRulesApiService
 	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiRingfenceRulesGetRequest) Authorization(authorization string) apiRingfenceRulesGetRequest {
 	r.authorization = &authorization
@@ -71,7 +70,7 @@ List all Ringfence Rules visible to current user.
 func (a *RingfenceRulesApiService) RingfenceRulesGet(ctx _context.Context) apiRingfenceRulesGetRequest {
 	return apiRingfenceRulesGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -99,11 +98,11 @@ func (r apiRingfenceRulesGetRequest) Execute() (RingfenceRuleList, *_nethttp.Res
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -208,13 +207,13 @@ func (r apiRingfenceRulesGetRequest) Execute() (RingfenceRuleList, *_nethttp.Res
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiRingfenceRulesIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *RingfenceRulesApiService
-	authorization *string
-	id string
-}
 
+type apiRingfenceRulesIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *RingfenceRulesApiService
+	authorization *string
+	id            string
+}
 
 func (r apiRingfenceRulesIdDeleteRequest) Authorization(authorization string) apiRingfenceRulesIdDeleteRequest {
 	r.authorization = &authorization
@@ -231,8 +230,8 @@ Delete a specific Ringfence Rule.
 func (a *RingfenceRulesApiService) RingfenceRulesIdDelete(ctx _context.Context, id string) apiRingfenceRulesIdDeleteRequest {
 	return apiRingfenceRulesIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -247,7 +246,6 @@ func (r apiRingfenceRulesIdDeleteRequest) Execute() (*_nethttp.Response, error) 
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "RingfenceRulesApiService.RingfenceRulesIdDelete")
@@ -256,16 +254,15 @@ func (r apiRingfenceRulesIdDeleteRequest) Execute() (*_nethttp.Response, error) 
 	}
 
 	localVarPath := localBasePath + "/ringfence-rules/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -350,13 +347,13 @@ func (r apiRingfenceRulesIdDeleteRequest) Execute() (*_nethttp.Response, error) 
 
 	return localVarHTTPResponse, nil
 }
-type apiRingfenceRulesIdGetRequest struct {
-	ctx _context.Context
-	apiService *RingfenceRulesApiService
-	authorization *string
-	id string
-}
 
+type apiRingfenceRulesIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *RingfenceRulesApiService
+	authorization *string
+	id            string
+}
 
 func (r apiRingfenceRulesIdGetRequest) Authorization(authorization string) apiRingfenceRulesIdGetRequest {
 	r.authorization = &authorization
@@ -373,8 +370,8 @@ Get a specific Ringfence Rule.
 func (a *RingfenceRulesApiService) RingfenceRulesIdGet(ctx _context.Context, id string) apiRingfenceRulesIdGetRequest {
 	return apiRingfenceRulesIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -398,16 +395,15 @@ func (r apiRingfenceRulesIdGetRequest) Execute() (RingfenceRule, *_nethttp.Respo
 	}
 
 	localVarPath := localBasePath + "/ringfence-rules/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -511,14 +507,14 @@ func (r apiRingfenceRulesIdGetRequest) Execute() (RingfenceRule, *_nethttp.Respo
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiRingfenceRulesIdPutRequest struct {
-	ctx _context.Context
-	apiService *RingfenceRulesApiService
+	ctx           _context.Context
+	apiService    *RingfenceRulesApiService
 	authorization *string
-	id string
+	id            string
 	ringfenceRule *RingfenceRule
 }
-
 
 func (r apiRingfenceRulesIdPutRequest) Authorization(authorization string) apiRingfenceRulesIdPutRequest {
 	r.authorization = &authorization
@@ -540,8 +536,8 @@ Update an existing Ringfence Rule.
 func (a *RingfenceRulesApiService) RingfenceRulesIdPut(ctx _context.Context, id string) apiRingfenceRulesIdPutRequest {
 	return apiRingfenceRulesIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -565,17 +561,16 @@ func (r apiRingfenceRulesIdPutRequest) Execute() (RingfenceRule, *_nethttp.Respo
 	}
 
 	localVarPath := localBasePath + "/ringfence-rules/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.ringfenceRule == nil {
 		return localVarReturnValue, nil, reportError("ringfenceRule is required and must be specified")
 	}
@@ -704,13 +699,13 @@ func (r apiRingfenceRulesIdPutRequest) Execute() (RingfenceRule, *_nethttp.Respo
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiRingfenceRulesPostRequest struct {
-	ctx _context.Context
-	apiService *RingfenceRulesApiService
+	ctx           _context.Context
+	apiService    *RingfenceRulesApiService
 	authorization *string
 	ringfenceRule *RingfenceRule
 }
-
 
 func (r apiRingfenceRulesPostRequest) Authorization(authorization string) apiRingfenceRulesPostRequest {
 	r.authorization = &authorization
@@ -731,7 +726,7 @@ Create a new Ringfence Rule.
 func (a *RingfenceRulesApiService) RingfenceRulesPost(ctx _context.Context) apiRingfenceRulesPostRequest {
 	return apiRingfenceRulesPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -759,11 +754,11 @@ func (r apiRingfenceRulesPostRequest) Execute() (RingfenceRule, *_nethttp.Respon
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.ringfenceRule == nil {
 		return localVarReturnValue, nil, reportError("ringfenceRule is required and must be specified")
 	}

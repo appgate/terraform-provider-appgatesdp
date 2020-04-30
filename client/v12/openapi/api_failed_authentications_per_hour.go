@@ -26,11 +26,10 @@ var (
 type FailedAuthenticationsPerHourApiService service
 
 type apiStatsFailedAuthenticationsGetRequest struct {
-	ctx _context.Context
-	apiService *FailedAuthenticationsPerHourApiService
+	ctx           _context.Context
+	apiService    *FailedAuthenticationsPerHourApiService
 	authorization *string
 }
-
 
 func (r apiStatsFailedAuthenticationsGetRequest) Authorization(authorization string) apiStatsFailedAuthenticationsGetRequest {
 	r.authorization = &authorization
@@ -46,7 +45,7 @@ Get the failed authentications per hour for the last 24 hours.
 func (a *FailedAuthenticationsPerHourApiService) StatsFailedAuthenticationsGet(ctx _context.Context) apiStatsFailedAuthenticationsGetRequest {
 	return apiStatsFailedAuthenticationsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -74,7 +73,7 @@ func (r apiStatsFailedAuthenticationsGetRequest) Execute() (BaseStats, *_nethttp
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}

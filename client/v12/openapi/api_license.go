@@ -26,11 +26,10 @@ var (
 type LicenseApiService service
 
 type apiLicenseDeleteRequest struct {
-	ctx _context.Context
-	apiService *LicenseApiService
+	ctx           _context.Context
+	apiService    *LicenseApiService
 	authorization *string
 }
-
 
 func (r apiLicenseDeleteRequest) Authorization(authorization string) apiLicenseDeleteRequest {
 	r.authorization = &authorization
@@ -46,7 +45,7 @@ Delete the current License to revert to the Built-in License.
 func (a *LicenseApiService) LicenseDelete(ctx _context.Context) apiLicenseDeleteRequest {
 	return apiLicenseDeleteRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -61,7 +60,6 @@ func (r apiLicenseDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "LicenseApiService.LicenseDelete")
@@ -74,7 +72,7 @@ func (r apiLicenseDeleteRequest) Execute() (*_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
@@ -152,12 +150,12 @@ func (r apiLicenseDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
+
 type apiLicenseGetRequest struct {
-	ctx _context.Context
-	apiService *LicenseApiService
+	ctx           _context.Context
+	apiService    *LicenseApiService
 	authorization *string
 }
-
 
 func (r apiLicenseGetRequest) Authorization(authorization string) apiLicenseGetRequest {
 	r.authorization = &authorization
@@ -173,7 +171,7 @@ Get the current License.
 func (a *LicenseApiService) LicenseGet(ctx _context.Context) apiLicenseGetRequest {
 	return apiLicenseGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -201,7 +199,7 @@ func (r apiLicenseGetRequest) Execute() (LicenseDetails, *_nethttp.Response, err
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -298,12 +296,12 @@ func (r apiLicenseGetRequest) Execute() (LicenseDetails, *_nethttp.Response, err
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiLicenseNextDeleteRequest struct {
-	ctx _context.Context
-	apiService *LicenseApiService
+	ctx           _context.Context
+	apiService    *LicenseApiService
 	authorization *string
 }
-
 
 func (r apiLicenseNextDeleteRequest) Authorization(authorization string) apiLicenseNextDeleteRequest {
 	r.authorization = &authorization
@@ -319,7 +317,7 @@ Delete the next License.
 func (a *LicenseApiService) LicenseNextDelete(ctx _context.Context) apiLicenseNextDeleteRequest {
 	return apiLicenseNextDeleteRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -334,7 +332,6 @@ func (r apiLicenseNextDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "LicenseApiService.LicenseNextDelete")
@@ -347,7 +344,7 @@ func (r apiLicenseNextDeleteRequest) Execute() (*_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
@@ -425,12 +422,12 @@ func (r apiLicenseNextDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
+
 type apiLicenseNextGetRequest struct {
-	ctx _context.Context
-	apiService *LicenseApiService
+	ctx           _context.Context
+	apiService    *LicenseApiService
 	authorization *string
 }
-
 
 func (r apiLicenseNextGetRequest) Authorization(authorization string) apiLicenseNextGetRequest {
 	r.authorization = &authorization
@@ -446,7 +443,7 @@ Get the current License which will be activated when CA certificate switch occur
 func (a *LicenseApiService) LicenseNextGet(ctx _context.Context) apiLicenseNextGetRequest {
 	return apiLicenseNextGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -474,7 +471,7 @@ func (r apiLicenseNextGetRequest) Execute() (LicenseDetails, *_nethttp.Response,
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -581,13 +578,13 @@ func (r apiLicenseNextGetRequest) Execute() (LicenseDetails, *_nethttp.Response,
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiLicenseNextPostRequest struct {
-	ctx _context.Context
-	apiService *LicenseApiService
+	ctx           _context.Context
+	apiService    *LicenseApiService
 	authorization *string
 	licenseImport *LicenseImport
 }
-
 
 func (r apiLicenseNextPostRequest) Authorization(authorization string) apiLicenseNextPostRequest {
 	r.authorization = &authorization
@@ -608,7 +605,7 @@ Upload a new next License to be switched when CA certificate is switched.
 func (a *LicenseApiService) LicenseNextPost(ctx _context.Context) apiLicenseNextPostRequest {
 	return apiLicenseNextPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -636,11 +633,11 @@ func (r apiLicenseNextPostRequest) Execute() (License, *_nethttp.Response, error
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.licenseImport == nil {
 		return localVarReturnValue, nil, reportError("licenseImport is required and must be specified")
 	}
@@ -759,13 +756,13 @@ func (r apiLicenseNextPostRequest) Execute() (License, *_nethttp.Response, error
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiLicensePostRequest struct {
-	ctx _context.Context
-	apiService *LicenseApiService
+	ctx           _context.Context
+	apiService    *LicenseApiService
 	authorization *string
 	licenseImport *LicenseImport
 }
-
 
 func (r apiLicensePostRequest) Authorization(authorization string) apiLicensePostRequest {
 	r.authorization = &authorization
@@ -786,7 +783,7 @@ Upload a new License and override the existing one.
 func (a *LicenseApiService) LicensePost(ctx _context.Context) apiLicensePostRequest {
 	return apiLicensePostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -814,11 +811,11 @@ func (r apiLicensePostRequest) Execute() (License, *_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.licenseImport == nil {
 		return localVarReturnValue, nil, reportError("licenseImport is required and must be specified")
 	}

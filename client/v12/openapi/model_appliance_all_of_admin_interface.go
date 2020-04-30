@@ -30,7 +30,7 @@ type ApplianceAllOfAdminInterface struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfAdminInterface(hostname string, httpsCiphers []string, ) *ApplianceAllOfAdminInterface {
+func NewApplianceAllOfAdminInterface(hostname string, httpsCiphers []string) *ApplianceAllOfAdminInterface {
 	this := ApplianceAllOfAdminInterface{}
 	this.Hostname = hostname
 	var httpsPort int32 = 8443
@@ -51,7 +51,7 @@ func NewApplianceAllOfAdminInterfaceWithDefaults() *ApplianceAllOfAdminInterface
 
 // GetHostname returns the Hostname field value
 func (o *ApplianceAllOfAdminInterface) GetHostname() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -62,7 +62,7 @@ func (o *ApplianceAllOfAdminInterface) GetHostname() string {
 // GetHostnameOk returns a tuple with the Hostname field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfAdminInterface) GetHostnameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Hostname, true
@@ -107,7 +107,7 @@ func (o *ApplianceAllOfAdminInterface) SetHttpsPort(v int32) {
 
 // GetHttpsCiphers returns the HttpsCiphers field value
 func (o *ApplianceAllOfAdminInterface) GetHttpsCiphers() []string {
-	if o == nil  {
+	if o == nil {
 		var ret []string
 		return ret
 	}
@@ -118,7 +118,7 @@ func (o *ApplianceAllOfAdminInterface) GetHttpsCiphers() []string {
 // GetHttpsCiphersOk returns a tuple with the HttpsCiphers field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfAdminInterface) GetHttpsCiphersOk() (*[]string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.HttpsCiphers, true

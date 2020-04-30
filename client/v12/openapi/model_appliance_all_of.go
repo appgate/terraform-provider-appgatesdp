@@ -27,24 +27,24 @@ type ApplianceAllOf struct {
 	// Site served by the Appliance. Entitlements on this Site will be included in the Entitlement Token for this Appliance. Not useful if Gateway role is not enabled.
 	Site *string `json:"site,omitempty"`
 	// Customization assigned to this Appliance.
-	Customization *string `json:"customization,omitempty"`
+	Customization   *string                       `json:"customization,omitempty"`
 	ClientInterface ApplianceAllOfClientInterface `json:"clientInterface"`
-	PeerInterface ApplianceAllOfPeerInterface `json:"peerInterface"`
-	AdminInterface *ApplianceAllOfAdminInterface `json:"adminInterface,omitempty"`
-	Networking ApplianceAllOfNetworking `json:"networking"`
+	PeerInterface   ApplianceAllOfPeerInterface   `json:"peerInterface"`
+	AdminInterface  *ApplianceAllOfAdminInterface `json:"adminInterface,omitempty"`
+	Networking      ApplianceAllOfNetworking      `json:"networking"`
 	// Deprecated as of 4.3.0, use 'ntp' field instead. NTP servers to synchronize time.
-	NtpServers *[]string `json:"ntpServers,omitempty"`
-	Ntp *ApplianceAllOfNtp `json:"ntp,omitempty"`
-	SshServer *ApplianceAllOfSshServer `json:"sshServer,omitempty"`
-	SnmpServer *ApplianceAllOfSnmpServer `json:"snmpServer,omitempty"`
-	HealthcheckServer *ApplianceAllOfHealthcheckServer `json:"healthcheckServer,omitempty"`
+	NtpServers         *[]string                         `json:"ntpServers,omitempty"`
+	Ntp                *ApplianceAllOfNtp                `json:"ntp,omitempty"`
+	SshServer          *ApplianceAllOfSshServer          `json:"sshServer,omitempty"`
+	SnmpServer         *ApplianceAllOfSnmpServer         `json:"snmpServer,omitempty"`
+	HealthcheckServer  *ApplianceAllOfHealthcheckServer  `json:"healthcheckServer,omitempty"`
 	PrometheusExporter *ApplianceAllOfPrometheusExporter `json:"prometheusExporter,omitempty"`
-	Ping *ApplianceAllOfPing `json:"ping,omitempty"`
-	LogServer *ApplianceAllOfLogServer `json:"logServer,omitempty"`
-	Controller *ApplianceAllOfController `json:"controller,omitempty"`
-	Gateway *ApplianceAllOfGateway `json:"gateway,omitempty"`
-	LogForwarder *ApplianceAllOfLogForwarder `json:"logForwarder,omitempty"`
-	IotConnector *ApplianceAllOfIotConnector `json:"iotConnector,omitempty"`
+	Ping               *ApplianceAllOfPing               `json:"ping,omitempty"`
+	LogServer          *ApplianceAllOfLogServer          `json:"logServer,omitempty"`
+	Controller         *ApplianceAllOfController         `json:"controller,omitempty"`
+	Gateway            *ApplianceAllOfGateway            `json:"gateway,omitempty"`
+	LogForwarder       *ApplianceAllOfLogForwarder       `json:"logForwarder,omitempty"`
+	IotConnector       *ApplianceAllOfIotConnector       `json:"iotConnector,omitempty"`
 	// Rsyslog destination settings to forward appliance logs.
 	RsyslogDestinations *[]ApplianceAllOfRsyslogDestinations `json:"rsyslogDestinations,omitempty"`
 	// Hostname aliases. They are added to the Appliance certificate as Subject Alternative Names so it is trusted using different IPs or hostnames. Requires manual certificate renewal to apply changes to the certificate.
@@ -55,7 +55,7 @@ type ApplianceAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOf(hostname string, clientInterface ApplianceAllOfClientInterface, peerInterface ApplianceAllOfPeerInterface, networking ApplianceAllOfNetworking, ) *ApplianceAllOf {
+func NewApplianceAllOf(hostname string, clientInterface ApplianceAllOfClientInterface, peerInterface ApplianceAllOfPeerInterface, networking ApplianceAllOfNetworking) *ApplianceAllOf {
 	this := ApplianceAllOf{}
 	this.Hostname = hostname
 	this.ClientInterface = clientInterface
@@ -170,7 +170,7 @@ func (o *ApplianceAllOf) SetVersion(v int32) {
 
 // GetHostname returns the Hostname field value
 func (o *ApplianceAllOf) GetHostname() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -181,7 +181,7 @@ func (o *ApplianceAllOf) GetHostname() string {
 // GetHostnameOk returns a tuple with the Hostname field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOf) GetHostnameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Hostname, true
@@ -258,7 +258,7 @@ func (o *ApplianceAllOf) SetCustomization(v string) {
 
 // GetClientInterface returns the ClientInterface field value
 func (o *ApplianceAllOf) GetClientInterface() ApplianceAllOfClientInterface {
-	if o == nil  {
+	if o == nil {
 		var ret ApplianceAllOfClientInterface
 		return ret
 	}
@@ -269,7 +269,7 @@ func (o *ApplianceAllOf) GetClientInterface() ApplianceAllOfClientInterface {
 // GetClientInterfaceOk returns a tuple with the ClientInterface field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOf) GetClientInterfaceOk() (*ApplianceAllOfClientInterface, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.ClientInterface, true
@@ -282,7 +282,7 @@ func (o *ApplianceAllOf) SetClientInterface(v ApplianceAllOfClientInterface) {
 
 // GetPeerInterface returns the PeerInterface field value
 func (o *ApplianceAllOf) GetPeerInterface() ApplianceAllOfPeerInterface {
-	if o == nil  {
+	if o == nil {
 		var ret ApplianceAllOfPeerInterface
 		return ret
 	}
@@ -293,7 +293,7 @@ func (o *ApplianceAllOf) GetPeerInterface() ApplianceAllOfPeerInterface {
 // GetPeerInterfaceOk returns a tuple with the PeerInterface field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOf) GetPeerInterfaceOk() (*ApplianceAllOfPeerInterface, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.PeerInterface, true
@@ -338,7 +338,7 @@ func (o *ApplianceAllOf) SetAdminInterface(v ApplianceAllOfAdminInterface) {
 
 // GetNetworking returns the Networking field value
 func (o *ApplianceAllOf) GetNetworking() ApplianceAllOfNetworking {
-	if o == nil  {
+	if o == nil {
 		var ret ApplianceAllOfNetworking
 		return ret
 	}
@@ -349,7 +349,7 @@ func (o *ApplianceAllOf) GetNetworking() ApplianceAllOfNetworking {
 // GetNetworkingOk returns a tuple with the Networking field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOf) GetNetworkingOk() (*ApplianceAllOfNetworking, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Networking, true

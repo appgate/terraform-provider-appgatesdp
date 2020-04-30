@@ -38,7 +38,7 @@ type LocalUser struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLocalUser(firstName string, lastName string, password string, ) *LocalUser {
+func NewLocalUser(firstName string, lastName string, password string) *LocalUser {
 	this := LocalUser{}
 	this.FirstName = firstName
 	this.LastName = lastName
@@ -56,7 +56,7 @@ func NewLocalUserWithDefaults() *LocalUser {
 
 // GetFirstName returns the FirstName field value
 func (o *LocalUser) GetFirstName() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -67,7 +67,7 @@ func (o *LocalUser) GetFirstName() string {
 // GetFirstNameOk returns a tuple with the FirstName field value
 // and a boolean to check if the value has been set.
 func (o *LocalUser) GetFirstNameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.FirstName, true
@@ -80,7 +80,7 @@ func (o *LocalUser) SetFirstName(v string) {
 
 // GetLastName returns the LastName field value
 func (o *LocalUser) GetLastName() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -91,7 +91,7 @@ func (o *LocalUser) GetLastName() string {
 // GetLastNameOk returns a tuple with the LastName field value
 // and a boolean to check if the value has been set.
 func (o *LocalUser) GetLastNameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.LastName, true
@@ -104,7 +104,7 @@ func (o *LocalUser) SetLastName(v string) {
 
 // GetPassword returns the Password field value
 func (o *LocalUser) GetPassword() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -115,7 +115,7 @@ func (o *LocalUser) GetPassword() string {
 // GetPasswordOk returns a tuple with the Password field value
 // and a boolean to check if the value has been set.
 func (o *LocalUser) GetPasswordOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Password, true

@@ -30,7 +30,7 @@ type ApplianceAllOfNetworkingRoutes struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfNetworkingRoutes(address string, netmask int32, ) *ApplianceAllOfNetworkingRoutes {
+func NewApplianceAllOfNetworkingRoutes(address string, netmask int32) *ApplianceAllOfNetworkingRoutes {
 	this := ApplianceAllOfNetworkingRoutes{}
 	this.Address = address
 	this.Netmask = netmask
@@ -47,7 +47,7 @@ func NewApplianceAllOfNetworkingRoutesWithDefaults() *ApplianceAllOfNetworkingRo
 
 // GetAddress returns the Address field value
 func (o *ApplianceAllOfNetworkingRoutes) GetAddress() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -58,7 +58,7 @@ func (o *ApplianceAllOfNetworkingRoutes) GetAddress() string {
 // GetAddressOk returns a tuple with the Address field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfNetworkingRoutes) GetAddressOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Address, true
@@ -71,7 +71,7 @@ func (o *ApplianceAllOfNetworkingRoutes) SetAddress(v string) {
 
 // GetNetmask returns the Netmask field value
 func (o *ApplianceAllOfNetworkingRoutes) GetNetmask() int32 {
-	if o == nil  {
+	if o == nil {
 		var ret int32
 		return ret
 	}
@@ -82,7 +82,7 @@ func (o *ApplianceAllOfNetworkingRoutes) GetNetmask() int32 {
 // GetNetmaskOk returns a tuple with the Netmask field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfNetworkingRoutes) GetNetmaskOk() (*int32, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Netmask, true

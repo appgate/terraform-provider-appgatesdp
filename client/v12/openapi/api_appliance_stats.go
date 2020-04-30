@@ -26,11 +26,10 @@ var (
 type ApplianceStatsApiService service
 
 type apiStatsAppliancesGetRequest struct {
-	ctx _context.Context
-	apiService *ApplianceStatsApiService
+	ctx           _context.Context
+	apiService    *ApplianceStatsApiService
 	authorization *string
 }
-
 
 func (r apiStatsAppliancesGetRequest) Authorization(authorization string) apiStatsAppliancesGetRequest {
 	r.authorization = &authorization
@@ -46,7 +45,7 @@ Get Stats and status of the active appliances. This API makes the controller to 
 func (a *ApplianceStatsApiService) StatsAppliancesGet(ctx _context.Context) apiStatsAppliancesGetRequest {
 	return apiStatsAppliancesGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -74,7 +73,7 @@ func (r apiStatsAppliancesGetRequest) Execute() (BaseStats, *_nethttp.Response, 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}

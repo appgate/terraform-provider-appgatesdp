@@ -25,7 +25,7 @@ type AdministrativeRole struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAdministrativeRole(privileges []AdministrativePrivilege, ) *AdministrativeRole {
+func NewAdministrativeRole(privileges []AdministrativePrivilege) *AdministrativeRole {
 	this := AdministrativeRole{}
 	this.Privileges = privileges
 	return &this
@@ -41,7 +41,7 @@ func NewAdministrativeRoleWithDefaults() *AdministrativeRole {
 
 // GetPrivileges returns the Privileges field value
 func (o *AdministrativeRole) GetPrivileges() []AdministrativePrivilege {
-	if o == nil  {
+	if o == nil {
 		var ret []AdministrativePrivilege
 		return ret
 	}
@@ -52,7 +52,7 @@ func (o *AdministrativeRole) GetPrivileges() []AdministrativePrivilege {
 // GetPrivilegesOk returns a tuple with the Privileges field value
 // and a boolean to check if the value has been set.
 func (o *AdministrativeRole) GetPrivilegesOk() (*[]AdministrativePrivilege, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Privileges, true

@@ -27,12 +27,11 @@ var (
 type FIDO2DevicesApiService service
 
 type apiFido2DevicesDistinguishedNameDeleteRequest struct {
-	ctx _context.Context
-	apiService *FIDO2DevicesApiService
-	authorization *string
+	ctx               _context.Context
+	apiService        *FIDO2DevicesApiService
+	authorization     *string
 	distinguishedName string
 }
-
 
 func (r apiFido2DevicesDistinguishedNameDeleteRequest) Authorization(authorization string) apiFido2DevicesDistinguishedNameDeleteRequest {
 	r.authorization = &authorization
@@ -48,8 +47,8 @@ Delete a registered FIDO2 Device for the given Distinguished Name.
 */
 func (a *FIDO2DevicesApiService) Fido2DevicesDistinguishedNameDelete(ctx _context.Context, distinguishedName string) apiFido2DevicesDistinguishedNameDeleteRequest {
 	return apiFido2DevicesDistinguishedNameDeleteRequest{
-		apiService: a,
-		ctx: ctx,
+		apiService:        a,
+		ctx:               ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -65,7 +64,6 @@ func (r apiFido2DevicesDistinguishedNameDeleteRequest) Execute() (*_nethttp.Resp
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "FIDO2DevicesApiService.Fido2DevicesDistinguishedNameDelete")
@@ -74,16 +72,15 @@ func (r apiFido2DevicesDistinguishedNameDeleteRequest) Execute() (*_nethttp.Resp
 	}
 
 	localVarPath := localBasePath + "/fido2-devices/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -168,16 +165,16 @@ func (r apiFido2DevicesDistinguishedNameDeleteRequest) Execute() (*_nethttp.Resp
 
 	return localVarHTTPResponse, nil
 }
-type apiFido2DevicesGetRequest struct {
-	ctx _context.Context
-	apiService *FIDO2DevicesApiService
-	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
-}
 
+type apiFido2DevicesGetRequest struct {
+	ctx           _context.Context
+	apiService    *FIDO2DevicesApiService
+	authorization *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
+}
 
 func (r apiFido2DevicesGetRequest) Authorization(authorization string) apiFido2DevicesGetRequest {
 	r.authorization = &authorization
@@ -213,7 +210,7 @@ List all registered FIDO2 Devices.
 func (a *FIDO2DevicesApiService) Fido2DevicesGet(ctx _context.Context) apiFido2DevicesGetRequest {
 	return apiFido2DevicesGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -241,11 +238,11 @@ func (r apiFido2DevicesGetRequest) Execute() (Fido2DeviceList, *_nethttp.Respons
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}

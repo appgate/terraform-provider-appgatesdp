@@ -27,12 +27,11 @@ var (
 type IPPoolsApiService service
 
 type apiIpPoolsAllocatedIpsByDnDistinguishedNameGetRequest struct {
-	ctx _context.Context
-	apiService *IPPoolsApiService
-	authorization *string
+	ctx               _context.Context
+	apiService        *IPPoolsApiService
+	authorization     *string
 	distinguishedName string
 }
-
 
 func (r apiIpPoolsAllocatedIpsByDnDistinguishedNameGetRequest) Authorization(authorization string) apiIpPoolsAllocatedIpsByDnDistinguishedNameGetRequest {
 	r.authorization = &authorization
@@ -48,8 +47,8 @@ List all Allocated IPs by Distinguished Name.
 */
 func (a *IPPoolsApiService) IpPoolsAllocatedIpsByDnDistinguishedNameGet(ctx _context.Context, distinguishedName string) apiIpPoolsAllocatedIpsByDnDistinguishedNameGetRequest {
 	return apiIpPoolsAllocatedIpsByDnDistinguishedNameGetRequest{
-		apiService: a,
-		ctx: ctx,
+		apiService:        a,
+		ctx:               ctx,
 		distinguishedName: distinguishedName,
 	}
 }
@@ -74,16 +73,15 @@ func (r apiIpPoolsAllocatedIpsByDnDistinguishedNameGetRequest) Execute() (Alloca
 	}
 
 	localVarPath := localBasePath + "/ip-pools/allocated-ips/by-dn/{distinguished-name}"
-	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"distinguished-name"+"}", _neturl.QueryEscape(parameterToString(r.distinguishedName, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -177,12 +175,12 @@ func (r apiIpPoolsAllocatedIpsByDnDistinguishedNameGetRequest) Execute() (Alloca
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiIpPoolsAllocatedIpsGetRequest struct {
-	ctx _context.Context
-	apiService *IPPoolsApiService
+	ctx           _context.Context
+	apiService    *IPPoolsApiService
 	authorization *string
 }
-
 
 func (r apiIpPoolsAllocatedIpsGetRequest) Authorization(authorization string) apiIpPoolsAllocatedIpsGetRequest {
 	r.authorization = &authorization
@@ -198,7 +196,7 @@ List all Allocated IPs in the system
 func (a *IPPoolsApiService) IpPoolsAllocatedIpsGet(ctx _context.Context) apiIpPoolsAllocatedIpsGetRequest {
 	return apiIpPoolsAllocatedIpsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -226,7 +224,7 @@ func (r apiIpPoolsAllocatedIpsGetRequest) Execute() (AllocatedIpList, *_nethttp.
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -323,16 +321,16 @@ func (r apiIpPoolsAllocatedIpsGetRequest) Execute() (AllocatedIpList, *_nethttp.
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiIpPoolsGetRequest struct {
-	ctx _context.Context
-	apiService *IPPoolsApiService
-	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
-}
 
+type apiIpPoolsGetRequest struct {
+	ctx           _context.Context
+	apiService    *IPPoolsApiService
+	authorization *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
+}
 
 func (r apiIpPoolsGetRequest) Authorization(authorization string) apiIpPoolsGetRequest {
 	r.authorization = &authorization
@@ -368,7 +366,7 @@ List all IP Pools visible to current user.
 func (a *IPPoolsApiService) IpPoolsGet(ctx _context.Context) apiIpPoolsGetRequest {
 	return apiIpPoolsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -396,11 +394,11 @@ func (r apiIpPoolsGetRequest) Execute() (IpPoolList, *_nethttp.Response, error) 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -505,13 +503,13 @@ func (r apiIpPoolsGetRequest) Execute() (IpPoolList, *_nethttp.Response, error) 
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiIpPoolsIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *IPPoolsApiService
-	authorization *string
-	id string
-}
 
+type apiIpPoolsIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *IPPoolsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiIpPoolsIdDeleteRequest) Authorization(authorization string) apiIpPoolsIdDeleteRequest {
 	r.authorization = &authorization
@@ -528,8 +526,8 @@ Delete a specific IP Pool.
 func (a *IPPoolsApiService) IpPoolsIdDelete(ctx _context.Context, id string) apiIpPoolsIdDeleteRequest {
 	return apiIpPoolsIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -544,7 +542,6 @@ func (r apiIpPoolsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "IPPoolsApiService.IpPoolsIdDelete")
@@ -553,16 +550,15 @@ func (r apiIpPoolsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/ip-pools/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -647,13 +643,13 @@ func (r apiIpPoolsIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
-type apiIpPoolsIdGetRequest struct {
-	ctx _context.Context
-	apiService *IPPoolsApiService
-	authorization *string
-	id string
-}
 
+type apiIpPoolsIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *IPPoolsApiService
+	authorization *string
+	id            string
+}
 
 func (r apiIpPoolsIdGetRequest) Authorization(authorization string) apiIpPoolsIdGetRequest {
 	r.authorization = &authorization
@@ -670,8 +666,8 @@ Get a specific IP Pool.
 func (a *IPPoolsApiService) IpPoolsIdGet(ctx _context.Context, id string) apiIpPoolsIdGetRequest {
 	return apiIpPoolsIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -695,16 +691,15 @@ func (r apiIpPoolsIdGetRequest) Execute() (IpPool, *_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/ip-pools/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -808,14 +803,14 @@ func (r apiIpPoolsIdGetRequest) Execute() (IpPool, *_nethttp.Response, error) {
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiIpPoolsIdPutRequest struct {
-	ctx _context.Context
-	apiService *IPPoolsApiService
-	authorization *string
-	id string
-	ipPool *IpPool
-}
 
+type apiIpPoolsIdPutRequest struct {
+	ctx           _context.Context
+	apiService    *IPPoolsApiService
+	authorization *string
+	id            string
+	ipPool        *IpPool
+}
 
 func (r apiIpPoolsIdPutRequest) Authorization(authorization string) apiIpPoolsIdPutRequest {
 	r.authorization = &authorization
@@ -837,8 +832,8 @@ Update an existing IP Pool.
 func (a *IPPoolsApiService) IpPoolsIdPut(ctx _context.Context, id string) apiIpPoolsIdPutRequest {
 	return apiIpPoolsIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -862,17 +857,16 @@ func (r apiIpPoolsIdPutRequest) Execute() (IpPool, *_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/ip-pools/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.ipPool == nil {
 		return localVarReturnValue, nil, reportError("ipPool is required and must be specified")
 	}
@@ -1001,13 +995,13 @@ func (r apiIpPoolsIdPutRequest) Execute() (IpPool, *_nethttp.Response, error) {
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiIpPoolsPostRequest struct {
-	ctx _context.Context
-	apiService *IPPoolsApiService
-	authorization *string
-	ipPool *IpPool
-}
 
+type apiIpPoolsPostRequest struct {
+	ctx           _context.Context
+	apiService    *IPPoolsApiService
+	authorization *string
+	ipPool        *IpPool
+}
 
 func (r apiIpPoolsPostRequest) Authorization(authorization string) apiIpPoolsPostRequest {
 	r.authorization = &authorization
@@ -1028,7 +1022,7 @@ Create a new IP Pool.
 func (a *IPPoolsApiService) IpPoolsPost(ctx _context.Context) apiIpPoolsPostRequest {
 	return apiIpPoolsPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -1056,11 +1050,11 @@ func (r apiIpPoolsPostRequest) Execute() (IpPool, *_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.ipPool == nil {
 		return localVarReturnValue, nil, reportError("ipPool is required and must be specified")
 	}

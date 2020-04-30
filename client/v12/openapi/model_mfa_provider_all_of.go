@@ -28,7 +28,7 @@ type MfaProviderAllOf struct {
 	AuthenticationProtocol *string `json:"authenticationProtocol,omitempty"`
 	// Timeout in seconds before giving up on response.
 	Timeout *float32 `json:"timeout,omitempty"`
-	// Defines the multi-factor authentication flow for RADIUS.  * \"OneFactor\" - The input from the user is sent as password and the response is used for result.  * \"Challenge\" - Before prompting the user, Controller sends a challenge request to the RADIUS server  using \"challengeSharedSecret\" or the user password. Data from the response is used with user input to  send the second RADIUS authentication request.  * \"Push\" - \"challengeSharedSecret\" or the user password is sent to RADIUS which triggers an external  authentication flow. When the external authentication flow returns success, the MFA attempt is  authenticated. 
+	// Defines the multi-factor authentication flow for RADIUS.  * \"OneFactor\" - The input from the user is sent as password and the response is used for result.  * \"Challenge\" - Before prompting the user, Controller sends a challenge request to the RADIUS server  using \"challengeSharedSecret\" or the user password. Data from the response is used with user input to  send the second RADIUS authentication request.  * \"Push\" - \"challengeSharedSecret\" or the user password is sent to RADIUS which triggers an external  authentication flow. When the external authentication flow returns success, the MFA attempt is  authenticated.
 	Mode *string `json:"mode,omitempty"`
 	// -> If enabled, the Client will send the cached password instead of using challengeSharedSecret\" to initiate the multi-factor authentication.
 	UseUserPassword *bool `json:"useUserPassword,omitempty"`
@@ -40,7 +40,7 @@ type MfaProviderAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewMfaProviderAllOf(type_ string, hostnames []string, port float32, ) *MfaProviderAllOf {
+func NewMfaProviderAllOf(type_ string, hostnames []string, port float32) *MfaProviderAllOf {
 	this := MfaProviderAllOf{}
 	this.Type = type_
 	this.Hostnames = hostnames
@@ -70,7 +70,7 @@ func NewMfaProviderAllOfWithDefaults() *MfaProviderAllOf {
 
 // GetType returns the Type field value
 func (o *MfaProviderAllOf) GetType() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -81,7 +81,7 @@ func (o *MfaProviderAllOf) GetType() string {
 // GetTypeOk returns a tuple with the Type field value
 // and a boolean to check if the value has been set.
 func (o *MfaProviderAllOf) GetTypeOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Type, true
@@ -94,7 +94,7 @@ func (o *MfaProviderAllOf) SetType(v string) {
 
 // GetHostnames returns the Hostnames field value
 func (o *MfaProviderAllOf) GetHostnames() []string {
-	if o == nil  {
+	if o == nil {
 		var ret []string
 		return ret
 	}
@@ -105,7 +105,7 @@ func (o *MfaProviderAllOf) GetHostnames() []string {
 // GetHostnamesOk returns a tuple with the Hostnames field value
 // and a boolean to check if the value has been set.
 func (o *MfaProviderAllOf) GetHostnamesOk() (*[]string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Hostnames, true
@@ -118,7 +118,7 @@ func (o *MfaProviderAllOf) SetHostnames(v []string) {
 
 // GetPort returns the Port field value
 func (o *MfaProviderAllOf) GetPort() float32 {
-	if o == nil  {
+	if o == nil {
 		var ret float32
 		return ret
 	}
@@ -129,7 +129,7 @@ func (o *MfaProviderAllOf) GetPort() float32 {
 // GetPortOk returns a tuple with the Port field value
 // and a boolean to check if the value has been set.
 func (o *MfaProviderAllOf) GetPortOk() (*float32, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Port, true

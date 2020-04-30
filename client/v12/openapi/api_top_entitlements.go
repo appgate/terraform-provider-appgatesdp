@@ -26,14 +26,13 @@ var (
 type TopEntitlementsApiService service
 
 type apiStatsTopEntitlementsGetRequest struct {
-	ctx _context.Context
-	apiService *TopEntitlementsApiService
+	ctx           _context.Context
+	apiService    *TopEntitlementsApiService
 	authorization *string
-	range_ *string
-	orderBy *string
-	descending *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiStatsTopEntitlementsGetRequest) Authorization(authorization string) apiStatsTopEntitlementsGetRequest {
 	r.authorization = &authorization
@@ -64,7 +63,7 @@ Get the (most used) Top Entitlements for the last 7 days. Each Gateway keeps tra
 func (a *TopEntitlementsApiService) StatsTopEntitlementsGet(ctx _context.Context) apiStatsTopEntitlementsGetRequest {
 	return apiStatsTopEntitlementsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -92,11 +91,11 @@ func (r apiStatsTopEntitlementsGetRequest) Execute() (BaseStats, *_nethttp.Respo
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-			
+
 	if r.range_ != nil {
 		localVarQueryParams.Add("range", parameterToString(*r.range_, ""))
 	}

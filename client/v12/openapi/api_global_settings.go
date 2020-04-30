@@ -26,11 +26,10 @@ var (
 type GlobalSettingsApiService service
 
 type apiGlobalSettingsBackupPassphraseDeleteRequest struct {
-	ctx _context.Context
-	apiService *GlobalSettingsApiService
+	ctx           _context.Context
+	apiService    *GlobalSettingsApiService
 	authorization *string
 }
-
 
 func (r apiGlobalSettingsBackupPassphraseDeleteRequest) Authorization(authorization string) apiGlobalSettingsBackupPassphraseDeleteRequest {
 	r.authorization = &authorization
@@ -46,7 +45,7 @@ Reset backup passphrase. Backup APIs will be disabled without a valid passphrase
 func (a *GlobalSettingsApiService) GlobalSettingsBackupPassphraseDelete(ctx _context.Context) apiGlobalSettingsBackupPassphraseDeleteRequest {
 	return apiGlobalSettingsBackupPassphraseDeleteRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -61,7 +60,6 @@ func (r apiGlobalSettingsBackupPassphraseDeleteRequest) Execute() (*_nethttp.Res
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "GlobalSettingsApiService.GlobalSettingsBackupPassphraseDelete")
@@ -74,7 +72,7 @@ func (r apiGlobalSettingsBackupPassphraseDeleteRequest) Execute() (*_nethttp.Res
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
@@ -152,12 +150,12 @@ func (r apiGlobalSettingsBackupPassphraseDeleteRequest) Execute() (*_nethttp.Res
 
 	return localVarHTTPResponse, nil
 }
+
 type apiGlobalSettingsDeleteRequest struct {
-	ctx _context.Context
-	apiService *GlobalSettingsApiService
+	ctx           _context.Context
+	apiService    *GlobalSettingsApiService
 	authorization *string
 }
-
 
 func (r apiGlobalSettingsDeleteRequest) Authorization(authorization string) apiGlobalSettingsDeleteRequest {
 	r.authorization = &authorization
@@ -173,7 +171,7 @@ Reset all Global Settings to the default values.
 func (a *GlobalSettingsApiService) GlobalSettingsDelete(ctx _context.Context) apiGlobalSettingsDeleteRequest {
 	return apiGlobalSettingsDeleteRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -188,7 +186,6 @@ func (r apiGlobalSettingsDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "GlobalSettingsApiService.GlobalSettingsDelete")
@@ -201,7 +198,7 @@ func (r apiGlobalSettingsDeleteRequest) Execute() (*_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
@@ -279,12 +276,12 @@ func (r apiGlobalSettingsDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
+
 type apiGlobalSettingsGetRequest struct {
-	ctx _context.Context
-	apiService *GlobalSettingsApiService
+	ctx           _context.Context
+	apiService    *GlobalSettingsApiService
 	authorization *string
 }
-
 
 func (r apiGlobalSettingsGetRequest) Authorization(authorization string) apiGlobalSettingsGetRequest {
 	r.authorization = &authorization
@@ -300,7 +297,7 @@ View various Global Settings.
 func (a *GlobalSettingsApiService) GlobalSettingsGet(ctx _context.Context) apiGlobalSettingsGetRequest {
 	return apiGlobalSettingsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -328,7 +325,7 @@ func (r apiGlobalSettingsGetRequest) Execute() (GlobalSettings, *_nethttp.Respon
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -425,13 +422,13 @@ func (r apiGlobalSettingsGetRequest) Execute() (GlobalSettings, *_nethttp.Respon
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiGlobalSettingsPutRequest struct {
-	ctx _context.Context
-	apiService *GlobalSettingsApiService
-	authorization *string
+	ctx            _context.Context
+	apiService     *GlobalSettingsApiService
+	authorization  *string
 	globalSettings *GlobalSettings
 }
-
 
 func (r apiGlobalSettingsPutRequest) Authorization(authorization string) apiGlobalSettingsPutRequest {
 	r.authorization = &authorization
@@ -452,7 +449,7 @@ Update all Global Settings.
 func (a *GlobalSettingsApiService) GlobalSettingsPut(ctx _context.Context) apiGlobalSettingsPutRequest {
 	return apiGlobalSettingsPutRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -467,7 +464,6 @@ func (r apiGlobalSettingsPutRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "GlobalSettingsApiService.GlobalSettingsPut")
@@ -480,11 +476,11 @@ func (r apiGlobalSettingsPutRequest) Execute() (*_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.globalSettings == nil {
 		return nil, reportError("globalSettings is required and must be specified")
 	}

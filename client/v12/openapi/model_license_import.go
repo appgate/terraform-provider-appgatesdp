@@ -24,7 +24,7 @@ type LicenseImport struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLicenseImport(license string, ) *LicenseImport {
+func NewLicenseImport(license string) *LicenseImport {
 	this := LicenseImport{}
 	this.License = license
 	return &this
@@ -40,7 +40,7 @@ func NewLicenseImportWithDefaults() *LicenseImport {
 
 // GetLicense returns the License field value
 func (o *LicenseImport) GetLicense() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -51,7 +51,7 @@ func (o *LicenseImport) GetLicense() string {
 // GetLicenseOk returns a tuple with the License field value
 // and a boolean to check if the value has been set.
 func (o *LicenseImport) GetLicenseOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.License, true

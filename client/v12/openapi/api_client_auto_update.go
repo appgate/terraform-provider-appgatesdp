@@ -26,11 +26,10 @@ var (
 type ClientAutoUpdateApiService service
 
 type apiAutoUpdateSettingsGetRequest struct {
-	ctx _context.Context
-	apiService *ClientAutoUpdateApiService
+	ctx           _context.Context
+	apiService    *ClientAutoUpdateApiService
 	authorization *string
 }
-
 
 func (r apiAutoUpdateSettingsGetRequest) Authorization(authorization string) apiAutoUpdateSettingsGetRequest {
 	r.authorization = &authorization
@@ -46,7 +45,7 @@ View Client Auto-Update settings.
 func (a *ClientAutoUpdateApiService) AutoUpdateSettingsGet(ctx _context.Context) apiAutoUpdateSettingsGetRequest {
 	return apiAutoUpdateSettingsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -74,7 +73,7 @@ func (r apiAutoUpdateSettingsGetRequest) Execute() (AutoUpdateSettings, *_nethtt
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -171,13 +170,13 @@ func (r apiAutoUpdateSettingsGetRequest) Execute() (AutoUpdateSettings, *_nethtt
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiAutoUpdateSettingsPutRequest struct {
-	ctx _context.Context
-	apiService *ClientAutoUpdateApiService
-	authorization *string
+	ctx                _context.Context
+	apiService         *ClientAutoUpdateApiService
+	authorization      *string
 	autoUpdateSettings *AutoUpdateSettings
 }
-
 
 func (r apiAutoUpdateSettingsPutRequest) Authorization(authorization string) apiAutoUpdateSettingsPutRequest {
 	r.authorization = &authorization
@@ -198,7 +197,7 @@ Update Client Auto-Update settings.
 func (a *ClientAutoUpdateApiService) AutoUpdateSettingsPut(ctx _context.Context) apiAutoUpdateSettingsPutRequest {
 	return apiAutoUpdateSettingsPutRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -213,7 +212,6 @@ func (r apiAutoUpdateSettingsPutRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "ClientAutoUpdateApiService.AutoUpdateSettingsPut")
@@ -226,11 +224,11 @@ func (r apiAutoUpdateSettingsPutRequest) Execute() (*_nethttp.Response, error) {
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
 

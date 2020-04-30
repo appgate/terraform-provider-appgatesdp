@@ -18,11 +18,11 @@ import (
 type LicenseDetails struct {
 	Entitled *License `json:"entitled,omitempty"`
 	// Request code for the license. Use this code to get a license. It's based on the CA certificate.
-	RequestCode *string `json:"requestCode,omitempty"`
-	Usage *LicenseDetailsUsage `json:"usage,omitempty"`
+	RequestCode *string              `json:"requestCode,omitempty"`
+	Usage       *LicenseDetailsUsage `json:"usage,omitempty"`
 	// Error message if there is a problem with the license.
-	Error *string `json:"error,omitempty"`
-	Used *License `json:"used,omitempty"`
+	Error *string  `json:"error,omitempty"`
+	Used  *License `json:"used,omitempty"`
 }
 
 // NewLicenseDetails instantiates a new LicenseDetails object

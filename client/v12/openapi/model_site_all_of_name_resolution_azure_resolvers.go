@@ -34,7 +34,7 @@ type SiteAllOfNameResolutionAzureResolvers struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSiteAllOfNameResolutionAzureResolvers(name string, subscriptionId string, tenantId string, clientId string, ) *SiteAllOfNameResolutionAzureResolvers {
+func NewSiteAllOfNameResolutionAzureResolvers(name string, subscriptionId string, tenantId string, clientId string) *SiteAllOfNameResolutionAzureResolvers {
 	this := SiteAllOfNameResolutionAzureResolvers{}
 	this.Name = name
 	var updateInterval int32 = 60
@@ -57,7 +57,7 @@ func NewSiteAllOfNameResolutionAzureResolversWithDefaults() *SiteAllOfNameResolu
 
 // GetName returns the Name field value
 func (o *SiteAllOfNameResolutionAzureResolvers) GetName() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -68,7 +68,7 @@ func (o *SiteAllOfNameResolutionAzureResolvers) GetName() string {
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *SiteAllOfNameResolutionAzureResolvers) GetNameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Name, true
@@ -113,7 +113,7 @@ func (o *SiteAllOfNameResolutionAzureResolvers) SetUpdateInterval(v int32) {
 
 // GetSubscriptionId returns the SubscriptionId field value
 func (o *SiteAllOfNameResolutionAzureResolvers) GetSubscriptionId() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -124,7 +124,7 @@ func (o *SiteAllOfNameResolutionAzureResolvers) GetSubscriptionId() string {
 // GetSubscriptionIdOk returns a tuple with the SubscriptionId field value
 // and a boolean to check if the value has been set.
 func (o *SiteAllOfNameResolutionAzureResolvers) GetSubscriptionIdOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.SubscriptionId, true
@@ -137,7 +137,7 @@ func (o *SiteAllOfNameResolutionAzureResolvers) SetSubscriptionId(v string) {
 
 // GetTenantId returns the TenantId field value
 func (o *SiteAllOfNameResolutionAzureResolvers) GetTenantId() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -148,7 +148,7 @@ func (o *SiteAllOfNameResolutionAzureResolvers) GetTenantId() string {
 // GetTenantIdOk returns a tuple with the TenantId field value
 // and a boolean to check if the value has been set.
 func (o *SiteAllOfNameResolutionAzureResolvers) GetTenantIdOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.TenantId, true
@@ -161,7 +161,7 @@ func (o *SiteAllOfNameResolutionAzureResolvers) SetTenantId(v string) {
 
 // GetClientId returns the ClientId field value
 func (o *SiteAllOfNameResolutionAzureResolvers) GetClientId() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -172,7 +172,7 @@ func (o *SiteAllOfNameResolutionAzureResolvers) GetClientId() string {
 // GetClientIdOk returns a tuple with the ClientId field value
 // and a boolean to check if the value has been set.
 func (o *SiteAllOfNameResolutionAzureResolvers) GetClientIdOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.ClientId, true

@@ -27,11 +27,10 @@ var (
 type ClientConnectionsApiService service
 
 type apiClientConnectionsDeleteRequest struct {
-	ctx _context.Context
-	apiService *ClientConnectionsApiService
+	ctx           _context.Context
+	apiService    *ClientConnectionsApiService
 	authorization *string
 }
-
 
 func (r apiClientConnectionsDeleteRequest) Authorization(authorization string) apiClientConnectionsDeleteRequest {
 	r.authorization = &authorization
@@ -47,7 +46,7 @@ Reset Client Connections to the default settings.
 func (a *ClientConnectionsApiService) ClientConnectionsDelete(ctx _context.Context) apiClientConnectionsDeleteRequest {
 	return apiClientConnectionsDeleteRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -62,7 +61,6 @@ func (r apiClientConnectionsDeleteRequest) Execute() (*_nethttp.Response, error)
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "ClientConnectionsApiService.ClientConnectionsDelete")
@@ -75,7 +73,7 @@ func (r apiClientConnectionsDeleteRequest) Execute() (*_nethttp.Response, error)
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
@@ -153,12 +151,12 @@ func (r apiClientConnectionsDeleteRequest) Execute() (*_nethttp.Response, error)
 
 	return localVarHTTPResponse, nil
 }
+
 type apiClientConnectionsGetRequest struct {
-	ctx _context.Context
-	apiService *ClientConnectionsApiService
+	ctx           _context.Context
+	apiService    *ClientConnectionsApiService
 	authorization *string
 }
-
 
 func (r apiClientConnectionsGetRequest) Authorization(authorization string) apiClientConnectionsGetRequest {
 	r.authorization = &authorization
@@ -174,7 +172,7 @@ View Client Connection settings. With API version 12, this API has changed signi
 func (a *ClientConnectionsApiService) ClientConnectionsGet(ctx _context.Context) apiClientConnectionsGetRequest {
 	return apiClientConnectionsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -202,7 +200,7 @@ func (r apiClientConnectionsGetRequest) Execute() (ClientConnections, *_nethttp.
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
@@ -299,13 +297,13 @@ func (r apiClientConnectionsGetRequest) Execute() (ClientConnections, *_nethttp.
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiClientConnectionsProfileNameBarcodeGetRequest struct {
-	ctx _context.Context
-	apiService *ClientConnectionsApiService
-	authorization *string
-	profileName string
-}
 
+type apiClientConnectionsProfileNameBarcodeGetRequest struct {
+	ctx           _context.Context
+	apiService    *ClientConnectionsApiService
+	authorization *string
+	profileName   string
+}
 
 func (r apiClientConnectionsProfileNameBarcodeGetRequest) Authorization(authorization string) apiClientConnectionsProfileNameBarcodeGetRequest {
 	r.authorization = &authorization
@@ -321,8 +319,8 @@ Get QR code for connection URL.
 */
 func (a *ClientConnectionsApiService) ClientConnectionsProfileNameBarcodeGet(ctx _context.Context, profileName string) apiClientConnectionsProfileNameBarcodeGetRequest {
 	return apiClientConnectionsProfileNameBarcodeGetRequest{
-		apiService: a,
-		ctx: ctx,
+		apiService:  a,
+		ctx:         ctx,
 		profileName: profileName,
 	}
 }
@@ -347,16 +345,15 @@ func (r apiClientConnectionsProfileNameBarcodeGetRequest) Execute() (InlineRespo
 	}
 
 	localVarPath := localBasePath + "/client-connections/{profileName}/barcode"
-	localVarPath = strings.Replace(localVarPath, "{"+"profileName"+"}", _neturl.QueryEscape(parameterToString(r.profileName, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"profileName"+"}", _neturl.QueryEscape(parameterToString(r.profileName, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -460,13 +457,13 @@ func (r apiClientConnectionsProfileNameBarcodeGetRequest) Execute() (InlineRespo
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiClientConnectionsProfileNameUrlGetRequest struct {
-	ctx _context.Context
-	apiService *ClientConnectionsApiService
-	authorization *string
-	profileName string
-}
 
+type apiClientConnectionsProfileNameUrlGetRequest struct {
+	ctx           _context.Context
+	apiService    *ClientConnectionsApiService
+	authorization *string
+	profileName   string
+}
 
 func (r apiClientConnectionsProfileNameUrlGetRequest) Authorization(authorization string) apiClientConnectionsProfileNameUrlGetRequest {
 	r.authorization = &authorization
@@ -482,8 +479,8 @@ Get connection URL for the profile.
 */
 func (a *ClientConnectionsApiService) ClientConnectionsProfileNameUrlGet(ctx _context.Context, profileName string) apiClientConnectionsProfileNameUrlGetRequest {
 	return apiClientConnectionsProfileNameUrlGetRequest{
-		apiService: a,
-		ctx: ctx,
+		apiService:  a,
+		ctx:         ctx,
 		profileName: profileName,
 	}
 }
@@ -508,16 +505,15 @@ func (r apiClientConnectionsProfileNameUrlGetRequest) Execute() (InlineResponse2
 	}
 
 	localVarPath := localBasePath + "/client-connections/{profileName}/url"
-	localVarPath = strings.Replace(localVarPath, "{"+"profileName"+"}", _neturl.QueryEscape(parameterToString(r.profileName, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"profileName"+"}", _neturl.QueryEscape(parameterToString(r.profileName, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -621,13 +617,13 @@ func (r apiClientConnectionsProfileNameUrlGetRequest) Execute() (InlineResponse2
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
+
 type apiClientConnectionsPutRequest struct {
-	ctx _context.Context
-	apiService *ClientConnectionsApiService
-	authorization *string
+	ctx               _context.Context
+	apiService        *ClientConnectionsApiService
+	authorization     *string
 	clientConnections *ClientConnections
 }
-
 
 func (r apiClientConnectionsPutRequest) Authorization(authorization string) apiClientConnectionsPutRequest {
 	r.authorization = &authorization
@@ -648,7 +644,7 @@ Update Client Connection settings. With API version 12, this API has changed sig
 func (a *ClientConnectionsApiService) ClientConnectionsPut(ctx _context.Context) apiClientConnectionsPutRequest {
 	return apiClientConnectionsPutRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -676,11 +672,11 @@ func (r apiClientConnectionsPutRequest) Execute() (ClientConnections, *_nethttp.
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.clientConnections == nil {
 		return localVarReturnValue, nil, reportError("clientConnections is required and must be specified")
 	}

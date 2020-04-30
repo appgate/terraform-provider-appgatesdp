@@ -34,7 +34,7 @@ type ApplianceAllOfClientInterface struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfClientInterface(hostname string, ) *ApplianceAllOfClientInterface {
+func NewApplianceAllOfClientInterface(hostname string) *ApplianceAllOfClientInterface {
 	this := ApplianceAllOfClientInterface{}
 	var proxyProtocol bool = false
 	this.ProxyProtocol = &proxyProtocol
@@ -94,7 +94,7 @@ func (o *ApplianceAllOfClientInterface) SetProxyProtocol(v bool) {
 
 // GetHostname returns the Hostname field value
 func (o *ApplianceAllOfClientInterface) GetHostname() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -105,7 +105,7 @@ func (o *ApplianceAllOfClientInterface) GetHostname() string {
 // GetHostnameOk returns a tuple with the Hostname field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfClientInterface) GetHostnameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Hostname, true

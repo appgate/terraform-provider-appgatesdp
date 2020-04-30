@@ -30,7 +30,7 @@ type ApplianceAllOfNetworkingIpv6Static struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfNetworkingIpv6Static(address string, netmask int32, ) *ApplianceAllOfNetworkingIpv6Static {
+func NewApplianceAllOfNetworkingIpv6Static(address string, netmask int32) *ApplianceAllOfNetworkingIpv6Static {
 	this := ApplianceAllOfNetworkingIpv6Static{}
 	this.Address = address
 	this.Netmask = netmask
@@ -47,7 +47,7 @@ func NewApplianceAllOfNetworkingIpv6StaticWithDefaults() *ApplianceAllOfNetworki
 
 // GetAddress returns the Address field value
 func (o *ApplianceAllOfNetworkingIpv6Static) GetAddress() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -58,7 +58,7 @@ func (o *ApplianceAllOfNetworkingIpv6Static) GetAddress() string {
 // GetAddressOk returns a tuple with the Address field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfNetworkingIpv6Static) GetAddressOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Address, true
@@ -71,7 +71,7 @@ func (o *ApplianceAllOfNetworkingIpv6Static) SetAddress(v string) {
 
 // GetNetmask returns the Netmask field value
 func (o *ApplianceAllOfNetworkingIpv6Static) GetNetmask() int32 {
-	if o == nil  {
+	if o == nil {
 		var ret int32
 		return ret
 	}
@@ -82,7 +82,7 @@ func (o *ApplianceAllOfNetworkingIpv6Static) GetNetmask() int32 {
 // GetNetmaskOk returns a tuple with the Netmask field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfNetworkingIpv6Static) GetNetmaskOk() (*int32, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Netmask, true

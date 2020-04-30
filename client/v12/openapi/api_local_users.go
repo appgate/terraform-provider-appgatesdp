@@ -27,15 +27,14 @@ var (
 type LocalUsersApiService service
 
 type apiLocalUsersGetRequest struct {
-	ctx _context.Context
-	apiService *LocalUsersApiService
+	ctx           _context.Context
+	apiService    *LocalUsersApiService
 	authorization *string
-	query *string
-	range_ *string
-	orderBy *string
-	descending *string
+	query         *string
+	range_        *string
+	orderBy       *string
+	descending    *string
 }
-
 
 func (r apiLocalUsersGetRequest) Authorization(authorization string) apiLocalUsersGetRequest {
 	r.authorization = &authorization
@@ -71,7 +70,7 @@ List all Local Users visible to current user.
 func (a *LocalUsersApiService) LocalUsersGet(ctx _context.Context) apiLocalUsersGetRequest {
 	return apiLocalUsersGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -99,11 +98,11 @@ func (r apiLocalUsersGetRequest) Execute() (LocalUserList, *_nethttp.Response, e
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-				
+
 	if r.query != nil {
 		localVarQueryParams.Add("query", parameterToString(*r.query, ""))
 	}
@@ -208,13 +207,13 @@ func (r apiLocalUsersGetRequest) Execute() (LocalUserList, *_nethttp.Response, e
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiLocalUsersIdDeleteRequest struct {
-	ctx _context.Context
-	apiService *LocalUsersApiService
-	authorization *string
-	id string
-}
 
+type apiLocalUsersIdDeleteRequest struct {
+	ctx           _context.Context
+	apiService    *LocalUsersApiService
+	authorization *string
+	id            string
+}
 
 func (r apiLocalUsersIdDeleteRequest) Authorization(authorization string) apiLocalUsersIdDeleteRequest {
 	r.authorization = &authorization
@@ -231,8 +230,8 @@ Delete a specific Local User.
 func (a *LocalUsersApiService) LocalUsersIdDelete(ctx _context.Context, id string) apiLocalUsersIdDeleteRequest {
 	return apiLocalUsersIdDeleteRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -247,7 +246,6 @@ func (r apiLocalUsersIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "LocalUsersApiService.LocalUsersIdDelete")
@@ -256,16 +254,15 @@ func (r apiLocalUsersIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	}
 
 	localVarPath := localBasePath + "/local-users/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -350,13 +347,13 @@ func (r apiLocalUsersIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 
 	return localVarHTTPResponse, nil
 }
-type apiLocalUsersIdGetRequest struct {
-	ctx _context.Context
-	apiService *LocalUsersApiService
-	authorization *string
-	id string
-}
 
+type apiLocalUsersIdGetRequest struct {
+	ctx           _context.Context
+	apiService    *LocalUsersApiService
+	authorization *string
+	id            string
+}
 
 func (r apiLocalUsersIdGetRequest) Authorization(authorization string) apiLocalUsersIdGetRequest {
 	r.authorization = &authorization
@@ -373,8 +370,8 @@ Get a specific Local User.
 func (a *LocalUsersApiService) LocalUsersIdGet(ctx _context.Context, id string) apiLocalUsersIdGetRequest {
 	return apiLocalUsersIdGetRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -398,16 +395,15 @@ func (r apiLocalUsersIdGetRequest) Execute() (LocalUser, *_nethttp.Response, err
 	}
 
 	localVarPath := localBasePath + "/local-users/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -511,14 +507,14 @@ func (r apiLocalUsersIdGetRequest) Execute() (LocalUser, *_nethttp.Response, err
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiLocalUsersIdPutRequest struct {
-	ctx _context.Context
-	apiService *LocalUsersApiService
-	authorization *string
-	id string
-	localUser *LocalUser
-}
 
+type apiLocalUsersIdPutRequest struct {
+	ctx           _context.Context
+	apiService    *LocalUsersApiService
+	authorization *string
+	id            string
+	localUser     *LocalUser
+}
 
 func (r apiLocalUsersIdPutRequest) Authorization(authorization string) apiLocalUsersIdPutRequest {
 	r.authorization = &authorization
@@ -540,8 +536,8 @@ Update an existing Local User.
 func (a *LocalUsersApiService) LocalUsersIdPut(ctx _context.Context, id string) apiLocalUsersIdPutRequest {
 	return apiLocalUsersIdPutRequest{
 		apiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
@@ -565,17 +561,16 @@ func (r apiLocalUsersIdPutRequest) Execute() (LocalUser, *_nethttp.Response, err
 	}
 
 	localVarPath := localBasePath + "/local-users/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")) , -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", _neturl.QueryEscape(parameterToString(r.id, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
-	
+
 	if r.localUser == nil {
 		return localVarReturnValue, nil, reportError("localUser is required and must be specified")
 	}
@@ -704,13 +699,13 @@ func (r apiLocalUsersIdPutRequest) Execute() (LocalUser, *_nethttp.Response, err
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-type apiLocalUsersPostRequest struct {
-	ctx _context.Context
-	apiService *LocalUsersApiService
-	authorization *string
-	localUser *LocalUser
-}
 
+type apiLocalUsersPostRequest struct {
+	ctx           _context.Context
+	apiService    *LocalUsersApiService
+	authorization *string
+	localUser     *LocalUser
+}
 
 func (r apiLocalUsersPostRequest) Authorization(authorization string) apiLocalUsersPostRequest {
 	r.authorization = &authorization
@@ -731,7 +726,7 @@ Create a new Local User.
 func (a *LocalUsersApiService) LocalUsersPost(ctx _context.Context) apiLocalUsersPostRequest {
 	return apiLocalUsersPostRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -759,11 +754,11 @@ func (r apiLocalUsersPostRequest) Execute() (LocalUser, *_nethttp.Response, erro
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}
-	
+
 	if r.localUser == nil {
 		return localVarReturnValue, nil, reportError("localUser is required and must be specified")
 	}

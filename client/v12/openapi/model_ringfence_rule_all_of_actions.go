@@ -34,7 +34,7 @@ type RingfenceRuleAllOfActions struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewRingfenceRuleAllOfActions(protocol string, direction string, action string, hosts []string, ) *RingfenceRuleAllOfActions {
+func NewRingfenceRuleAllOfActions(protocol string, direction string, action string, hosts []string) *RingfenceRuleAllOfActions {
 	this := RingfenceRuleAllOfActions{}
 	this.Protocol = protocol
 	this.Direction = direction
@@ -53,7 +53,7 @@ func NewRingfenceRuleAllOfActionsWithDefaults() *RingfenceRuleAllOfActions {
 
 // GetProtocol returns the Protocol field value
 func (o *RingfenceRuleAllOfActions) GetProtocol() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -64,7 +64,7 @@ func (o *RingfenceRuleAllOfActions) GetProtocol() string {
 // GetProtocolOk returns a tuple with the Protocol field value
 // and a boolean to check if the value has been set.
 func (o *RingfenceRuleAllOfActions) GetProtocolOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Protocol, true
@@ -77,7 +77,7 @@ func (o *RingfenceRuleAllOfActions) SetProtocol(v string) {
 
 // GetDirection returns the Direction field value
 func (o *RingfenceRuleAllOfActions) GetDirection() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -88,7 +88,7 @@ func (o *RingfenceRuleAllOfActions) GetDirection() string {
 // GetDirectionOk returns a tuple with the Direction field value
 // and a boolean to check if the value has been set.
 func (o *RingfenceRuleAllOfActions) GetDirectionOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Direction, true
@@ -101,7 +101,7 @@ func (o *RingfenceRuleAllOfActions) SetDirection(v string) {
 
 // GetAction returns the Action field value
 func (o *RingfenceRuleAllOfActions) GetAction() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -112,7 +112,7 @@ func (o *RingfenceRuleAllOfActions) GetAction() string {
 // GetActionOk returns a tuple with the Action field value
 // and a boolean to check if the value has been set.
 func (o *RingfenceRuleAllOfActions) GetActionOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Action, true
@@ -125,7 +125,7 @@ func (o *RingfenceRuleAllOfActions) SetAction(v string) {
 
 // GetHosts returns the Hosts field value
 func (o *RingfenceRuleAllOfActions) GetHosts() []string {
-	if o == nil  {
+	if o == nil {
 		var ret []string
 		return ret
 	}
@@ -136,7 +136,7 @@ func (o *RingfenceRuleAllOfActions) GetHosts() []string {
 // GetHostsOk returns a tuple with the Hosts field value
 // and a boolean to check if the value has been set.
 func (o *RingfenceRuleAllOfActions) GetHostsOk() (*[]string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Hosts, true

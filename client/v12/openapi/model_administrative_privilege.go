@@ -19,8 +19,8 @@ type AdministrativePrivilege struct {
 	// The type of the Privilege defines the possible administrator actions.
 	Type string `json:"type"`
 	// The target of the Privilege defines the possible target objects for that type.
-	Target string `json:"target"`
-	Scope *AdministrativePrivilegeScope `json:"scope,omitempty"`
+	Target string                        `json:"target"`
+	Scope  *AdministrativePrivilegeScope `json:"scope,omitempty"`
 	// The items in this list would be added automatically to the newly created objects' tags. Only applicable on \"Create\" type and targets with tagging capability. This field must be omitted if not applicable.
 	DefaultTags *[]string `json:"defaultTags,omitempty"`
 }
@@ -29,7 +29,7 @@ type AdministrativePrivilege struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAdministrativePrivilege(type_ string, target string, ) *AdministrativePrivilege {
+func NewAdministrativePrivilege(type_ string, target string) *AdministrativePrivilege {
 	this := AdministrativePrivilege{}
 	this.Type = type_
 	this.Target = target
@@ -46,7 +46,7 @@ func NewAdministrativePrivilegeWithDefaults() *AdministrativePrivilege {
 
 // GetType returns the Type field value
 func (o *AdministrativePrivilege) GetType() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -57,7 +57,7 @@ func (o *AdministrativePrivilege) GetType() string {
 // GetTypeOk returns a tuple with the Type field value
 // and a boolean to check if the value has been set.
 func (o *AdministrativePrivilege) GetTypeOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Type, true
@@ -70,7 +70,7 @@ func (o *AdministrativePrivilege) SetType(v string) {
 
 // GetTarget returns the Target field value
 func (o *AdministrativePrivilege) GetTarget() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -81,7 +81,7 @@ func (o *AdministrativePrivilege) GetTarget() string {
 // GetTargetOk returns a tuple with the Target field value
 // and a boolean to check if the value has been set.
 func (o *AdministrativePrivilege) GetTargetOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Target, true

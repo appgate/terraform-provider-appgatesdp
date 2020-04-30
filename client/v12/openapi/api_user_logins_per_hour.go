@@ -26,11 +26,10 @@ var (
 type UserLoginsPerHourApiService service
 
 type apiStatsUserLoginsGetRequest struct {
-	ctx _context.Context
-	apiService *UserLoginsPerHourApiService
+	ctx           _context.Context
+	apiService    *UserLoginsPerHourApiService
 	authorization *string
 }
-
 
 func (r apiStatsUserLoginsGetRequest) Authorization(authorization string) apiStatsUserLoginsGetRequest {
 	r.authorization = &authorization
@@ -46,7 +45,7 @@ Get the User Logins Per Hour for the last 24 hours.
 func (a *UserLoginsPerHourApiService) StatsUserLoginsGet(ctx _context.Context) apiStatsUserLoginsGetRequest {
 	return apiStatsUserLoginsGetRequest{
 		apiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -74,7 +73,7 @@ func (r apiStatsUserLoginsGetRequest) Execute() (BaseStats, *_nethttp.Response, 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
 	localVarFormParams := _neturl.Values{}
-	
+
 	if r.authorization == nil {
 		return localVarReturnValue, nil, reportError("authorization is required and must be specified")
 	}

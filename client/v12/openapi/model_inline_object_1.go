@@ -26,7 +26,7 @@ type InlineObject1 struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewInlineObject1(otp string, ) *InlineObject1 {
+func NewInlineObject1(otp string) *InlineObject1 {
 	this := InlineObject1{}
 	this.Otp = otp
 	return &this
@@ -42,7 +42,7 @@ func NewInlineObject1WithDefaults() *InlineObject1 {
 
 // GetOtp returns the Otp field value
 func (o *InlineObject1) GetOtp() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -53,7 +53,7 @@ func (o *InlineObject1) GetOtp() string {
 // GetOtpOk returns a tuple with the Otp field value
 // and a boolean to check if the value has been set.
 func (o *InlineObject1) GetOtpOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Otp, true

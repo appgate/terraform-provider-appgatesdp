@@ -32,7 +32,7 @@ type IoTConnectorProviderAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewIoTConnectorProviderAllOf(type_ string, ) *IoTConnectorProviderAllOf {
+func NewIoTConnectorProviderAllOf(type_ string) *IoTConnectorProviderAllOf {
 	this := IoTConnectorProviderAllOf{}
 	this.Type = type_
 	return &this
@@ -48,7 +48,7 @@ func NewIoTConnectorProviderAllOfWithDefaults() *IoTConnectorProviderAllOf {
 
 // GetType returns the Type field value
 func (o *IoTConnectorProviderAllOf) GetType() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -59,7 +59,7 @@ func (o *IoTConnectorProviderAllOf) GetType() string {
 // GetTypeOk returns a tuple with the Type field value
 // and a boolean to check if the value has been set.
 func (o *IoTConnectorProviderAllOf) GetTypeOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Type, true

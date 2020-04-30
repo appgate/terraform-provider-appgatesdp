@@ -37,7 +37,7 @@ type LocalUserAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLocalUserAllOf(firstName string, lastName string, password string, ) *LocalUserAllOf {
+func NewLocalUserAllOf(firstName string, lastName string, password string) *LocalUserAllOf {
 	this := LocalUserAllOf{}
 	this.FirstName = firstName
 	this.LastName = lastName
@@ -55,7 +55,7 @@ func NewLocalUserAllOfWithDefaults() *LocalUserAllOf {
 
 // GetFirstName returns the FirstName field value
 func (o *LocalUserAllOf) GetFirstName() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -66,7 +66,7 @@ func (o *LocalUserAllOf) GetFirstName() string {
 // GetFirstNameOk returns a tuple with the FirstName field value
 // and a boolean to check if the value has been set.
 func (o *LocalUserAllOf) GetFirstNameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.FirstName, true
@@ -79,7 +79,7 @@ func (o *LocalUserAllOf) SetFirstName(v string) {
 
 // GetLastName returns the LastName field value
 func (o *LocalUserAllOf) GetLastName() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -90,7 +90,7 @@ func (o *LocalUserAllOf) GetLastName() string {
 // GetLastNameOk returns a tuple with the LastName field value
 // and a boolean to check if the value has been set.
 func (o *LocalUserAllOf) GetLastNameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.LastName, true
@@ -103,7 +103,7 @@ func (o *LocalUserAllOf) SetLastName(v string) {
 
 // GetPassword returns the Password field value
 func (o *LocalUserAllOf) GetPassword() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -114,7 +114,7 @@ func (o *LocalUserAllOf) GetPassword() string {
 // GetPasswordOk returns a tuple with the Password field value
 // and a boolean to check if the value has been set.
 func (o *LocalUserAllOf) GetPasswordOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Password, true

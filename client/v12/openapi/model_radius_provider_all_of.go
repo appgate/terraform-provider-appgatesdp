@@ -30,7 +30,7 @@ type RadiusProviderAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewRadiusProviderAllOf(hostnames []string, sharedSecret string, ) *RadiusProviderAllOf {
+func NewRadiusProviderAllOf(hostnames []string, sharedSecret string) *RadiusProviderAllOf {
 	this := RadiusProviderAllOf{}
 	this.Hostnames = hostnames
 	var port int32 = 1812
@@ -55,7 +55,7 @@ func NewRadiusProviderAllOfWithDefaults() *RadiusProviderAllOf {
 
 // GetHostnames returns the Hostnames field value
 func (o *RadiusProviderAllOf) GetHostnames() []string {
-	if o == nil  {
+	if o == nil {
 		var ret []string
 		return ret
 	}
@@ -66,7 +66,7 @@ func (o *RadiusProviderAllOf) GetHostnames() []string {
 // GetHostnamesOk returns a tuple with the Hostnames field value
 // and a boolean to check if the value has been set.
 func (o *RadiusProviderAllOf) GetHostnamesOk() (*[]string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Hostnames, true
@@ -111,7 +111,7 @@ func (o *RadiusProviderAllOf) SetPort(v int32) {
 
 // GetSharedSecret returns the SharedSecret field value
 func (o *RadiusProviderAllOf) GetSharedSecret() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -122,7 +122,7 @@ func (o *RadiusProviderAllOf) GetSharedSecret() string {
 // GetSharedSecretOk returns a tuple with the SharedSecret field value
 // and a boolean to check if the value has been set.
 func (o *RadiusProviderAllOf) GetSharedSecretOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.SharedSecret, true

@@ -17,7 +17,7 @@ import (
 // ApplianceAllOfLogForwarder LogForwarder settings. LogForwarder collects audit logs from the appliances in the given sites and sends them to the given endpoints.
 type ApplianceAllOfLogForwarder struct {
 	// Whether the LogForwarder is enabled on this appliance or not.
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled       *bool                                    `json:"enabled,omitempty"`
 	Elasticsearch *ApplianceAllOfLogForwarderElasticsearch `json:"elasticsearch,omitempty"`
 	// TCP endpoints to connect and send the audit logs with the given format.
 	TcpClients *[]TcpClient `json:"tcpClients,omitempty"`

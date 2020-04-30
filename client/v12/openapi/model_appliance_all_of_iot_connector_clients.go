@@ -30,7 +30,7 @@ type ApplianceAllOfIotConnectorClients struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfIotConnectorClients(name string, ) *ApplianceAllOfIotConnectorClients {
+func NewApplianceAllOfIotConnectorClients(name string) *ApplianceAllOfIotConnectorClients {
 	this := ApplianceAllOfIotConnectorClients{}
 	this.Name = name
 	var snat bool = true
@@ -50,7 +50,7 @@ func NewApplianceAllOfIotConnectorClientsWithDefaults() *ApplianceAllOfIotConnec
 
 // GetName returns the Name field value
 func (o *ApplianceAllOfIotConnectorClients) GetName() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -61,7 +61,7 @@ func (o *ApplianceAllOfIotConnectorClients) GetName() string {
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfIotConnectorClients) GetNameOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Name, true

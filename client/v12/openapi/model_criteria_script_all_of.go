@@ -24,7 +24,7 @@ type CriteriaScriptAllOf struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCriteriaScriptAllOf(expression string, ) *CriteriaScriptAllOf {
+func NewCriteriaScriptAllOf(expression string) *CriteriaScriptAllOf {
 	this := CriteriaScriptAllOf{}
 	this.Expression = expression
 	return &this
@@ -40,7 +40,7 @@ func NewCriteriaScriptAllOfWithDefaults() *CriteriaScriptAllOf {
 
 // GetExpression returns the Expression field value
 func (o *CriteriaScriptAllOf) GetExpression() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -51,7 +51,7 @@ func (o *CriteriaScriptAllOf) GetExpression() string {
 // GetExpressionOk returns a tuple with the Expression field value
 // and a boolean to check if the value has been set.
 func (o *CriteriaScriptAllOf) GetExpressionOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Expression, true

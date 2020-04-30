@@ -28,7 +28,7 @@ type IdentityProviderAllOfOnBoarding2FA struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewIdentityProviderAllOfOnBoarding2FA(mfaProviderId string, ) *IdentityProviderAllOfOnBoarding2FA {
+func NewIdentityProviderAllOfOnBoarding2FA(mfaProviderId string) *IdentityProviderAllOfOnBoarding2FA {
 	this := IdentityProviderAllOfOnBoarding2FA{}
 	this.MfaProviderId = mfaProviderId
 	var deviceLimitPerUser int32 = 100
@@ -48,7 +48,7 @@ func NewIdentityProviderAllOfOnBoarding2FAWithDefaults() *IdentityProviderAllOfO
 
 // GetMfaProviderId returns the MfaProviderId field value
 func (o *IdentityProviderAllOfOnBoarding2FA) GetMfaProviderId() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -59,7 +59,7 @@ func (o *IdentityProviderAllOfOnBoarding2FA) GetMfaProviderId() string {
 // GetMfaProviderIdOk returns a tuple with the MfaProviderId field value
 // and a boolean to check if the value has been set.
 func (o *IdentityProviderAllOfOnBoarding2FA) GetMfaProviderIdOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.MfaProviderId, true

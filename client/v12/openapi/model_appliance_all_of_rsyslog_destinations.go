@@ -28,7 +28,7 @@ type ApplianceAllOfRsyslogDestinations struct {
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApplianceAllOfRsyslogDestinations(destination string, ) *ApplianceAllOfRsyslogDestinations {
+func NewApplianceAllOfRsyslogDestinations(destination string) *ApplianceAllOfRsyslogDestinations {
 	this := ApplianceAllOfRsyslogDestinations{}
 	var selector string = "*.*"
 	this.Selector = &selector
@@ -116,7 +116,7 @@ func (o *ApplianceAllOfRsyslogDestinations) SetTemplate(v string) {
 
 // GetDestination returns the Destination field value
 func (o *ApplianceAllOfRsyslogDestinations) GetDestination() string {
-	if o == nil  {
+	if o == nil {
 		var ret string
 		return ret
 	}
@@ -127,7 +127,7 @@ func (o *ApplianceAllOfRsyslogDestinations) GetDestination() string {
 // GetDestinationOk returns a tuple with the Destination field value
 // and a boolean to check if the value has been set.
 func (o *ApplianceAllOfRsyslogDestinations) GetDestinationOk() (*string, bool) {
-	if o == nil  {
+	if o == nil {
 		return nil, false
 	}
 	return &o.Destination, true
