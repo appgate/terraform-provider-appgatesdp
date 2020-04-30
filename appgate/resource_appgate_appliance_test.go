@@ -420,6 +420,11 @@ func TestAccApplianceIoTConnector(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.sources.0.netmask", "24"),
 					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.clients.0.sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "iot_connector.1446797058.enabled", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.0.destination", "10.10.10.2"),
+					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.0.selector", "*.*"),
+					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.0.template", "hostname"),
 				),
 			},
 			{
@@ -508,7 +513,13 @@ resource "appgate_appliance" "iot_connector" {
           }
           snat = true
         }
-      }
+    }
+
+    rsyslog_destinations {
+        selector    = "*.*"
+        template    = "hostname"
+        destination = "10.10.10.2"
+    }
 }
 `)
 }

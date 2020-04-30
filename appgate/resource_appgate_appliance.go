@@ -770,7 +770,29 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// "rsyslog_destinations": {},
+			"rsyslog_destinations": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"selector": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"template": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"destination": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 			// "hostname_aliases": {},
 		},
 	}
@@ -909,6 +931,14 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetIotConnector(iot)
+	}
+
+	if v, ok := d.GetOk("rsyslog_destinations"); ok {
+		rsyslog, err := readRsyslogDestinationFromConfig(v.([]interface{}))
+		if err != nil {
+			return err
+		}
+		args.SetRsyslogDestinations(rsyslog)
 	}
 
 	log.Printf("\n appliance arguments: \n %+v \n", args)
@@ -1259,6 +1289,16 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 		originalAppliance.SetIotConnector(iot)
 	}
+
+	if d.HasChange("rsyslog_destinations") {
+		_, n := d.GetChange("rsyslog_destinations")
+		rsys, err := readRsyslogDestinationFromConfig(n.([]interface{}))
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetRsyslogDestinations(rsys)
+	}
+
 	req := api.AppliancesIdPut(ctx, d.Id())
 
 	_, _, err = req.Appliance(originalAppliance).Authorization(token).Execute()
@@ -1756,4 +1796,26 @@ func readIotConnectorFromConfig(iots []interface{}) (openapi.ApplianceAllOfIotCo
 		}
 	}
 	return val, nil
+}
+
+func readRsyslogDestinationFromConfig(rsyslogs []interface{}) ([]openapi.ApplianceAllOfRsyslogDestinations, error) {
+	result := make([]openapi.ApplianceAllOfRsyslogDestinations, 0)
+	for _, rsys := range rsyslogs {
+		if rsys == nil {
+			continue
+		}
+		r := openapi.ApplianceAllOfRsyslogDestinations{}
+		raw := rsys.(map[string]interface{})
+		if v, ok := raw["selector"]; ok {
+			r.SetSelector(v.(string))
+		}
+		if v, ok := raw["template"]; ok {
+			r.SetTemplate(v.(string))
+		}
+		if v, ok := raw["destination"]; ok {
+			r.SetDestination(v.(string))
+		}
+		result = append(result, r)
+	}
+	return result, nil
 }

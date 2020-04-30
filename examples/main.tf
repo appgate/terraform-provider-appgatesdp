@@ -225,6 +225,17 @@ resource "appgate_appliance" "new_gateway" {
     }
   }
 
+  rsyslog_destinations {
+    selector    = "*.*"
+    template    = "%HOSTNAME% %msg%"
+    destination = "10.10.10.2"
+  }
+  rsyslog_destinations {
+    selector    = ":msg, contains, \"[AUDIT]\""
+    template    = "%msg:9:$%"
+    destination = "10.30.20.3"
+  }
+
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
   controller {
     enabled = true
