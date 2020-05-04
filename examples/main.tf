@@ -354,3 +354,30 @@ EOF
   # }
 
 }
+
+
+
+resource "appgate_policy" "basic_policy" {
+  name  = "terraform policy"
+  notes = "terraform policy notes"
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+  disabled = false
+
+  expression = <<-EOF
+var result = false;
+/*claims.user.groups*/
+if(claims.user.groups && claims.user.groups.indexOf("developers") >= 0) {
+  return true;
+}
+/*end claims.user.groups*/
+/*criteriaScript*/
+if (admins(claims)) {
+  return true;
+}
+/*end criteriaScript*/
+return result;
+EOF
+}
