@@ -200,6 +200,96 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Updating policy: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.PoliciesApi
+	request := api.PoliciesIdGet(ctx, d.Id())
+	orginalPolicy, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to read policy, %+v", err)
+	}
+
+	if d.HasChange("name") {
+		orginalPolicy.SetName(d.Get("name").(string))
+	}
+
+	if d.HasChange("notes") {
+		orginalPolicy.SetNotes(d.Get("notes").(string))
+	}
+
+	if d.HasChange("tags") {
+		orginalPolicy.SetTags(schemaExtractTags(d))
+	}
+
+	if d.HasChange("disabled") {
+		orginalPolicy.SetDisabled(d.Get("disabled").(bool))
+	}
+
+	if d.HasChange("expression") {
+		orginalPolicy.SetName(d.Get("expression").(string))
+	}
+
+	if d.HasChange("entitlements") {
+		_, n := d.GetChange("entitlements")
+		entitlements, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalPolicy.SetEntitlements(entitlements)
+	}
+
+	if d.HasChange("entitlement_links") {
+		_, n := d.GetChange("entitlement_links")
+		entitlements, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalPolicy.SetEntitlementLinks(entitlements)
+	}
+
+	if d.HasChange("ringfence_rules") {
+		_, n := d.GetChange("ringfence_rules")
+		entitlements, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalPolicy.SetRingfenceRules(entitlements)
+	}
+
+	if d.HasChange("ringfence_rule_links") {
+		_, n := d.GetChange("ringfence_rule_links")
+		entitlements, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalPolicy.SetRingfenceRuleLinks(entitlements)
+	}
+
+	if d.HasChange("tamper_proofing") {
+		orginalPolicy.SetTamperProofing(d.Get("tamper_proofing").(bool))
+	}
+
+	if d.HasChange("override_site") {
+		orginalPolicy.SetOverrideSite(d.Get("override_site").(string))
+	}
+
+	if d.HasChange("administrative_roles") {
+		_, n := d.GetChange("administrative_roles")
+		entitlements, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalPolicy.SetAdministrativeRoles(entitlements)
+	}
+
+	req := api.PoliciesIdPut(ctx, d.Id())
+
+	_, _, err = req.Policy(orginalPolicy).Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Could not update policy %+v", prettyPrintAPIError(err))
+	}
+
 	return resourceAppgatePolicyRead(d, meta)
 }
 
