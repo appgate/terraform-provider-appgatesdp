@@ -179,6 +179,23 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Reading Policy with name: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.PoliciesApi
+
+	request := api.PoliciesIdGet(ctx, d.Id())
+	policy, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		d.SetId("")
+		return fmt.Errorf("Failed to read policy, %+v", err)
+	}
+	d.Set("policy_id", policy.Id)
+	d.Set("name", policy.GetName())
+	d.Set("notes", policy.GetNotes())
+	d.Set("disabled", policy.GetDisabled())
+	d.Set("expression", policy.GetExpression())
+
 	return nil
 }
 
