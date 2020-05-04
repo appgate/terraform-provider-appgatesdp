@@ -44,6 +44,7 @@ func resourceAppgatePolicy() *schema.Resource {
 			"notes": {
 				Type:        schema.TypeString,
 				Description: "Name of the object.",
+				Default:     DefaultDescription,
 				Optional:    true,
 			},
 
@@ -97,7 +98,7 @@ func resourceAppgatePolicy() *schema.Resource {
 
 			"override_site": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"administrative_roles": {
@@ -119,10 +120,20 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	args.Id = uuid.New().String()
 
 	args.SetName(d.Get("name").(string))
-	args.SetNotes(d.Get("notes").(string))
+
+	if c, ok := d.GetOk("notes"); ok {
+		args.SetNotes(c.(string))
+	}
+
 	args.SetTags(schemaExtractTags(d))
-	args.SetDisabled(d.Get("disabled").(bool))
-	args.SetExpression(d.Get("expression").(string))
+
+	if c, ok := d.GetOk("disabled"); ok {
+		args.SetDisabled(c.(bool))
+	}
+
+	if c, ok := d.GetOk("expression"); ok {
+		args.SetExpression(c.(string))
+	}
 
 	if c, ok := d.GetOk("entitlements"); ok {
 		entitlements, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
@@ -156,8 +167,13 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 		args.SetRingfenceRuleLinks(ringfenceRuleLinks)
 	}
 
-	args.SetTamperProofing(d.Get("tamper_proofing").(bool))
-	args.SetOverrideSite(d.Get("override_site").(string))
+	if c, ok := d.GetOk("tamper_proofing"); ok {
+		args.SetTamperProofing(c.(bool))
+	}
+
+	if c, ok := d.GetOk("override_site"); ok {
+		args.SetOverrideSite(c.(string))
+	}
 
 	if c, ok := d.GetOk("administrative_roles"); ok {
 		administrativeRoles, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
@@ -227,7 +243,7 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if d.HasChange("expression") {
-		orginalPolicy.SetName(d.Get("expression").(string))
+		orginalPolicy.SetExpression(d.Get("expression").(string))
 	}
 
 	if d.HasChange("entitlements") {
