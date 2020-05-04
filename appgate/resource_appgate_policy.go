@@ -1,8 +1,13 @@
 package appgate
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -105,6 +110,71 @@ func resourceAppgatePolicy() *schema.Resource {
 }
 
 func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Creating Policy with name: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.PoliciesApi
+
+	args := openapi.NewPolicyWithDefaults()
+	args.Id = uuid.New().String()
+
+	args.SetName(d.Get("name").(string))
+	args.SetNotes(d.Get("notes").(string))
+	args.SetTags(schemaExtractTags(d))
+	args.SetDisabled(d.Get("disabled").(bool))
+	args.SetExpression(d.Get("expression").(string))
+
+	if c, ok := d.GetOk("entitlements"); ok {
+		entitlements, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetEntitlements(entitlements)
+	}
+
+	if c, ok := d.GetOk("entitlement_links"); ok {
+		entitlementLinks, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetEntitlementLinks(entitlementLinks)
+	}
+
+	if c, ok := d.GetOk("ringfence_rules"); ok {
+		ringfenceRules, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetRingfenceRules(ringfenceRules)
+	}
+
+	if c, ok := d.GetOk("ringfence_rule_links"); ok {
+		ringfenceRuleLinks, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetRingfenceRuleLinks(ringfenceRuleLinks)
+	}
+
+	args.SetTamperProofing(d.Get("tamper_proofing").(bool))
+	args.SetOverrideSite(d.Get("override_site").(string))
+
+	if c, ok := d.GetOk("administrative_roles"); ok {
+		administrativeRoles, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetAdministrativeRoles(administrativeRoles)
+	}
+
+	request := api.PoliciesPost(ctx)
+	request = request.Policy(*args)
+	policy, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Could not create policy %+v", prettyPrintAPIError(err))
+	}
+
+	d.SetId(policy.Id)
 	return resourceAppgatePolicyRead(d, meta)
 }
 
