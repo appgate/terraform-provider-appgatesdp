@@ -580,7 +580,6 @@ func (r apiAppliancesIdUpgradePostRequest) Execute() (ApplianceUpgradeInternal, 
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	localVarHeaderParams["Authorization"] = parameterToString(*r.authorization, "")
-
 	req, err := r.apiService.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -751,7 +750,6 @@ func (r apiAppliancesIdUpgradePreparePostRequest) Execute() (ApplianceUpgradeInt
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	localVarHeaderParams["Authorization"] = parameterToString(*r.authorization, "")
-
 	req, err := r.apiService.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err

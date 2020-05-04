@@ -14,7 +14,7 @@ import (
 	"encoding/json"
 )
 
-// ApplianceAllOfIotConnectorClients A list of clients to run on the appliance with the given configuration.
+// ApplianceAllOfIotConnectorClients struct for ApplianceAllOfIotConnectorClients
 type ApplianceAllOfIotConnectorClients struct {
 	// Name for the client. It will be mapped to the user claim 'clientName'.
 	Name string `json:"name"`
