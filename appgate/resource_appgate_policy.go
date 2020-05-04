@@ -204,5 +204,23 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAppgatePolicyDelete(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Delete Policy with name: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.PoliciesApi
+
+	// Get policy
+	request := api.PoliciesIdGet(ctx, d.Id())
+	policy, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to delete policy while GET, %+v", err)
+	}
+
+	deleteRequest := api.PoliciesIdDelete(ctx, policy.GetId())
+	_, err = deleteRequest.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to delete policy, %+v", err)
+	}
+	d.SetId("")
 	return nil
 }
