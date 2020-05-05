@@ -39,6 +39,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_appliance": dataSourceAppgateAppliance(),
 			"appgate_site":      dataSourceAppgateSite(),
 			"appgate_condition": dataSourceAppgateCondition(),
+			"appgate_policy":    dataSourceAppgatePolicy(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":   resourceAppgateAppliance(),
