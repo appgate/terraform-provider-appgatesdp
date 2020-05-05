@@ -160,6 +160,23 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Reading Condition Name: %s", d.Get("name").(string))
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.ConditionsApi
+	ctx := context.Background()
+	request := api.ConditionsIdGet(ctx, d.Id())
+	remoteCondition, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		d.SetId("")
+		return fmt.Errorf("Failed to read Condition, %+v", err)
+	}
+	d.SetId(remoteCondition.Id)
+	d.Set("name", remoteCondition.Name)
+	d.Set("notes", remoteCondition.Notes)
+	d.Set("tags", remoteCondition.Tags)
+	d.Set("expression", remoteCondition.Expression)
+	d.Set("repeat_schedules", remoteCondition.RepeatSchedules)
+	d.Set("remedy_methods", remoteCondition.RemedyMethods)
 	return nil
 }
 
@@ -200,7 +217,7 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("remedy_methods") {
 		_, n := d.GetChange("remedy_methods")
-		remedyMethods, err := readRemedyMethodsFromConfig(n.(*schema.Set).List())
+		remedyMethods, err := readRemedyMethodsFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -247,7 +264,6 @@ func readRemedyMethodsFromConfig(methods []interface{}) ([]openapi.ConditionAllO
 		}
 		r := openapi.ConditionAllOfRemedyMethods{}
 		raw := method.(map[string]interface{})
-
 		if v, ok := raw["type"]; ok {
 			r.SetType(v.(string))
 		}
@@ -263,6 +279,7 @@ func readRemedyMethodsFromConfig(methods []interface{}) ([]openapi.ConditionAllO
 		if v, ok := raw["provider_id"]; ok {
 			r.SetProviderId(v.(string))
 		}
+		result = append(result, r)
 	}
 	return result, nil
 }
