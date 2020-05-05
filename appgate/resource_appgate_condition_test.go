@@ -21,6 +21,18 @@ func TestAccConditionBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConditionExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", "condition-test"),
+					resource.TestCheckResourceAttr(resourceName, "expression", "return true;"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+
+					resource.TestCheckResourceAttr(resourceName, "remedy_methods.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.2107984292", "13:32"),
+					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.3334954558", "1h"),
+
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
 				),
 			},
 		},
@@ -29,9 +41,20 @@ func TestAccConditionBasic(t *testing.T) {
 
 func testAccCheckCondition() string {
 	return fmt.Sprintf(`
-
 resource "appgate_condition" "test_condition" {
     name = "condition-test"
+    tags = [
+      "terraform",
+      "api-created"
+    ]
+
+    expression = "return true;"
+
+    repeat_schedules = [
+      "1h",
+      "13:32"
+    ]
+
 }
 `)
 }
