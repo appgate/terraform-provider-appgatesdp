@@ -158,12 +158,65 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 
 	return resourceAppgateConditionRead(d, meta)
 }
+
 func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
+
 func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Updating condition: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.ConditionsApi
+	request := api.ConditionsIdGet(ctx, d.Id())
+	orginalCondition, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to read condition, %+v", err)
+	}
+	if d.HasChange("name") {
+		orginalCondition.SetName(d.Get("name").(string))
+	}
+
+	if d.HasChange("notes") {
+		orginalCondition.SetNotes(d.Get("notes").(string))
+	}
+
+	if d.HasChange("tags") {
+		orginalCondition.SetTags(schemaExtractTags(d))
+	}
+
+	if d.HasChange("expression") {
+		orginalCondition.SetExpression(d.Get("expression").(string))
+	}
+
+	if d.HasChange("repeat_schedules") {
+		_, n := d.GetChange("repeat_schedules")
+		repeatSchedules, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalCondition.SetRepeatSchedules(repeatSchedules)
+	}
+
+	if d.HasChange("remedy_methods") {
+		_, n := d.GetChange("remedy_methods")
+		remedyMethods, err := readRemedyMethodsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalCondition.SetRemedyMethods(remedyMethods)
+	}
+
+	req := api.ConditionsIdPut(ctx, d.Id())
+
+	_, _, err = req.Condition(orginalCondition).Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Could not update condition %+v", prettyPrintAPIError(err))
+	}
+
 	return resourceAppgateConditionRead(d, meta)
 }
+
 func resourceAppgateConditionDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete condition with name: %s", d.Get("name").(string))
 	ctx := context.Background()
