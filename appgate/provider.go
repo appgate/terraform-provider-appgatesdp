@@ -46,6 +46,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_entitlement":    resourceAppgateEntitlement(),
 			"appgate_site":           resourceAppgateSite(),
 			"appgate_ringfence_rule": resourceAppgateRingfenceRule(),
+			"appgate_condition":      resourceAppgateCondition(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
