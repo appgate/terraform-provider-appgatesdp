@@ -165,6 +165,24 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 	return resourceAppgateConditionRead(d, meta)
 }
 func resourceAppgateConditionDelete(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Delete condition with name: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.ConditionsApi
+
+	// Get condition
+	request := api.ConditionsIdGet(ctx, d.Id())
+	condition, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to delete condition while GET, %+v", err)
+	}
+
+	deleteRequest := api.ConditionsIdDelete(ctx, condition.GetId())
+	_, err = deleteRequest.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to delete condition, %+v", err)
+	}
+	d.SetId("")
 	return nil
 }
 
