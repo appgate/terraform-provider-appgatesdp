@@ -21,28 +21,28 @@ data "appgate_site" "default_site" {
 }
 
 resource "appgate_appliance" "new_gateway" {
-  name     = "gateway-foo"
+  name     = "gateway-asd"
   hostname = "envy-10-97-168-1337.devops"
 
   client_interface {
-    hostname       = "envy-10-97-168-1337.devops"
+    hostname       = "envy-10-97-168-1338.devops"
     proxy_protocol = true
-    https_port     = 444
+    https_port     = 447
     dtls_port      = 445
     allow_sources {
-      address = "1.3.3.7"
+      address = "1.3.3.8"
       netmask = 0
       nic     = "eth0"
     }
-    override_spa_mode = "TCP"
+    override_spa_mode = "UDP-TCP"
   }
 
   peer_interface {
-    hostname   = "envy-10-97-168-1337.devops"
-    https_port = "1337"
+    hostname   = "envy-10-97-168-1338.devops"
+    https_port = "1338"
 
     allow_sources {
-      address = "1.3.3.7"
+      address = "1.3.3.8"
       netmask = 0
       nic     = "eth0"
     }
@@ -55,6 +55,11 @@ resource "appgate_appliance" "new_gateway" {
       "ECDHE-RSA-AES256-GCM-SHA384",
       "ECDHE-RSA-AES128-GCM-SHA256"
     ]
+    # allow_sources {
+    #   address = "1.3.3.7"
+    #   netmask = 0
+    #   nic     = "eth0"
+    # }
   }
 
   tags = [
@@ -105,20 +110,28 @@ resource "appgate_appliance" "new_gateway" {
       address = "0.0.0.0"
       netmask = 24
       gateway = "1.2.3.4"
-      nic = "eth0"
+      nic     = "eth0"
     }
   }
 
 
-  # ntp {
-  #   servers = [
-  #     {
-  #       hostname = "ntp.microsoft.com"
-  #       key_type = "MD5"
-  #       key      = "bla"
-  #     }
-  #   ]
-  # }
+  ntp {
+    servers {
+      hostname = "ntp.microsoft.com"
+      key_type = "MD5"
+      key      = "bla"
+    }
+    servers {
+      hostname = "ntp.google.com"
+      key_type = "MD5"
+      key      = "bla"
+    }
+    # servers {
+    #   hostname = "ntp.aws.com"
+    #   key_type = "MD5"
+    #   key      = "bla"
+    # }
+  }
 
   ssh_server {
     enabled                 = true
@@ -135,6 +148,99 @@ resource "appgate_appliance" "new_gateway" {
     #   nic     = "eth1"
     # }
   }
+
+  snmp_server {
+    enabled    = false
+    tcp_port   = 161
+    udp_port   = 161
+    snmpd_conf = "foo"
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
+  healthcheck_server {
+    enabled = true
+    port    = 5555
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+  prometheus_exporter {
+    enabled = true
+    port    = 1234
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
+  ping {
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
+  log_forwarder {
+    enabled = true
+    elasticsearch {
+      url                      = "https://aws.com/elasticsearch/instance/asdaxllkmda64"
+      aws_id                   = "string"
+      aws_region               = "eu-west-2"
+      use_instance_credentials = true
+      retention_days           = 3
+    }
+
+    tcp_clients {
+      name    = "Company SIEM"
+      host    = "siem.company.com"
+      port    = 8888
+      format  = "json"
+      use_tls = true
+    }
+    sites = [
+      data.appgate_site.default_site.id
+    ]
+  }
+
+  iot_connector {
+    enabled = true
+    clients {
+      name      = "Printers"
+      device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
+
+      sources {
+        address = "1.3.3.7"
+        netmask = 24
+        nic     = "eth0"
+      }
+      snat = true
+    }
+  }
+
+  rsyslog_destinations {
+    selector    = "*.*"
+    template    = "%HOSTNAME% %msg%"
+    destination = "10.10.10.2"
+  }
+  rsyslog_destinations {
+    selector    = ":msg, contains, \"[AUDIT]\""
+    template    = "%msg:9:$%"
+    destination = "10.30.20.3"
+  }
+
+  hostname_aliases = [
+    "appgatealias.company.com",
+    "alias2.appgate.company.com"
+  ]
+
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
   controller {
     enabled = true
@@ -146,17 +252,17 @@ resource "appgate_appliance" "new_gateway" {
     # retention_days = 2
   }
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=gateway-a
-  gateway {
-    enabled = true
-    vpn {
-      weight = 60
-      allow_destinations {
-        address = "127.0.0.1"
-        netmask = 0
-        nic     = "eth0"
-      }
-    }
-  }
+  # gateway {
+  #   enabled = true
+  #   vpn {
+  #     weight = 60
+  #     allow_destinations {
+  #       address = "127.0.0.1"
+  #       netmask = 0
+  #       nic     = "eth0"
+  #     }
+  #   }
+  # }
   # Save the seed file locally in base 64 format.
   provisioner "local-exec" {
     command = "echo ${appgate_appliance.new_gateway.seed_file} > seed.b64"
