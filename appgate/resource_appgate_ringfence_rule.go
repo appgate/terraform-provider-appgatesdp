@@ -167,6 +167,19 @@ func resourceAppgateRingfenceRuleCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Read Ringfence rule with name: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.RingfenceRulesApi
+	request := api.RingfenceRulesIdGet(ctx, d.Id())
+	ringfenceRule, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to read Ringfence rule, %+v", err)
+	}
+	d.Set("ringfence_rule_id", ringfenceRule.Id)
+	d.Set("name", ringfenceRule.Name)
+	d.Set("tags", ringfenceRule.Tags)
+	d.Set("actions", ringfenceRule.Actions)
 	return nil
 }
 
