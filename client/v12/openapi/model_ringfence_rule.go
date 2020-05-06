@@ -17,14 +17,15 @@ import (
 // RingfenceRule struct for RingfenceRule
 type RingfenceRule struct {
 	BaseEntity
-	Actions RingfenceRuleAllOfActions `json:"actions"`
+	// List of all ringfence actions in this Ringfence Rule.
+	Actions []RingfenceRuleAllOfActions `json:"actions"`
 }
 
 // NewRingfenceRule instantiates a new RingfenceRule object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewRingfenceRule(actions RingfenceRuleAllOfActions) *RingfenceRule {
+func NewRingfenceRule(actions []RingfenceRuleAllOfActions) *RingfenceRule {
 	this := RingfenceRule{}
 	this.Actions = actions
 	return &this
@@ -39,9 +40,9 @@ func NewRingfenceRuleWithDefaults() *RingfenceRule {
 }
 
 // GetActions returns the Actions field value
-func (o *RingfenceRule) GetActions() RingfenceRuleAllOfActions {
+func (o *RingfenceRule) GetActions() []RingfenceRuleAllOfActions {
 	if o == nil {
-		var ret RingfenceRuleAllOfActions
+		var ret []RingfenceRuleAllOfActions
 		return ret
 	}
 
@@ -50,7 +51,7 @@ func (o *RingfenceRule) GetActions() RingfenceRuleAllOfActions {
 
 // GetActionsOk returns a tuple with the Actions field value
 // and a boolean to check if the value has been set.
-func (o *RingfenceRule) GetActionsOk() (*RingfenceRuleAllOfActions, bool) {
+func (o *RingfenceRule) GetActionsOk() (*[]RingfenceRuleAllOfActions, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -58,7 +59,7 @@ func (o *RingfenceRule) GetActionsOk() (*RingfenceRuleAllOfActions, bool) {
 }
 
 // SetActions sets field value
-func (o *RingfenceRule) SetActions(v RingfenceRuleAllOfActions) {
+func (o *RingfenceRule) SetActions(v []RingfenceRuleAllOfActions) {
 	o.Actions = v
 }
 
