@@ -175,6 +175,23 @@ func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAppgateRingfenceRuleDelete(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Delete Ringfence rule: %s", d.Get("name").(string))
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.RingfenceRulesApi
+	ctx := context.Background()
+
+	request := api.RingfenceRulesIdGet(ctx, d.Id())
+	ringfenceRule, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to delete Ringfence rule while GET, %+v", err)
+	}
+
+	deleteRequest := api.RingfenceRulesIdDelete(ctx, ringfenceRule.GetId())
+	_, err = deleteRequest.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to delete Ringfence rule, %+v", err)
+	}
+	d.SetId("")
 	return nil
 }
 
