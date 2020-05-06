@@ -171,6 +171,42 @@ func resourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Updating Ringfence rule with name: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.RingfenceRulesApi
+	request := api.RingfenceRulesIdGet(ctx, d.Id())
+	originalRingfenceRule, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to read Ringfence rule, %+v", err)
+	}
+
+	if d.HasChange("name") {
+		originalRingfenceRule.SetName(d.Get("name").(string))
+	}
+
+	if d.HasChange("notes") {
+		originalRingfenceRule.SetNotes(d.Get("notes").(string))
+	}
+
+	if d.HasChange("tags") {
+		originalRingfenceRule.SetTags(schemaExtractTags(d))
+	}
+	if d.HasChange("actions") {
+		_, n := d.GetChange("actions")
+		actions, err := readRingfencActionFromConfig(n.([]interface{}))
+		if err != nil {
+			return err
+		}
+		originalRingfenceRule.SetActions(actions)
+	}
+	req := api.RingfenceRulesIdPut(ctx, d.Id())
+
+	_, _, err = req.RingfenceRule(originalRingfenceRule).Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Could not update Ringfence rule %+v", prettyPrintAPIError(err))
+	}
+
 	return resourceAppgateRingfenceRuleRead(d, meta)
 }
 
