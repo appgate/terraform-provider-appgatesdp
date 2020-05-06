@@ -1,9 +1,12 @@
 package appgate
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -131,14 +134,88 @@ func resourceAppgateRingfenceRule() *schema.Resource {
 }
 
 func resourceAppgateRingfenceRuleCreate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Creating Ringfence rule with name: %s", d.Get("name").(string))
+	ctx := context.Background()
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.RingfenceRulesApi
+
+	args := openapi.NewRingfenceRuleWithDefaults()
+	args.SetName(d.Get("name").(string))
+
+	if c, ok := d.GetOk("notes"); ok {
+		args.SetNotes(c.(string))
+	}
+	args.SetTags(schemaExtractTags(d))
+
+	if c, ok := d.GetOk("actions"); ok {
+		action, err := readRingfencActionFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetActions(action)
+	}
+
+	request := api.RingfenceRulesPost(ctx)
+	request = request.RingfenceRule(*args)
+	ringfenceRule, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Could not create Ringfence rule  %+v", prettyPrintAPIError(err))
+	}
+
+	d.SetId(ringfenceRule.Id)
 	return resourceAppgateRingfenceRuleRead(d, meta)
 }
+
 func resourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
+
 func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	return resourceAppgateRingfenceRuleRead(d, meta)
 }
+
 func resourceAppgateRingfenceRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
+}
+
+func readRingfencActionFromConfig(actions []interface{}) (openapi.RingfenceRuleAllOfActions, error) {
+	result := openapi.RingfenceRuleAllOfActions{}
+	for _, action := range actions {
+		if action == nil {
+			continue
+		}
+		raw := action.(map[string]interface{})
+		if v, ok := raw["protocol"]; ok {
+			result.SetProtocol(v.(string))
+		}
+		if v, ok := raw["direction"]; ok {
+			result.SetDirection(v.(string))
+		}
+		if v, ok := raw["action"]; ok {
+			result.SetAction(v.(string))
+		}
+		if v := raw["hosts"]; len(v.([]interface{})) > 0 {
+			hosts, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetHosts(hosts)
+		}
+		if v := raw["ports"]; len(v.([]interface{})) > 0 {
+			ports, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetPorts(ports)
+		}
+		if v := raw["types"]; len(v.([]interface{})) > 0 {
+			types, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetTypes(types)
+		}
+
+	}
+	return result, nil
 }
