@@ -165,7 +165,11 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
 	args.SetSite(d.Get("site").(string))
+	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))
+	args.SetDisabled(d.Get("disabled").(bool))
+	args.SetConditionLogic(d.Get("condition_logic").(string))
+
 	if c, ok := d.GetOk("conditions"); ok {
 		conditions, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
 		if err != nil {
@@ -180,6 +184,14 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 			return err
 		}
 		args.SetActions(actions)
+	}
+
+	if c, ok := d.GetOk("app_shortcut"); ok {
+		appShortcut, err := readAppShortcutFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetAppShortcut(appShortcut)
 	}
 
 	request := api.EntitlementsPost(context.Background())
@@ -336,6 +348,26 @@ func readConditionActionsFromConfig(actions []interface{}) ([]openapi.Entitlemen
 			a.SetMonitor(*monitor)
 		}
 		result = append(result, *a)
+	}
+	return result, nil
+}
+
+func readAppShortcutFromConfig(shortcuts []interface{}) (openapi.EntitlementAllOfAppShortcut, error) {
+	result := openapi.EntitlementAllOfAppShortcut{}
+	for _, shortcut := range shortcuts {
+		if shortcut == nil {
+			continue
+		}
+		raw := shortcut.(map[string]interface{})
+		if v, ok := raw["name"]; ok {
+			result.SetName(v.(string))
+		}
+		if v, ok := raw["url"]; ok {
+			result.SetUrl(v.(string))
+		}
+		if v, ok := raw["color_code"]; ok {
+			result.SetColorCode(int32(v.(int)))
+		}
 	}
 	return result, nil
 }
