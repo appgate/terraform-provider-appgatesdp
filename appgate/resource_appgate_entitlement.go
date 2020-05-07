@@ -130,7 +130,7 @@ func resourceAppgateEntitlement() *schema.Resource {
 
 			"app_shortcut": {
 				Type:       schema.TypeSet,
-				Required:   true,
+				Optional:   true,
 				ConfigMode: schema.SchemaConfigModeAttr,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -147,7 +147,7 @@ func resourceAppgateEntitlement() *schema.Resource {
 
 						"color_code": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Optional: true,
 						},
 					},
 				},
@@ -168,7 +168,10 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))
 	args.SetDisabled(d.Get("disabled").(bool))
-	args.SetConditionLogic(d.Get("condition_logic").(string))
+
+	if v, ok := d.GetOk("condition_logic"); ok {
+		args.SetConditionLogic(v.(string))
+	}
 
 	if c, ok := d.GetOk("conditions"); ok {
 		conditions, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
@@ -211,7 +214,8 @@ func resourceAppgateEntitlementRuleRead(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Reading Entitlement id: %+v", d.Id())
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.EntitlementsApi
-	request := api.EntitlementsIdGet(context.Background(), d.Id())
+	ctx := context.TODO()
+	request := api.EntitlementsIdGet(ctx, d.Id())
 	ent, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		// TODO check if 404
@@ -232,27 +236,37 @@ func resourceAppgateEntitlementRuleRead(d *schema.ResourceData, meta interface{}
 func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Entitlement: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Updating Entitlement id: %+v", d.Id())
-
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.EntitlementsApi
-
-	request := api.EntitlementsIdGet(context.Background(), d.Id())
-	request.Authorization(token)
-	orginalEntitlment, _, err := request.Execute()
+	ctx := context.TODO()
+	request := api.EntitlementsIdGet(ctx, d.Id())
+	orginalEntitlment, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Entitlement, %+v", err)
+		return fmt.Errorf("Failed to read Entitlement while updating, %+v", err)
 	}
 
 	if d.HasChange("name") {
 		orginalEntitlment.SetName(d.Get("name").(string))
 	}
 
-	if d.HasChange("site") {
-		orginalEntitlment.SetSite(d.Get("site").(string))
+	if d.HasChange("notes") {
+		orginalEntitlment.SetNotes(d.Get("notes").(string))
 	}
 
 	if d.HasChange("tags") {
 		orginalEntitlment.SetTags(schemaExtractTags(d))
+	}
+
+	if d.HasChange("disabled") {
+		orginalEntitlment.SetDisabled(d.Get("disabled").(bool))
+	}
+
+	if d.HasChange("site") {
+		orginalEntitlment.SetSite(d.Get("site").(string))
+	}
+
+	if d.HasChange("condition_logic") {
+		orginalEntitlment.SetConditionLogic(d.Get("condition_logic").(string))
 	}
 
 	if d.HasChange("conditions") {
@@ -273,11 +287,20 @@ func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface
 		orginalEntitlment.SetActions(actions)
 	}
 
-	req := api.EntitlementsIdPut(context.Background(), d.Id())
+	if d.HasChange("app_shortcut") {
+		_, n := d.GetChange("app_shortcut")
+		appShortcut, err := readAppShortcutFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalEntitlment.SetAppShortcut(appShortcut)
+	}
+
+	req := api.EntitlementsIdPut(ctx, d.Id())
 	req = req.Entitlement(orginalEntitlment)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete Entitlement, %+v", err)
+		return fmt.Errorf("Could not update Entitlement %+v", prettyPrintAPIError(err))
 	}
 
 	return resourceAppgateEntitlementRuleRead(d, meta)
@@ -293,7 +316,7 @@ func resourceAppgateEntitlementRuleDelete(d *schema.ResourceData, meta interface
 
 	_, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete Entitlement, %+v", err)
+		return fmt.Errorf("Could not delete Entitlement %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil
