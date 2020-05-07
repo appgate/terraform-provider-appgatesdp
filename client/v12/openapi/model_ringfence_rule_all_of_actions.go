@@ -14,7 +14,7 @@ import (
 	"encoding/json"
 )
 
-// RingfenceRuleAllOfActions List of all ringfence actions in this Ringfence Rule.
+// RingfenceRuleAllOfActions struct for RingfenceRuleAllOfActions
 type RingfenceRuleAllOfActions struct {
 	// Protocol of the ringfence action.
 	Protocol string `json:"protocol"`

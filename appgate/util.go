@@ -38,6 +38,17 @@ func schemaExtractTags(d *schema.ResourceData) []string {
 	return tags
 }
 
+func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {
+	result := make([]string, 0)
+	for _, item := range list {
+		if item == nil {
+			continue
+		}
+		result = append(result, item.(string))
+	}
+	return result, nil
+}
+
 // validateCIDRNetworkAddress ensures that the string value is a valid CIDR that
 // represents a network address - it adds an error otherwise
 func validateCIDRNetworkAddress(v interface{}, k string) (ws []string, errors []error) {
