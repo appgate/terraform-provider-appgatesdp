@@ -42,6 +42,13 @@ func resourceAppgateEntitlement() *schema.Resource {
 				Required:    true,
 			},
 
+			"notes": {
+				Type:        schema.TypeString,
+				Description: "Notes for the object. Used for documentation purposes.",
+				Default:     DefaultDescription,
+				Optional:    true,
+			},
+
 			"tags": {
 				Type:        schema.TypeSet,
 				Description: "Array of tags.",
@@ -49,10 +56,31 @@ func resourceAppgateEntitlement() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
+			"disabled": {
+				Type:     schema.TypeBool,
+				Default:  false,
+				Optional: true,
+			},
+
 			"site": {
-				Type:        schema.TypeString,
-				Description: "ID of the site for this Entitlement.",
-				Required:    true,
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"condition_logic": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+					s := v.(string)
+					list := []string{"and", "or"}
+					for _, x := range list {
+						if s == x {
+							return
+						}
+					}
+					errs = append(errs, fmt.Errorf("condition_logic must be on of %v, got %s", list, s))
+					return
+				},
 			},
 
 			"conditions": {
@@ -95,6 +123,31 @@ func resourceAppgateEntitlement() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+
+			"app_shortcut": {
+				Type:       schema.TypeSet,
+				Required:   true,
+				ConfigMode: schema.SchemaConfigModeAttr,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"url": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"color_code": {
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 					},
 				},
