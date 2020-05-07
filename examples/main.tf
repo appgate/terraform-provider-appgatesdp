@@ -323,3 +323,34 @@ resource "appgate_ringfence_rule" "basic_rule" {
   }
 
 }
+
+resource "appgate_condition" "test_condition" {
+  name = "teraform-example-condition"
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+
+  expression = <<-EOF
+var result = false;
+/*password*/
+if (claims.user.hasPassword('test', 60)) {
+  return true;
+}
+/*end password*/
+return result;
+EOF
+
+  repeat_schedules = [
+    "1h",
+    "13:32"
+  ]
+
+  # remedy_methods {
+  #   type        = "DisplayMessage"
+  #   message     = "This resoure requires you to enter your password again"
+  #   claim_suffix = "test"
+  #   provider_id  = "4c07bc67-57ea-42dd-b702-c2d6c45419fc"
+  # }
+
+}
