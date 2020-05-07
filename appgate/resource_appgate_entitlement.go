@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
 	"github.com/google/uuid"
@@ -20,7 +21,13 @@ func resourceAppgateEntitlement() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
-		// TODO add optional fields.
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 
 			"entitlement_id": {
@@ -33,6 +40,13 @@ func resourceAppgateEntitlement() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Name of the object.",
 				Required:    true,
+			},
+
+			"tags": {
+				Type:        schema.TypeSet,
+				Description: "Array of tags.",
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"site": {
@@ -70,7 +84,13 @@ func resourceAppgateEntitlement() *schema.Resource {
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
-						// Required for ICMP
+
+						"ports": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+
 						"types": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -88,43 +108,26 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.EntitlementsApi
 
-	rawconditions := d.Get("conditions").(*schema.Set).List()
-	conditions := make([]string, 0)
-	for _, raw := range rawconditions {
-		conditions = append(conditions, raw.(string))
-	}
-	rawactions := d.Get("actions").(*schema.Set).List()
-
-	var actions []openapi.EntitlementAllOfActions
-	for _, raw := range rawactions {
-		l := raw.(map[string]interface{})
-
-		action := openapi.EntitlementAllOfActions{
-			Subtype: l["subtype"].(string),
-			Action:  l["action"].(string),
-		}
-
-		types := make([]string, 0)
-		for _, t := range l["types"].([]interface{}) {
-			types = append(types, t.(string))
-		}
-		action.Types = &types
-
-		rawhosts := l["hosts"].([]interface{})
-		hosts := make([]string, 0)
-		for _, h := range rawhosts {
-			hosts = append(hosts, h.(string))
-		}
-		action.Hosts = hosts
-
-		actions = append(actions, action)
-	}
 	args := openapi.NewEntitlementWithDefaults()
-	args.SetId(uuid.New().String())
+	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
 	args.SetSite(d.Get("site").(string))
-	args.SetConditions(conditions)
-	args.SetActions(actions)
+	args.SetTags(schemaExtractTags(d))
+	if c, ok := d.GetOk("conditions"); ok {
+		conditions, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetConditions(conditions)
+	}
+
+	if c, ok := d.GetOk("actions"); ok {
+		actions, err := readConditionActionsFromConfig(c.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetActions(actions)
+	}
 
 	request := api.EntitlementsPost(context.Background())
 	request = request.Entitlement(*args)
@@ -175,41 +178,35 @@ func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Failed to read Entitlement, %+v", err)
 	}
 
-	rawconditions := d.Get("conditions").(*schema.Set).List()
-	conditions := make([]string, 0)
-	for _, raw := range rawconditions {
-		conditions = append(conditions, raw.(string))
+	if d.HasChange("name") {
+		orginalEntitlment.SetName(d.Get("name").(string))
 	}
-	rawactions := d.Get("actions").(*schema.Set).List()
 
-	var actions []openapi.EntitlementAllOfActions
-	for _, raw := range rawactions {
-		l := raw.(map[string]interface{})
-
-		action := openapi.EntitlementAllOfActions{
-			Subtype: l["subtype"].(string),
-			Action:  l["action"].(string),
-		}
-
-		types := make([]string, 0)
-		for _, t := range l["types"].([]interface{}) {
-			types = append(types, t.(string))
-		}
-		action.Types = &types
-
-		rawhosts := l["hosts"].([]interface{})
-		hosts := make([]string, 0)
-		for _, h := range rawhosts {
-			hosts = append(hosts, h.(string))
-		}
-		action.Hosts = hosts
-
-		actions = append(actions, action)
+	if d.HasChange("site") {
+		orginalEntitlment.SetSite(d.Get("site").(string))
 	}
-	orginalEntitlment.SetName(d.Get("name").(string))
-	orginalEntitlment.SetSite(d.Get("site").(string))
-	orginalEntitlment.SetConditions(conditions)
-	orginalEntitlment.SetActions(actions)
+
+	if d.HasChange("tags") {
+		orginalEntitlment.SetTags(schemaExtractTags(d))
+	}
+
+	if d.HasChange("conditions") {
+		_, n := d.GetChange("conditions")
+		conditions, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalEntitlment.SetConditions(conditions)
+	}
+
+	if d.HasChange("actions") {
+		_, n := d.GetChange("actions")
+		actions, err := readConditionActionsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalEntitlment.SetActions(actions)
+	}
 
 	req := api.EntitlementsIdPut(context.Background(), d.Id())
 	req = req.Entitlement(orginalEntitlment)
@@ -235,4 +232,57 @@ func resourceAppgateEntitlementRuleDelete(d *schema.ResourceData, meta interface
 	}
 	d.SetId("")
 	return nil
+}
+
+func readConditionActionsFromConfig(actions []interface{}) ([]openapi.EntitlementAllOfActions, error) {
+	result := make([]openapi.EntitlementAllOfActions, 0)
+	for _, action := range actions {
+		if action == nil {
+			continue
+		}
+		a := openapi.NewEntitlementAllOfActionsWithDefaults()
+		raw := action.(map[string]interface{})
+		if v, ok := raw["subtype"]; ok {
+			a.SetSubtype(v.(string))
+		}
+		if v, ok := raw["action"]; ok {
+			a.SetAction(v.(string))
+		}
+		if v := raw["hosts"]; len(v.([]interface{})) > 0 {
+			hosts, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve condition action hosts: %+v", err)
+			}
+			a.SetHosts(hosts)
+		}
+		if v := raw["ports"]; len(v.([]interface{})) > 0 {
+			ports, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve condition action ports: %+v", err)
+			}
+			a.SetPorts(ports)
+		}
+		if v := raw["types"]; len(v.([]interface{})) > 0 {
+			types, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve condition action types: %+v", err)
+			}
+			a.SetTypes(types)
+		}
+
+		if v, ok := raw["monitor"]; ok {
+			monitor := openapi.NewEntitlementAllOfMonitorWithDefaults()
+			rawMonitor := v.(map[string]interface{})
+
+			if v, ok := rawMonitor["enabled"]; ok {
+				monitor.SetEnabled(v.(bool))
+			}
+			if v, ok := rawMonitor["timeout"]; ok {
+				monitor.SetTimeout(int32(v.(int)))
+			}
+			a.SetMonitor(*monitor)
+		}
+		result = append(result, *a)
+	}
+	return result, nil
 }

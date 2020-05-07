@@ -21,21 +21,23 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 				Config: testAccCheckEntitlementBasicPing(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExampleItemExists(resourceName),
+
 					resource.TestCheckResourceAttr(resourceName, "name", "ping"),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
 
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.action", "allow"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.0", "10.0.0.1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.1", "10.0.0.0/24"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.2", "hostname.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.3", "dns://hostname.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.4", "aws://security-group:accounting"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.#", "5"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.0", "10.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.1", "10.0.0.0/24"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.2", "hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.3", "dns://hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.4", "aws://security-group:accounting"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.ports.#", "0"),
 
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.subtype", "icmp_up"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.types.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.types.0", "0-16"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.subtype", "icmp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.types.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.types.0", "0-16"),
 				),
 			},
 			{
