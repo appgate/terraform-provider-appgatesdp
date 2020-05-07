@@ -21,6 +21,25 @@ func TestAccRingfenceRuleBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRingfenceRuleExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", "ringfence-rule-test"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+
+					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.direction", "out"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.hosts.0", "10.0.2.0/24"),
+
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.ports.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.ports.0", "80"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.ports.1", "443"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.ports.2", "1024-2048"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.protocol", "icmp"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.types.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.types.0", "0-255"),
+
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
 				),
 			},
 		},
@@ -29,9 +48,33 @@ func TestAccRingfenceRuleBasic(t *testing.T) {
 
 func testAccCheckRingfenceRule() string {
 	return fmt.Sprintf(`
-
 resource "appgate_ringfence_rule" "test_ringfence_rule" {
     name = "ringfence-rule-test"
+    tags = [
+        "terraform",
+        "api-created"
+      ]
+
+      actions {
+        protocol  = "icmp"
+        direction = "out"
+        action    = "allow"
+
+        hosts = [
+          "10.0.2.0/24"
+        ]
+
+        ports = [
+          "80",
+          "443",
+          "1024-2048"
+        ]
+
+        types = [
+          "0-255"
+        ]
+
+      }
 }
 `)
 }
