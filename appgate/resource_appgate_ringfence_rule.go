@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -82,7 +83,7 @@ func resourceAppgateRingfenceRule() *schema.Resource {
 							Required: true,
 							ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 								s := v.(string)
-								list := []string{"up", "down"}
+								list := []string{"up", "down", "out", "in"}
 								for _, x := range list {
 									if s == x {
 										return
@@ -110,19 +111,19 @@ func resourceAppgateRingfenceRule() *schema.Resource {
 						},
 
 						"hosts": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
 						"ports": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
 						"types": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
@@ -140,6 +141,7 @@ func resourceAppgateRingfenceRuleCreate(d *schema.ResourceData, meta interface{}
 	api := meta.(*Client).API.RingfenceRulesApi
 
 	args := openapi.NewRingfenceRuleWithDefaults()
+	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
 
 	if c, ok := d.GetOk("notes"); ok {
@@ -207,7 +209,7 @@ func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}
 	}
 	if d.HasChange("actions") {
 		_, n := d.GetChange("actions")
-		actions, err := readRingfencActionFromConfig(n.([]interface{}))
+		actions, err := readRingfencActionFromConfig(n.(*schema.Set).List())
 		if err != nil {
 			return err
 		}
@@ -244,44 +246,46 @@ func resourceAppgateRingfenceRuleDelete(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func readRingfencActionFromConfig(actions []interface{}) (openapi.RingfenceRuleAllOfActions, error) {
-	result := openapi.RingfenceRuleAllOfActions{}
+func readRingfencActionFromConfig(actions []interface{}) ([]openapi.RingfenceRuleAllOfActions, error) {
+	result := make([]openapi.RingfenceRuleAllOfActions, 0)
+
 	for _, action := range actions {
 		if action == nil {
 			continue
 		}
+		a := openapi.RingfenceRuleAllOfActions{}
 		raw := action.(map[string]interface{})
 		if v, ok := raw["protocol"]; ok {
-			result.SetProtocol(v.(string))
+			a.SetProtocol(v.(string))
 		}
 		if v, ok := raw["direction"]; ok {
-			result.SetDirection(v.(string))
+			a.SetDirection(v.(string))
 		}
 		if v, ok := raw["action"]; ok {
-			result.SetAction(v.(string))
+			a.SetAction(v.(string))
 		}
 		if v := raw["hosts"]; len(v.([]interface{})) > 0 {
 			hosts, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, err
 			}
-			result.SetHosts(hosts)
+			a.SetHosts(hosts)
 		}
 		if v := raw["ports"]; len(v.([]interface{})) > 0 {
 			ports, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, err
 			}
-			result.SetPorts(ports)
+			a.SetPorts(ports)
 		}
 		if v := raw["types"]; len(v.([]interface{})) > 0 {
 			types, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, err
 			}
-			result.SetTypes(types)
+			a.SetTypes(types)
 		}
-
+		result = append(result, a)
 	}
 	return result, nil
 }
