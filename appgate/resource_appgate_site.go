@@ -714,5 +714,85 @@ func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 
 func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.SiteAllOfNameResolution, error) {
 	result := openapi.SiteAllOfNameResolution{}
+	for _, nr := range nameresolutions {
+		if nr == nil {
+			continue
+		}
+		raw := nr.(map[string]interface{})
+
+		if v, ok := raw["use_hosts_file"]; ok {
+			result.SetUseHostsFile(v.(bool))
+		}
+		if v, ok := raw["dns_resolvers"]; ok {
+			dnsResolvers, err := readDNSResolversFromConfig(v.(map[string]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetDnsResolvers(dnsResolvers)
+		}
+		if v, ok := raw["aws_resolvers"]; ok {
+			awsResolvers, err := readAWSResolversFromConfig(v.(map[string]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetAwsResolvers(awsResolvers)
+		}
+		if v, ok := raw["azure_resolvers"]; ok {
+			azureResolvers, err := readAzureResolversFromConfig(v.(map[string]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetAzureResolvers(azureResolvers)
+		}
+		if v, ok := raw["esx_resolvers"]; ok {
+			esxResolvers, err := readESXResolversFromConfig(v.(map[string]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetEsxResolvers(esxResolvers)
+		}
+		if v, ok := raw["gcp_resolvers"]; ok {
+			gcpResolvers, err := readGCPResolversFromConfig(v.(map[string]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetGcpResolvers(gcpResolvers)
+		}
+	}
+	return result, nil
+}
+
+func readDNSResolversFromConfig(dnsConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionDnsResolvers, 0)
+	// cfg := openapi.NewSiteAllOfNameResolutionDnsResolversWithDefaults()
+
+	return result, nil
+}
+
+func readAWSResolversFromConfig(awsConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionAwsResolvers, 0)
+	// cfg := openapi.NewSiteAllOfNameResolutionAwsResolversWithDefaults()
+
+	return result, nil
+}
+
+func readAzureResolversFromConfig(azureConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionAzureResolvers, 0)
+	// cfg := openapi.NewSiteAllOfNameResolutionAzureResolversWithDefaults()
+
+	return result, nil
+}
+
+func readESXResolversFromConfig(esxConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionEsxResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionEsxResolvers, 0)
+	// cfg := openapi.NewSiteAllOfNameResolutionEsxResolversWithDefaults()
+
+	return result, nil
+}
+
+func readGCPResolversFromConfig(gcpConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionGcpResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionGcpResolvers, 0)
+	// cfg := openapi.NewSiteAllOfNameResolutionGcpResolversWithDefaults()
+
 	return result, nil
 }
