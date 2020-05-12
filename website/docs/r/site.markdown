@@ -14,28 +14,9 @@ Create a new Site..
 
 ```hcl
 
-
-resource "appgate_site" "gbg_site" {
-  name       = "Gothenburg site"
-  short_name = "gbg"
-  tags = [
-    "developer",
-    "api-created"
-  ]
-
-  notes = "This object has been created for test purposes."
-
-  network_subnets = [
-    "10.0.0.0/16"
-  ]
-  default_gateway {
-    enabled_v4       = false
-    enabled_v6       = false
-    excluded_subnets = []
-  }
+resource "appgate_site" "test_site" {
 
 }
-
 
 ```
 
@@ -51,6 +32,12 @@ The following arguments are supported:
 * `entitlement_based_routing`: (Optional) When enabled, the routes are sent to the Client by the Gateways according to the user&#39;s Entitlements &quot;networkSubnets&quot; should be left be empty if it&#39;s enabled.
 * `vpn`: (Optional) VPN configuration for this Site.
 * `name_resolution`: (Optional) Settings for asset name resolution.
+* `id`: (Required) ID of the object.
+* `name`: (Required) Name of the object.
+* `notes`: (Optional) Notes for the object. Used for documentation purposes.
+* `created`: (Optional) Create date.
+* `updated`: (Optional) Last update date.
+* `tags`: (Optional) Array of tags.
 
 
 ### default_gateway
@@ -59,7 +46,6 @@ Default Gateway configuration.
 * `enabled_v4`: When enabled, the Client uses this Site as the Default Default for all IPV4 traffic.
 * `enabled_v6`: When enabled, the Client uses this Site as the Default Default for all IPv6 traffic.
 * `excluded_subnets`: Network subnets to exclude when Default Gateway is enabled. The traffic for these subnets will not go through the Gateway in this Site.
-
 #### excluded_subnets
 Network subnets to exclude when Default Gateway is enabled. The traffic for these subnets will not go through the Gateway in this Site.
 ### vpn
@@ -74,7 +60,16 @@ VPN configuration for this Site.
 * `web_proxy_key_store`: The PKCS12 package to be used for web proxy. The file must be with no password and must include the full certificate chain and a private key. In Base64 format.
 * `web_proxy_certificate_subject_name`: The subject name of the certificate with private key in the PKCS12 file for web proxy assigned to this site.
 * `ip_access_log_interval_seconds`: Frequency configuration for generating IP Access audit logs for a connection.
-
+#### tls
+VPN over TLS protocol configuration.
+* `enabled`: (Optional) undefined
+#### dtls
+VPN over DTLS protocol configuration.
+* `enabled`: (Optional) undefined
+#### route_via
+Override routing for tunnel traffic.
+* `ipv4`: (Optional) IPv4 address for routing tunnel traffic. Example: 10.0.0.2.
+* `ipv6`: (Optional) IPv6 address for routing tunnel traffic. Example: 2001:db8:0:0:0:ff00:42:8329.
 ### name_resolution
 Settings for asset name resolution.
 
@@ -84,17 +79,12 @@ Settings for asset name resolution.
 * `azure_resolvers`: Resolvers to resolve Azure machines by querying Azure App Service.
 * `esx_resolvers`: Resolvers to resolve VMware vSphere machines by querying the vCenter.
 * `gcp_resolvers`: Resolvers to resolve GCP machine by querying Google web services.
-
 #### dns_resolvers
 Resolver to resolve hostnames using DNS servers.
 * `name`: (Required) Identifier name. Has no functional effect. Example: DNS Resolver 1.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
 * `servers`: (Required) DNS Server addresses that will be used to resolve hostnames within the Site.
 * `search_domains`: (Optional) DNS search domains that will be used to resolve hostnames within the Site.
-
-
-
-
 #### aws_resolvers
 Resolvers to resolve Amazon machines by querying Amazon Web Services.
 * `name`: (Required) Identifier name. Has no functional effect. Example: AWS Resolver 1.
@@ -108,17 +98,6 @@ Resolvers to resolve Amazon machines by querying Amazon Web Services.
 * `https_proxy`: (Optional) Proxy address to use while communicating with AWS. format: username:password@ip&#x2F;hostname:port
 * `resolve_with_master_credentials`: (Optional) Use master credentials to resolve names in addition to any assumed roles.
 * `assumed_roles`: (Optional) Roles to be assumed to perform AWS name resolution.
-
-
-
-
-
-
-
-
-
-
-
 #### azure_resolvers
 Resolvers to resolve Azure machines by querying Azure App Service.
 * `name`: (Required) Identifier name. Has no functional effect.
@@ -127,12 +106,6 @@ Resolvers to resolve Azure machines by querying Azure App Service.
 * `tenant_id`: (Required) Azure tenant id, visible with the azure cli command &#x60;azure account show&#x60;.
 * `client_id`: (Required) Azure client id, also called app id. Visible for a given application using the azure cli command &#x60;azure ad app show&#x60;.
 * `secret`: (Optional) Azure client secret. For Azure AD Apps this is done by creating a key for the app.
-
-
-
-
-
-
 #### esx_resolvers
 Resolvers to resolve VMware vSphere machines by querying the vCenter.
 * `name`: (Required) Identifier name. Has no functional effect.
@@ -140,21 +113,12 @@ Resolvers to resolve VMware vSphere machines by querying the vCenter.
 * `hostname`: (Required) Hostname of the vCenter.
 * `username`: (Required) Username with admin access to the vCenter.
 * `password`: (Optional) Password for the username.
-
-
-
-
-
 #### gcp_resolvers
 Resolvers to resolve GCP machine by querying Google web services.
 * `name`: (Required) Identifier name. Has no functional effect.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
 * `project_filter`: (Optional) GCP project filter.
 * `instance_filter`: (Optional) GCP instance filter.
-
-
-
-
 
 
 

@@ -14,29 +14,8 @@ Create a new Policy..
 
 ```hcl
 
-resource "appgate_policy" "basic_policy" {
-  name  = "terraform policy"
-  notes = "terraform policy notes"
-  tags = [
-    "terraform",
-    "api-created"
-  ]
-  disabled = false
+resource "appgate_policy" "test_policy" {
 
-  expression = <<-EOF
-var result = false;
-/*claims.user.groups*/
-if(claims.user.groups && claims.user.groups.indexOf("developers") >= 0) {
-  return true;
-}
-/*end claims.user.groups*/
-/*criteriaScript*/
-if (admins(claims)) {
-  return true;
-}
-/*end criteriaScript*/
-return result;
-EOF
 }
 
 ```
@@ -55,6 +34,12 @@ The following arguments are supported:
 * `tamper_proofing`: (Optional) Will enable Tamper Proofing on desktop clients which will make sure the routes and ringfence configurations are not changed.
 * `override_site`: (Optional) Site ID where all the Entitlements of this Policy must be deployed. This overrides Entitlement&#39;s own Site and to be used only in specific network layouts. Otherwise the assigned site on individual Entitlements will be used.
 * `administrative_roles`: (Optional) List of Administrative Role IDs in this Policy.
+* `id`: (Required) ID of the object.
+* `name`: (Required) Name of the object.
+* `notes`: (Optional) Notes for the object. Used for documentation purposes.
+* `created`: (Optional) Create date.
+* `updated`: (Optional) Last update date.
+* `tags`: (Optional) Array of tags.
 
 
 

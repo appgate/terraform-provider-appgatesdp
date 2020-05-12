@@ -15,27 +15,6 @@ Create a new Condition..
 ```hcl
 
 resource "appgate_condition" "test_condition" {
-  name = "teraform-example-condition"
-  tags = [
-    "terraform",
-    "api-created"
-  ]
-
-  expression = <<-EOF
-var result = false;
-/*password*/
-if (claims.user.hasPassword('test', 60)) {
-  return true;
-}
-/*end password*/
-return result;
-EOF
-
-  repeat_schedules = [
-    "1h",
-    "13:32"
-  ]
-
 
 }
 
@@ -55,6 +34,12 @@ The following arguments are supported:
   12:15, and the next one will be at
   12:30 and so on.
 * `remedy_methods`: (Optional) The remedy methods that will be triggered if the evaluation fails.
+* `id`: (Required) ID of the object.
+* `name`: (Required) Name of the object.
+* `notes`: (Optional) Notes for the object. Used for documentation purposes.
+* `created`: (Optional) Create date.
+* `updated`: (Optional) Last update date.
+* `tags`: (Optional) Array of tags.
 
 
 

@@ -14,38 +14,9 @@ Create a new Entitlement..
 
 ```hcl
 
-
-data "appgate_site" "default_site" {
-  site_name = "Default site"
-}
-
-
-
-
-resource "appgate_entitlement" "ping_entitlement" {
-  name = "test entitlement"
-  site = data.appgate_site.default_site.id
-  # site = appgate_site.gbg_site.id
-  conditions = [
-    data.appgate_condition.always.id
-  ]
-
-  actions {
-    subtype = "icmp_up"
-    action  = "allow"
-    # https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml#icmp-parameters-types
-    types = ["0-16"]
-    hosts = [
-      "10.0.0.1",
-      "10.0.0.0/24",
-      "hostname.company.com",
-      "dns://hostname.company.com",
-      "aws://security-group:accounting"
-    ]
-  }
+resource "appgate_entitlement" "test_entitlement" {
 
 }
-
 
 ```
 
@@ -61,6 +32,12 @@ The following arguments are supported:
 * `conditions`: (Required) List of Condition IDs applies to this Entitlement.
 * `actions`: (Required) List of all IP Access actions in this Entitlement.
 * `app_shortcut`: (Optional) Publishes the configured URL as an app on the client using the display name as the app name.
+* `id`: (Required) ID of the object.
+* `name`: (Required) Name of the object.
+* `notes`: (Optional) Notes for the object. Used for documentation purposes.
+* `created`: (Optional) Create date.
+* `updated`: (Optional) Last update date.
+* `tags`: (Optional) Array of tags.
 
 
 ### app_shortcut
@@ -89,7 +66,6 @@ Publishes the configured URL as an app on the client using the display name as t
 - 18: Purple
 - 19: Blue Gray
 - 20: Near Black
-
 
 
 

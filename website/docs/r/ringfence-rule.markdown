@@ -14,47 +14,7 @@ Create a new Ringfence Rule..
 
 ```hcl
 
-resource "appgate_ringfence_rule" "basic_rule" {
-  name = "basic"
-  tags = [
-    "terraform",
-    "api-created"
-  ]
-
-  actions {
-    protocol  = "icmp"
-    direction = "out"
-    action    = "allow"
-
-    hosts = [
-      "10.0.2.0/24"
-    ]
-
-    ports = [
-      "80",
-      "443",
-      "1024-2048"
-    ]
-
-    types = [
-      "0-255"
-    ]
-
-  }
-
-  actions {
-    protocol  = "tcp"
-    direction = "in"
-    action    = "allow"
-
-    hosts = [
-      "10.0.2.0/24"
-    ]
-
-    ports = [
-      "22-25"
-    ]
-  }
+resource "appgate_ringfence-rule" "test_ringfence-rule" {
 
 }
 
@@ -66,6 +26,12 @@ The following arguments are supported:
 
 
 * `actions`: (Required) List of all ringfence actions in this Ringfence Rule.
+* `id`: (Required) ID of the object.
+* `name`: (Required) Name of the object.
+* `notes`: (Optional) Notes for the object. Used for documentation purposes.
+* `created`: (Optional) Create date.
+* `updated`: (Optional) Last update date.
+* `tags`: (Optional) Array of tags.
 
 
 ### actions
@@ -77,7 +43,6 @@ List of all ringfence actions in this Ringfence Rule.
 * `hosts`: Destination address. IP address or hostname.
 * `ports`: Destination port. Multiple ports can be entered comma separated. Port ranges can be entered dash separated. Only valid for tcp and udp subtypes. Example: 80,443,1024-2048.
 * `types`: ICMP type. Only valid for icmp protocol.
-
 #### hosts
 Destination address. IP address or hostname.
 #### ports
