@@ -14,10 +14,253 @@ Create a new inactive Appliance..
 
 ```hcl
 
-resource "appgate_appliance" "test_appliance" {
 
+data "appgate_site" "default_site" {
+  site_name = "Default site"
 }
 
+resource "appgate_appliance" "new_gateway" {
+  name     = "gateway-asd"
+  hostname = "envy-10-97-168-1337.devops"
+
+  client_interface {
+    hostname       = "envy-10-97-168-1338.devops"
+    proxy_protocol = true
+    https_port     = 447
+    dtls_port      = 445
+    allow_sources {
+      address = "1.3.3.8"
+      netmask = 0
+      nic     = "eth0"
+    }
+    override_spa_mode = "UDP-TCP"
+  }
+
+  peer_interface {
+    hostname   = "envy-10-97-168-1338.devops"
+    https_port = "1338"
+
+    allow_sources {
+      address = "1.3.3.8"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
+
+  admin_interface {
+    hostname = "envy-10-97-168-1337.devops"
+    https_ciphers = [
+      "ECDHE-RSA-AES256-GCM-SHA384",
+      "ECDHE-RSA-AES128-GCM-SHA256"
+    ]
+    # allow_sources {
+    #   address = "1.3.3.7"
+    #   netmask = 0
+    #   nic     = "eth0"
+    # }
+  }
+
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+  notes = "hello world"
+  site  = data.appgate_site.default_site.id
+
+  connection {
+    type     = "ssh"
+    user     = "cz"
+    password = "cz"
+    host     = "10.97.168.30"
+  }
+
+  networking {
+
+    hosts {
+      hostname = "bla"
+      address  = "0.0.0.0"
+    }
+    hosts {
+      hostname = "foo"
+      address  = "127.0.0.1"
+    }
+
+    nics {
+      enabled = true
+      name    = "eth0"
+      ipv4 {
+        dhcp {
+          enabled = true
+          dns     = true
+          routers = true
+          ntp     = true
+        }
+      }
+    }
+    dns_servers = [
+      "8.8.8.8",
+      "1.1.1.1",
+    ]
+    dns_domains = [
+      "aa.com"
+    ]
+    routes {
+      address = "0.0.0.0"
+      netmask = 24
+      gateway = "1.2.3.4"
+      nic     = "eth0"
+    }
+  }
+
+
+  ntp {
+    servers {
+      hostname = "ntp.microsoft.com"
+      key_type = "MD5"
+      key      = "bla"
+    }
+    servers {
+      hostname = "ntp.google.com"
+      key_type = "MD5"
+      key      = "bla"
+    }
+  }
+
+  ssh_server {
+    enabled                 = true
+    port                    = 2222
+    password_authentication = true
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+    # allow_sources {
+    #   address = "0.0.0.0"
+    #   netmask = 0
+    #   nic     = "eth1"
+    # }
+  }
+
+  snmp_server {
+    enabled    = false
+    tcp_port   = 161
+    udp_port   = 161
+    snmpd_conf = "foo"
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
+  healthcheck_server {
+    enabled = true
+    port    = 5555
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+  prometheus_exporter {
+    enabled = true
+    port    = 1234
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
+  ping {
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
+  log_forwarder {
+    enabled = true
+    elasticsearch {
+      url                      = "https://aws.com/elasticsearch/instance/asdaxllkmda64"
+      aws_id                   = "string"
+      aws_region               = "eu-west-2"
+      use_instance_credentials = true
+      retention_days           = 3
+    }
+
+    tcp_clients {
+      name    = "Company SIEM"
+      host    = "siem.company.com"
+      port    = 8888
+      format  = "json"
+      use_tls = true
+    }
+    sites = [
+      data.appgate_site.default_site.id
+    ]
+  }
+
+  iot_connector {
+    enabled = true
+    clients {
+      name      = "Printers"
+      device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
+
+      sources {
+        address = "1.3.3.7"
+        netmask = 24
+        nic     = "eth0"
+      }
+      snat = true
+    }
+  }
+
+  rsyslog_destinations {
+    selector    = "*.*"
+    template    = "%HOSTNAME% %msg%"
+    destination = "10.10.10.2"
+  }
+  rsyslog_destinations {
+    selector    = ":msg, contains, \"[AUDIT]\""
+    template    = "%msg:9:$%"
+    destination = "10.30.20.3"
+  }
+
+  hostname_aliases = [
+    "appgatealias.company.com",
+    "alias2.appgate.company.com"
+  ]
+
+  # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
+  controller {
+    enabled = true
+  }
+
+  # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=logserver-a
+  log_server {
+    enabled = false
+    # retention_days = 2
+  }
+  # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=gateway-a
+  # gateway {
+  #   enabled = true
+  #   vpn {
+  #     weight = 60
+  #     allow_destinations {
+  #       address = "127.0.0.1"
+  #       netmask = 0
+  #       nic     = "eth0"
+  #     }
+  #   }
+  # }
+
+
+
+}
 ```
 
 ## Argument Reference
@@ -58,7 +301,7 @@ The details of the Client connection interface.
 * `hostname`: Hostname to connect by the Clients. It will be used to validate the Appliance Certificate. Example: appgate.company.com.
 * `https_port`: Port to connect for the Client specific services.
 * `dtls_port`: Port to connect for the Clients that connects to vpnd on DTLS if enabled.
-* `allow_sources`: 
+* `allow_sources`:
 * `override_spa_mode`: Override SPA mode for this appliance.
 
 ### peer_interface
@@ -66,7 +309,7 @@ The details of peer connection interface. Used by other appliances and administr
 
 * `hostname`: Hostname to connect by the peers. It will be used to validate the appliance certificate. Example: appgate.company.com.
 * `https_port`: Port to connect for peer specific services.
-* `allow_sources`: 
+* `allow_sources`:
 
 ### admin_interface
 The details of the admin connection interface. If null, admin interface will be accessible via peerInterface.
@@ -74,7 +317,7 @@ The details of the admin connection interface. If null, admin interface will be 
 * `hostname`: Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Example: appgate.company.com.
 * `https_port`: Port to connect for admin services.
 * `https_ciphers`: The type of TLS ciphers to allow. See: https:&#x2F;&#x2F;www.openssl.org&#x2F;docs&#x2F;man1.0.2&#x2F;apps&#x2F;ciphers.html for all supported ciphers.
-* `allow_sources`: 
+* `allow_sources`:
 
 #### https_ciphers
 The type of TLS ciphers to allow. See: https:&#x2F;&#x2F;www.openssl.org&#x2F;docs&#x2F;man1.0.2&#x2F;apps&#x2F;ciphers.html for all supported ciphers.
@@ -135,7 +378,7 @@ System route settings.
 ### ntp
 NTP configuration.
 
-* `servers`: 
+* `servers`:
 
 #### servers
 
@@ -150,7 +393,7 @@ SSH server configuration.
 
 * `enabled`: Whether the SSH Server is enabled on this appliance or not.
 * `port`: SSH port.
-* `allow_sources`: 
+* `allow_sources`:
 * `password_authentication`: Whether SSH allows password authentication or not.
 
 ### snmp_server
@@ -160,21 +403,21 @@ SNMP Server configuration.
 * `tcp_port`: TCP port for SNMP Server. Example: 161.
 * `udp_port`: UDP port for SNMP Server. Example: 161.
 * `snmpd.conf`: Raw SNMP configuration.
-* `allow_sources`: 
+* `allow_sources`:
 
 ### healthcheck_server
 Healthcheck Server configuration.
 
 * `enabled`: Whether the Healthcheck Server is enabled on this appliance or not.
 * `port`: Port to connect for Healthcheck Server.
-* `allow_sources`: 
+* `allow_sources`:
 
 ### prometheus_exporter
 Prometheus Exporter configuration.
 
 * `enabled`: Whether the Prometheus Exporter is enabled on this appliance or not.
 * `port`: Port to connect for Prometheus Exporter.
-* `allow_sources`: 
+* `allow_sources`:
 
 ### ping
 Rules for allowing ping.

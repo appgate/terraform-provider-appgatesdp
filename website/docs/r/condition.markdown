@@ -15,6 +15,27 @@ Create a new Condition..
 ```hcl
 
 resource "appgate_condition" "test_condition" {
+  name = "teraform-example-condition"
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+
+  expression = <<-EOF
+var result = false;
+/*password*/
+if (claims.user.hasPassword('test', 60)) {
+  return true;
+}
+/*end password*/
+return result;
+EOF
+
+  repeat_schedules = [
+    "1h",
+    "13:32"
+  ]
+
 
 }
 

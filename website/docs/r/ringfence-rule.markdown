@@ -14,7 +14,47 @@ Create a new Ringfence Rule..
 
 ```hcl
 
-resource "appgate_ringfence-rule" "test_ringfence-rule" {
+resource "appgate_ringfence_rule" "basic_rule" {
+  name = "basic"
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+
+  actions {
+    protocol  = "icmp"
+    direction = "out"
+    action    = "allow"
+
+    hosts = [
+      "10.0.2.0/24"
+    ]
+
+    ports = [
+      "80",
+      "443",
+      "1024-2048"
+    ]
+
+    types = [
+      "0-255"
+    ]
+
+  }
+
+  actions {
+    protocol  = "tcp"
+    direction = "in"
+    action    = "allow"
+
+    hosts = [
+      "10.0.2.0/24"
+    ]
+
+    ports = [
+      "22-25"
+    ]
+  }
 
 }
 
