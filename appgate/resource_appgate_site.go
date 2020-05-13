@@ -902,10 +902,28 @@ func readAzureResolversFromConfig(azureConfigs map[string]interface{}) ([]openap
 	return result, nil
 }
 
-func readESXResolversFromConfig(esxConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionEsxResolvers, error) {
+func readESXResolversFromConfig(esxConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionEsxResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionEsxResolvers, 0)
-	// cfg := openapi.NewSiteAllOfNameResolutionEsxResolversWithDefaults()
-
+	for _, esxConfig := range esxConfigs {
+		raw := esxConfig.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionEsxResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v, ok := raw["hostname"]; ok {
+			row.SetHostname(v.(string))
+		}
+		if v, ok := raw["username"]; ok {
+			row.SetUsername(v.(string))
+		}
+		if v, ok := raw["password"]; ok {
+			row.SetPassword(v.(string))
+		}
+		result = append(result, row)
+	}
 	return result, nil
 }
 
