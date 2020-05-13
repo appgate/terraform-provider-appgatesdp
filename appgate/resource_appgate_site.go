@@ -762,10 +762,33 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 	return result, nil
 }
 
-func readDNSResolversFromConfig(dnsConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
+func readDNSResolversFromConfig(dnsConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionDnsResolvers, 0)
-	// cfg := openapi.NewSiteAllOfNameResolutionDnsResolversWithDefaults()
-
+	for _, dns := range dnsConfigs {
+		raw := dns.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionDnsResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v := raw["servers"]; len(v.([]interface{})) > 0 {
+			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve dns serers: %+v", err)
+			}
+			row.SetServers(servers)
+		}
+		if v := raw["search_domains"]; len(v.([]interface{})) > 0 {
+			domains, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve dns search domains: %+v", err)
+			}
+			row.SetSearchDomains(domains)
+		}
+		result = append(result, row)
+	}
 	return result, nil
 }
 
