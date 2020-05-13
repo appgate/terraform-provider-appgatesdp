@@ -49,7 +49,7 @@ resource "appgate_entitlement" "ping_entitlement" {
 The following arguments are supported:
 
 
-* `display_name`: (Required) This field is deprecated as of 5.1 in favor of &#39;appShortcut.name&#39;. For backwards compatibility, it will set &#39;appShortcut.name&#39; if it does not exist.
+* `display_name`: (Required) This field is deprecated as of 5.1 in favor of 'appShortcut.name'. For backwards compatibility, it will set 'appShortcut.name' if it does not exist.
 * `disabled`: (Optional) If true, the Entitlement will be disregarded during authorization.
 * `site`: (Required) ID of the site for this Entitlement.
 * `condition_logic`: (Optional) Whether all the Conditions must succeed to have access to this Entitlement or just one.
@@ -67,9 +67,9 @@ The following arguments are supported:
 ### app_shortcut
 Publishes the configured URL as an app on the client using the display name as the app name.
 
-* `name`: Name for the App Shortcut which will be visible on the Client UI. Example: Accounting.
-* `url`: The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL. Example: https:&#x2F;&#x2F;service.company.com.
-* `color_code`: The code of the published app on the client.
+* `name`: (Required) Name for the App Shortcut which will be visible on the Client UI. Example: Accounting.
+* `url`: (Required) The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL. Example: https://service.company.com.
+* `color_code`:  (Optional)  default value `1` The code of the published app on the client.
 - 1: Light Green
 - 2: Green
 - 3: Indigo

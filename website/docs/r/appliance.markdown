@@ -268,7 +268,7 @@ resource "appgate_appliance" "new_gateway" {
 The following arguments are supported:
 
 
-* `activated`: (Optional) Whether the Appliance is activated or not. If it is not activated, it won&#39;t be accessible by the Clients.
+* `activated`: (Optional) Whether the Appliance is activated or not. If it is not activated, it won't be accessible by the Clients.
 * `pending_certificate_renewal`: (Optional) Whether the Appliance is pending certificate renewal or not. Should be true for a very short period on certificate renewal.
 * `version`: (Optional) Peer version of the Appliance.
 * `hostname`: (Required) Generic hostname of the appliance. Used as linux hostname and to identify within logs.
@@ -278,7 +278,7 @@ The following arguments are supported:
 * `peer_interface`: (Required) The details of peer connection interface. Used by other appliances and administrative UI.
 * `admin_interface`: (Optional) The details of the admin connection interface. If null, admin interface will be accessible via peerInterface.
 * `networking`: (Required) Networking configuration of the system.
-* `ntp_servers`: (Optional) Deprecated as of 4.3.0, use &#39;ntp&#39; field instead. NTP servers to synchronize time.
+* `ntp_servers`: (Optional) Deprecated as of 4.3.0, use 'ntp' field instead. NTP servers to synchronize time.
 * `ntp`: (Optional) NTP configuration.
 * `ssh_server`: (Optional) SSH server configuration.
 * `snmp_server`: (Optional) SNMP Server configuration.
@@ -303,12 +303,12 @@ The following arguments are supported:
 ### client_interface
 The details of the Client connection interface.
 
-* `proxy_protocol`: To enable&#x2F;disable Proxy protocol on this Appliance.
-* `hostname`: Hostname to connect by the Clients. It will be used to validate the Appliance Certificate. Example: appgate.company.com.
-* `https_port`: Port to connect for the Client specific services.
-* `dtls_port`: Port to connect for the Clients that connects to vpnd on DTLS if enabled.
-* `allow_sources`: Source configuration to allow via iptables.
-* `override_spa_mode`: Override SPA mode for this appliance.
+* `proxy_protocol`:  (Optional)  default value `false` To enable/disable Proxy protocol on this Appliance.
+* `hostname`: (Required) Hostname to connect by the Clients. It will be used to validate the Appliance Certificate. Example: appgate.company.com.
+* `https_port`:  (Optional)  default value `443` Port to connect for the Client specific services.
+* `dtls_port`:  (Optional)  default value `443` Port to connect for the Clients that connects to vpnd on DTLS if enabled.
+* `allow_sources`:  (Optional) Source configuration to allow via iptables.
+* `override_spa_mode`:  (Optional)  Enum values: `Disabled,TCP,UDP-TCP`Override SPA mode for this appliance.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
@@ -317,9 +317,9 @@ Source configuration to allow via iptables.
 ### peer_interface
 The details of peer connection interface. Used by other appliances and administrative UI.
 
-* `hostname`: Hostname to connect by the peers. It will be used to validate the appliance certificate. Example: appgate.company.com.
-* `https_port`: Port to connect for peer specific services.
-* `allow_sources`: Source configuration to allow via iptables.
+* `hostname`: (Required) Hostname to connect by the peers. It will be used to validate the appliance certificate. Example: appgate.company.com.
+* `https_port`:  (Optional)  default value `444` Port to connect for peer specific services.
+* `allow_sources`:  (Optional) Source configuration to allow via iptables.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
@@ -328,10 +328,10 @@ Source configuration to allow via iptables.
 ### admin_interface
 The details of the admin connection interface. If null, admin interface will be accessible via peerInterface.
 
-* `hostname`: Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Example: appgate.company.com.
-* `https_port`: Port to connect for admin services.
-* `https_ciphers`: The type of TLS ciphers to allow. See: https:&#x2F;&#x2F;www.openssl.org&#x2F;docs&#x2F;man1.0.2&#x2F;apps&#x2F;ciphers.html for all supported ciphers.
-* `allow_sources`: Source configuration to allow via iptables.
+* `hostname`: (Required) Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Example: appgate.company.com.
+* `https_port`:  (Optional)  default value `8443` Port to connect for admin services.
+* `https_ciphers`: (Required)  default value `ECDHE-RSA-AES256-GCM-SHA384,ECDHE-RSA-AES128-GCM-SHA256` The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.
+* `allow_sources`:  (Optional) Source configuration to allow via iptables.
 #### https_ciphers
 The type of TLS ciphers to allow. See: https:&#x2F;&#x2F;www.openssl.org&#x2F;docs&#x2F;man1.0.2&#x2F;apps&#x2F;ciphers.html for all supported ciphers.
 #### allow_sources
@@ -342,11 +342,11 @@ Source configuration to allow via iptables.
 ### networking
 Networking configuration of the system.
 
-* `hosts`: &#x2F;etc&#x2F;hosts configuration
-* `nics`: System NIC configuration
-* `dns_servers`: DNS Server addresses. Example: 172.17.18.19,192.100.111.31.
-* `dns_domains`: DNS Search domains. Example: internal.company.com.
-* `routes`: System route settings.
+* `hosts`:  (Optional) /etc/hosts configuration
+* `nics`:  (Optional) System NIC configuration
+* `dns_servers`:  (Optional) DNS Server addresses. Example: 172.17.18.19,192.100.111.31.
+* `dns_domains`:  (Optional) DNS Search domains. Example: internal.company.com.
+* `routes`:  (Optional) System route settings.
 #### hosts
 &#x2F;etc&#x2F;hosts configuration
 * `hostname`: (Required) Hostname to map IP to. Example: internal.service.company.com.
@@ -393,7 +393,7 @@ System route settings.
 ### ntp
 NTP configuration.
 
-* `servers`:
+* `servers`:  (Optional) undefined
 #### servers
 
 * `hostname`: (Required) Hostname or IP of the NTP server. Example: 0.ubuntu.pool.ntp.org.
@@ -402,10 +402,10 @@ NTP configuration.
 ### ssh_server
 SSH server configuration.
 
-* `enabled`: Whether the SSH Server is enabled on this appliance or not.
-* `port`: SSH port.
-* `allow_sources`: Source configuration to allow via iptables.
-* `password_authentication`: Whether SSH allows password authentication or not.
+* `enabled`:  (Optional)  default value `false` Whether the SSH Server is enabled on this appliance or not.
+* `port`:  (Optional)  default value `22` SSH port.
+* `allow_sources`:  (Optional) Source configuration to allow via iptables.
+* `password_authentication`:  (Optional)  default value `true` Whether SSH allows password authentication or not.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
@@ -414,11 +414,11 @@ Source configuration to allow via iptables.
 ### snmp_server
 SNMP Server configuration.
 
-* `enabled`: Whether the SNMP Server os enabled on this appliance or not.
-* `tcp_port`: TCP port for SNMP Server. Example: 161.
-* `udp_port`: UDP port for SNMP Server. Example: 161.
-* `snmpd.conf`: Raw SNMP configuration.
-* `allow_sources`: Source configuration to allow via iptables.
+* `enabled`:  (Optional)  default value `false` Whether the SNMP Server os enabled on this appliance or not.
+* `tcp_port`:  (Optional) TCP port for SNMP Server. Example: 161.
+* `udp_port`:  (Optional) UDP port for SNMP Server. Example: 161.
+* `snmpd.conf`:  (Optional) Raw SNMP configuration.
+* `allow_sources`:  (Optional) Source configuration to allow via iptables.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
@@ -427,9 +427,9 @@ Source configuration to allow via iptables.
 ### healthcheck_server
 Healthcheck Server configuration.
 
-* `enabled`: Whether the Healthcheck Server is enabled on this appliance or not.
-* `port`: Port to connect for Healthcheck Server.
-* `allow_sources`: Source configuration to allow via iptables.
+* `enabled`:  (Optional)  default value `false` Whether the Healthcheck Server is enabled on this appliance or not.
+* `port`:  (Optional)  default value `5555` Port to connect for Healthcheck Server.
+* `allow_sources`:  (Optional) Source configuration to allow via iptables.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
@@ -438,9 +438,9 @@ Source configuration to allow via iptables.
 ### prometheus_exporter
 Prometheus Exporter configuration.
 
-* `enabled`: Whether the Prometheus Exporter is enabled on this appliance or not.
-* `port`: Port to connect for Prometheus Exporter.
-* `allow_sources`: Source configuration to allow via iptables.
+* `enabled`:  (Optional)  default value `false` Whether the Prometheus Exporter is enabled on this appliance or not.
+* `port`:  (Optional)  default value `5556` Port to connect for Prometheus Exporter.
+* `allow_sources`:  (Optional) Source configuration to allow via iptables.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
@@ -449,7 +449,7 @@ Source configuration to allow via iptables.
 ### ping
 Rules for allowing ping.
 
-* `allow_sources`: Source configuration to allow via iptables.
+* `allow_sources`:  (Optional) Source configuration to allow via iptables.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
@@ -458,17 +458,17 @@ Source configuration to allow via iptables.
 ### log_server
 Log Server settings. Log Server collects audit logs from all the appliances and stores them.
 
-* `enabled`: Whether the Log Server is enabled on this appliance or not.
-* `retention_days`: How many days of audit logs will be kept.
+* `enabled`:  (Optional)  default value `false` Whether the Log Server is enabled on this appliance or not.
+* `retention_days`:  (Optional)  default value `30` How many days of audit logs will be kept.
 ### controller
 Controller settings.
 
-* `enabled`: Whether the Controller is enabled on this appliance or not.
+* `enabled`:  (Optional)  default value `false` Whether the Controller is enabled on this appliance or not.
 ### gateway
 Gateway settings.
 
-* `enabled`: Whether the Gateway is enabled on this appliance or not.
-* `vpn`: VPN configuration.
+* `enabled`:  (Optional)  default value `false` Whether the Gateway is enabled on this appliance or not.
+* `vpn`:  (Optional) VPN configuration.
 #### vpn
 VPN configuration.
 * `weight`: (Optional) Load balancing weight.
@@ -476,13 +476,13 @@ VPN configuration.
 ### log_forwarder
 LogForwarder settings. LogForwarder collects audit logs from the appliances in the given sites and sends them to the given endpoints.
 
-* `enabled`: Whether the LogForwarder is enabled on this appliance or not.
-* `elasticsearch`: Elasticsearch endpoint configuration on AWS.
-* `tcp_clients`: TCP endpoints to connect and send the audit logs with the given format.
-* `sites`: The sites to collect logs from and forward.
+* `enabled`:  (Optional)  default value `false` Whether the LogForwarder is enabled on this appliance or not.
+* `elasticsearch`:  (Optional) Elasticsearch endpoint configuration on AWS.
+* `tcp_clients`:  (Optional) TCP endpoints to connect and send the audit logs with the given format.
+* `sites`:  (Optional) The sites to collect logs from and forward.
 #### elasticsearch
 Elasticsearch endpoint configuration on AWS.
-* `url`: (Optional) The URL of the elasticsearch server. Example: https:&#x2F;&#x2F;aws.com&#x2F;elasticsearch&#x2F;instance&#x2F;asdaxllkmda64.
+* `url`: (Optional) The URL of the elasticsearch server. Example: https://aws.com/elasticsearch/instance/asdaxllkmda64.
 * `aws_id`: (Optional) AWS ID to login. Only required if AWS Access Keys are being used to authenticate.
 * `aws_secret`: (Optional) AWS secret to login. Only required if AWS Access Keys are being used to authenticate.
 * `aws_region`: (Optional) AWS region. Only required if AWS Access Keys are being used to authenticate. Example: eu-west-2.
@@ -500,11 +500,11 @@ The sites to collect logs from and forward.
 ### iot_connector
 IoT Connector settings.
 
-* `enabled`: Whether the Iot Connector is enabled on this appliance or not.
-* `clients`: A list of clients to run on the appliance with the given configuration.
+* `enabled`:  (Optional)  default value `false` Whether the Iot Connector is enabled on this appliance or not.
+* `clients`:  (Optional) A list of clients to run on the appliance with the given configuration.
 #### clients
 A list of clients to run on the appliance with the given configuration.
-* `name`: (Required) Name for the client. It will be mapped to the user claim &#39;clientName&#39;. Example: Printers.
+* `name`: (Required) Name for the client. It will be mapped to the user claim 'clientName'. Example: Printers.
 * `device_id`: (Optional) The device ID to assign to this client. It will be used to generate device distinguished name. Example: 12699e27-b584-464a-81ee-5b4784b6d425.
 * `sources`: (Optional) Source configuration to allow via iptables.
 * `snat`: (Optional) Use Source NAT for IoT client tunnel.

@@ -53,7 +53,7 @@ The following arguments are supported:
 * `ringfence_rules`: (Optional) List of Ringfence Rule IDs in this Policy.
 * `ringfence_rule_links`: (Optional) List of Ringfence Rule tags in this Policy.
 * `tamper_proofing`: (Optional) Will enable Tamper Proofing on desktop clients which will make sure the routes and ringfence configurations are not changed.
-* `override_site`: (Optional) Site ID where all the Entitlements of this Policy must be deployed. This overrides Entitlement&#39;s own Site and to be used only in specific network layouts. Otherwise the assigned site on individual Entitlements will be used.
+* `override_site`: (Optional) Site ID where all the Entitlements of this Policy must be deployed. This overrides Entitlement's own Site and to be used only in specific network layouts. Otherwise the assigned site on individual Entitlements will be used.
 * `administrative_roles`: (Optional) List of Administrative Role IDs in this Policy.
 * `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.

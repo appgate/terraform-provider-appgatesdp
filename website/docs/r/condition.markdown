@@ -49,7 +49,7 @@ The following arguments are supported:
 * `expression`: (Required) Boolean expression in JavaScript.
 * `repeat_schedules`: (Optional) A list of schedules that decides when to reevaluate the Condition. All the scheduled times will be effective. One will not override the other. - It can be a time of the day, e.g. 13:00, 10:25, 2:10 etc. - It can be one of the predefined
   intervals, e.g. 1m, 5m, 15m, 1h. These intervals
-  will be always rounded up, i.e. if it&#39;s 15m and the
+  will be always rounded up, i.e. if it's 15m and the
   time is 12:07 when the Condition is evaluated
   first, then the next evaluation will occur at
   12:15, and the next one will be at
