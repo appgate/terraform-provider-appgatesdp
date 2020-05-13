@@ -127,7 +127,7 @@ func resourceAppgateSite() *schema.Resource {
 			"vpn": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				// ConfigMode: schema.SchemaConfigModeAttr,
+
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -202,9 +202,9 @@ func resourceAppgateSite() *schema.Resource {
 			}, // vpn
 
 			"name_resolution": {
-				Type:       schema.TypeSet,
-				Optional:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:     schema.TypeSet,
+				Optional: true,
+
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -214,9 +214,8 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"dns_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
@@ -225,7 +224,7 @@ func resourceAppgateSite() *schema.Resource {
 										Required: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"servers": {
@@ -243,9 +242,9 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"aws_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
+
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
@@ -254,12 +253,12 @@ func resourceAppgateSite() *schema.Resource {
 										Required: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"vpcs": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"vpc_auto_discovery": {
@@ -268,7 +267,7 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"regions": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"use_iam_role": {
@@ -277,39 +276,39 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"access_key_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"secret_access_key": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"https_proxy": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"resolve_with_master_credentials": {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
 									"assumed_roles": {
-										Type:       schema.TypeSet,
-										Required:   true,
-										ConfigMode: schema.SchemaConfigModeAttr,
+										Type:     schema.TypeList,
+										Optional: true,
+
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 
 												"account_id": {
 													Type:     schema.TypeString,
-													Required: true,
+													Optional: true,
 												},
 
 												"role_name": {
 													Type:     schema.TypeString,
-													Required: true,
+													Optional: true,
 												},
 												"external_id": {
 													Type:     schema.TypeString,
-													Required: true,
+													Optional: true,
 												},
 												"regions": {
 													Type:     schema.TypeList,
@@ -324,63 +323,61 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"azure_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"name": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"subscription_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"tenant_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 
 									"client_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"secret_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 								},
 							},
 						},
 
 						"esx_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"name": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"hostname": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"username": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"password": {
 										Type:     schema.TypeString,
@@ -391,18 +388,17 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"gcp_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"name": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"project_filter": {
@@ -719,40 +715,39 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 			continue
 		}
 		raw := nr.(map[string]interface{})
-
 		if v, ok := raw["use_hosts_file"]; ok {
 			result.SetUseHostsFile(v.(bool))
 		}
 		if v, ok := raw["dns_resolvers"]; ok {
-			dnsResolvers, err := readDNSResolversFromConfig(v.(map[string]interface{}))
+			dnsResolvers, err := readDNSResolversFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, err
 			}
 			result.SetDnsResolvers(dnsResolvers)
 		}
 		if v, ok := raw["aws_resolvers"]; ok {
-			awsResolvers, err := readAWSResolversFromConfig(v.(map[string]interface{}))
+			awsResolvers, err := readAWSResolversFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, err
 			}
 			result.SetAwsResolvers(awsResolvers)
 		}
 		if v, ok := raw["azure_resolvers"]; ok {
-			azureResolvers, err := readAzureResolversFromConfig(v.(map[string]interface{}))
+			azureResolvers, err := readAzureResolversFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, err
 			}
 			result.SetAzureResolvers(azureResolvers)
 		}
 		if v, ok := raw["esx_resolvers"]; ok {
-			esxResolvers, err := readESXResolversFromConfig(v.(map[string]interface{}))
+			esxResolvers, err := readESXResolversFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, err
 			}
 			result.SetEsxResolvers(esxResolvers)
 		}
 		if v, ok := raw["gcp_resolvers"]; ok {
-			gcpResolvers, err := readGCPResolversFromConfig(v.(map[string]interface{}))
+			gcpResolvers, err := readGCPResolversFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, err
 			}
@@ -762,11 +757,12 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 	return result, nil
 }
 
-func readDNSResolversFromConfig(dnsConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
+func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionDnsResolvers, 0)
 	for _, dns := range dnsConfigs {
 		raw := dns.(map[string]interface{})
 		row := openapi.SiteAllOfNameResolutionDnsResolvers{}
+		log.Printf("[DEBUG] readDNSResolversFromConfig RAW IS: %+v", raw)
 		if v, ok := raw["name"]; ok {
 			row.SetName(v.(string))
 		}
@@ -792,7 +788,7 @@ func readDNSResolversFromConfig(dnsConfigs map[string]interface{}) ([]openapi.Si
 	return result, nil
 }
 
-func readAWSResolversFromConfig(awsConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
+func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAwsResolvers, 0)
 	for _, resolver := range awsConfigs {
 		raw := resolver.(map[string]interface{})
@@ -874,7 +870,7 @@ func readAwsAssumedRolesFromConfig(roles []interface{}) ([]openapi.SiteAllOfName
 	return result, nil
 }
 
-func readAzureResolversFromConfig(azureConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
+func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAzureResolvers, 0)
 	for _, azure := range azureConfigs {
 		raw := azure.(map[string]interface{})
@@ -902,7 +898,7 @@ func readAzureResolversFromConfig(azureConfigs map[string]interface{}) ([]openap
 	return result, nil
 }
 
-func readESXResolversFromConfig(esxConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionEsxResolvers, error) {
+func readESXResolversFromConfig(esxConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionEsxResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionEsxResolvers, 0)
 	for _, esxConfig := range esxConfigs {
 		raw := esxConfig.(map[string]interface{})
@@ -927,7 +923,7 @@ func readESXResolversFromConfig(esxConfigs map[string]interface{}) ([]openapi.Si
 	return result, nil
 }
 
-func readGCPResolversFromConfig(gcpConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionGcpResolvers, error) {
+func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionGcpResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionGcpResolvers, 0)
 	for _, gcpConfig := range gcpConfigs {
 		raw := gcpConfig.(map[string]interface{})
