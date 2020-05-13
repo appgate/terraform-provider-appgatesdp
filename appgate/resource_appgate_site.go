@@ -792,10 +792,85 @@ func readDNSResolversFromConfig(dnsConfigs map[string]interface{}) ([]openapi.Si
 	return result, nil
 }
 
-func readAWSResolversFromConfig(awsConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
+func readAWSResolversFromConfig(awsConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAwsResolvers, 0)
-	// cfg := openapi.NewSiteAllOfNameResolutionAwsResolversWithDefaults()
+	for _, resolver := range awsConfigs {
+		raw := resolver.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionAwsResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v := raw["vpcs"]; len(v.([]interface{})) > 0 {
+			vpcs, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve vpcs from aws config: %+v", err)
+			}
+			row.SetVpcs(vpcs)
+		}
+		if v, ok := raw["vpc_auto_discovery"]; ok && v.(bool) {
+			row.SetVpcAutoDiscovery(v.(bool))
+		}
+		if v := raw["regions"]; len(v.([]interface{})) > 0 {
+			regions, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve regions from aws config: %+v", err)
+			}
+			row.SetRegions(regions)
+		}
+		if v, ok := raw["use_iam_role"]; ok && v.(bool) {
+			row.SetUseIAMRole(v.(bool))
+		}
+		if v, ok := raw["access_key_id"]; ok {
+			row.SetAccessKeyId(v.(string))
+		}
+		if v, ok := raw["secret_access_key"]; ok {
+			row.SetSecretAccessKey(v.(string))
+		}
+		if v, ok := raw["https_proxy"]; ok {
+			row.SetHttpsProxy(v.(string))
+		}
+		if v, ok := raw["resolve_with_master_credentials"]; ok && v.(bool) {
+			row.SetResolveWithMasterCredentials(v.(bool))
+		}
+		if v, ok := raw["assumed_roles"]; ok {
+			assumedRoles, err := readAwsAssumedRolesFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			row.SetAssumedRoles(assumedRoles)
+		}
 
+		result = append(result, row)
+	}
+	return result, nil
+}
+
+func readAwsAssumedRolesFromConfig(roles []interface{}) ([]openapi.SiteAllOfNameResolutionAssumedRoles, error) {
+	result := make([]openapi.SiteAllOfNameResolutionAssumedRoles, 0)
+	for _, role := range roles {
+		raw := role.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionAssumedRoles{}
+		if v, ok := raw["account_id"]; ok {
+			row.SetAccountId(v.(string))
+		}
+		if v, ok := raw["role_name"]; ok {
+			row.SetRoleName(v.(string))
+		}
+		if v, ok := raw["external_id"]; ok {
+			row.SetExternalId(v.(string))
+		}
+		if v, ok := raw["regions"]; ok {
+			regions, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			row.SetRegions(regions)
+		}
+		result = append(result, row)
+	}
 	return result, nil
 }
 
