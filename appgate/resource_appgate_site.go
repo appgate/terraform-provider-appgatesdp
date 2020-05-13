@@ -874,10 +874,31 @@ func readAwsAssumedRolesFromConfig(roles []interface{}) ([]openapi.SiteAllOfName
 	return result, nil
 }
 
-func readAzureResolversFromConfig(azureConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
+func readAzureResolversFromConfig(azureConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAzureResolvers, 0)
-	// cfg := openapi.NewSiteAllOfNameResolutionAzureResolversWithDefaults()
-
+	for _, azure := range azureConfigs {
+		raw := azure.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionAzureResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v, ok := raw["subscription_id"]; ok {
+			row.SetSubscriptionId(v.(string))
+		}
+		if v, ok := raw["tenant_id"]; ok {
+			row.SetTenantId(v.(string))
+		}
+		if v, ok := raw["client_id"]; ok {
+			row.SetClientId(v.(string))
+		}
+		if v, ok := raw["secret_id"]; ok {
+			row.SetSecret(v.(string))
+		}
+		result = append(result, row)
+	}
 	return result, nil
 }
 
