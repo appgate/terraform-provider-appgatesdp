@@ -927,9 +927,24 @@ func readESXResolversFromConfig(esxConfigs map[string]interface{}) ([]openapi.Si
 	return result, nil
 }
 
-func readGCPResolversFromConfig(gcpConfig map[string]interface{}) ([]openapi.SiteAllOfNameResolutionGcpResolvers, error) {
+func readGCPResolversFromConfig(gcpConfigs map[string]interface{}) ([]openapi.SiteAllOfNameResolutionGcpResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionGcpResolvers, 0)
-	// cfg := openapi.NewSiteAllOfNameResolutionGcpResolversWithDefaults()
-
+	for _, gcpConfig := range gcpConfigs {
+		raw := gcpConfig.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionGcpResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v, ok := raw["project_filter"]; ok {
+			row.SetProjectFilter(v.(string))
+		}
+		if v, ok := raw["instance_filter"]; ok {
+			row.SetInstanceFilter(v.(string))
+		}
+		result = append(result, row)
+	}
 	return result, nil
 }
