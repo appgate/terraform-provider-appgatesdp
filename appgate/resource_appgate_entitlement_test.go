@@ -25,17 +25,31 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
 
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.action", "allow"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.0", "10.0.0.1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.1", "10.0.0.0/24"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.2", "hostname.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.3", "dns://hostname.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.hosts.4", "aws://security-group:accounting"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.#", "5"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.0", "10.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.1", "10.0.0.0/24"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.2", "hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.3", "dns://hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.hosts.4", "aws://security-group:accounting"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.ports.#", "0"),
 
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.subtype", "icmp_up"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.types.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.2557920538.types.0", "0-16"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.subtype", "icmp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.types.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4206576320.types.0", "0-16"),
+
+					resource.TestCheckResourceAttr(resourceName, "app_shortcut.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcut.1872821293.color_code", "5"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcut.1872821293.name", "ping"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcut.1872821293.url", "https://www.google.com"),
+					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
+
+					resource.TestCheckResourceAttr(resourceName, "disabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
 				),
 			},
 			{
@@ -68,7 +82,7 @@ func testAccCheckItemDestroy(s *terraform.State) error {
 
 		_, _, err := api.EntitlementsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
 		if err == nil {
-			return fmt.Errorf("Entitlment still exists, %+v", err)
+			return fmt.Errorf("Entitlement still exists, %+v", err)
 		}
 	}
 	return nil
@@ -89,9 +103,19 @@ resource "appgate_entitlement" "test_item" {
     conditions = [
       data.appgate_condition.always.id
   ]
+
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+  disabled = true
+
+  condition_logic = "and"
+
   actions {
     subtype = "icmp_up"
     action  = "allow"
+    # https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml#icmp-parameters-types
     types = ["0-16"]
     hosts = [
       "10.0.0.1",
@@ -100,6 +124,12 @@ resource "appgate_entitlement" "test_item" {
       "dns://hostname.company.com",
       "aws://security-group:accounting"
     ]
+  }
+
+  app_shortcut {
+    name       = "ping"
+    url        = "https://www.google.com"
+    color_code = 5
   }
 }
 `)

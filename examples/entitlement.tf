@@ -17,6 +17,13 @@
 #     data.appgate_condition.always.id
 #   ]
 
+#   tags = [
+#     "terraform",
+#     "api-created"
+#   ]
+#   disabled = true
+
+#   condition_logic = "and"
 #   actions {
 #     subtype = "icmp_up"
 #     action  = "allow"
@@ -29,6 +36,12 @@
 #       "dns://hostname.company.com",
 #       "aws://security-group:accounting"
 #     ]
+#   }
+
+#   app_shortcut {
+#     name       = "ping"
+#     url        = "https://www.google.com"
+#     color_code = 5
 #   }
 
 # }
