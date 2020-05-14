@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
 	"github.com/google/uuid"
@@ -19,6 +20,14 @@ func resourceAppgateSite() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
+
+		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 
@@ -39,18 +48,6 @@ func resourceAppgateSite() *schema.Resource {
 				Description: "Notes for the object. Used for documentation purposes.",
 				Default:     DefaultDescription,
 				Optional:    true,
-			},
-
-			"created": {
-				Type:        schema.TypeString,
-				Description: "Create date.",
-				Computed:    true,
-			},
-
-			"updated": {
-				Type:        schema.TypeString,
-				Description: "Create date.",
-				Computed:    true,
 			},
 
 			"tags": {
@@ -130,7 +127,7 @@ func resourceAppgateSite() *schema.Resource {
 			"vpn": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				// ConfigMode: schema.SchemaConfigModeAttr,
+
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -196,14 +193,18 @@ func resourceAppgateSite() *schema.Resource {
 							Description: "The PKCS12 package to be used for web proxy. The file must be with no password and must include the full certificate chain and a private key. In Base64 format.",
 							Optional:    true,
 						},
+						"ip_access_log_interval_seconds": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 					},
 				},
 			}, // vpn
 
 			"name_resolution": {
-				Type:       schema.TypeSet,
-				Optional:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:     schema.TypeSet,
+				Optional: true,
+
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -213,9 +214,8 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"dns_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
@@ -224,7 +224,7 @@ func resourceAppgateSite() *schema.Resource {
 										Required: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"servers": {
@@ -242,9 +242,9 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"aws_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
+
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
@@ -253,12 +253,12 @@ func resourceAppgateSite() *schema.Resource {
 										Required: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"vpcs": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"vpc_auto_discovery": {
@@ -267,7 +267,7 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"regions": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"use_iam_role": {
@@ -276,39 +276,39 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"access_key_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"secret_access_key": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"https_proxy": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"resolve_with_master_credentials": {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
 									"assumed_roles": {
-										Type:       schema.TypeSet,
-										Required:   true,
-										ConfigMode: schema.SchemaConfigModeAttr,
+										Type:     schema.TypeList,
+										Optional: true,
+
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 
 												"account_id": {
 													Type:     schema.TypeString,
-													Required: true,
+													Optional: true,
 												},
 
 												"role_name": {
 													Type:     schema.TypeString,
-													Required: true,
+													Optional: true,
 												},
 												"external_id": {
 													Type:     schema.TypeString,
-													Required: true,
+													Optional: true,
 												},
 												"regions": {
 													Type:     schema.TypeList,
@@ -323,18 +323,17 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"azure_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"name": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"subscription_id": {
@@ -352,16 +351,15 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"secret_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 								},
 							},
 						},
 
 						"esx_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
@@ -370,12 +368,12 @@ func resourceAppgateSite() *schema.Resource {
 										Required: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"hostname": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"username": {
 										Type:     schema.TypeString,
@@ -383,25 +381,24 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"password": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 								},
 							},
 						},
 
 						"gcp_resolvers": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"name": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"update_interval": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Optional: true,
 									},
 									"project_filter": {
@@ -426,40 +423,58 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Site: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.SitesApi
-	rawsubnets := d.Get("network_subnets").(*schema.Set).List()
-	subnets := make([]string, 0)
-	for _, raw := range rawsubnets {
-		subnets = append(subnets, raw.(string))
-	}
-	var defaultGateway []openapi.SiteAllOfDefaultGateway
-	if g, ok := d.GetOk("default_gateway"); ok {
-		gw := g.(*schema.Set).List()
-		for _, r := range gw {
-			l := r.(map[string]interface{})
-			gwo := openapi.SiteAllOfDefaultGateway{
-				EnabledV4: openapi.PtrBool(l["enabled_v4"].(bool)),
-				EnabledV6: openapi.PtrBool(l["enabled_v6"].(bool)),
-			}
-			excludedSubnets := make([]string, 0)
-			for _, t := range l["excluded_subnets"].([]interface{}) {
-				excludedSubnets = append(excludedSubnets, t.(string))
-			}
-			gwo.ExcludedSubnets = &excludedSubnets
-			defaultGateway = append(defaultGateway, gwo)
-		}
-	}
+
 	args := openapi.NewSiteWithDefaults()
+	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
-	args.SetId(uuid.New().String())
+	args.SetShortName(d.Get("short_name").(string))
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))
-	args.SetEntitlementBasedRouting(d.Get("entitlement_based_routing").(bool))
-	args.SetNetworkSubnets(subnets)
-	args.SetShortName(d.Get("short_name").(string))
 
-	if len(defaultGateway) > 0 {
-		args.DefaultGateway = &defaultGateway[0]
+	if v, ok := d.GetOk("network_subnets"); ok {
+		networkSubnets, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetNetworkSubnets(networkSubnets)
 	}
+
+	if v, ok := d.GetOk("ip_pool_mappings"); ok {
+		ipPoolMappings, err := readIPPoolMappingsFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetIpPoolMappings(ipPoolMappings)
+	}
+
+	if v, ok := d.GetOk("default_gateway"); ok {
+		DefaultGateway, err := readSiteDefaultGatewayFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetDefaultGateway(DefaultGateway)
+	}
+
+	if v, ok := d.GetOk("entitlement_based_routing"); ok {
+		args.SetEntitlementBasedRouting(v.(bool))
+	}
+
+	if v, ok := d.GetOk("vpn"); ok {
+		vpn, err := readSiteVPNFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetVpn(vpn)
+	}
+
+	if v, ok := d.GetOk("name_resolution"); ok {
+		nameResolution, err := readSiteNameResolutionFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetNameResolution(nameResolution)
+	}
+
 	request := api.SitesPost(context.Background())
 	request = request.Site(*args)
 	site, _, err := request.Authorization(token).Execute()
@@ -522,25 +537,55 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Failed to read Site, %+v", err)
 	}
 
-	rawsubnets := d.Get("network_subnets").(*schema.Set).List()
-	subnets := make([]string, 0)
-	for _, raw := range rawsubnets {
-		subnets = append(subnets, raw.(string))
+	if d.HasChange("name") {
+		orginalSite.SetName(d.Get("name").(string))
 	}
 
-	orginalSite.SetName(d.Get("name").(string))
-	orginalSite.SetNotes(d.Get("notes").(string))
-	orginalSite.SetShortName(d.Get("short_name").(string))
-	orginalSite.SetEntitlementBasedRouting(d.Get("entitlement_based_routing").(bool))
-	orginalSite.SetNetworkSubnets(subnets)
-	orginalSite.SetTags(schemaExtractTags(d))
+	if d.HasChange("tags") {
+		orginalSite.SetTags(schemaExtractTags(d))
+	}
+
+	if d.HasChange("ip_pool_mappings") {
+		_, n := d.GetChange("ip_pool_mappings")
+		ipPoolMappings, err := readIPPoolMappingsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalSite.SetIpPoolMappings(ipPoolMappings)
+	}
+
+	if d.HasChange("default_gateway") {
+		_, n := d.GetChange("default_gateway")
+		DefaultGateway, err := readSiteDefaultGatewayFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalSite.SetDefaultGateway(DefaultGateway)
+	}
+
+	if d.HasChange("vpn") {
+		_, n := d.GetChange("vpn")
+		vpn, err := readSiteVPNFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalSite.SetVpn(vpn)
+	}
+
+	if d.HasChange("name_resolution") {
+		_, n := d.GetChange("name_resolution")
+		nameResolution, err := readSiteNameResolutionFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalSite.SetNameResolution(nameResolution)
+	}
 
 	putRequest := api.SitesIdPut(context.Background(), d.Id())
 	_, _, err = putRequest.Site(orginalSite).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to update Site, %+v", err)
+		return fmt.Errorf("Could not update site %+v", prettyPrintAPIError(err))
 	}
-
 	return resourceAppgateSiteRead(d, meta)
 }
 
@@ -555,4 +600,353 @@ func resourceAppgateSiteDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId("")
 	return nil
+}
+
+func readIPPoolMappingsFromConfig(maps []interface{}) ([]openapi.SiteAllOfIpPoolMappings, error) {
+	result := make([]openapi.SiteAllOfIpPoolMappings, 0)
+	for _, ipPool := range maps {
+		if ipPool == nil {
+			continue
+		}
+		r := openapi.SiteAllOfIpPoolMappings{}
+		raw := ipPool.(map[string]interface{})
+		if v, ok := raw["from"]; ok {
+			r.SetFrom(v.(string))
+		}
+		if v, ok := raw["to"]; ok {
+			r.SetTo(v.(string))
+		}
+
+		result = append(result, r)
+	}
+	return result, nil
+}
+
+func readSiteDefaultGatewayFromConfig(defaultGateways []interface{}) (openapi.SiteAllOfDefaultGateway, error) {
+	result := openapi.SiteAllOfDefaultGateway{}
+	for _, defaultGateway := range defaultGateways {
+		if defaultGateway == nil {
+			continue
+		}
+		raw := defaultGateway.(map[string]interface{})
+		if v, ok := raw["enabled_v4"]; ok {
+			result.SetEnabledV4(v.(bool))
+		}
+		if v, ok := raw["enabled_v6"]; ok {
+			result.SetEnabledV6(v.(bool))
+		}
+
+		if v := raw["excluded_subnets"]; len(v.([]interface{})) > 0 {
+			nets, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve default gateway excluded subnets: %+v", err)
+			}
+			result.SetExcludedSubnets(nets)
+		}
+
+	}
+	return result, nil
+}
+
+func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
+	result := openapi.SiteAllOfVpn{}
+	for _, vpn := range vpns {
+		if vpn == nil {
+			continue
+		}
+		raw := vpn.(map[string]interface{})
+
+		if v, ok := raw["state_sharing"]; ok {
+			result.SetStateSharing(v.(bool))
+		}
+		if v, ok := raw["snat"]; ok {
+			result.SetSnat(v.(bool))
+		}
+		if v, ok := raw["tls"]; ok {
+			tls := openapi.NewSiteAllOfVpnTlsWithDefaults()
+			rawTLS := v.(map[string]interface{})
+
+			if v, ok := rawTLS["enabled"]; ok {
+				tls.SetEnabled(v.(bool))
+			}
+			result.SetTls(*tls)
+		}
+
+		if v, ok := raw["dtls"]; ok {
+			dtls := openapi.NewSiteAllOfVpnDtlsWithDefaults()
+			rawDTLS := v.(map[string]interface{})
+
+			if v, ok := rawDTLS["enabled"]; ok {
+				dtls.SetEnabled(v.(bool))
+			}
+			result.SetDtls(*dtls)
+		}
+
+		if v, ok := raw["route_via"]; ok {
+			routeVia := openapi.NewSiteAllOfVpnRouteViaWithDefaults()
+			rawRouteVia := v.(map[string]interface{})
+
+			if v, ok := rawRouteVia["ipv4"]; ok {
+				routeVia.SetIpv4(v.(string))
+			}
+			if v, ok := rawRouteVia["ipv6"]; ok {
+				routeVia.SetIpv6(v.(string))
+			}
+			result.SetRouteVia(*routeVia)
+		}
+
+		if v, ok := raw["web_proxy_enabled"]; ok {
+			result.SetWebProxyEnabled(v.(bool))
+		}
+		if v, ok := raw["web_proxy_key_store"]; ok {
+			result.SetWebProxyKeyStore(v.(string))
+		}
+		if v, ok := raw["ip_access_log_interval_seconds"]; ok {
+			result.SetIpAccessLogIntervalSeconds(float32(v.(int)))
+		}
+	}
+	return result, nil
+}
+
+func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.SiteAllOfNameResolution, error) {
+	result := openapi.SiteAllOfNameResolution{}
+	for _, nr := range nameresolutions {
+		if nr == nil {
+			continue
+		}
+		raw := nr.(map[string]interface{})
+		if v, ok := raw["use_hosts_file"]; ok {
+			result.SetUseHostsFile(v.(bool))
+		}
+		if v, ok := raw["dns_resolvers"]; ok {
+			dnsResolvers, err := readDNSResolversFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetDnsResolvers(dnsResolvers)
+		}
+		if v, ok := raw["aws_resolvers"]; ok {
+			awsResolvers, err := readAWSResolversFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetAwsResolvers(awsResolvers)
+		}
+		if v, ok := raw["azure_resolvers"]; ok {
+			azureResolvers, err := readAzureResolversFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetAzureResolvers(azureResolvers)
+		}
+		if v, ok := raw["esx_resolvers"]; ok {
+			esxResolvers, err := readESXResolversFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetEsxResolvers(esxResolvers)
+		}
+		if v, ok := raw["gcp_resolvers"]; ok {
+			gcpResolvers, err := readGCPResolversFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			result.SetGcpResolvers(gcpResolvers)
+		}
+	}
+	return result, nil
+}
+
+func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionDnsResolvers, 0)
+	for _, dns := range dnsConfigs {
+		raw := dns.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionDnsResolvers{}
+		log.Printf("[DEBUG] readDNSResolversFromConfig RAW IS: %+v", raw)
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v := raw["servers"]; len(v.([]interface{})) > 0 {
+			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve dns serers: %+v", err)
+			}
+			if len(servers) > 0 {
+				row.SetServers(servers)
+			}
+		}
+		if v := raw["search_domains"]; len(v.([]interface{})) > 0 {
+			domains, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve dns search domains: %+v", err)
+			}
+			if len(domains) > 0 {
+				row.SetSearchDomains(domains)
+			}
+		}
+		result = append(result, row)
+	}
+	return result, nil
+}
+
+func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionAwsResolvers, 0)
+	for _, resolver := range awsConfigs {
+		raw := resolver.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionAwsResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v := raw["vpcs"]; len(v.([]interface{})) > 0 {
+			vpcs, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve vpcs from aws config: %+v", err)
+			}
+			row.SetVpcs(vpcs)
+		}
+		if v, ok := raw["vpc_auto_discovery"]; ok && v.(bool) {
+			row.SetVpcAutoDiscovery(v.(bool))
+		}
+		if v := raw["regions"]; len(v.([]interface{})) > 0 {
+			regions, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve regions from aws config: %+v", err)
+			}
+			row.SetRegions(regions)
+		}
+		if v, ok := raw["use_iam_role"]; ok && v.(bool) {
+			row.SetUseIAMRole(v.(bool))
+		}
+		if v, ok := raw["access_key_id"]; ok {
+			row.SetAccessKeyId(v.(string))
+		}
+		if v, ok := raw["secret_access_key"]; ok {
+			row.SetSecretAccessKey(v.(string))
+		}
+		if v, ok := raw["https_proxy"]; ok && len(v.(string)) > 0 {
+			row.SetHttpsProxy(v.(string))
+		}
+		if v, ok := raw["resolve_with_master_credentials"]; ok && v.(bool) {
+			row.SetResolveWithMasterCredentials(v.(bool))
+		}
+		if v, ok := raw["assumed_roles"]; ok {
+			assumedRoles, err := readAwsAssumedRolesFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			if len(assumedRoles) > 0 {
+				row.SetAssumedRoles(assumedRoles)
+			}
+		}
+
+		result = append(result, row)
+	}
+	return result, nil
+}
+
+func readAwsAssumedRolesFromConfig(roles []interface{}) ([]openapi.SiteAllOfNameResolutionAssumedRoles, error) {
+	result := make([]openapi.SiteAllOfNameResolutionAssumedRoles, 0)
+	for _, role := range roles {
+		raw := role.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionAssumedRoles{}
+		if v, ok := raw["account_id"]; ok {
+			row.SetAccountId(v.(string))
+		}
+		if v, ok := raw["role_name"]; ok {
+			row.SetRoleName(v.(string))
+		}
+		if v, ok := raw["external_id"]; ok {
+			row.SetExternalId(v.(string))
+		}
+		if v, ok := raw["regions"]; ok {
+			regions, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, err
+			}
+			row.SetRegions(regions)
+		}
+		result = append(result, row)
+	}
+	return result, nil
+}
+
+func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionAzureResolvers, 0)
+	for _, azure := range azureConfigs {
+		raw := azure.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionAzureResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v, ok := raw["subscription_id"]; ok {
+			row.SetSubscriptionId(v.(string))
+		}
+		if v, ok := raw["tenant_id"]; ok {
+			row.SetTenantId(v.(string))
+		}
+		if v, ok := raw["client_id"]; ok {
+			row.SetClientId(v.(string))
+		}
+		if v, ok := raw["secret_id"]; ok {
+			row.SetSecret(v.(string))
+		}
+		result = append(result, row)
+	}
+	return result, nil
+}
+
+func readESXResolversFromConfig(esxConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionEsxResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionEsxResolvers, 0)
+	for _, esxConfig := range esxConfigs {
+		raw := esxConfig.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionEsxResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v, ok := raw["hostname"]; ok {
+			row.SetHostname(v.(string))
+		}
+		if v, ok := raw["username"]; ok {
+			row.SetUsername(v.(string))
+		}
+		if v, ok := raw["password"]; ok {
+			row.SetPassword(v.(string))
+		}
+		result = append(result, row)
+	}
+	return result, nil
+}
+
+func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionGcpResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionGcpResolvers, 0)
+	for _, gcpConfig := range gcpConfigs {
+		raw := gcpConfig.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionGcpResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v, ok := raw["project_filter"]; ok {
+			row.SetProjectFilter(v.(string))
+		}
+		if v, ok := raw["instance_filter"]; ok {
+			row.SetInstanceFilter(v.(string))
+		}
+		result = append(result, row)
+	}
+	return result, nil
 }
