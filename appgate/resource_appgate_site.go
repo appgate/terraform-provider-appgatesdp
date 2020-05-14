@@ -338,16 +338,16 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"subscription_id": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"tenant_id": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 
 									"client_id": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"secret_id": {
 										Type:     schema.TypeString,
@@ -365,7 +365,7 @@ func resourceAppgateSite() *schema.Resource {
 
 									"name": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"update_interval": {
 										Type:     schema.TypeInt,
@@ -377,11 +377,11 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"username": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"password": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 								},
 							},
@@ -774,14 +774,18 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 			if err != nil {
 				return result, fmt.Errorf("Failed to resolve dns serers: %+v", err)
 			}
-			row.SetServers(servers)
+			if len(servers) > 0 {
+				row.SetServers(servers)
+			}
 		}
 		if v := raw["search_domains"]; len(v.([]interface{})) > 0 {
 			domains, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, fmt.Errorf("Failed to resolve dns search domains: %+v", err)
 			}
-			row.SetSearchDomains(domains)
+			if len(domains) > 0 {
+				row.SetSearchDomains(domains)
+			}
 		}
 		result = append(result, row)
 	}
@@ -825,7 +829,7 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v, ok := raw["secret_access_key"]; ok {
 			row.SetSecretAccessKey(v.(string))
 		}
-		if v, ok := raw["https_proxy"]; ok {
+		if v, ok := raw["https_proxy"]; ok && len(v.(string)) > 0 {
 			row.SetHttpsProxy(v.(string))
 		}
 		if v, ok := raw["resolve_with_master_credentials"]; ok && v.(bool) {
@@ -836,7 +840,9 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 			if err != nil {
 				return result, err
 			}
-			row.SetAssumedRoles(assumedRoles)
+			if len(assumedRoles) > 0 {
+				row.SetAssumedRoles(assumedRoles)
+			}
 		}
 
 		result = append(result, row)
