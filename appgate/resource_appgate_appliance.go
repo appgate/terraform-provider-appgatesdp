@@ -1022,10 +1022,10 @@ func readNtpServersFromConfig(input []interface{}) ([]openapi.ApplianceAllOfNtpS
 		if v, ok := raw["hostname"]; ok {
 			row.SetHostname(v.(string))
 		}
-		if v, ok := raw["key_type"]; ok {
+		if v, ok := raw["key_type"]; ok && len(v.(string)) > 0 {
 			row.SetKeyType(v.(string))
 		}
-		if v, ok := raw["key"]; ok {
+		if v, ok := raw["key"]; ok && len(v.(string)) > 0 {
 			row.SetKey(v.(string))
 		}
 		r = append(r, row)
