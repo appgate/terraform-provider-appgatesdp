@@ -20,7 +20,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 				Config: testAccCheckApplianceBasicController(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
-					testAccCheckExampleWidgetExists(resourceName),
+					// testAccCheckExampleWidgetExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", "controller-test"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1337.devops"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
@@ -106,6 +106,20 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.0.name", "Company SIEM"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.0.port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.3792789776.tcp_clients.0.use_tls", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.#", "4"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.0.hostname", "0.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.0.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.0.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.1.hostname", "1.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.1.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.1.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.2.hostname", "2.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.2.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.2.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.3.hostname", "3.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.3.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.3633490038.servers.3.key_type", ""),
 				),
 			},
 			{
@@ -206,6 +220,20 @@ resource "appgate_appliance" "test_controller" {
 		"terraform",
 		"api-test-created"
 	]
+	ntp {
+		servers {
+			hostname = "0.ubuntu.pool.ntp.org"
+		}
+		servers {
+			hostname = "1.ubuntu.pool.ntp.org"
+		}
+		servers {
+			hostname = "2.ubuntu.pool.ntp.org"
+		}
+		servers {
+			hostname = "3.ubuntu.pool.ntp.org"
+		}
+	}
 	networking {
 
 		hosts {
