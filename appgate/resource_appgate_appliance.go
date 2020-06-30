@@ -1006,10 +1006,10 @@ func readNetworkIpv4DhcpFromConfig(ipv4raw map[string]interface{}) openapi.Appli
 		ipv4dhcp.SetDns(v.(bool))
 	}
 	if v, ok := ipv4raw["routers"]; ok {
-		ipv4dhcp.SetDns(v.(bool))
+		ipv4dhcp.SetRouters(v.(bool))
 	}
 	if v, ok := ipv4raw["ntp"]; ok {
-		ipv4dhcp.SetDns(v.(bool))
+		ipv4dhcp.SetNtp(v.(bool))
 	}
 	return ipv4dhcp
 }
