@@ -9,7 +9,24 @@ Requirements
 
 
 
-Testing the Provider
+Building the provider
+---------------------------
+
+
+```sh
+$ make build
+```
+
+Using the provider
+---------------------------
+
+Detailed documentation for the AppgGate provider can be found in the docs directory, [here](./website/docs).
+
+A detailed example how to deploy AppGate to AWS can be found [here](./examples/aws).
+
+
+
+Testing the provider
 ---------------------------
 
 
