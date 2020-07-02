@@ -22,8 +22,6 @@ cd ..
 ```
 cd appgate-resources
 # make sure you have the latest build of the terraform-provider-appgate_v* in this directory.
-# which can be downloaded at
-# https://code.cyxtera.com/appgate/terraform-provider-appgate/releases
 
 terraform init
 
