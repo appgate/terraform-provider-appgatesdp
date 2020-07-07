@@ -992,6 +992,20 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 			}
 			nic.SetIpv4(ipv4networking)
 		}
+
+		if v := raw["ipv6"].(*schema.Set); v.Len() > 0 {
+			ipv6networking := openapi.ApplianceAllOfNetworkingIpv6{}
+			for _, v := range v.List() {
+				ipv4Data := v.(map[string]interface{})
+				if v := ipv4Data["dhcp"].(*schema.Set); v.Len() > 0 {
+					for _, v := range v.List() {
+						ipv6networking.SetDhcp(readNetworkIpv6DhcpFromConfig(v.(map[string]interface{})))
+					}
+				}
+				// TODO do static.
+			}
+			nic.SetIpv6(ipv6networking)
+		}
 		apiNics = append(apiNics, nic)
 	}
 	return apiNics, nil
@@ -1012,6 +1026,20 @@ func readNetworkIpv4DhcpFromConfig(ipv4raw map[string]interface{}) openapi.Appli
 		ipv4dhcp.SetNtp(v.(bool))
 	}
 	return ipv4dhcp
+}
+
+func readNetworkIpv6DhcpFromConfig(ipv6raw map[string]interface{}) openapi.ApplianceAllOfNetworkingIpv6Dhcp {
+	ipv6dhcp := openapi.ApplianceAllOfNetworkingIpv6Dhcp{}
+	if v, ok := ipv6raw["enabled"]; ok {
+		ipv6dhcp.SetEnabled(v.(bool))
+	}
+	if v, ok := ipv6raw["dns"]; ok {
+		ipv6dhcp.SetDns(v.(bool))
+	}
+	if v, ok := ipv6raw["ntp"]; ok {
+		ipv6dhcp.SetNtp(v.(bool))
+	}
+	return ipv6dhcp
 }
 
 func readNtpServersFromConfig(input []interface{}) ([]openapi.ApplianceAllOfNtpServers, error) {
