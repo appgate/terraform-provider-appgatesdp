@@ -21,7 +21,7 @@ data "appgate_site" "default_site" {
 }
 
 resource "appgate_appliance" "new_gateway" {
-  name     = "gateway-asd"
+  name     = "another-gateway"
   hostname = "envy-10-97-168-1337.devops"
 
   client_interface {
@@ -90,14 +90,51 @@ resource "appgate_appliance" "new_gateway" {
     nics {
       enabled = true
       name    = "eth0"
+
       ipv4 {
         dhcp {
-          enabled = true
+          enabled = false
           dns     = true
           routers = true
           ntp     = true
         }
+
+        static {
+          address  = "10.10.10.1"
+          netmask  = 24
+          hostname = "appgate.company.com"
+          snat     = true
+        }
+
+        static {
+          address  = "20.20.20.1"
+          netmask  = 32
+          hostname = "test.company.com"
+          snat     = false
+        }
       }
+
+      ipv6 {
+        dhcp {
+          enabled = true
+          dns     = true
+          ntp     = true
+        }
+        static {
+          address  = "2001:db8:0:0:0:ff00:42:8329"
+          netmask  = 24
+          hostname = "appgate.company.com"
+          snat     = true
+        }
+
+        static {
+          address  = "2002:db8:0:0:0:ff00:42:1337"
+          netmask  = 32
+          hostname = "test.company.com"
+          snat     = false
+        }
+      }
+
     }
     dns_servers = [
       "8.8.8.8",
@@ -210,20 +247,20 @@ resource "appgate_appliance" "new_gateway" {
     ]
   }
 
-  iot_connector {
-    enabled = true
-    clients {
-      name      = "Printers"
-      device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
+  # iot_connector {
+  #   enabled = true
+  #   clients {
+  #     name      = "Printers"
+  #     device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
 
-      sources {
-        address = "1.3.3.7"
-        netmask = 24
-        nic     = "eth0"
-      }
-      snat = true
-    }
-  }
+  #     sources {
+  #       address = "1.3.3.7"
+  #       netmask = 24
+  #       nic     = "eth0"
+  #     }
+  #     snat = true
+  #   }
+  # }
 
   rsyslog_destinations {
     selector    = "*.*"
@@ -242,9 +279,9 @@ resource "appgate_appliance" "new_gateway" {
   ]
 
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=controller-a
-  controller {
-    enabled = true
-  }
+  # controller {
+  #   enabled = true
+  # }
 
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=logserver-a
   log_server {
@@ -252,17 +289,17 @@ resource "appgate_appliance" "new_gateway" {
     # retention_days = 2
   }
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=gateway-a
-  # gateway {
-  #   enabled = true
-  #   vpn {
-  #     weight = 60
-  #     allow_destinations {
-  #       address = "127.0.0.1"
-  #       netmask = 0
-  #       nic     = "eth0"
-  #     }
-  #   }
-  # }
+  gateway {
+    enabled = true
+    vpn {
+      weight = 60
+      allow_destinations {
+        address = "127.0.0.1"
+        netmask = 0
+        nic     = "eth0"
+      }
+    }
+  }
   # Save the seed file locally in base 64 format.
   provisioner "local-exec" {
     command = "echo ${appgate_appliance.new_gateway.seed_file} > seed.b64"
