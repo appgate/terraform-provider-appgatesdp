@@ -263,21 +263,21 @@ func resourceAppgateAppliance() *schema.Resource {
 													},
 												},
 												"static": {
-													Type:     schema.TypeSet,
+													Type:     schema.TypeList,
 													Optional: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"address": {
 																Type:         schema.TypeString,
 																ValidateFunc: validateIPaddress,
-																Optional:     true,
+																Required:     true,
 															},
 															"netmask": {
 																Type:     schema.TypeInt,
-																Optional: true,
+																Required: true,
 															},
 															"hostname": {
-																Type:     schema.TypeInt,
+																Type:     schema.TypeString,
 																Optional: true,
 															},
 															"snat": {
@@ -308,10 +308,6 @@ func resourceAppgateAppliance() *schema.Resource {
 																Type:     schema.TypeBool,
 																Optional: true,
 															},
-															"routers": {
-																Type:     schema.TypeBool,
-																Optional: true,
-															},
 															"ntp": {
 																Type:     schema.TypeBool,
 																Optional: true,
@@ -320,8 +316,8 @@ func resourceAppgateAppliance() *schema.Resource {
 													},
 												},
 												"static": {
-													Type:     schema.TypeSet,
-													Required: true,
+													Type:     schema.TypeList,
+													Optional: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"address": {
@@ -334,7 +330,7 @@ func resourceAppgateAppliance() *schema.Resource {
 																Required: true,
 															},
 															"hostname": {
-																Type:     schema.TypeInt,
+																Type:     schema.TypeString,
 																Required: true,
 															},
 															"snat": {
@@ -988,10 +984,8 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 						ipv4networking.SetDhcp(readNetworkIpv4DhcpFromConfig(v.(map[string]interface{})))
 					}
 				}
-				if v := ipv4Data["static"].(*schema.Set); v.Len() > 0 {
-					for _, v := range v.List() {
-						ipv4networking.SetStatic(readNetworkIpv4StaticFromConfig(v.(map[string]interface{})))
-					}
+				if v := ipv4Data["static"]; len(v.([]interface{})) > 0 {
+					ipv4networking.SetStatic(readNetworkIpv4StaticFromConfig(v.([]interface{})))
 				}
 			}
 			nic.SetIpv4(ipv4networking)
@@ -1006,10 +1000,8 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 						ipv6networking.SetDhcp(readNetworkIpv6DhcpFromConfig(v.(map[string]interface{})))
 					}
 				}
-				if v := ipv6Data["static"].(*schema.Set); v.Len() > 0 {
-					for _, v := range v.List() {
-						ipv6networking.SetStatic(readNetworkIpv6StaticFromConfig(v.(map[string]interface{})))
-					}
+				if v := ipv6Data["static"]; len(v.([]interface{})) > 0 {
+					ipv6networking.SetStatic(readNetworkIpv6StaticFromConfig(v.([]interface{})))
 				}
 			}
 			nic.SetIpv6(ipv6networking)
@@ -1019,7 +1011,7 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 	return apiNics, nil
 }
 
-func readNetworkIpv4StaticFromConfig(ipv4staticraw map[string]interface{}) []openapi.ApplianceAllOfNetworkingIpv4Static {
+func readNetworkIpv4StaticFromConfig(ipv4staticraw []interface{}) []openapi.ApplianceAllOfNetworkingIpv4Static {
 	var r []openapi.ApplianceAllOfNetworkingIpv4Static
 	for _, s := range ipv4staticraw {
 		raw := s.(map[string]interface{})
@@ -1072,9 +1064,9 @@ func readNetworkIpv6DhcpFromConfig(ipv6raw map[string]interface{}) openapi.Appli
 	return ipv6dhcp
 }
 
-func readNetworkIpv6StaticFromConfig(ipv4staticraw map[string]interface{}) []openapi.ApplianceAllOfNetworkingIpv6Static {
+func readNetworkIpv6StaticFromConfig(ipv6staticraw []interface{}) []openapi.ApplianceAllOfNetworkingIpv6Static {
 	var r []openapi.ApplianceAllOfNetworkingIpv6Static
-	for _, s := range ipv4staticraw {
+	for _, s := range ipv6staticraw {
 		raw := s.(map[string]interface{})
 		row := openapi.ApplianceAllOfNetworkingIpv6Static{}
 		if v, ok := raw["address"]; ok {
