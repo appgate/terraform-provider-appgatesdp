@@ -15,7 +15,8 @@ Create a new Criteria Script..
 ```hcl
 
 resource "appgate_criteria_script" "test_criteria_script" {
-
+  name       = "Test"
+  expression = "return claims.user.username === 'admin';"
 }
 
 ```

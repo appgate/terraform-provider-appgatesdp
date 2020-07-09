@@ -381,3 +381,14 @@ if (admins(claims)) {
 return result;
 EOF
 }
+
+
+resource "appgate_criteria_script" "test_criteria_script" {
+  name       = "adminOnly"
+  expression = "return claims.user.username === 'admin';"
+  notes      = "Only allow admin user"
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+}
