@@ -58,7 +58,7 @@ func resourceAppgateCriteriaScript() *schema.Resource {
 
 			"expression": {
 				Type:        schema.TypeString,
-				Description: "Name of the object.",
+				Description: "A JavaScript expression that returns boolean.",
 				Required:    true,
 			},
 		},
@@ -71,6 +71,13 @@ func resourceAppgateCriteriaScriptCreate(d *schema.ResourceData, meta interface{
 	api := meta.(*Client).API.CriteriaScriptsApi
 	args := openapi.NewCriteriaScriptWithDefaults()
 	args.Id = uuid.New().String()
+	args.SetName(d.Get("name").(string))
+	args.SetNotes(d.Get("notes").(string))
+	args.SetTags(schemaExtractTags(d))
+
+	if v, ok := d.GetOk("expression"); ok {
+		args.SetExpression(v.(string))
+	}
 
 	request := api.CriteriaScriptsPost(context.TODO())
 	request = request.CriteriaScript(*args)
@@ -91,14 +98,14 @@ func resourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{})
 	api := meta.(*Client).API.CriteriaScriptsApi
 	ctx := context.TODO()
 	request := api.CriteriaScriptsIdGet(ctx, d.Id())
-	ent, _, err := request.Authorization(token).Execute()
+	criteraScript, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		// TODO check if 404
 		d.SetId("")
 		return fmt.Errorf("Failed to read Criteria script, %+v", err)
 	}
-	d.SetId(ent.Id)
-	d.Set("criteria_script_id", ent.Id)
+	d.SetId(criteraScript.Id)
+	d.Set("criteria_script_id", criteraScript.Id)
 
 	return nil
 }
@@ -114,7 +121,22 @@ func resourceAppgateCriteriaScriptUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("Failed to read Criteria script while updating, %+v", err)
 	}
-	// ....
+
+	if d.HasChange("name") {
+		originalCriteriaScript.SetName(d.Get("name").(string))
+	}
+
+	if d.HasChange("notes") {
+		originalCriteriaScript.SetNotes(d.Get("notes").(string))
+	}
+
+	if d.HasChange("tags") {
+		originalCriteriaScript.SetTags(schemaExtractTags(d))
+	}
+
+	if d.HasChange("expression") {
+		originalCriteriaScript.SetExpression(d.Get("expression").(string))
+	}
 
 	req := api.CriteriaScriptsIdPut(ctx, d.Id())
 	req = req.CriteriaScript(originalCriteriaScript)
