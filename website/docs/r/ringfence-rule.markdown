@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_ringfence-rule"
+page_title: "APPGATE: appgate_ringfence_rule"
 sidebar_current: "docs-appgate-resource-ringfence-rule"
 description: |-
    Create a new Ringfence Rule.
 ---
 
-# appgate_ringfence-rule
+# appgate_ringfence_rule
 
 Create a new Ringfence Rule..
 
@@ -96,5 +96,5 @@ ICMP type. Only valid for icmp protocol.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_ringfence-rule d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgate_ringfence_rule d3131f83-10d1-4abc-ac0b-7349538e8300
 ```
