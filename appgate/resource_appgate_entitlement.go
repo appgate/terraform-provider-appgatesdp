@@ -124,6 +124,24 @@ func resourceAppgateEntitlement() *schema.Resource {
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+
+						"monitor": {
+							Type:       schema.TypeSet,
+							Optional:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -216,21 +234,70 @@ func resourceAppgateEntitlementRuleRead(d *schema.ResourceData, meta interface{}
 	api := meta.(*Client).API.EntitlementsApi
 	ctx := context.TODO()
 	request := api.EntitlementsIdGet(ctx, d.Id())
-	ent, _, err := request.Authorization(token).Execute()
+	entitlement, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		// TODO check if 404
 		d.SetId("")
 		return fmt.Errorf("Failed to read Entitlement, %+v", err)
 	}
-	d.SetId(ent.Id)
-	d.Set("entitlement_id", ent.Id)
-	d.Set("displayName", ent.DisplayName) // Deprecated in 5.1
-	d.Set("disabled", ent.Disabled)
-	d.Set("notes", ent.Notes)
-	d.Set("actions", ent.Actions)
-	d.Set("conditions", ent.Conditions)
+	d.SetId(entitlement.Id)
+	d.Set("entitlement_id", entitlement.Id)
+	d.Set("name", entitlement.Name)
+	d.Set("displayName", entitlement.DisplayName) // Deprecated in 5.1
+	d.Set("disabled", entitlement.Disabled)
+	d.Set("notes", entitlement.Notes)
+	d.Set("actions", entitlement.Actions)
+	d.Set("conditions", entitlement.Conditions)
+	d.Set("condition_logic", entitlement.ConditionLogic)
+	d.Set("tags", entitlement.Tags)
+	d.Set("site", entitlement.Site)
+	if entitlement.AppShortcut != nil {
+		if err = d.Set("app_shortcut", flattenEntitlementAppShortcut(entitlement.AppShortcut)); err != nil {
+			return err
+		}
+	}
+	if entitlement.Actions != nil {
+		if err = d.Set("actions", flattenEntitlementActions(entitlement.Actions)); err != nil {
+			return err
+		}
+	}
 
 	return nil
+}
+
+func flattenEntitlementAppShortcut(in *openapi.EntitlementAllOfAppShortcut) []interface{} {
+	m := make(map[string]interface{})
+	m["name"] = in.Name
+	m["url"] = in.Url
+	m["color_code"] = in.ColorCode
+
+	return []interface{}{m}
+}
+
+func flattenEntitlementActions(in []openapi.EntitlementAllOfActions) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["subtype"] = v.Subtype
+		m["action"] = v.Action
+		m["hosts"] = v.Hosts
+		m["ports"] = v.Ports
+		m["types"] = v.Types
+		if v.Monitor != nil {
+			m["monitor"] = flattenEntitlementActionMonitor(v.Monitor)
+		}
+		out[i] = m
+	}
+	return out
+}
+
+func flattenEntitlementActionMonitor(in *openapi.EntitlementAllOfMonitor) []interface{} {
+	log.Printf("[DEBUG] flattenEntitlementActionMonitor %+v", in)
+	m := make(map[string]interface{})
+	m["enabled"] = in.Enabled
+	m["timeout"] = in.Timeout
+
+	return []interface{}{m}
 }
 
 func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -360,15 +427,17 @@ func readConditionActionsFromConfig(actions []interface{}) ([]openapi.Entitlemen
 
 		if v, ok := raw["monitor"]; ok {
 			monitor := openapi.NewEntitlementAllOfMonitorWithDefaults()
-			rawMonitor := v.(map[string]interface{})
-
-			if v, ok := rawMonitor["enabled"]; ok {
-				monitor.SetEnabled(v.(bool))
+			rawMonitors := v.(*schema.Set).List()
+			for _, v := range rawMonitors {
+				rawMonitor := v.(map[string]interface{})
+				if v, ok := rawMonitor["enabled"]; ok {
+					monitor.SetEnabled(v.(bool))
+				}
+				if v, ok := rawMonitor["timeout"]; ok {
+					monitor.SetTimeout(int32(v.(int)))
+				}
+				a.SetMonitor(*monitor)
 			}
-			if v, ok := rawMonitor["timeout"]; ok {
-				monitor.SetTimeout(int32(v.(int)))
-			}
-			a.SetMonitor(*monitor)
 		}
 		result = append(result, *a)
 	}
