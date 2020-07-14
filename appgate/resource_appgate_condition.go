@@ -171,13 +171,32 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Failed to read Condition, %+v", err)
 	}
 	d.SetId(remoteCondition.Id)
+	d.Set("condition_id", remoteCondition.Id)
 	d.Set("name", remoteCondition.Name)
 	d.Set("notes", remoteCondition.Notes)
 	d.Set("tags", remoteCondition.Tags)
 	d.Set("expression", remoteCondition.Expression)
 	d.Set("repeat_schedules", remoteCondition.RepeatSchedules)
-	d.Set("remedy_methods", remoteCondition.RemedyMethods)
+	if remoteCondition.RemedyMethods != nil {
+		if err = d.Set("remedy_methods", flattenConditionRemedyMethods(*remoteCondition.RemedyMethods)); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+func flattenConditionRemedyMethods(in []openapi.ConditionAllOfRemedyMethods) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["type"] = v.Type
+		m["message"] = v.Message
+		m["claim_suffix"] = v.ClaimSuffix
+		m["provider_id"] = v.ProviderId
+
+		out[i] = m
+	}
+	return out
 }
 
 func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) error {
