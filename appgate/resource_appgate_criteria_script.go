@@ -106,6 +106,10 @@ func resourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(criteraScript.Id)
 	d.Set("criteria_script_id", criteraScript.Id)
+	d.Set("name", criteraScript.Name)
+	d.Set("notes", criteraScript.Notes)
+	d.Set("tags", criteraScript.Tags)
+	d.Set("expression", criteraScript.Expression)
 
 	return nil
 }
