@@ -211,6 +211,13 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("notes", policy.GetNotes())
 	d.Set("disabled", policy.GetDisabled())
 	d.Set("expression", policy.GetExpression())
+	d.Set("entitlements", policy.GetEntitlements())
+	d.Set("entitlement_links", policy.GetEntitlementLinks())
+	d.Set("ringfence_rule_links", policy.GetRingfenceRuleLinks())
+	d.Set("ringfence_rules", policy.GetRingfenceRules())
+	d.Set("tags", policy.GetTags())
+	d.Set("tamper_proofing", policy.GetTamperProofing())
+	d.Set("administrative_roles", policy.GetAdministrativeRoles())
 
 	return nil
 }

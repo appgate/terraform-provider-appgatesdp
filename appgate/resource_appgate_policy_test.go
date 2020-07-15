@@ -28,7 +28,14 @@ func TestAccPolicyBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ringfence_rule_links.1941342072", "developer"),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_links.1941342072", "developer"),
 				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
 			},
 		},
 	})
@@ -37,17 +44,24 @@ func TestAccPolicyBasic(t *testing.T) {
 func testAccCheckPolicyBasic() string {
 	return fmt.Sprintf(`
 resource "appgate_policy" "test_policy" {
-    name = "policy-test"
-    notes = "terraform policy notes"
-    tags = [
-      "terraform",
-      "api-created"
-    ]
-    disabled = false
+  name  = "policy-test"
+  notes = "terraform policy notes"
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+  disabled = false
 
-    expression = <<-EOF
+  expression = <<-EOF
     return true;
   EOF
+  entitlement_links = [
+    "developer"
+  ]
+  ringfence_rule_links = [
+    "developer"
+  ]
+  tamper_proofing = true
 }
 `)
 }
