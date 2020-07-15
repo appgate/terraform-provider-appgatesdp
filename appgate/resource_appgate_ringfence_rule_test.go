@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccRingfenceRuleBasic(t *testing.T) {
+func TestAccRingfenceRuleBasicICMP(t *testing.T) {
 	resourceName := "appgate_ringfence_rule.test_ringfence_rule"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -17,36 +17,37 @@ func TestAccRingfenceRuleBasic(t *testing.T) {
 		CheckDestroy: testAccCheckRingfenceRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckRingfenceRule(),
+				Config: testAccCheckRingfenceRuleICMP(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRingfenceRuleExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", "ringfence-rule-test"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.action", "allow"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.direction", "out"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.hosts.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.hosts.0", "10.0.2.0/24"),
+					resource.TestCheckResourceAttr(resourceName, "actions.3319774903.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.3319774903.direction", "out"),
+					resource.TestCheckResourceAttr(resourceName, "actions.3319774903.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.3319774903.hosts.0", "10.0.2.0/24"),
 
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.ports.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.ports.0", "80"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.ports.1", "443"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.ports.2", "1024-2048"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.protocol", "icmp"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.types.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.4182075683.types.0", "0-255"),
+					resource.TestCheckResourceAttr(resourceName, "actions.3319774903.protocol", "icmp"),
+					resource.TestCheckResourceAttr(resourceName, "actions.3319774903.types.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.3319774903.ports.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
 				),
 			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
+			},
 		},
 	})
 }
 
-func testAccCheckRingfenceRule() string {
+func testAccCheckRingfenceRuleICMP() string {
 	return fmt.Sprintf(`
 resource "appgate_ringfence_rule" "test_ringfence_rule" {
     name = "ringfence-rule-test"
@@ -63,18 +64,77 @@ resource "appgate_ringfence_rule" "test_ringfence_rule" {
         hosts = [
           "10.0.2.0/24"
         ]
-
-        ports = [
-          "80",
-          "443",
-          "1024-2048"
-        ]
-
         types = [
           "0-255"
         ]
-
       }
+}
+`)
+}
+
+func TestAccRingfenceRuleBasicTCP(t *testing.T) {
+	resourceName := "appgate_ringfence_rule.test_ringfence_rule_tcp"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRingfenceRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckRingfenceRuleTCP(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRingfenceRuleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", "ringfence-rule-test-tcp"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+
+					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.direction", "out"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.hosts.0", "10.0.2.0/24"),
+
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.protocol", "tcp"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.ports.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.ports.0", "80"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.ports.1", "443"),
+					resource.TestCheckResourceAttr(resourceName, "actions.4218684535.ports.2", "1024-2048"),
+
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+func testAccCheckRingfenceRuleTCP() string {
+	return fmt.Sprintf(`
+resource "appgate_ringfence_rule" "test_ringfence_rule_tcp" {
+    name = "ringfence-rule-test-tcp"
+    tags = [
+      "terraform",
+      "api-created"
+    ]
+    actions {
+      protocol = "tcp"
+      action   = "allow"
+      direction = "out"
+
+      hosts = [
+        "10.0.2.0/24"
+      ]
+
+      ports = [
+        "80",
+        "443",
+        "1024-2048"
+      ]
+    }
 }
 `)
 }
