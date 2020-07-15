@@ -35,6 +35,12 @@ func TestAccConditionBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccEntitlementImportStateCheckFunc(1),
+			},
 		},
 	})
 }

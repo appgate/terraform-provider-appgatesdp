@@ -180,9 +180,29 @@ func resourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) 
 	}
 	d.Set("ringfence_rule_id", ringfenceRule.Id)
 	d.Set("name", ringfenceRule.Name)
+	d.Set("notes", ringfenceRule.Notes)
 	d.Set("tags", ringfenceRule.Tags)
-	d.Set("actions", ringfenceRule.Actions)
+	if ringfenceRule.Actions != nil {
+		if err = d.Set("actions", flattenRingfenceActions(ringfenceRule.Actions)); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+func flattenRingfenceActions(in []openapi.RingfenceRuleAllOfActions) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["protocol"] = v.Protocol
+		m["direction"] = v.Direction
+		m["action"] = v.Action
+		m["hosts"] = v.Hosts
+		m["ports"] = v.Ports
+		m["types"] = v.Types
+		out[i] = m
+	}
+	return out
 }
 
 func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}) error {
