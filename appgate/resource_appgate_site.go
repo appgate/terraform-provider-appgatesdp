@@ -127,7 +127,7 @@ func resourceAppgateSite() *schema.Resource {
 			"vpn": {
 				Type:     schema.TypeSet,
 				Optional: true,
-
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -498,30 +498,81 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Failed to read Site, %+v", err)
 	}
-	gw := make(map[string]interface{})
-
-	gw["enabled_v4"] = site.DefaultGateway.EnabledV4
-	gw["enabled_v6"] = site.DefaultGateway.EnabledV6
-	exsub := make([]interface{}, 0, 0)
-	for _, sub := range site.DefaultGateway.GetExcludedSubnets() {
-		exsub = append(exsub, sub)
-	}
-	gw["excluded_subnets"] = exsub
 
 	d.SetId(site.Id)
 	d.Set("site_id", site.Id)
+	d.Set("name", site.Name)
 	d.Set("notes", site.Notes)
-	d.Set("created", site.Created.String())
-	d.Set("updated", site.Updated.String())
 	d.Set("tags", site.Tags)
 	d.Set("network_subnets", site.NetworkSubnets)
+	if site.IpPoolMappings != nil {
+		if err = d.Set("ip_pool_mappings", flattenSiteIPpoolmappning(*site.IpPoolMappings)); err != nil {
+			return err
+		}
+	}
+	if site.DefaultGateway != nil {
+		if err = d.Set("default_gateway", flattenSiteDefaultGateway(*site.DefaultGateway)); err != nil {
+			return err
+		}
+	}
 	d.Set("short_name", site.ShortName)
 	d.Set("entitlement_based_routing", site.EntitlementBasedRouting)
 
-	if err := d.Set("default_gateway", []interface{}{gw}); err != nil {
-		return fmt.Errorf("Failed to read default gateway on %s: %+v", d.Id(), err)
+	if site.Vpn != nil {
+		if err = d.Set("vpn", flattenSiteVPN(*site.Vpn)); err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+func flattenSiteIPpoolmappning(in []openapi.SiteAllOfIpPoolMappings) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["from"] = v.From
+		m["to"] = v.To
+
+		out[i] = m
+	}
+	return out
+}
+
+func flattenSiteDefaultGateway(in openapi.SiteAllOfDefaultGateway) []interface{} {
+	m := make(map[string]interface{})
+	m["enabled_v4"] = in.EnabledV4
+	m["enabled_v6"] = in.EnabledV6
+	exsub := make([]interface{}, 0, 0)
+	for _, sub := range in.GetExcludedSubnets() {
+		exsub = append(exsub, sub)
+	}
+	m["excluded_subnets"] = exsub
+	return []interface{}{m}
+}
+
+func flattenSiteVPN(in openapi.SiteAllOfVpn) map[string]interface{} {
+	log.Printf("[DEBUG] flattenSiteVPN in: %+v", in)
+	m := make(map[string]interface{})
+	m["state_sharing"] = in.StateSharing
+	m["snat"] = in.Snat
+	if in.Tls != nil {
+		tls := make(map[string]interface{})
+		tls["enabled"] = in.Tls.Enabled
+		m["tls"] = []interface{}{tls}
+	}
+	if in.Dtls != nil {
+		dtls := make(map[string]interface{})
+		dtls["enabled"] = in.Dtls.Enabled
+		// m["dtls"] = []interface{}{dtls}
+		m["dtls"] = dtls
+	}
+	m["route_via"] = in.RouteVia
+	m["web_proxy_enabled"] = in.WebProxyEnabled
+	m["web_proxy_key_store"] = in.WebProxyKeyStore
+	m["web_proxy_certificate_subject_name"] = in.WebProxyCertificateSubjectName
+	m["ip_access_log_interval_seconds"] = in.IpAccessLogIntervalSeconds
+	log.Printf("[DEBUG] Updating flattenSiteVPN: %+v", m)
+	return m
 }
 
 func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {

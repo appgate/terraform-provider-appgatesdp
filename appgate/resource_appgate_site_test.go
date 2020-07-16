@@ -84,6 +84,11 @@ func TestAccSiteBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
 				),
 			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
+			},
 		},
 	})
 }
