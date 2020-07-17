@@ -616,7 +616,23 @@ func flattenNameResolution(in openapi.SiteAllOfNameResolution) []interface{} {
 	if v, o := in.GetEsxResolversOk(); o != false {
 		m["esx_resolvers"] = flattenSiteESXResolvers(*v)
 	}
+	if v, o := in.GetGcpResolversOk(); o != false {
+		m["gcp_resolvers"] = flattenSiteGCPResolvers(*v)
+	}
 	return []interface{}{m}
+}
+
+func flattenSiteGCPResolvers(in []openapi.SiteAllOfNameResolutionGcpResolvers) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["name"] = v.GetName()
+		m["update_interval"] = v.GetUpdateInterval()
+		m["project_filter"] = v.GetProjectFilter()
+		m["instance_filter"] = v.GetInstanceFilter()
+		out[i] = m
+	}
+	return out
 }
 
 func flattenSiteESXResolvers(in []openapi.SiteAllOfNameResolutionEsxResolvers) []map[string]interface{} {
