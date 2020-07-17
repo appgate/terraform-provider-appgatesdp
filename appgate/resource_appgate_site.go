@@ -354,9 +354,10 @@ func resourceAppgateSite() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
-									"secret_id": {
-										Type:     schema.TypeString,
-										Optional: true,
+									"secret": {
+										Type:      schema.TypeString,
+										Optional:  true,
+										Sensitive: true,
 									},
 								},
 							},
@@ -607,7 +608,26 @@ func flattenNameResolution(in openapi.SiteAllOfNameResolution) []interface{} {
 	if v, o := in.GetAwsResolversOk(); o != false {
 		m["aws_resolvers"] = flattenSiteAWSResolver(*v)
 	}
+	if v, o := in.GetAzureResolversOk(); o != false {
+		m["azure_resolvers"] = flattenSiteAzureResolver(*v)
+	}
 	return []interface{}{m}
+}
+
+func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["name"] = v.GetName()
+		m["update_interval"] = v.GetUpdateInterval()
+		m["subscription_id"] = v.GetSubscriptionId()
+		m["tenant_id"] = v.GetTenantId()
+		m["client_id"] = v.GetClientId()
+		m["secret"] = v.GetSecret()
+
+		out[i] = m
+	}
+	return out
 }
 
 func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers) []map[string]interface{} {
@@ -1031,7 +1051,7 @@ func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAll
 		if v, ok := raw["client_id"]; ok {
 			row.SetClientId(v.(string))
 		}
-		if v, ok := raw["secret_id"]; ok {
+		if v, ok := raw["secret"]; ok {
 			row.SetSecret(v.(string))
 		}
 		result = append(result, row)
