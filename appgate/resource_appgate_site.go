@@ -382,12 +382,14 @@ func resourceAppgateSite() *schema.Resource {
 										Optional: true,
 									},
 									"username": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:      schema.TypeString,
+										Required:  true,
+										Sensitive: true,
 									},
 									"password": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:      schema.TypeString,
+										Required:  true,
+										Sensitive: true,
 									},
 								},
 							},
@@ -611,7 +613,25 @@ func flattenNameResolution(in openapi.SiteAllOfNameResolution) []interface{} {
 	if v, o := in.GetAzureResolversOk(); o != false {
 		m["azure_resolvers"] = flattenSiteAzureResolver(*v)
 	}
+	if v, o := in.GetEsxResolversOk(); o != false {
+		m["esx_resolvers"] = flattenSiteESXResolvers(*v)
+	}
 	return []interface{}{m}
+}
+
+func flattenSiteESXResolvers(in []openapi.SiteAllOfNameResolutionEsxResolvers) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["name"] = v.GetName()
+		m["update_interval"] = v.GetUpdateInterval()
+		m["hostname"] = v.GetHostname()
+		m["username"] = v.GetUsername()
+		m["password"] = v.GetPassword()
+
+		out[i] = m
+	}
+	return out
 }
 
 func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers) []map[string]interface{} {
