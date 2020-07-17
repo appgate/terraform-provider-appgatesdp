@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
@@ -125,9 +126,12 @@ func resourceAppgateSite() *schema.Resource {
 			},
 
 			"vpn": {
-				Type:     schema.TypeSet,
+				// Due to the limitation of tf-11115 it is not possible to nest maps.
+				// https://github.com/hashicorp/terraform/issues/11115
+				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -142,7 +146,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"tls": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeMap,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -155,7 +159,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"dtls": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeMap,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -168,7 +172,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"route_via": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeMap,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -199,11 +203,13 @@ func resourceAppgateSite() *schema.Resource {
 						},
 					},
 				},
-			}, // vpn
+			},
 
 			"name_resolution": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
+				MaxItems: 1,
 
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -214,7 +220,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"dns_resolvers": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -242,9 +248,8 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"aws_resolvers": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
-
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
@@ -523,6 +528,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -550,29 +556,30 @@ func flattenSiteDefaultGateway(in openapi.SiteAllOfDefaultGateway) []interface{}
 	return []interface{}{m}
 }
 
-func flattenSiteVPN(in openapi.SiteAllOfVpn) map[string]interface{} {
-	log.Printf("[DEBUG] flattenSiteVPN in: %+v", in)
+func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 	m := make(map[string]interface{})
 	m["state_sharing"] = in.StateSharing
 	m["snat"] = in.Snat
-	if in.Tls != nil {
+	if in.HasTls() {
 		tls := make(map[string]interface{})
-		tls["enabled"] = in.Tls.Enabled
-		m["tls"] = []interface{}{tls}
+		tls["enabled"] = strconv.FormatBool(in.Tls.GetEnabled())
+		m["tls"] = tls
 	}
-	if in.Dtls != nil {
+	if in.HasDtls() {
 		dtls := make(map[string]interface{})
-		dtls["enabled"] = in.Dtls.Enabled
-		// m["dtls"] = []interface{}{dtls}
+		dtls["enabled"] = strconv.FormatBool(in.Dtls.GetEnabled())
 		m["dtls"] = dtls
 	}
-	m["route_via"] = in.RouteVia
+	if in.HasRouteVia() && in.RouteVia.Ipv4 != nil {
+		routeVia := make(map[string]interface{})
+		routeVia["ipv4"] = in.RouteVia.GetIpv4()
+		routeVia["ipv6"] = in.RouteVia.GetIpv6()
+		m["route_via"] = routeVia
+	}
 	m["web_proxy_enabled"] = in.WebProxyEnabled
 	m["web_proxy_key_store"] = in.WebProxyKeyStore
-	m["web_proxy_certificate_subject_name"] = in.WebProxyCertificateSubjectName
 	m["ip_access_log_interval_seconds"] = in.IpAccessLogIntervalSeconds
-	log.Printf("[DEBUG] Updating flattenSiteVPN: %+v", m)
-	return m
+	return []interface{}{m}
 }
 
 func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
