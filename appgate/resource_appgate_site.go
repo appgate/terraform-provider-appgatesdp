@@ -206,7 +206,7 @@ func resourceAppgateSite() *schema.Resource {
 			},
 
 			"name_resolution": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
@@ -217,6 +217,7 @@ func resourceAppgateSite() *schema.Resource {
 						"use_hosts_file": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 						},
 
 						"dns_resolvers": {
@@ -328,7 +329,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"azure_resolvers": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -364,7 +365,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"esx_resolvers": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -396,7 +397,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"gcp_resolvers": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -531,8 +532,14 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
+
 	if site.NameResolution != nil {
-		if err = d.Set("name_resolution", flattenNameResolution(*site.NameResolution)); err != nil {
+		var localNameResolution map[string]interface{}
+		localNameResolutionList := d.Get("name_resolution").(*schema.Set).List()
+		for _, l := range localNameResolutionList {
+			localNameResolution = l.(map[string]interface{})
+		}
+		if err = d.Set("name_resolution", flattenNameResolution(localNameResolution, *site.NameResolution)); err != nil {
 			return err
 		}
 	}
@@ -599,27 +606,40 @@ func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 	return []interface{}{m}
 }
 
-func flattenNameResolution(in openapi.SiteAllOfNameResolution) []interface{} {
+func flattenNameResolution(local map[string]interface{}, in openapi.SiteAllOfNameResolution) []interface{} {
 	m := make(map[string]interface{})
 	if v, o := in.GetUseHostsFileOk(); o != false {
 		m["use_hosts_file"] = v
 	}
+
 	if v, o := in.GetDnsResolversOk(); o != false {
 		m["dns_resolvers"] = flattenSiteDNSResolver(*v)
 	}
 	if v, o := in.GetAwsResolversOk(); o != false {
-		m["aws_resolvers"] = flattenSiteAWSResolver(*v)
+		l := getNSLocalChanges(local, "aws_resolvers")
+		m["aws_resolvers"] = flattenSiteAWSResolver(*v, l)
 	}
 	if v, o := in.GetAzureResolversOk(); o != false {
-		m["azure_resolvers"] = flattenSiteAzureResolver(*v)
+		l := getNSLocalChanges(local, "azure_resolvers")
+		m["azure_resolvers"] = flattenSiteAzureResolver(*v, l)
 	}
 	if v, o := in.GetEsxResolversOk(); o != false {
-		m["esx_resolvers"] = flattenSiteESXResolvers(*v)
+		l := getNSLocalChanges(local, "esx_resolvers")
+		m["esx_resolvers"] = flattenSiteESXResolvers(*v, l)
 	}
 	if v, o := in.GetGcpResolversOk(); o != false {
 		m["gcp_resolvers"] = flattenSiteGCPResolvers(*v)
 	}
 	return []interface{}{m}
+}
+
+func getNSLocalChanges(local map[string]interface{}, name string) map[string]interface{} {
+	if d, ok := local[name]; ok {
+		for _, p := range (d.(*schema.Set)).List() {
+			return p.(map[string]interface{})
+		}
+	}
+	return make(map[string]interface{})
 }
 
 func flattenSiteGCPResolvers(in []openapi.SiteAllOfNameResolutionGcpResolvers) []map[string]interface{} {
@@ -635,7 +655,7 @@ func flattenSiteGCPResolvers(in []openapi.SiteAllOfNameResolutionGcpResolvers) [
 	return out
 }
 
-func flattenSiteESXResolvers(in []openapi.SiteAllOfNameResolutionEsxResolvers) []map[string]interface{} {
+func flattenSiteESXResolvers(in []openapi.SiteAllOfNameResolutionEsxResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -643,14 +663,17 @@ func flattenSiteESXResolvers(in []openapi.SiteAllOfNameResolutionEsxResolvers) [
 		m["update_interval"] = v.GetUpdateInterval()
 		m["hostname"] = v.GetHostname()
 		m["username"] = v.GetUsername()
-		m["password"] = v.GetPassword()
-
+		if val, ok := local["password"]; ok {
+			m["password"] = val
+		} else {
+			m["password"] = v.GetPassword()
+		}
 		out[i] = m
 	}
 	return out
 }
 
-func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers) []map[string]interface{} {
+func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -659,14 +682,18 @@ func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers
 		m["subscription_id"] = v.GetSubscriptionId()
 		m["tenant_id"] = v.GetTenantId()
 		m["client_id"] = v.GetClientId()
-		m["secret"] = v.GetSecret()
+		if val, ok := local["secret"]; ok {
+			m["secret"] = val
+		} else {
+			m["secret"] = v.GetSecret()
+		}
 
 		out[i] = m
 	}
 	return out
 }
 
-func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers) []map[string]interface{} {
+func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -677,7 +704,11 @@ func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers) []
 		m["regions"] = v.GetRegions()
 		m["use_iam_role"] = v.GetUseIAMRole()
 		m["access_key_id"] = v.GetAccessKeyId()
-		m["secret_access_key"] = v.GetSecretAccessKey()
+		if val, ok := local["secret_access_key"]; ok {
+			m["secret_access_key"] = val
+		} else {
+			m["secret_access_key"] = v.GetSecretAccessKey()
+		}
 		m["https_proxy"] = v.GetHttpsProxy()
 		m["resolve_with_master_credentials"] = v.GetResolveWithMasterCredentials()
 		if vv, o := v.GetAssumedRolesOk(); o != false {
@@ -910,35 +941,36 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 			result.SetUseHostsFile(v.(bool))
 		}
 		if v, ok := raw["dns_resolvers"]; ok {
-			dnsResolvers, err := readDNSResolversFromConfig(v.([]interface{}))
+			dnss := v.(*schema.Set).List()
+			dnsResolvers, err := readDNSResolversFromConfig(dnss)
 			if err != nil {
 				return result, err
 			}
 			result.SetDnsResolvers(dnsResolvers)
 		}
 		if v, ok := raw["aws_resolvers"]; ok {
-			awsResolvers, err := readAWSResolversFromConfig(v.([]interface{}))
+			awsResolvers, err := readAWSResolversFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
 			result.SetAwsResolvers(awsResolvers)
 		}
 		if v, ok := raw["azure_resolvers"]; ok {
-			azureResolvers, err := readAzureResolversFromConfig(v.([]interface{}))
+			azureResolvers, err := readAzureResolversFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
 			result.SetAzureResolvers(azureResolvers)
 		}
 		if v, ok := raw["esx_resolvers"]; ok {
-			esxResolvers, err := readESXResolversFromConfig(v.([]interface{}))
+			esxResolvers, err := readESXResolversFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
 			result.SetEsxResolvers(esxResolvers)
 		}
 		if v, ok := raw["gcp_resolvers"]; ok {
-			gcpResolvers, err := readGCPResolversFromConfig(v.([]interface{}))
+			gcpResolvers, err := readGCPResolversFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
@@ -953,7 +985,6 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 	for _, dns := range dnsConfigs {
 		raw := dns.(map[string]interface{})
 		row := openapi.SiteAllOfNameResolutionDnsResolvers{}
-		log.Printf("[DEBUG] readDNSResolversFromConfig RAW IS: %+v", raw)
 		if v, ok := raw["name"]; ok {
 			row.SetName(v.(string))
 		}
