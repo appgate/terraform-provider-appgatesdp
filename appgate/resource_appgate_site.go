@@ -206,7 +206,7 @@ func resourceAppgateSite() *schema.Resource {
 			},
 
 			"name_resolution": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
@@ -528,7 +528,11 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
-
+	if site.NameResolution != nil {
+		if err = d.Set("name_resolution", flattenNameResolution(*site.NameResolution)); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -558,8 +562,13 @@ func flattenSiteDefaultGateway(in openapi.SiteAllOfDefaultGateway) []interface{}
 
 func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 	m := make(map[string]interface{})
-	m["state_sharing"] = in.StateSharing
-	m["snat"] = in.Snat
+
+	if v, o := in.GetStateSharingOk(); o != false {
+		m["state_sharing"] = v
+	}
+	if v, o := in.GetSnatOk(); o != false {
+		m["snat"] = v
+	}
 	if in.HasTls() {
 		tls := make(map[string]interface{})
 		tls["enabled"] = strconv.FormatBool(in.Tls.GetEnabled())
@@ -576,10 +585,78 @@ func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 		routeVia["ipv6"] = in.RouteVia.GetIpv6()
 		m["route_via"] = routeVia
 	}
-	m["web_proxy_enabled"] = in.WebProxyEnabled
-	m["web_proxy_key_store"] = in.WebProxyKeyStore
+
+	if v, o := in.GetWebProxyEnabledOk(); o != false {
+		m["web_proxy_enabled"] = v
+	}
+	if v, o := in.GetWebProxyKeyStoreOk(); o != false {
+		m["web_proxy_key_store"] = v
+	}
 	m["ip_access_log_interval_seconds"] = in.IpAccessLogIntervalSeconds
 	return []interface{}{m}
+}
+
+func flattenNameResolution(in openapi.SiteAllOfNameResolution) []interface{} {
+	m := make(map[string]interface{})
+	if v, o := in.GetUseHostsFileOk(); o != false {
+		m["use_hosts_file"] = v
+	}
+	if v, o := in.GetDnsResolversOk(); o != false {
+		m["dns_resolvers"] = flattenSiteDNSResolver(*v)
+	}
+	if v, o := in.GetAwsResolversOk(); o != false {
+		m["aws_resolvers"] = flattenSiteAWSResolver(*v)
+	}
+	return []interface{}{m}
+}
+
+func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["name"] = v.GetName()
+		m["update_interval"] = v.GetUpdateInterval()
+		m["vpcs"] = v.GetVpcs()
+		m["vpc_auto_discovery"] = v.GetVpcAutoDiscovery()
+		m["regions"] = v.GetRegions()
+		m["use_iam_role"] = v.GetUseIAMRole()
+		m["access_key_id"] = v.GetAccessKeyId()
+		m["secret_access_key"] = v.GetSecretAccessKey()
+		m["https_proxy"] = v.GetHttpsProxy()
+		m["resolve_with_master_credentials"] = v.GetResolveWithMasterCredentials()
+		if vv, o := v.GetAssumedRolesOk(); o != false {
+			m["assumed_roles"] = flattenSiteAwsAssumedRoles(*vv)
+		}
+		out[i] = m
+	}
+	return out
+}
+
+func flattenSiteAwsAssumedRoles(in []openapi.SiteAllOfNameResolutionAssumedRoles) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["account_id"] = v.GetAccountId()
+		m["role_name"] = v.GetRoleName()
+		m["external_id"] = v.GetExternalId()
+		m["regions"] = v.GetRegions()
+		out[i] = m
+	}
+	return out
+}
+
+func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["name"] = v.GetName()
+		m["update_interval"] = v.GetUpdateInterval()
+		m["servers"] = v.GetServers()
+		m["search_domains"] = v.GetSearchDomains()
+
+		out[i] = m
+	}
+	return out
 }
 
 func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
