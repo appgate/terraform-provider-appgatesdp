@@ -1198,6 +1198,13 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		d.Set("peer_interface", peerInterface)
 	}
 
+	if v, o := appliance.GetAdminInterfaceOk(); o != false {
+		adminInterface, err := flattenApplianceAdminInterface(*v)
+		if err != nil {
+			return nil
+		}
+		d.Set("admin_interface", adminInterface)
+	}
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
 		return nil
@@ -1255,6 +1262,28 @@ func flattenAppliancePeerInterface(in openapi.ApplianceAllOfPeerInterface) ([]in
 	if v, o := in.GetHttpsPortOk(); o != false {
 		m["https_port"] = v
 	}
+	if _, o := in.GetAllowSourcesOk(); o != false {
+		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		if err != nil {
+			return nil, err
+		}
+		m["allow_sources"] = allowSources
+	}
+	return []interface{}{m}, nil
+}
+
+func flattenApplianceAdminInterface(in openapi.ApplianceAllOfAdminInterface) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, o := in.GetHostnameOk(); o != false {
+		m["hostname"] = v
+	}
+	if v, o := in.GetHttpsPortOk(); o != false {
+		m["https_port"] = v
+	}
+	if v, o := in.GetHttpsCiphersOk(); o != false {
+		m["https_ciphers"] = v
+	}
+
 	if _, o := in.GetAllowSourcesOk(); o != false {
 		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
 		if err != nil {
