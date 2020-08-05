@@ -1190,6 +1190,14 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		d.Set("client_interface", ci)
 	}
 
+	if v, o := appliance.GetPeerInterfaceOk(); o != false {
+		peerInterface, err := flattenAppliancePeerInterface(*v)
+		if err != nil {
+			return nil
+		}
+		d.Set("peer_interface", peerInterface)
+	}
+
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
 		return nil
@@ -1236,6 +1244,24 @@ func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) (
 		m["override_spa_mode"] = v
 	}
 
+	return []interface{}{m}, nil
+}
+
+func flattenAppliancePeerInterface(in openapi.ApplianceAllOfPeerInterface) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, o := in.GetHostnameOk(); o != false {
+		m["hostname"] = v
+	}
+	if v, o := in.GetHttpsPortOk(); o != false {
+		m["https_port"] = v
+	}
+	if _, o := in.GetAllowSourcesOk(); o != false {
+		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		if err != nil {
+			return nil, err
+		}
+		m["allow_sources"] = allowSources
+	}
 	return []interface{}{m}, nil
 }
 
