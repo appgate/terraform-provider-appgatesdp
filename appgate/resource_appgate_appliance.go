@@ -1105,19 +1105,18 @@ func readNtpServersFromConfig(input []interface{}) ([]openapi.ApplianceAllOfNtpS
 	return r, nil
 }
 
-func readAllowSourcesFromConfig(input []interface{}) ([]map[string]interface{}, error) {
+func readAllowSourcesFromConfig(input []map[string]interface{}) ([]map[string]interface{}, error) {
 	r := make([]map[string]interface{}, 0)
-	for _, s := range input {
-		raw := s.(map[string]interface{})
+	for _, raw := range input {
 		row := make(map[string]interface{}, 0)
 		// TODO, address can be both list and single string.
 		if v, ok := raw["address"]; ok {
 			row["address"] = v.(string)
 		}
 		if v, ok := raw["netmask"]; ok {
-			row["netmask"] = v.(int)
+			row["netmask"] = v
 		}
-		if v := raw["nic"].(string); v != "" {
+		if v, ok := raw["nic"]; ok && v != "" {
 			row["nic"] = v
 		}
 		r = append(r, row)
@@ -1449,7 +1448,7 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 			cinterface.SetDtlsPort(int32(v.(int)))
 		}
 		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			allowSources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 			if err != nil {
 				return cinterface, fmt.Errorf("Failed to resolve network hosts: %+v", err)
 			}
@@ -1473,7 +1472,7 @@ func readPeerInterfaceFromConfig(pinterfaces []interface{}) (openapi.ApplianceAl
 			pinterf.SetHttpsPort(int32(v.(int)))
 		}
 		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			allowSources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 			if err != nil {
 				return pinterf, fmt.Errorf("Failed to resolve network hosts: %+v", err)
 			}
@@ -1504,7 +1503,7 @@ func readAdminInterfaceFromConfig(adminInterfaces []interface{}) (openapi.Applia
 			aInterface.SetHttpsCiphers(ciphers)
 		}
 		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			allowSources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 			if err != nil {
 				return aInterface, fmt.Errorf("Failed to admin interface allowed sources: %+v", err)
 			}
@@ -1579,7 +1578,7 @@ func readSSHServerFromConfig(sshServers []interface{}) (openapi.ApplianceAllOfSs
 			sshServer.SetPasswordAuthentication(v.(bool))
 		}
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			allowSources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 			if err != nil {
 				return sshServer, fmt.Errorf("Failed to resolve ssh server allowed sources: %+v", err)
 			}
@@ -1610,7 +1609,7 @@ func readSNMPServerFromConfig(snmpServers []interface{}) (openapi.ApplianceAllOf
 			server.SetSnmpdConf(v.(string))
 		}
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			allowSources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 			if err != nil {
 				return server, fmt.Errorf("Failed to resolve network hosts: %+v", err)
 			}
@@ -1635,7 +1634,7 @@ func readHealthcheckServerFromConfig(healhCheckServers []interface{}) (openapi.A
 			server.SetPort(int32(v.(int)))
 		}
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			allowSources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 			if err != nil {
 				return server, fmt.Errorf("Failed to resolve network hosts: %+v", err)
 			}
@@ -1745,7 +1744,7 @@ func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.Applianc
 		}
 
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			allowSources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 			if err != nil {
 				return val, err
 			}
@@ -1765,7 +1764,7 @@ func readPingFromConfig(pingers []interface{}) (openapi.ApplianceAllOfPing, erro
 		rawServer := srv.(map[string]interface{})
 
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			allowSources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 			if err != nil {
 				return val, err
 			}
@@ -1876,7 +1875,7 @@ func readIotConnectorFromConfig(iots []interface{}) (openapi.ApplianceAllOfIotCo
 				}
 				// allowed sources
 				if v := r["sources"]; len(v.([]interface{})) > 0 {
-					sources, err := readAllowSourcesFromConfig(v.([]interface{}))
+					sources, err := readAllowSourcesFromConfig(v.([]map[string]interface{}))
 					if err != nil {
 						return val, err
 					}
