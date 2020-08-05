@@ -383,12 +383,10 @@ EOF
     "13:32"
   ]
 
-  # remedy_methods {
-  #   type        = "DisplayMessage"
-  #   message     = "This resoure requires you to enter your password again"
-  #   claim_suffix = "test"
-  #   provider_id  = "4c07bc67-57ea-42dd-b702-c2d6c45419fc"
-  # }
+  remedy_methods {
+    type        = "DisplayMessage"
+    message     = "This resoure requires you to enter your password again"
+  }
 
 }
 

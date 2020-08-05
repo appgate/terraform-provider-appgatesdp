@@ -291,11 +291,11 @@ func readRemedyMethodsFromConfig(methods []interface{}) ([]openapi.ConditionAllO
 			r.SetMessage(v.(string))
 		}
 
-		if v, ok := raw["claim_suffix"]; ok {
+		if v, ok := raw["claim_suffix"]; ok && len(v.(string)) > 0 {
 			r.SetClaimSuffix(v.(string))
 		}
 
-		if v, ok := raw["provider_id"]; ok {
+		if v, ok := raw["provider_id"]; ok && len(v.(string)) > 0 {
 			r.SetProviderId(v.(string))
 		}
 		result = append(result, r)
