@@ -1177,12 +1177,18 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("name", appliance.Name)
 	d.Set("tags", appliance.Tags)
 	d.Set("appliance_id", appliance.Id)
-
-	// d.Set("client_interface", saveClientInterface)
-	// d.Set("networking", appliance.GetNetworking())
 	d.Set("notes", appliance.GetNotes())
 	d.Set("hostname", appliance.GetHostname())
-	// d.Set("peer_interface", appliance.PeerInterface)
+	d.Set("site", appliance.GetSite())
+	d.Set("customization", appliance.GetCustomization())
+
+	if v, o := appliance.GetClientInterfaceOk(); o != false {
+		ci, err := flattenApplianceClientInterface(*v)
+		if err != nil {
+			return nil
+		}
+		d.Set("client_interface", ci)
+	}
 
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
@@ -1203,6 +1209,34 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("seed_file", b64.StdEncoding.EncodeToString([]byte(encodedSeed)))
 
 	return nil
+}
+
+func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, o := in.GetProxyProtocolOk(); o != false {
+		m["proxy_protocol"] = v
+	}
+	if v, o := in.GetHostnameOk(); o != false {
+		m["hostname"] = v
+	}
+	if v, o := in.GetHttpsPortOk(); o != false {
+		m["https_port"] = v
+	}
+	if v, o := in.GetDtlsPortOk(); o != false {
+		m["dtls_port"] = v
+	}
+	if _, o := in.GetAllowSourcesOk(); o != false {
+		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		if err != nil {
+			return nil, err
+		}
+		m["allow_sources"] = allowSources
+	}
+	if v, o := in.GetOverrideSpaModeOk(); o != false {
+		m["override_spa_mode"] = v
+	}
+
+	return []interface{}{m}, nil
 }
 
 func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) error {
