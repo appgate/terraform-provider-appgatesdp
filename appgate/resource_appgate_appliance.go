@@ -223,6 +223,8 @@ func resourceAppgateAppliance() *schema.Resource {
 						"nics": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -234,13 +236,15 @@ func resourceAppgateAppliance() *schema.Resource {
 										Required: true,
 									},
 									"ipv4": {
-										Type:     schema.TypeSet,
+										Type:     schema.TypeList,
 										Optional: true,
+										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"dhcp": {
 													Type:     schema.TypeSet,
 													Optional: true,
+													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"enabled": {
@@ -265,6 +269,7 @@ func resourceAppgateAppliance() *schema.Resource {
 												"static": {
 													Type:     schema.TypeList,
 													Optional: true,
+
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"address": {
@@ -291,8 +296,9 @@ func resourceAppgateAppliance() *schema.Resource {
 										},
 									},
 									"ipv6": {
-										Type:     schema.TypeSet,
+										Type:     schema.TypeList,
 										Optional: true,
+										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"dhcp": {
@@ -1205,6 +1211,19 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		d.Set("admin_interface", adminInterface)
 	}
+
+	if v, o := appliance.GetNetworkingOk(); o != false {
+		networking, err := flattenApplianceNetworking(*v)
+		if err != nil {
+			return nil
+		}
+		log.Printf("[DEBUG] GetNetworkingOk: %+v", networking)
+		if err := d.Set("networking", networking); err != nil {
+			return err
+		}
+		// d.Set("networking", networking)
+	}
+
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
 		return nil
@@ -1292,6 +1311,118 @@ func flattenApplianceAdminInterface(in openapi.ApplianceAllOfAdminInterface) ([]
 		m["allow_sources"] = allowSources
 	}
 	return []interface{}{m}, nil
+}
+
+func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[string]interface{}, error) {
+	var networkings []map[string]interface{}
+	networking := make(map[string]interface{})
+
+	if v, o := in.GetHostsOk(); o != false {
+		hosts := make([]map[string]interface{}, 0)
+		for _, h := range *v {
+			host := make(map[string]interface{})
+			if v, o := h.GetAddressOk(); o != false {
+				host["address"] = *v
+			}
+			if v, o := h.GetHostnameOk(); o != false {
+				host["hostname"] = *v
+			}
+			hosts = append(hosts, host)
+		}
+		networking["hosts"] = hosts
+	}
+
+	if v, o := in.GetNicsOk(); o != false {
+		nics := make([]map[string]interface{}, 0)
+		for _, h := range *v {
+			nic := make(map[string]interface{})
+			if v, o := h.GetEnabledOk(); o != false {
+				nic["enabled"] = *v
+			}
+			if v, o := h.GetNameOk(); o != false {
+				nic["name"] = *v
+			}
+
+			if v, o := h.GetIpv4Ok(); o != false {
+				dhcp := make(map[string]interface{})
+				staticList := make([]map[string]interface{}, 0)
+				dhcpValue := v.GetDhcp()
+				if v, o := dhcpValue.GetEnabledOk(); o != false {
+					dhcp["enabled"] = v
+				}
+				if v, o := dhcpValue.GetDnsOk(); o != false {
+					dhcp["dns"] = v
+				}
+				if v, o := dhcpValue.GetRoutersOk(); o != false {
+					dhcp["routers"] = v
+				}
+				if v, o := dhcpValue.GetNtpOk(); o != false {
+					dhcp["ntp"] = v
+				}
+				for _, s := range v.GetStatic() {
+					static := make(map[string]interface{})
+					if v, o := s.GetAddressOk(); o {
+						static["address"] = v
+					}
+					if v, o := s.GetNetmaskOk(); o {
+						static["netmask"] = v
+					}
+					if v, o := s.GetHostnameOk(); o {
+						static["hostname"] = v
+					}
+					if v, o := s.GetSnatOk(); o {
+						static["snat"] = v
+					}
+					staticList = append(staticList, static)
+				}
+				nic["ipv4"] = []map[string]interface{}{{
+					"dhcp":   []map[string]interface{}{dhcp},
+					"static": staticList,
+				}}
+			}
+			if v, o := h.GetIpv6Ok(); o != false {
+				dhcp := make(map[string]interface{})
+				staticList := make([]map[string]interface{}, 0)
+				dhcpValue := v.GetDhcp()
+				if v, o := dhcpValue.GetEnabledOk(); o != false {
+					dhcp["enabled"] = v
+				}
+				if v, o := dhcpValue.GetDnsOk(); o != false {
+					dhcp["dns"] = v
+				}
+
+				if v, o := dhcpValue.GetNtpOk(); o != false {
+					dhcp["ntp"] = v
+				}
+				for _, s := range v.GetStatic() {
+					static := make(map[string]interface{})
+					if v, o := s.GetAddressOk(); o {
+						static["address"] = v
+					}
+					if v, o := s.GetNetmaskOk(); o {
+						static["netmask"] = v
+					}
+					if v, o := s.GetHostnameOk(); o {
+						static["hostname"] = v
+					}
+					if v, o := s.GetSnatOk(); o {
+						static["snat"] = v
+					}
+					staticList = append(staticList, static)
+				}
+				nic["ipv6"] = []map[string]interface{}{{
+					"dhcp":   []map[string]interface{}{dhcp},
+					"static": staticList,
+				}}
+			}
+			nics = append(nics, nic)
+		}
+		networking["nics"] = nics
+	}
+	networkings = append(networkings, networking)
+	log.Printf("[DEBUG] Flat network result %+v", networkings)
+
+	return networkings, nil
 }
 
 func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) error {
