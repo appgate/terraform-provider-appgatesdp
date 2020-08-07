@@ -566,7 +566,8 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"log_server": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1296,6 +1297,16 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		ping["allow_sources"] = v.GetAllowSources()
 
 		if err := d.Set("ping", []interface{}{ping}); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetLogServerOk(); o != false {
+		logsrv := make(map[string]interface{})
+		logsrv["enabled"] = v.GetEnabled()
+		logsrv["retention_days"] = v.GetRetentionDays()
+
+		if err := d.Set("log_server", []interface{}{logsrv}); err != nil {
 			return err
 		}
 	}
