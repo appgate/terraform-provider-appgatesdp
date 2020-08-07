@@ -1217,11 +1217,9 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return nil
 		}
-		log.Printf("[DEBUG] GetNetworkingOk: %+v", networking)
 		if err := d.Set("networking", networking); err != nil {
 			return err
 		}
-		// d.Set("networking", networking)
 	}
 
 	if ok, _ := appliance.GetActivatedOk(); *ok {
@@ -1418,6 +1416,33 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 			nics = append(nics, nic)
 		}
 		networking["nics"] = nics
+	}
+	if v, o := in.GetDnsServersOk(); o {
+		networking["dns_servers"] = *v
+	}
+	if v, o := in.GetDnsDomainsOk(); o {
+		networking["dns_domains"] = *v
+	}
+	if v, o := in.GetRoutesOk(); o {
+		routes := make([]map[string]interface{}, 0)
+		for _, r := range *v {
+			route := make(map[string]interface{})
+			if v, o := r.GetAddressOk(); o {
+				route["address"] = v
+			}
+			if v, o := r.GetNetmaskOk(); o {
+				route["netmask"] = v
+			}
+			if v, o := r.GetGatewayOk(); o {
+				route["gateway"] = v
+			}
+			if v, o := r.GetNicOk(); o {
+				route["nic"] = v
+			}
+			routes = append(routes, route)
+		}
+		networking["routes"] = routes
+
 	}
 	networkings = append(networkings, networking)
 	log.Printf("[DEBUG] Flat network result %+v", networkings)
