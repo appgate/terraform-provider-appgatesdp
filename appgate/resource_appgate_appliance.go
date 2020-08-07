@@ -1375,6 +1375,13 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if v, o := appliance.GetHostnameAliasesOk(); o != false {
+
+		if err := d.Set("hostname_aliases", v); err != nil {
+			return err
+		}
+	}
+
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
 		return nil
