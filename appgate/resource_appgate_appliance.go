@@ -585,7 +585,8 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 			"controller": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1307,6 +1308,15 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		logsrv["retention_days"] = v.GetRetentionDays()
 
 		if err := d.Set("log_server", []interface{}{logsrv}); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetControllerOk(); o != false {
+		ctrl := make(map[string]interface{})
+		ctrl["enabled"] = v.GetEnabled()
+
+		if err := d.Set("controller", []interface{}{ctrl}); err != nil {
 			return err
 		}
 	}
