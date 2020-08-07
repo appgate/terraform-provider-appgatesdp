@@ -476,7 +476,8 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"snmp_server": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1248,6 +1249,19 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		sshServer["password_authentication"] = v.GetPasswordAuthentication()
 
 		if err := d.Set("ssh_server", []interface{}{sshServer}); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetSnmpServerOk(); o != false {
+		snmpSrv := make(map[string]interface{})
+		snmpSrv["enabled"] = true
+		snmpSrv["tcp_port"] = v.GetTcpPort()
+		snmpSrv["udp_port"] = v.GetUdpPort()
+		snmpSrv["snmpd_conf"] = v.GetSnmpdConf()
+		snmpSrv["allow_sources"] = v.GetAllowSources()
+
+		if err := d.Set("snmp_server", []interface{}{snmpSrv}); err != nil {
 			return err
 		}
 	}
