@@ -1360,6 +1360,21 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if v, o := appliance.GetRsyslogDestinationsOk(); o != false {
+		rsyslogs := make([]map[string]interface{}, 0)
+		for _, rsys := range *v {
+			rsyslog := make(map[string]interface{})
+			rsyslog["selector"] = rsys.GetSelector()
+			rsyslog["template"] = rsys.GetTemplate()
+			rsyslog["destination"] = rsys.GetDestination()
+			rsyslogs = append(rsyslogs, rsyslog)
+		}
+
+		if err := d.Set("rsyslog_destinations", rsyslogs); err != nil {
+			return err
+		}
+	}
+
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
 		return nil
