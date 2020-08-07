@@ -584,6 +584,7 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
+
 			"controller": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -598,8 +599,10 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
+
 			"gateway": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
+				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{"iot_connector"},
 				Elem: &schema.Resource{
@@ -648,8 +651,10 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
+
 			"log_forwarder": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -661,8 +666,9 @@ func resourceAppgateAppliance() *schema.Resource {
 						},
 
 						"elasticsearch": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"url": {
@@ -1333,6 +1339,16 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if v, o := appliance.GetLogForwarderOk(); o != false {
+		logforward, err := flatttenApplianceLogForwarder(*v)
+		if err != nil {
+			return nil
+		}
+		if err := d.Set("log_forwarder", logforward); err != nil {
+			return fmt.Errorf("Unable to read log fowarder %s", err)
+		}
+	}
+
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
 		return nil
@@ -1382,6 +1398,54 @@ func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]in
 
 	gateways = append(gateways, gateway)
 	return gateways, nil
+}
+
+func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map[string]interface{}, error) {
+	var logforwarders []map[string]interface{}
+	logforward := make(map[string]interface{})
+	if v, o := in.GetEnabledOk(); o != false {
+		logforward["enabled"] = v
+	}
+
+	if v, o := in.GetElasticsearchOk(); o != false {
+		elasticsearch := make(map[string]interface{})
+		if v, o := v.GetUrlOk(); o != false {
+			elasticsearch["url"] = v
+		}
+		if v, o := v.GetAwsIdOk(); o != false {
+			elasticsearch["aws_id"] = v
+		}
+		if v, o := v.GetAwsSecretOk(); o != false {
+			elasticsearch["aws_secret"] = v
+		}
+		if v, o := v.GetAwsSecretOk(); o != false {
+			elasticsearch["aws_region"] = v
+		}
+		if v, o := v.GetUseInstanceCredentialsOk(); o != false {
+			elasticsearch["use_instance_credentials"] = v
+		}
+		if v, o := v.GetRetentionDaysOk(); o != false {
+			elasticsearch["retention_days"] = v
+		}
+		logforward["elasticsearch"] = []map[string]interface{}{elasticsearch}
+	}
+	if v, o := in.GetTcpClientsOk(); o != false {
+		tcpClientList := make([]map[string]interface{}, 0)
+		for _, tcpClient := range *v {
+			client := make(map[string]interface{})
+			client["name"] = tcpClient.GetName()
+			client["host"] = tcpClient.GetHost()
+			client["port"] = tcpClient.GetPort()
+			client["format"] = tcpClient.GetFormat()
+			client["use_tls"] = tcpClient.GetUseTLS()
+			tcpClientList = append(tcpClientList, client)
+		}
+		logforward["tcp_clients"] = tcpClientList
+	}
+	logforward["sites"] = in.GetSites()
+
+	logforwarders = append(logforwarders, logforward)
+	return logforwarders, nil
 }
 
 func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) ([]interface{}, error) {
