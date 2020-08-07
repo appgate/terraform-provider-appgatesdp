@@ -532,7 +532,8 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"prometheus_exporter": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -554,7 +555,8 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"ping": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1274,6 +1276,17 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		healthSrv["allow_sources"] = v.GetAllowSources()
 
 		if err := d.Set("healthcheck_server", []interface{}{healthSrv}); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetPrometheusExporterOk(); o != false {
+		exporter := make(map[string]interface{})
+		exporter["enabled"] = true
+		exporter["port"] = v.GetPort()
+		exporter["allow_sources"] = v.GetAllowSources()
+
+		if err := d.Set("prometheus_exporter", []interface{}{exporter}); err != nil {
 			return err
 		}
 	}
