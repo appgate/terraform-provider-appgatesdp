@@ -1291,6 +1291,15 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if v, o := appliance.GetPingOk(); o != false {
+		ping := make(map[string]interface{})
+		ping["allow_sources"] = v.GetAllowSources()
+
+		if err := d.Set("ping", []interface{}{ping}); err != nil {
+			return err
+		}
+	}
+
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
 		return nil
