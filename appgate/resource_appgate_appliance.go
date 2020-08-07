@@ -509,7 +509,8 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"healthcheck_server": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1262,6 +1263,17 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		snmpSrv["allow_sources"] = v.GetAllowSources()
 
 		if err := d.Set("snmp_server", []interface{}{snmpSrv}); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetHealthcheckServerOk(); o != false {
+		healthSrv := make(map[string]interface{})
+		healthSrv["enabled"] = true
+		healthSrv["port"] = v.GetPort()
+		healthSrv["allow_sources"] = v.GetAllowSources()
+
+		if err := d.Set("healthcheck_server", []interface{}{healthSrv}); err != nil {
 			return err
 		}
 	}
