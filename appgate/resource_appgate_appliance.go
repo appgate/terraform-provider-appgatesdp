@@ -402,8 +402,9 @@ func resourceAppgateAppliance() *schema.Resource {
 			// 	Elem:        &schema.Schema{Type: schema.TypeString},
 			// },
 			"ntp": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -1218,6 +1219,22 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 			return nil
 		}
 		if err := d.Set("networking", networking); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetNtpOk(); o != false {
+		ntp := make(map[string]interface{})
+		servers := make([]map[string]interface{}, 0)
+		for _, n := range v.GetServers() {
+			srv := make(map[string]interface{})
+			srv["hostname"] = n.GetHostname()
+			srv["key_type"] = n.GetKeyType()
+			srv["key"] = n.GetKey()
+			servers = append(servers, srv)
+		}
+		ntp["servers"] = servers
+		if err := d.Set("ntp", []interface{}{ntp}); err != nil {
 			return err
 		}
 	}
