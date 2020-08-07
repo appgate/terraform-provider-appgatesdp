@@ -610,8 +610,10 @@ func resourceAppgateAppliance() *schema.Resource {
 							Default:  false,
 						},
 						"vpn": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"weight": {
@@ -1321,6 +1323,16 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if v, o := appliance.GetGatewayOk(); o != false {
+		gateway, err := flatttenApplianceGateway(*v)
+		if err != nil {
+			return nil
+		}
+		if err := d.Set("gateway", gateway); err != nil {
+			return err
+		}
+	}
+
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
 		return nil
@@ -1340,6 +1352,36 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("seed_file", b64.StdEncoding.EncodeToString([]byte(encodedSeed)))
 
 	return nil
+}
+
+func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]interface{}, error) {
+	var gateways []map[string]interface{}
+	gateway := make(map[string]interface{})
+	if v, o := in.GetEnabledOk(); o != false {
+		gateway["enabled"] = v
+	}
+
+	if v, o := in.GetVpnOk(); o != false {
+		vpn := make(map[string]interface{})
+		if v, o := v.GetWeightOk(); o {
+			vpn["weight"] = v
+		}
+		if v, o := v.GetAllowDestinationsOk(); o {
+			destinations := make([]map[string]interface{}, 0)
+			for _, d := range *v {
+				destination := make(map[string]interface{})
+				destination["address"] = d.GetAddress()
+				destination["netmask"] = d.GetNetmask()
+				destination["nic"] = d.GetNic()
+				destinations = append(destinations, destination)
+			}
+			vpn["allow_destinations"] = destinations
+		}
+		gateway["vpn"] = []map[string]interface{}{vpn}
+	}
+
+	gateways = append(gateways, gateway)
+	return gateways, nil
 }
 
 func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) ([]interface{}, error) {
@@ -1544,7 +1586,6 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 
 	}
 	networkings = append(networkings, networking)
-	log.Printf("[DEBUG] Flat network result %+v", networkings)
 
 	return networkings, nil
 }
