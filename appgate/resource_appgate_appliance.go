@@ -446,7 +446,8 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 			"ssh_server": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1235,6 +1236,18 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		ntp["servers"] = servers
 		if err := d.Set("ntp", []interface{}{ntp}); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetSshServerOk(); o != false {
+		sshServer := make(map[string]interface{})
+		sshServer["enabled"] = true
+		sshServer["port"] = v.GetPort()
+		sshServer["allow_sources"] = v.GetAllowSources()
+		sshServer["password_authentication"] = v.GetPasswordAuthentication()
+
+		if err := d.Set("ssh_server", []interface{}{sshServer}); err != nil {
 			return err
 		}
 	}
