@@ -750,7 +750,8 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"iot_connector": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
+				MaxItems:      1,
 				Optional:      true,
 				ConflictsWith: []string{"gateway"},
 				Elem: &schema.Resource{
@@ -1207,7 +1208,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if v, o := appliance.GetClientInterfaceOk(); o != false {
 		ci, err := flattenApplianceClientInterface(*v)
 		if err != nil {
-			return nil
+			return err
 		}
 		d.Set("client_interface", ci)
 	}
@@ -1215,7 +1216,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if v, o := appliance.GetPeerInterfaceOk(); o != false {
 		peerInterface, err := flattenAppliancePeerInterface(*v)
 		if err != nil {
-			return nil
+			return err
 		}
 		d.Set("peer_interface", peerInterface)
 	}
@@ -1223,7 +1224,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if v, o := appliance.GetAdminInterfaceOk(); o != false {
 		adminInterface, err := flattenApplianceAdminInterface(*v)
 		if err != nil {
-			return nil
+			return err
 		}
 		d.Set("admin_interface", adminInterface)
 	}
@@ -1231,7 +1232,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if v, o := appliance.GetNetworkingOk(); o != false {
 		networking, err := flattenApplianceNetworking(*v)
 		if err != nil {
-			return nil
+			return err
 		}
 		if err := d.Set("networking", networking); err != nil {
 			return err
@@ -1332,7 +1333,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if v, o := appliance.GetGatewayOk(); o != false {
 		gateway, err := flatttenApplianceGateway(*v)
 		if err != nil {
-			return nil
+			return err
 		}
 		if err := d.Set("gateway", gateway); err != nil {
 			return err
@@ -1342,10 +1343,20 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if v, o := appliance.GetLogForwarderOk(); o != false {
 		logforward, err := flatttenApplianceLogForwarder(*v)
 		if err != nil {
-			return nil
+			return err
 		}
 		if err := d.Set("log_forwarder", logforward); err != nil {
 			return fmt.Errorf("Unable to read log fowarder %s", err)
+		}
+	}
+
+	if v, o := appliance.GetIotConnectorOk(); o != false {
+		iot, err := flatttenApplianceIotConnector(*v)
+		if err != nil {
+			return err
+		}
+		if err := d.Set("iot_connector", iot); err != nil {
+			return fmt.Errorf("Unable to read iots %s", err)
 		}
 	}
 
@@ -1446,6 +1457,29 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map
 
 	logforwarders = append(logforwarders, logforward)
 	return logforwarders, nil
+}
+
+func flatttenApplianceIotConnector(in openapi.ApplianceAllOfIotConnector) ([]map[string]interface{}, error) {
+	var iots []map[string]interface{}
+	iot := make(map[string]interface{})
+	if v, o := in.GetEnabledOk(); o != false {
+		iot["enabled"] = v
+	}
+	if v, o := in.GetClientsOk(); o != false {
+		clients := make([]map[string]interface{}, 0)
+		for _, client := range *v {
+			c := make(map[string]interface{})
+			c["name"] = client.GetName()
+			c["device_id"] = client.GetDeviceId()
+			c["sources"] = client.GetSources()
+			c["snat"] = client.GetSnat()
+
+			clients = append(clients, c)
+		}
+		iot["clients"] = clients
+	}
+	iots = append(iots, iot)
+	return iots, nil
 }
 
 func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) ([]interface{}, error) {
