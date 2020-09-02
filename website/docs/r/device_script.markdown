@@ -12,6 +12,8 @@ Create a new Device Script.
 
 ## Example Usage
 
+
+### Inline content script
 ```hcl
 
 resource "appgate_device_script" "example_device_script" {
@@ -25,6 +27,18 @@ EOF
     "terraform",
     "api-created"
   ]
+}
+
+```
+
+### Upload device script from file path
+
+```hcl
+
+resource "appgate_device_script" "example_device_script" {
+  name     = "device_script_name"
+  filename = "script.sh"
+  file     = "/path/to/file/script.sh"
 }
 
 ```

@@ -427,3 +427,17 @@ resource "appgate_criteria_script" "test_criteria_script" {
     "api-created"
   ]
 }
+
+
+resource "appgate_device_script" "example_device_script" {
+  name     = "device_script_name"
+  filename = "script.sh"
+  content  = <<-EOF
+#!/usr/bin/env bash
+echo "hello world"
+EOF
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+}
