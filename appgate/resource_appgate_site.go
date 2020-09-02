@@ -383,9 +383,8 @@ func resourceAppgateSite() *schema.Resource {
 										Optional: true,
 									},
 									"username": {
-										Type:      schema.TypeString,
-										Required:  true,
-										Sensitive: true,
+										Type:     schema.TypeString,
+										Required: true,
 									},
 									"password": {
 										Type:      schema.TypeString,
