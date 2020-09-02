@@ -55,11 +55,11 @@ resource "appgate_appliance" "new_gateway" {
       "ECDHE-RSA-AES256-GCM-SHA384",
       "ECDHE-RSA-AES128-GCM-SHA256"
     ]
-    # allow_sources {
-    #   address = "1.3.3.7"
-    #   netmask = 0
-    #   nic     = "eth0"
-    # }
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
   }
 
   tags = [
