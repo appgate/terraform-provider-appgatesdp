@@ -55,6 +55,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_policy":             resourceAppgatePolicy(),
 			"appgate_criteria_script":    resourceAppgateCriteriaScript(),
 			"appgate_entitlement_script": resourceAppgateEntitlementScript(),
+			"appgate_device_script":      resourceAppgateDeviceScript(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
