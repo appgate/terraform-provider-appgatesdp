@@ -193,7 +193,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 						},
 						"https_ciphers": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Description: "The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.",
 							Optional:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
@@ -1261,7 +1261,9 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return err
 		}
-		d.Set("admin_interface", adminInterface)
+		if err := d.Set("admin_interface", adminInterface); err != nil {
+			return err
+		}
 	}
 
 	if v, o := appliance.GetNetworkingOk(); o != false {
@@ -1307,7 +1309,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if _, o := d.GetOkExists("snmp_server"); o {
 		v := appliance.GetSnmpServer()
 		snmpSrv := make(map[string]interface{})
-		snmpSrv["enabled"] = true
+		snmpSrv["enabled"] = v.GetEnabled()
 		snmpSrv["tcp_port"] = v.GetTcpPort()
 		snmpSrv["udp_port"] = v.GetUdpPort()
 		snmpSrv["snmpd_conf"] = v.GetSnmpdConf()
@@ -1457,7 +1459,7 @@ func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]in
 	if v, o := in.GetVpnOk(); o != false {
 		vpn := make(map[string]interface{})
 		if v, o := v.GetWeightOk(); o {
-			vpn["weight"] = v
+			vpn["weight"] = *v
 		}
 		if v, o := v.GetAllowDestinationsOk(); o {
 			destinations := make([]map[string]interface{}, 0)
@@ -1481,28 +1483,28 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map
 	var logforwarders []map[string]interface{}
 	logforward := make(map[string]interface{})
 	if v, o := in.GetEnabledOk(); o != false {
-		logforward["enabled"] = v
+		logforward["enabled"] = *v
 	}
 
 	if v, o := in.GetElasticsearchOk(); o != false {
 		elasticsearch := make(map[string]interface{})
 		if v, o := v.GetUrlOk(); o != false {
-			elasticsearch["url"] = v
+			elasticsearch["url"] = *v
 		}
 		if v, o := v.GetAwsIdOk(); o != false {
-			elasticsearch["aws_id"] = v
+			elasticsearch["aws_id"] = *v
 		}
 		if v, o := v.GetAwsSecretOk(); o != false {
-			elasticsearch["aws_secret"] = v
+			elasticsearch["aws_secret"] = *v
 		}
-		if v, o := v.GetAwsSecretOk(); o != false {
-			elasticsearch["aws_region"] = v
+		if v, o := v.GetAwsRegionOk(); o != false {
+			elasticsearch["aws_region"] = *v
 		}
 		if v, o := v.GetUseInstanceCredentialsOk(); o != false {
-			elasticsearch["use_instance_credentials"] = v
+			elasticsearch["use_instance_credentials"] = *v
 		}
 		if v, o := v.GetRetentionDaysOk(); o != false {
-			elasticsearch["retention_days"] = v
+			elasticsearch["retention_days"] = *v
 		}
 		logforward["elasticsearch"] = []map[string]interface{}{elasticsearch}
 	}
@@ -1529,7 +1531,7 @@ func flatttenApplianceIotConnector(in openapi.ApplianceAllOfIotConnector) ([]map
 	var iots []map[string]interface{}
 	iot := make(map[string]interface{})
 	if v, o := in.GetEnabledOk(); o != false {
-		iot["enabled"] = v
+		iot["enabled"] = *v
 	}
 	if v, o := in.GetClientsOk(); o != false {
 		clients := make([]map[string]interface{}, 0)
@@ -1551,16 +1553,16 @@ func flatttenApplianceIotConnector(in openapi.ApplianceAllOfIotConnector) ([]map
 func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) ([]interface{}, error) {
 	m := make(map[string]interface{})
 	if v, o := in.GetProxyProtocolOk(); o != false {
-		m["proxy_protocol"] = v
+		m["proxy_protocol"] = *v
 	}
 	if v, o := in.GetHostnameOk(); o != false {
-		m["hostname"] = v
+		m["hostname"] = *v
 	}
 	if v, o := in.GetHttpsPortOk(); o != false {
-		m["https_port"] = v
+		m["https_port"] = *v
 	}
 	if v, o := in.GetDtlsPortOk(); o != false {
-		m["dtls_port"] = v
+		m["dtls_port"] = *v
 	}
 	if _, o := in.GetAllowSourcesOk(); o != false {
 		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
@@ -1597,13 +1599,13 @@ func flattenAppliancePeerInterface(in openapi.ApplianceAllOfPeerInterface) ([]in
 func flattenApplianceAdminInterface(in openapi.ApplianceAllOfAdminInterface) ([]interface{}, error) {
 	m := make(map[string]interface{})
 	if v, o := in.GetHostnameOk(); o != false {
-		m["hostname"] = v
+		m["hostname"] = *v
 	}
 	if v, o := in.GetHttpsPortOk(); o != false {
-		m["https_port"] = v
+		m["https_port"] = *v
 	}
 	if v, o := in.GetHttpsCiphersOk(); o != false {
-		m["https_ciphers"] = v
+		m["https_ciphers"] = *v
 	}
 
 	if _, o := in.GetAllowSourcesOk(); o != false {
@@ -1651,30 +1653,30 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 				staticList := make([]map[string]interface{}, 0)
 				dhcpValue := v.GetDhcp()
 				if v, o := dhcpValue.GetEnabledOk(); o != false {
-					dhcp["enabled"] = v
+					dhcp["enabled"] = *v
 				}
 				if v, o := dhcpValue.GetDnsOk(); o != false {
-					dhcp["dns"] = v
+					dhcp["dns"] = *v
 				}
 				if v, o := dhcpValue.GetRoutersOk(); o != false {
-					dhcp["routers"] = v
+					dhcp["routers"] = *v
 				}
 				if v, o := dhcpValue.GetNtpOk(); o != false {
-					dhcp["ntp"] = v
+					dhcp["ntp"] = *v
 				}
 				for _, s := range v.GetStatic() {
 					static := make(map[string]interface{})
 					if v, o := s.GetAddressOk(); o {
-						static["address"] = v
+						static["address"] = *v
 					}
 					if v, o := s.GetNetmaskOk(); o {
-						static["netmask"] = v
+						static["netmask"] = *v
 					}
 					if v, o := s.GetHostnameOk(); o {
-						static["hostname"] = v
+						static["hostname"] = *v
 					}
 					if v, o := s.GetSnatOk(); o {
-						static["snat"] = v
+						static["snat"] = *v
 					}
 					staticList = append(staticList, static)
 				}
@@ -1688,31 +1690,32 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 				staticList := make([]map[string]interface{}, 0)
 				dhcpValue := v.GetDhcp()
 				if v, o := dhcpValue.GetEnabledOk(); o != false {
-					dhcp["enabled"] = v
+					dhcp["enabled"] = *v
 				}
 				if v, o := dhcpValue.GetDnsOk(); o != false {
-					dhcp["dns"] = v
+					dhcp["dns"] = *v
 				}
 
 				if v, o := dhcpValue.GetNtpOk(); o != false {
-					dhcp["ntp"] = v
+					dhcp["ntp"] = *v
 				}
 				for _, s := range v.GetStatic() {
 					static := make(map[string]interface{})
 					if v, o := s.GetAddressOk(); o {
-						static["address"] = v
+						static["address"] = *v
 					}
 					if v, o := s.GetNetmaskOk(); o {
-						static["netmask"] = v
+						static["netmask"] = *v
 					}
 					if v, o := s.GetHostnameOk(); o {
-						static["hostname"] = v
+						static["hostname"] = *v
 					}
 					if v, o := s.GetSnatOk(); o {
-						static["snat"] = v
+						static["snat"] = *v
 					}
 					staticList = append(staticList, static)
 				}
+
 				nic["ipv6"] = []map[string]interface{}{{
 					"dhcp":   []map[string]interface{}{dhcp},
 					"static": staticList,
@@ -1733,16 +1736,16 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 		for _, r := range *v {
 			route := make(map[string]interface{})
 			if v, o := r.GetAddressOk(); o {
-				route["address"] = v
+				route["address"] = *v
 			}
 			if v, o := r.GetNetmaskOk(); o {
-				route["netmask"] = v
+				route["netmask"] = *v
 			}
 			if v, o := r.GetGatewayOk(); o {
-				route["gateway"] = v
+				route["gateway"] = *v
 			}
 			if v, o := r.GetNicOk(); o {
-				route["nic"] = v
+				route["nic"] = *v
 			}
 			routes = append(routes, route)
 		}
@@ -2014,7 +2017,6 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 			cinterface.SetOverrideSpaMode(v.(string))
 		}
 	}
-	log.Printf("[DEBUG] client interface RESULT: %+v", cinterface)
 	return cinterface, nil
 }
 
@@ -2056,13 +2058,14 @@ func readAdminInterfaceFromConfig(adminInterfaces []interface{}) (openapi.Applia
 		if v, ok := raw["https_port"]; ok {
 			aInterface.SetHttpsPort(int32(v.(int)))
 		}
-		if v := raw["https_ciphers"].(*schema.Set); v.Len() > 0 {
+		if v := raw["https_ciphers"]; len(v.([]interface{})) > 0 {
 			ciphers := make([]string, 0)
-			for _, c := range v.List() {
-				ciphers = append(ciphers, c.(string))
+			for _, cipher := range v.([]interface{}) {
+				ciphers = append(ciphers, cipher.(string))
 			}
 			aInterface.SetHttpsCiphers(ciphers)
 		}
+
 		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
 			as, err := listToMapList(v.([]interface{}))
 			if err != nil {
