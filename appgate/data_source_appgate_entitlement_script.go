@@ -12,15 +12,15 @@ func dataSourceEntitlementScript() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceAppgateEntitlementScriptRead,
 		Schema: map[string]*schema.Schema{
-			"entitlement script_id": {
+			"entitlement_script_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"entitlement script_name"},
+				ConflictsWith: []string{"entitlement_script_name"},
 			},
-			"entitlement script_name": {
+			"entitlement_script_name": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"entitlement script_id"},
+				ConflictsWith: []string{"entitlement_script_id"},
 			},
 		},
 	}
@@ -30,11 +30,11 @@ func dataSourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interfa
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.EntitlementScriptsApi
 
-	entitlementScriptID, iok := d.GetOk("entitlement script_id")
-	entitlementScriptName, nok := d.GetOk("entitlement script_name")
+	entitlementScriptID, iok := d.GetOk("entitlement_script_id")
+	entitlementScriptName, nok := d.GetOk("entitlement_script_name")
 
 	if !iok && !nok {
-		return fmt.Errorf("please provide one of entitlement script_id or entitlement script_name attributes")
+		return fmt.Errorf("please provide one of entitlement_script_id or entitlement_script_name attributes")
 	}
 	var reqErr error
 	var entitlementScript *openapi.EntitlementScript
