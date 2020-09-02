@@ -44,6 +44,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_ringfence_rule":     dataSourceAppgateRingfenceRule(),
 			"appgate_criteria_script":    dataSourceCriteriaScript(),
 			"appgate_entitlement_script": dataSourceEntitlementScript(),
+			"appgate_device_script":      dataSourceDeviceScript(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":          resourceAppgateAppliance(),
