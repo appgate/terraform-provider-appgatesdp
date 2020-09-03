@@ -57,7 +57,7 @@ func resourceAppgateRingfenceRule() *schema.Resource {
 			},
 
 			"actions": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -150,7 +150,7 @@ func resourceAppgateRingfenceRuleCreate(d *schema.ResourceData, meta interface{}
 	args.SetTags(schemaExtractTags(d))
 
 	if c, ok := d.GetOk("actions"); ok {
-		action, err := readRingfencActionFromConfig(c.(*schema.Set).List())
+		action, err := readRingfencActionFromConfig(c.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -194,12 +194,24 @@ func flattenRingfenceActions(in []openapi.RingfenceRuleAllOfActions) []map[strin
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
-		m["protocol"] = v.Protocol
-		m["direction"] = v.Direction
-		m["action"] = v.Action
-		m["hosts"] = v.Hosts
-		m["ports"] = v.Ports
-		m["types"] = v.Types
+		if v, o := v.GetProtocolOk(); o {
+			m["protocol"] = *v
+		}
+		if v, o := v.GetDirectionOk(); o {
+			m["direction"] = *v
+		}
+		if v, o := v.GetActionOk(); o {
+			m["action"] = *v
+		}
+		if v, o := v.GetHostsOk(); o {
+			m["hosts"] = *v
+		}
+		if v, o := v.GetPortsOk(); o {
+			m["ports"] = *v
+		}
+		if v, o := v.GetTypesOk(); o {
+			m["types"] = *v
+		}
 		out[i] = m
 	}
 	return out
@@ -229,7 +241,7 @@ func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}
 	}
 	if d.HasChange("actions") {
 		_, n := d.GetChange("actions")
-		actions, err := readRingfencActionFromConfig(n.(*schema.Set).List())
+		actions, err := readRingfencActionFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}

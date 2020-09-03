@@ -330,13 +330,7 @@ resource "appgate_ringfence_rule" "basic_rule" {
     action    = "allow"
 
     hosts = [
-      "10.0.2.0/24"
-    ]
-
-    ports = [
-      "80",
-      "443",
-      "1024-2048"
+      "10.10.20.0/24"
     ]
 
     types = [
