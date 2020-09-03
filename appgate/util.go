@@ -38,6 +38,15 @@ func schemaExtractTags(d *schema.ResourceData) []string {
 	return tags
 }
 
+func listToMapList(in []interface{}) ([]map[string]interface{}, error) {
+	result := make([]map[string]interface{}, 0)
+	for _, a := range in {
+		source := a.(map[string]interface{})
+		result = append(result, source)
+	}
+	return result, nil
+}
+
 func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {
 	result := make([]string, 0)
 	for _, item := range list {

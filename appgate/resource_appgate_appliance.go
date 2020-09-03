@@ -65,6 +65,10 @@ func resourceAppgateAppliance() *schema.Resource {
 				Description: "Seed file (json) generated from appliance used in remote-exec.",
 				Computed:    true,
 			},
+			"activated": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the object.",
@@ -104,7 +108,8 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"client_interface": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -154,8 +159,9 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"peer_interface": {
-				Type:     schema.TypeSet,
-				Required: true,
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hostname": {
@@ -172,8 +178,9 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"admin_interface": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hostname": {
@@ -186,7 +193,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 						},
 						"https_ciphers": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Description: "The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.",
 							Optional:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
@@ -197,7 +204,8 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"networking": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -223,6 +231,7 @@ func resourceAppgateAppliance() *schema.Resource {
 						"nics": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -234,13 +243,15 @@ func resourceAppgateAppliance() *schema.Resource {
 										Required: true,
 									},
 									"ipv4": {
-										Type:     schema.TypeSet,
+										Type:     schema.TypeList,
 										Optional: true,
+										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"dhcp": {
 													Type:     schema.TypeSet,
 													Optional: true,
+													Computed: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"enabled": {
@@ -265,6 +276,7 @@ func resourceAppgateAppliance() *schema.Resource {
 												"static": {
 													Type:     schema.TypeList,
 													Optional: true,
+
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"address": {
@@ -291,13 +303,15 @@ func resourceAppgateAppliance() *schema.Resource {
 										},
 									},
 									"ipv6": {
-										Type:     schema.TypeSet,
+										Type:     schema.TypeList,
 										Optional: true,
+										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"dhcp": {
 													Type:     schema.TypeSet,
 													Optional: true,
+													Computed: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"enabled": {
@@ -396,8 +410,10 @@ func resourceAppgateAppliance() *schema.Resource {
 			// 	Elem:        &schema.Schema{Type: schema.TypeString},
 			// },
 			"ntp": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
+				MaxItems: 1,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -439,8 +455,10 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 			"ssh_server": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -468,8 +486,10 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"snmp_server": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -500,8 +520,10 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"healthcheck_server": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -522,7 +544,9 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"prometheus_exporter": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -544,7 +568,9 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"ping": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -554,8 +580,10 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"log_server": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -571,9 +599,12 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
+
 			"controller": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -584,9 +615,12 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
+
 			"gateway": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
+				MaxItems:      1,
 				Optional:      true,
+				Computed:      true,
 				ConflictsWith: []string{"iot_connector"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -596,8 +630,10 @@ func resourceAppgateAppliance() *schema.Resource {
 							Default:  false,
 						},
 						"vpn": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"weight": {
@@ -632,9 +668,12 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
+
 			"log_forwarder": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
+				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -645,8 +684,9 @@ func resourceAppgateAppliance() *schema.Resource {
 						},
 
 						"elasticsearch": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"url": {
@@ -728,8 +768,10 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"iot_connector": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
+				MaxItems:      1,
 				Optional:      true,
+				Computed:      true,
 				ConflictsWith: []string{"gateway"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -810,13 +852,23 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
 	args.SetHostname(d.Get("hostname").(string))
-	args.SetNotes(d.Get("notes").(string))
+
 	args.SetTags(schemaExtractTags(d))
-	args.SetSite(d.Get("site").(string))
-	args.SetCustomization(d.Get("customization").(string))
+
+	if v, ok := d.GetOk("notes"); ok {
+		args.SetNotes(v.(string))
+	}
+
+	if v, ok := d.GetOk("site"); ok {
+		args.SetSite(v.(string))
+	}
+
+	if v, ok := d.GetOk("customization"); ok {
+		args.SetCustomization(v.(string))
+	}
 
 	if c, ok := d.GetOk("client_interface"); ok {
-		cinterface, err := readClientInterfaceFromConfig(c.(*schema.Set).List())
+		cinterface, err := readClientInterfaceFromConfig(c.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -824,7 +876,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if p, ok := d.GetOk("peer_interface"); ok {
-		pinterface, err := readPeerInterfaceFromConfig(p.(*schema.Set).List())
+		pinterface, err := readPeerInterfaceFromConfig(p.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -832,7 +884,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if a, ok := d.GetOk("admin_interface"); ok {
-		ainterface, err := readAdminInterfaceFromConfig(a.(*schema.Set).List())
+		ainterface, err := readAdminInterfaceFromConfig(a.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -840,7 +892,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if n, ok := d.GetOk("networking"); ok {
-		network, err := readNetworkingFromConfig(n.(*schema.Set).List())
+		network, err := readNetworkingFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -848,7 +900,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if n, ok := d.GetOk("ssh_server"); ok {
-		sshServer, err := readSSHServerFromConfig(n.(*schema.Set).List())
+		sshServer, err := readSSHServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -856,7 +908,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if n, ok := d.GetOk("snmp_server"); ok {
-		srv, err := readSNMPServerFromConfig(n.(*schema.Set).List())
+		srv, err := readSNMPServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -864,7 +916,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if n, ok := d.GetOk("healthcheck_server"); ok {
-		srv, err := readHealthcheckServerFromConfig(n.(*schema.Set).List())
+		srv, err := readHealthcheckServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -872,7 +924,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if n, ok := d.GetOk("prometheus_exporter"); ok {
-		exporter, err := readPrometheusExporterFromConfig(n.(*schema.Set).List())
+		exporter, err := readPrometheusExporterFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -880,7 +932,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if n, ok := d.GetOk("ping"); ok {
-		p, err := readPingFromConfig(n.(*schema.Set).List())
+		p, err := readPingFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -888,7 +940,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if n, ok := d.GetOk("ntp"); ok {
-		ntp, err := readNTPFromConfig(n.(*schema.Set).List())
+		ntp, err := readNTPFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -896,7 +948,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("log_server"); ok {
-		logSrv, err := readLogServerFromConfig(v.(*schema.Set).List())
+		logSrv, err := readLogServerFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -904,7 +956,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("controller"); ok {
-		ctrl, err := readControllerFromConfig(v.(*schema.Set).List())
+		ctrl, err := readControllerFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -912,7 +964,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("gateway"); ok {
-		gw, err := readGatewayFromConfig(v.(*schema.Set).List())
+		gw, err := readGatewayFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -920,7 +972,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("log_forwarder"); ok {
-		lf, err := readLogForwardFromConfig(v.(*schema.Set).List())
+		lf, err := readLogForwardFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -928,7 +980,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("iot_connector"); ok {
-		iot, err := readIotConnectorFromConfig(v.(*schema.Set).List())
+		iot, err := readIotConnectorFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -975,29 +1027,30 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 		if v := raw["name"].(string); v != "" {
 			nic.Name = v
 		}
-		if v := raw["ipv4"].(*schema.Set); v.Len() > 0 {
+
+		if v := raw["ipv4"].([]interface{}); len(v) > 0 {
 			ipv4networking := openapi.ApplianceAllOfNetworkingIpv4{}
-			for _, v := range v.List() {
-				ipv4Data := v.(map[string]interface{})
-				if v := ipv4Data["dhcp"].(*schema.Set); v.Len() > 0 {
-					for _, v := range v.List() {
-						ipv4networking.SetDhcp(readNetworkIpv4DhcpFromConfig(v.(map[string]interface{})))
+			for _, item := range v {
+				ipv4Data := item.(map[string]interface{})
+				if item := ipv4Data["dhcp"].(*schema.Set); item.Len() > 0 {
+					for _, i := range item.List() {
+						ipv4networking.SetDhcp(readNetworkIpv4DhcpFromConfig(i.(map[string]interface{})))
 					}
 				}
-				if v := ipv4Data["static"]; len(v.([]interface{})) > 0 {
-					ipv4networking.SetStatic(readNetworkIpv4StaticFromConfig(v.([]interface{})))
+				if item := ipv4Data["static"]; len(item.([]interface{})) > 0 {
+					ipv4networking.SetStatic(readNetworkIpv4StaticFromConfig(item.([]interface{})))
 				}
 			}
 			nic.SetIpv4(ipv4networking)
 		}
 
-		if v := raw["ipv6"].(*schema.Set); v.Len() > 0 {
+		if v := raw["ipv6"].([]interface{}); len(v) > 0 {
 			ipv6networking := openapi.ApplianceAllOfNetworkingIpv6{}
-			for _, v := range v.List() {
-				ipv6Data := v.(map[string]interface{})
-				if v := ipv6Data["dhcp"].(*schema.Set); v.Len() > 0 {
-					for _, v := range v.List() {
-						ipv6networking.SetDhcp(readNetworkIpv6DhcpFromConfig(v.(map[string]interface{})))
+			for _, item := range v {
+				ipv6Data := item.(map[string]interface{})
+				if item := ipv6Data["dhcp"].(*schema.Set); item.Len() > 0 {
+					for _, i := range item.List() {
+						ipv6networking.SetDhcp(readNetworkIpv6DhcpFromConfig(i.(map[string]interface{})))
 					}
 				}
 				if v := ipv6Data["static"]; len(v.([]interface{})) > 0 {
@@ -1105,19 +1158,18 @@ func readNtpServersFromConfig(input []interface{}) ([]openapi.ApplianceAllOfNtpS
 	return r, nil
 }
 
-func readAllowSourcesFromConfig(input []interface{}) ([]map[string]interface{}, error) {
+func readAllowSourcesFromConfig(input []map[string]interface{}) ([]map[string]interface{}, error) {
 	r := make([]map[string]interface{}, 0)
-	for _, s := range input {
-		raw := s.(map[string]interface{})
+	for _, raw := range input {
 		row := make(map[string]interface{}, 0)
 		// TODO, address can be both list and single string.
 		if v, ok := raw["address"]; ok {
 			row["address"] = v.(string)
 		}
 		if v, ok := raw["netmask"]; ok {
-			row["netmask"] = v.(int)
+			row["netmask"] = v
 		}
-		if v := raw["nic"].(string); v != "" {
+		if v, ok := raw["nic"]; ok && v != "" {
 			row["nic"] = v
 		}
 		r = append(r, row)
@@ -1177,16 +1229,207 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("appliance_id", appliance.Id)
 	d.Set("name", appliance.Name)
 	d.Set("tags", appliance.Tags)
-	d.Set("appliance_id", appliance.Id)
-
-	// d.Set("client_interface", saveClientInterface)
-	// d.Set("networking", appliance.GetNetworking())
 	d.Set("notes", appliance.GetNotes())
 	d.Set("hostname", appliance.GetHostname())
-	// d.Set("peer_interface", appliance.PeerInterface)
+
+	if v, ok := d.GetOkExists("site"); ok {
+		d.Set("site", v)
+	}
+
+	if v, ok := d.GetOkExists("customization"); ok {
+		d.Set("customization", v)
+	}
+
+	if v, o := appliance.GetClientInterfaceOk(); o != false {
+		ci, err := flattenApplianceClientInterface(*v)
+		if err != nil {
+			return err
+		}
+		d.Set("client_interface", ci)
+	}
+
+	if v, o := appliance.GetPeerInterfaceOk(); o != false {
+		peerInterface, err := flattenAppliancePeerInterface(*v)
+		if err != nil {
+			return err
+		}
+		d.Set("peer_interface", peerInterface)
+	}
+
+	if v, o := appliance.GetAdminInterfaceOk(); o != false {
+		adminInterface, err := flattenApplianceAdminInterface(*v)
+		if err != nil {
+			return err
+		}
+		if err := d.Set("admin_interface", adminInterface); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetNetworkingOk(); o != false {
+		networking, err := flattenApplianceNetworking(*v)
+		if err != nil {
+			return err
+		}
+		if err := d.Set("networking", networking); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("ntp"); o {
+		v := appliance.GetNtp()
+		ntp := make(map[string]interface{})
+		servers := make([]map[string]interface{}, 0)
+		for _, n := range v.GetServers() {
+			srv := make(map[string]interface{})
+			srv["hostname"] = n.GetHostname()
+			srv["key_type"] = n.GetKeyType()
+			srv["key"] = n.GetKey()
+			servers = append(servers, srv)
+		}
+		ntp["servers"] = servers
+		if err := d.Set("ntp", []interface{}{ntp}); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("ssh_server"); o {
+		v := appliance.GetSshServer()
+		sshServer := make(map[string]interface{})
+		sshServer["enabled"] = true
+		sshServer["port"] = v.GetPort()
+		sshServer["allow_sources"] = v.GetAllowSources()
+		sshServer["password_authentication"] = v.GetPasswordAuthentication()
+
+		if err := d.Set("ssh_server", []interface{}{sshServer}); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("snmp_server"); o {
+		v := appliance.GetSnmpServer()
+		snmpSrv := make(map[string]interface{})
+		snmpSrv["enabled"] = v.GetEnabled()
+		snmpSrv["tcp_port"] = v.GetTcpPort()
+		snmpSrv["udp_port"] = v.GetUdpPort()
+		snmpSrv["snmpd_conf"] = v.GetSnmpdConf()
+		snmpSrv["allow_sources"] = v.GetAllowSources()
+
+		if err := d.Set("snmp_server", []interface{}{snmpSrv}); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("healthcheck_server"); o {
+		v := appliance.GetHealthcheckServer()
+		healthSrv := make(map[string]interface{})
+		healthSrv["enabled"] = true
+		healthSrv["port"] = v.GetPort()
+		healthSrv["allow_sources"] = v.GetAllowSources()
+
+		if err := d.Set("healthcheck_server", []interface{}{healthSrv}); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("prometheus_exporter"); o {
+		v := appliance.GetPrometheusExporter()
+		exporter := make(map[string]interface{})
+		exporter["enabled"] = true
+		exporter["port"] = v.GetPort()
+		exporter["allow_sources"] = v.GetAllowSources()
+
+		if err := d.Set("prometheus_exporter", []interface{}{exporter}); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("ping"); o {
+		v := appliance.GetPing()
+		ping := make(map[string]interface{})
+		ping["allow_sources"] = v.GetAllowSources()
+
+		if err := d.Set("ping", []interface{}{ping}); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("log_server"); o {
+		v := appliance.GetLogServer()
+		logsrv := make(map[string]interface{})
+		logsrv["enabled"] = v.GetEnabled()
+		logsrv["retention_days"] = v.GetRetentionDays()
+
+		if err := d.Set("log_server", []interface{}{logsrv}); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("controller"); o {
+		v := appliance.GetController()
+		ctrl := make(map[string]interface{})
+		ctrl["enabled"] = v.GetEnabled()
+
+		if err := d.Set("controller", []interface{}{ctrl}); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("gateway"); o {
+		gateway, err := flatttenApplianceGateway(appliance.GetGateway())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("gateway", gateway); err != nil {
+			return err
+		}
+	}
+
+	if _, o := d.GetOkExists("log_forwarder"); o {
+		logforward, err := flatttenApplianceLogForwarder(appliance.GetLogForwarder())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("log_forwarder", logforward); err != nil {
+			return fmt.Errorf("Unable to read log fowarder %s", err)
+		}
+	}
+
+	if _, o := d.GetOkExists("iot_connector"); o {
+		iot, err := flatttenApplianceIotConnector(appliance.GetIotConnector())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("iot_connector", iot); err != nil {
+			return fmt.Errorf("Unable to read iots %s", err)
+		}
+	}
+
+	if v, o := appliance.GetRsyslogDestinationsOk(); o != false {
+		rsyslogs := make([]map[string]interface{}, 0)
+		for _, rsys := range *v {
+			rsyslog := make(map[string]interface{})
+			rsyslog["selector"] = rsys.GetSelector()
+			rsyslog["template"] = rsys.GetTemplate()
+			rsyslog["destination"] = rsys.GetDestination()
+			rsyslogs = append(rsyslogs, rsyslog)
+		}
+
+		if err := d.Set("rsyslog_destinations", rsyslogs); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetHostnameAliasesOk(); o != false {
+
+		if err := d.Set("hostname_aliases", v); err != nil {
+			return err
+		}
+	}
 
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
+		d.Set("activated", true)
 		return nil
 	}
 	exportRequest := api.AppliancesIdExportPost(ctx, appliance.Id)
@@ -1204,6 +1447,314 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("seed_file", b64.StdEncoding.EncodeToString([]byte(encodedSeed)))
 
 	return nil
+}
+
+func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]interface{}, error) {
+	var gateways []map[string]interface{}
+	gateway := make(map[string]interface{})
+	if v, o := in.GetEnabledOk(); o != false {
+		gateway["enabled"] = v
+	}
+
+	if v, o := in.GetVpnOk(); o != false {
+		vpn := make(map[string]interface{})
+		if v, o := v.GetWeightOk(); o {
+			vpn["weight"] = *v
+		}
+		if v, o := v.GetAllowDestinationsOk(); o {
+			destinations := make([]map[string]interface{}, 0)
+			for _, d := range *v {
+				destination := make(map[string]interface{})
+				destination["address"] = d.GetAddress()
+				destination["netmask"] = d.GetNetmask()
+				destination["nic"] = d.GetNic()
+				destinations = append(destinations, destination)
+			}
+			vpn["allow_destinations"] = destinations
+		}
+		gateway["vpn"] = []map[string]interface{}{vpn}
+	}
+
+	gateways = append(gateways, gateway)
+	return gateways, nil
+}
+
+func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map[string]interface{}, error) {
+	var logforwarders []map[string]interface{}
+	logforward := make(map[string]interface{})
+	if v, o := in.GetEnabledOk(); o != false {
+		logforward["enabled"] = *v
+	}
+
+	if v, o := in.GetElasticsearchOk(); o != false {
+		elasticsearch := make(map[string]interface{})
+		if v, o := v.GetUrlOk(); o != false {
+			elasticsearch["url"] = *v
+		}
+		if v, o := v.GetAwsIdOk(); o != false {
+			elasticsearch["aws_id"] = *v
+		}
+		if v, o := v.GetAwsSecretOk(); o != false {
+			elasticsearch["aws_secret"] = *v
+		}
+		if v, o := v.GetAwsRegionOk(); o != false {
+			elasticsearch["aws_region"] = *v
+		}
+		if v, o := v.GetUseInstanceCredentialsOk(); o != false {
+			elasticsearch["use_instance_credentials"] = *v
+		}
+		if v, o := v.GetRetentionDaysOk(); o != false {
+			elasticsearch["retention_days"] = *v
+		}
+		logforward["elasticsearch"] = []map[string]interface{}{elasticsearch}
+	}
+	if v, o := in.GetTcpClientsOk(); o != false {
+		tcpClientList := make([]map[string]interface{}, 0)
+		for _, tcpClient := range *v {
+			client := make(map[string]interface{})
+			client["name"] = tcpClient.GetName()
+			client["host"] = tcpClient.GetHost()
+			client["port"] = tcpClient.GetPort()
+			client["format"] = tcpClient.GetFormat()
+			client["use_tls"] = tcpClient.GetUseTLS()
+			tcpClientList = append(tcpClientList, client)
+		}
+		logforward["tcp_clients"] = tcpClientList
+	}
+	logforward["sites"] = in.GetSites()
+
+	logforwarders = append(logforwarders, logforward)
+	return logforwarders, nil
+}
+
+func flatttenApplianceIotConnector(in openapi.ApplianceAllOfIotConnector) ([]map[string]interface{}, error) {
+	var iots []map[string]interface{}
+	iot := make(map[string]interface{})
+	if v, o := in.GetEnabledOk(); o != false {
+		iot["enabled"] = *v
+	}
+	if v, o := in.GetClientsOk(); o != false {
+		clients := make([]map[string]interface{}, 0)
+		for _, client := range *v {
+			c := make(map[string]interface{})
+			c["name"] = client.GetName()
+			c["device_id"] = client.GetDeviceId()
+			c["sources"] = client.GetSources()
+			c["snat"] = client.GetSnat()
+
+			clients = append(clients, c)
+		}
+		iot["clients"] = clients
+	}
+	iots = append(iots, iot)
+	return iots, nil
+}
+
+func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, o := in.GetProxyProtocolOk(); o != false {
+		m["proxy_protocol"] = *v
+	}
+	if v, o := in.GetHostnameOk(); o != false {
+		m["hostname"] = *v
+	}
+	if v, o := in.GetHttpsPortOk(); o != false {
+		m["https_port"] = *v
+	}
+	if v, o := in.GetDtlsPortOk(); o != false {
+		m["dtls_port"] = *v
+	}
+	if _, o := in.GetAllowSourcesOk(); o != false {
+		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		if err != nil {
+			return nil, err
+		}
+		m["allow_sources"] = allowSources
+	}
+	if v, o := in.GetOverrideSpaModeOk(); o != false {
+		m["override_spa_mode"] = v
+	}
+
+	return []interface{}{m}, nil
+}
+
+func flattenAppliancePeerInterface(in openapi.ApplianceAllOfPeerInterface) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, o := in.GetHostnameOk(); o != false {
+		m["hostname"] = v
+	}
+	if v, o := in.GetHttpsPortOk(); o != false {
+		m["https_port"] = v
+	}
+	if _, o := in.GetAllowSourcesOk(); o != false {
+		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		if err != nil {
+			return nil, err
+		}
+		m["allow_sources"] = allowSources
+	}
+	return []interface{}{m}, nil
+}
+
+func flattenApplianceAdminInterface(in openapi.ApplianceAllOfAdminInterface) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, o := in.GetHostnameOk(); o != false {
+		m["hostname"] = *v
+	}
+	if v, o := in.GetHttpsPortOk(); o != false {
+		m["https_port"] = *v
+	}
+	if v, o := in.GetHttpsCiphersOk(); o != false {
+		m["https_ciphers"] = *v
+	}
+
+	if _, o := in.GetAllowSourcesOk(); o != false {
+		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		if err != nil {
+			return nil, err
+		}
+		m["allow_sources"] = allowSources
+	}
+	return []interface{}{m}, nil
+}
+
+func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[string]interface{}, error) {
+	var networkings []map[string]interface{}
+	networking := make(map[string]interface{})
+
+	if v, o := in.GetHostsOk(); o != false {
+		hosts := make([]map[string]interface{}, 0)
+		for _, h := range *v {
+			host := make(map[string]interface{})
+			if v, o := h.GetAddressOk(); o != false {
+				host["address"] = *v
+			}
+			if v, o := h.GetHostnameOk(); o != false {
+				host["hostname"] = *v
+			}
+			hosts = append(hosts, host)
+		}
+		networking["hosts"] = hosts
+	}
+
+	if v, o := in.GetNicsOk(); o != false {
+		nics := make([]map[string]interface{}, 0)
+		for _, h := range *v {
+			nic := make(map[string]interface{})
+			if v, o := h.GetEnabledOk(); o != false {
+				nic["enabled"] = *v
+			}
+			if v, o := h.GetNameOk(); o != false {
+				nic["name"] = *v
+			}
+
+			if v, o := h.GetIpv4Ok(); o != false {
+				dhcp := make(map[string]interface{})
+				staticList := make([]map[string]interface{}, 0)
+				dhcpValue := v.GetDhcp()
+				if v, o := dhcpValue.GetEnabledOk(); o != false {
+					dhcp["enabled"] = *v
+				}
+				if v, o := dhcpValue.GetDnsOk(); o != false {
+					dhcp["dns"] = *v
+				}
+				if v, o := dhcpValue.GetRoutersOk(); o != false {
+					dhcp["routers"] = *v
+				}
+				if v, o := dhcpValue.GetNtpOk(); o != false {
+					dhcp["ntp"] = *v
+				}
+				for _, s := range v.GetStatic() {
+					static := make(map[string]interface{})
+					if v, o := s.GetAddressOk(); o {
+						static["address"] = *v
+					}
+					if v, o := s.GetNetmaskOk(); o {
+						static["netmask"] = *v
+					}
+					if v, o := s.GetHostnameOk(); o {
+						static["hostname"] = *v
+					}
+					if v, o := s.GetSnatOk(); o {
+						static["snat"] = *v
+					}
+					staticList = append(staticList, static)
+				}
+				nic["ipv4"] = []map[string]interface{}{{
+					"dhcp":   []map[string]interface{}{dhcp},
+					"static": staticList,
+				}}
+			}
+			if v, o := h.GetIpv6Ok(); o != false {
+				dhcp := make(map[string]interface{})
+				staticList := make([]map[string]interface{}, 0)
+				dhcpValue := v.GetDhcp()
+				if v, o := dhcpValue.GetEnabledOk(); o != false {
+					dhcp["enabled"] = *v
+				}
+				if v, o := dhcpValue.GetDnsOk(); o != false {
+					dhcp["dns"] = *v
+				}
+
+				if v, o := dhcpValue.GetNtpOk(); o != false {
+					dhcp["ntp"] = *v
+				}
+				for _, s := range v.GetStatic() {
+					static := make(map[string]interface{})
+					if v, o := s.GetAddressOk(); o {
+						static["address"] = *v
+					}
+					if v, o := s.GetNetmaskOk(); o {
+						static["netmask"] = *v
+					}
+					if v, o := s.GetHostnameOk(); o {
+						static["hostname"] = *v
+					}
+					if v, o := s.GetSnatOk(); o {
+						static["snat"] = *v
+					}
+					staticList = append(staticList, static)
+				}
+
+				nic["ipv6"] = []map[string]interface{}{{
+					"dhcp":   []map[string]interface{}{dhcp},
+					"static": staticList,
+				}}
+			}
+			nics = append(nics, nic)
+		}
+		networking["nics"] = nics
+	}
+	if v, o := in.GetDnsServersOk(); o {
+		networking["dns_servers"] = *v
+	}
+	if v, o := in.GetDnsDomainsOk(); o {
+		networking["dns_domains"] = *v
+	}
+	if v, o := in.GetRoutesOk(); o {
+		routes := make([]map[string]interface{}, 0)
+		for _, r := range *v {
+			route := make(map[string]interface{})
+			if v, o := r.GetAddressOk(); o {
+				route["address"] = *v
+			}
+			if v, o := r.GetNetmaskOk(); o {
+				route["netmask"] = *v
+			}
+			if v, o := r.GetGatewayOk(); o {
+				route["gateway"] = *v
+			}
+			if v, o := r.GetNicOk(); o {
+				route["nic"] = *v
+			}
+			routes = append(routes, route)
+		}
+		networking["routes"] = routes
+
+	}
+	networkings = append(networkings, networking)
+
+	return networkings, nil
 }
 
 func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -1243,7 +1794,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("client_interface") {
 		_, n := d.GetChange("client_interface")
-		cinterface, err := readClientInterfaceFromConfig(n.(*schema.Set).List())
+		cinterface, err := readClientInterfaceFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1252,7 +1803,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("peer_interface") {
 		_, n := d.GetChange("peer_interface")
-		pinterface, err := readPeerInterfaceFromConfig(n.(*schema.Set).List())
+		pinterface, err := readPeerInterfaceFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1261,7 +1812,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("admin_interface") {
 		_, a := d.GetChange("admin_interface")
-		ainterface, err := readAdminInterfaceFromConfig(a.(*schema.Set).List())
+		ainterface, err := readAdminInterfaceFromConfig(a.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1270,7 +1821,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("networking") {
 		_, n := d.GetChange("networking")
-		networking, err := readNetworkingFromConfig(n.(*schema.Set).List())
+		networking, err := readNetworkingFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1279,7 +1830,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("ntp") {
 		_, n := d.GetChange("ntp")
-		ntp, err := readNTPFromConfig(n.(*schema.Set).List())
+		ntp, err := readNTPFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1288,7 +1839,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("ssh_server") {
 		_, n := d.GetChange("ssh_server")
-		sshServer, err := readSSHServerFromConfig(n.(*schema.Set).List())
+		sshServer, err := readSSHServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1297,7 +1848,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("snmp_server") {
 		_, n := d.GetChange("ssh_server")
-		srv, err := readSNMPServerFromConfig(n.(*schema.Set).List())
+		srv, err := readSNMPServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1306,7 +1857,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("healthcheck_server") {
 		_, n := d.GetChange("healthcheck_server")
-		srv, err := readHealthcheckServerFromConfig(n.(*schema.Set).List())
+		srv, err := readHealthcheckServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1315,7 +1866,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("prometheus_exporter") {
 		_, n := d.GetChange("prometheus_exporter")
-		exporter, err := readPrometheusExporterFromConfig(n.(*schema.Set).List())
+		exporter, err := readPrometheusExporterFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1324,7 +1875,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("ping") {
 		_, n := d.GetChange("ping")
-		p, err := readPingFromConfig(n.(*schema.Set).List())
+		p, err := readPingFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1333,7 +1884,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("log_server") {
 		_, n := d.GetChange("log_server")
-		logSrv, err := readLogServerFromConfig(n.(*schema.Set).List())
+		logSrv, err := readLogServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1342,7 +1893,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("controller") {
 		_, n := d.GetChange("controller")
-		ctrl, err := readControllerFromConfig(n.(*schema.Set).List())
+		ctrl, err := readControllerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1351,7 +1902,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("gateway") {
 		_, n := d.GetChange("gateway")
-		gw, err := readGatewayFromConfig(n.(*schema.Set).List())
+		gw, err := readGatewayFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1360,7 +1911,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("log_forwarder") {
 		_, n := d.GetChange("log_forwarder")
-		lf, err := readLogForwardFromConfig(n.(*schema.Set).List())
+		lf, err := readLogForwardFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1369,7 +1920,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("iot_connector") {
 		_, n := d.GetChange("iot_connector")
-		iot, err := readIotConnectorFromConfig(n.(*schema.Set).List())
+		iot, err := readIotConnectorFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1439,6 +1990,9 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 	cinterface := openapi.ApplianceAllOfClientInterface{}
 	for _, r := range cinterfaces {
 		raw := r.(map[string]interface{})
+		if v, ok := raw["proxy_protocol"]; ok {
+			cinterface.SetProxyProtocol(v.(bool))
+		}
 		if v, ok := raw["hostname"]; ok {
 			cinterface.SetHostname(v.(string))
 		}
@@ -1449,7 +2003,11 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 			cinterface.SetDtlsPort(int32(v.(int)))
 		}
 		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			as, err := listToMapList(v.([]interface{}))
+			if err != nil {
+				return cinterface, err
+			}
+			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
 				return cinterface, fmt.Errorf("Failed to resolve network hosts: %+v", err)
 			}
@@ -1473,7 +2031,11 @@ func readPeerInterfaceFromConfig(pinterfaces []interface{}) (openapi.ApplianceAl
 			pinterf.SetHttpsPort(int32(v.(int)))
 		}
 		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			as, err := listToMapList(v.([]interface{}))
+			if err != nil {
+				return pinterf, err
+			}
+			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
 				return pinterf, fmt.Errorf("Failed to resolve network hosts: %+v", err)
 			}
@@ -1496,15 +2058,20 @@ func readAdminInterfaceFromConfig(adminInterfaces []interface{}) (openapi.Applia
 		if v, ok := raw["https_port"]; ok {
 			aInterface.SetHttpsPort(int32(v.(int)))
 		}
-		if v := raw["https_ciphers"].(*schema.Set); v.Len() > 0 {
+		if v := raw["https_ciphers"]; len(v.([]interface{})) > 0 {
 			ciphers := make([]string, 0)
-			for _, c := range v.List() {
-				ciphers = append(ciphers, c.(string))
+			for _, cipher := range v.([]interface{}) {
+				ciphers = append(ciphers, cipher.(string))
 			}
 			aInterface.SetHttpsCiphers(ciphers)
 		}
+
 		if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			as, err := listToMapList(v.([]interface{}))
+			if err != nil {
+				return aInterface, err
+			}
+			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
 				return aInterface, fmt.Errorf("Failed to admin interface allowed sources: %+v", err)
 			}
@@ -1579,7 +2146,11 @@ func readSSHServerFromConfig(sshServers []interface{}) (openapi.ApplianceAllOfSs
 			sshServer.SetPasswordAuthentication(v.(bool))
 		}
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			as, err := listToMapList(v.([]interface{}))
+			if err != nil {
+				return sshServer, err
+			}
+			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
 				return sshServer, fmt.Errorf("Failed to resolve ssh server allowed sources: %+v", err)
 			}
@@ -1609,8 +2180,13 @@ func readSNMPServerFromConfig(snmpServers []interface{}) (openapi.ApplianceAllOf
 		if v, ok := rawServer["snmpd_conf"]; ok {
 			server.SetSnmpdConf(v.(string))
 		}
+
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			as, err := listToMapList(v.([]interface{}))
+			if err != nil {
+				return server, err
+			}
+			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
 				return server, fmt.Errorf("Failed to resolve network hosts: %+v", err)
 			}
@@ -1635,7 +2211,11 @@ func readHealthcheckServerFromConfig(healhCheckServers []interface{}) (openapi.A
 			server.SetPort(int32(v.(int)))
 		}
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			as, err := listToMapList(v.([]interface{}))
+			if err != nil {
+				return server, err
+			}
+			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
 				return server, fmt.Errorf("Failed to resolve network hosts: %+v", err)
 			}
@@ -1696,9 +2276,9 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 		if v, ok := r["enabled"]; ok {
 			val.SetEnabled(v.(bool))
 		}
-		if v := r["vpn"].(*schema.Set); v.Len() > 0 {
+		if v := r["vpn"].([]interface{}); len(v) > 0 {
 			vpn := openapi.ApplianceAllOfGatewayVpn{}
-			for _, s := range v.List() {
+			for _, s := range v {
 				raw := s.(map[string]interface{})
 				if v, ok := raw["weight"]; ok {
 					vpn.SetWeight(int32(v.(int)))
@@ -1743,9 +2323,12 @@ func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.Applianc
 		if v, ok := rawServer["port"]; ok {
 			val.SetPort(int32(v.(int)))
 		}
-
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			as, err := listToMapList(v.([]interface{}))
+			if err != nil {
+				return val, err
+			}
+			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
 				return val, err
 			}
@@ -1763,9 +2346,12 @@ func readPingFromConfig(pingers []interface{}) (openapi.ApplianceAllOfPing, erro
 		}
 
 		rawServer := srv.(map[string]interface{})
-
 		if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-			allowSources, err := readAllowSourcesFromConfig(v.([]interface{}))
+			as, err := listToMapList(v.([]interface{}))
+			if err != nil {
+				return val, err
+			}
+			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
 				return val, err
 			}
@@ -1788,9 +2374,9 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 			val.SetEnabled(v.(bool))
 		}
 
-		if v := raw["elasticsearch"].(*schema.Set); v.Len() > 0 {
+		if v := raw["elasticsearch"].([]interface{}); len(v) > 0 {
 			elasticsearch := openapi.ApplianceAllOfLogForwarderElasticsearch{}
-			for _, s := range v.List() {
+			for _, s := range v {
 				r := s.(map[string]interface{})
 				if v, ok := r["url"]; ok {
 					elasticsearch.SetUrl(v.(string))
@@ -1851,6 +2437,7 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 	}
 	return val, nil
 }
+
 func readIotConnectorFromConfig(iots []interface{}) (openapi.ApplianceAllOfIotConnector, error) {
 	val := openapi.ApplianceAllOfIotConnector{}
 	for _, iot := range iots {
@@ -1876,7 +2463,11 @@ func readIotConnectorFromConfig(iots []interface{}) (openapi.ApplianceAllOfIotCo
 				}
 				// allowed sources
 				if v := r["sources"]; len(v.([]interface{})) > 0 {
-					sources, err := readAllowSourcesFromConfig(v.([]interface{}))
+					as, err := listToMapList(v.([]interface{}))
+					if err != nil {
+						return val, err
+					}
+					sources, err := readAllowSourcesFromConfig(as)
 					if err != nil {
 						return val, err
 					}
