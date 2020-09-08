@@ -1,8 +1,12 @@
 package appgate
 
 import (
+	"bufio"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net"
+	"os"
 	"sort"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
@@ -95,4 +99,30 @@ func inArray(needle string, haystack []string) bool {
 		return true
 	}
 	return false
+}
+
+// getResourceFileContent gets content from "file" filepath schema.ResourceData or string payload "content".
+func getResourceFileContent(d *schema.ResourceData) ([]byte, error) {
+	var content []byte
+	if v, ok := d.GetOk("file"); ok {
+		path := v.(string)
+		file, err := os.Open(path)
+		if err != nil {
+			return nil, fmt.Errorf("Error opening file (%s): %s", path, err)
+		}
+		defer func() {
+			err := file.Close()
+			if err != nil {
+				log.Printf("[WARN] Error closing file (%s): %s", path, err)
+			}
+		}()
+		reader := bufio.NewReader(file)
+		content, err = ioutil.ReadAll(reader)
+		if err != nil {
+			return nil, fmt.Errorf("Error reading file (%s): %s", path, err)
+		}
+	} else if v, ok := d.GetOk("content"); ok {
+		content = []byte(v.(string))
+	}
+	return content, nil
 }
