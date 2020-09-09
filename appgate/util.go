@@ -6,7 +6,7 @@ import (
 	"sort"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // prettyPrintAPIError is used to show a formatted error message

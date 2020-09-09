@@ -8,7 +8,7 @@ import (
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
 	"github.com/google/uuid"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceAppgateEntitlementScript() *schema.Resource {
