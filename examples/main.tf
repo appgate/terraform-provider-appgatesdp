@@ -225,27 +225,27 @@ resource "appgate_appliance" "new_gateway" {
     }
   }
 
-  log_forwarder {
-    enabled = true
-    elasticsearch {
-      url                      = "https://aws.com/elasticsearch/instance/asdaxllkmda64"
-      aws_id                   = "string"
-      aws_region               = "eu-west-2"
-      use_instance_credentials = true
-      retention_days           = 3
-    }
+  # log_forwarder {
+  #   enabled = true
+  #   elasticsearch {
+  #     url                      = "https://aws.com/elasticsearch/instance/asdaxllkmda64"
+  #     aws_id                   = "string"
+  #     aws_region               = "eu-west-2"
+  #     use_instance_credentials = true
+  #     retention_days           = 3
+  #   }
 
-    tcp_clients {
-      name    = "Company SIEM"
-      host    = "siem.company.com"
-      port    = 8888
-      format  = "json"
-      use_tls = true
-    }
-    sites = [
-      data.appgate_site.default_site.id
-    ]
-  }
+  #   tcp_clients {
+  #     name    = "Company SIEM"
+  #     host    = "siem.company.com"
+  #     port    = 8888
+  #     format  = "json"
+  #     use_tls = true
+  #   }
+  #   sites = [
+  #     data.appgate_site.default_site.id
+  #   ]
+  # }
 
   # iot_connector {
   #   enabled = true
@@ -430,6 +430,37 @@ resource "appgate_device_script" "example_device_script" {
 #!/usr/bin/env bash
 echo "hello world"
 EOF
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+}
+
+data "archive_file" "customization" {
+  type        = "zip"
+  output_path = "${path.module}/customization/package.zip"
+
+  source {
+    content  = <<-EOF
+#!/usr/bin/env bash
+echo "startup script"
+EOF
+    filename = "start"
+  }
+
+  source {
+    content  = <<-EOF
+#!/usr/bin/env bash
+echo "stop script"
+EOF
+    filename = "stop"
+  }
+}
+
+resource "appgate_appliance_customization" "test_customization" {
+  name = "test customization"
+  file = data.archive_file.customization.output_path
+
   tags = [
     "terraform",
     "api-created"

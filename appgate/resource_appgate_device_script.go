@@ -1,13 +1,10 @@
 package appgate
 
 import (
-	"bufio"
 	"context"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	"time"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
@@ -99,7 +96,7 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 	args.SetFilename(d.Get("filename").(string))
 	args.SetTags(schemaExtractTags(d))
 
-	content, err := getDeviceScriptContent(d)
+	content, err := getResourceFileContent(d)
 	if err != nil {
 		return err
 	}
@@ -119,32 +116,6 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 	d.Set("device_script_id", deviceScript.Id)
 
 	return resourceAppgateDeviceScriptRead(d, meta)
-}
-
-func getDeviceScriptContent(d *schema.ResourceData) ([]byte, error) {
-	var content []byte
-	if v, ok := d.GetOk("file"); ok {
-		path := v.(string)
-		file, err := os.Open(path)
-		if err != nil {
-			return nil, fmt.Errorf("Error opening device script file (%s): %s", path, err)
-		}
-		defer func() {
-			err := file.Close()
-			if err != nil {
-				log.Printf("[WARN] Error closing device script file (%s): %s", path, err)
-			}
-		}()
-		reader := bufio.NewReader(file)
-		content, err = ioutil.ReadAll(reader)
-		if err != nil {
-			return nil, fmt.Errorf("Error reading device script file (%s): %s", path, err)
-		}
-
-	} else if v, ok := d.GetOk("content"); ok {
-		content = []byte(v.(string))
-	}
-	return content, nil
 }
 
 func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) error {
@@ -194,7 +165,7 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	if d.HasChange("file") || d.HasChange("content") {
-		content, err := getDeviceScriptContent(d)
+		content, err := getResourceFileContent(d)
 		if err != nil {
 			return err
 		}
