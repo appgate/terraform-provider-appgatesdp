@@ -41,8 +41,8 @@ The following arguments are supported:
 ### ranges
 List of (non-conflicting) IP address ranges to allocate IPs in order.
 
-* `first`:  (Optional) The beginning of the IP range.
-* `last`:  (Optional) The end of the IP range.
+* `first`:  (Required) The beginning of the IP range.
+* `last`:  (Required) The end of the IP range.
 
 ### tags
 Array of tags.

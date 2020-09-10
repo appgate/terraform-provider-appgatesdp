@@ -69,12 +69,12 @@ func resourceAppgateIPPool() *schema.Resource {
 
 						"first": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 
 						"last": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 					},
 				},
