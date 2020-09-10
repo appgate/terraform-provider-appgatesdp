@@ -46,6 +46,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_entitlement_script":      dataSourceEntitlementScript(),
 			"appgate_device_script":           dataSourceDeviceScript(),
 			"appgate_appliance_customization": dataSourceAppgateApplianceCustomization(),
+			"appgate_ip_pool":                 dataSourceAppgateIPPool(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":               resourceAppgateAppliance(),
