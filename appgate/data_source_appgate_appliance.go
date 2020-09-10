@@ -51,7 +51,8 @@ func dataSourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Got appliance: %+v", appliance)
 
 	d.SetId(appliance.Id)
-	d.Set("name", appliance.Name)
+	d.Set("appliance_name", appliance.Name)
+	d.Set("appliance_id", appliance.Id)
 	return nil
 }
 
@@ -59,7 +60,6 @@ func findApplianceByUUID(api *openapi.AppliancesApiService, id string, token str
 	log.Printf("[DEBUG] Data source appliance get by UUID %s", id)
 	appliance, _, err := api.AppliancesIdGet(context.Background(), id).Authorization(token).Execute()
 	if err != nil {
-		log.Printf("got an fucking error")
 		return nil, err
 	}
 	return &appliance, nil
