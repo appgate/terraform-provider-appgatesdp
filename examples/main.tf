@@ -466,3 +466,18 @@ resource "appgate_appliance_customization" "test_customization" {
     "api-created"
   ]
 }
+
+
+resource "appgate_ip_pool" "example_ip_pool" {
+  name            = "ip range example"
+  lease_time_days = 5
+  ranges {
+    first = "10.0.0.1"
+    last  = "10.0.0.254"
+  }
+
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+}
