@@ -60,6 +60,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_device_script":           resourceAppgateDeviceScript(),
 			"appgate_appliance_customization": resourceAppgateApplianceCustomizations(),
 			"appgate_ip_pool":                 resourceAppgateIPPool(),
+			"appgate_administrative_role":     resourceAppgateAdministrativeRole(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
