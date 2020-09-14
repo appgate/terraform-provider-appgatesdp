@@ -151,7 +151,6 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 									"all": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Default:  false,
 									},
 
 									"ids": {
@@ -235,7 +234,7 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 				scope.SetAll(true)
 				for _, v := range rawScopes {
 					rawScope := v.(map[string]interface{})
-					if v, ok := rawScope["all"]; ok && v.(bool) {
+					if v, ok := rawScope["all"]; ok {
 						scope.SetAll(v.(bool))
 					}
 
@@ -334,7 +333,7 @@ func flattenAdministrativeRolePrivilegesScope(scope openapi.AdministrativePrivil
 	// the response body always include 1 scope
 	// example:
 	// { "scope":{"all":false,"ids":[],"tags":[]} }
-	// but if we dont have it defined in our state, we should add it now either.
+	// but if we dont have it defined in our state, we should not add it now either.
 	if len(m["tags"].([]string)) > 0 && len(m["ids"].([]string)) > 0 {
 		return []interface{}{m}
 	}

@@ -56,6 +56,66 @@ resource "appgate_administrative_role" "test_administrative_role" {
 `)
 }
 
+func testAccCheckadministrativeRoleWithScope() string {
+	return fmt.Sprintf(`
+data "appgate_site" "default_site" {
+  site_name = "Default site"
+}
+resource "appgate_administrative_role" "administrative_role_with_scope" {
+  name = "tf-admin-with-scope"
+  tags = [
+    "terraform"
+  ]
+  privileges {
+    type   = "View"
+    target = "Site"
+    scope {
+      ids  = [data.appgate_site.default_site.id]
+      tags = ["builtin"]
+    }
+  }
+}
+`)
+}
+
+func TestAccadministrativeRoleWithScope(t *testing.T) {
+	resourceName := "appgate_administrative_role.administrative_role_with_scope"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckadministrativeRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckadministrativeRoleWithScope(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckadministrativeRoleExists(resourceName),
+
+					resource.TestCheckResourceAttr(resourceName, "name", "tf-admin-with-scope"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.all", "false"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.ids.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "privileges.0.scope.0.ids.0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.tags.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.tags.0", "builtin"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "Site"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "View"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccadministrativeRoleImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
 func testAccCheckadministrativeRoleExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		token := testAccProvider.Meta().(*Client).Token
