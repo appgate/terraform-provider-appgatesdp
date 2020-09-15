@@ -48,6 +48,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_appliance_customization": dataSourceAppgateApplianceCustomization(),
 			"appgate_ip_pool":                 dataSourceAppgateIPPool(),
 			"appgate_administrative_role":     dataSourceAppgateAdministrativeRole(),
+			"appgate_global_settings":         dataSourceGlobalSettings(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":               resourceAppgateAppliance(),
