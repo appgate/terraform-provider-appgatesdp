@@ -13,6 +13,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+// overwriting duplicate keys, you should handle that if there is a need
+func mergeSchemaMaps(maps ...map[string]*schema.Schema) map[string]*schema.Schema {
+	result := make(map[string]*schema.Schema)
+	for _, m := range maps {
+		for k, v := range m {
+			result[k] = v
+		}
+	}
+	return result
+}
+
+func baseEntitySchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Description: "Name of the object.",
+			Required:    true,
+		},
+		"notes": {
+			Type:        schema.TypeString,
+			Description: "Notes for the object. Used for documentation purposes.",
+			Default:     DefaultDescription,
+			Optional:    true,
+		},
+		"tags": {
+			Type:        schema.TypeSet,
+			Description: "Array of tags.",
+			Optional:    true,
+			Elem:        &schema.Schema{Type: schema.TypeString},
+		},
+	}
+}
+
 // prettyPrintAPIError is used to show a formatted error message
 // from a HTTP 400-503 response from the http client.
 func prettyPrintAPIError(err error) error {
