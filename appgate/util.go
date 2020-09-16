@@ -10,6 +10,7 @@ import (
 	"sort"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -44,6 +45,21 @@ func baseEntitySchema() map[string]*schema.Schema {
 			Elem:        &schema.Schema{Type: schema.TypeString},
 		},
 	}
+}
+
+func readBaseEntityFromConfig(d *schema.ResourceData) (*openapi.BaseEntity, error) {
+	base := &openapi.BaseEntity{}
+	base.Id = uuid.New().String()
+	if v, ok := d.GetOk("name"); ok {
+		base.SetName(v.(string))
+	}
+	if v, ok := d.GetOk("notes"); ok {
+		base.SetNotes(v.(string))
+	}
+	if _, ok := d.GetOk("tags"); ok {
+		base.SetTags(schemaExtractTags(d))
+	}
+	return base, nil
 }
 
 // prettyPrintAPIError is used to show a formatted error message
