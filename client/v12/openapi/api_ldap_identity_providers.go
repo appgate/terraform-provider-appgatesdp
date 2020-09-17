@@ -640,14 +640,14 @@ func (a *LdapIdentityProvidersApiService) IdentityProvidersIdGet(ctx _context.Co
 Execute executes the request
  @return IdentityProvider
 */
-func (r apiLdapIdentityProvidersIdGetRequest) Execute() (IdentityProvider, *_nethttp.Response, error) {
+func (r apiLdapIdentityProvidersIdGetRequest) Execute() (LdapProvider, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  IdentityProvider
+		localVarReturnValue  LdapProvider
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "LdapIdentityProvidersApiService.IdentityProvidersIdGet")
@@ -706,7 +706,7 @@ func (r apiLdapIdentityProvidersIdGetRequest) Execute() (IdentityProvider, *_net
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v IdentityProvider
+			var v LdapProvider
 			err = r.apiService.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -774,7 +774,7 @@ type apiLdapIdentityProvidersIdPutRequest struct {
 	apiService       *LdapIdentityProvidersApiService
 	authorization    *string
 	id               string
-	identityProvider *IdentityProvider
+	identityProvider *LdapProvider
 }
 
 func (r apiLdapIdentityProvidersIdPutRequest) Authorization(authorization string) apiLdapIdentityProvidersIdPutRequest {
@@ -782,7 +782,7 @@ func (r apiLdapIdentityProvidersIdPutRequest) Authorization(authorization string
 	return r
 }
 
-func (r apiLdapIdentityProvidersIdPutRequest) IdentityProvider(identityProvider IdentityProvider) apiLdapIdentityProvidersIdPutRequest {
+func (r apiLdapIdentityProvidersIdPutRequest) IdentityProvider(identityProvider LdapProvider) apiLdapIdentityProvidersIdPutRequest {
 	r.identityProvider = &identityProvider
 	return r
 }
@@ -806,14 +806,14 @@ func (a *LdapIdentityProvidersApiService) IdentityProvidersIdPut(ctx _context.Co
 Execute executes the request
  @return IdentityProvider
 */
-func (r apiLdapIdentityProvidersIdPutRequest) Execute() (IdentityProvider, *_nethttp.Response, error) {
+func (r apiLdapIdentityProvidersIdPutRequest) Execute() (LdapProvider, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPut
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  IdentityProvider
+		localVarReturnValue  LdapProvider
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "LdapIdentityProvidersApiService.IdentityProvidersIdPut")
@@ -878,7 +878,7 @@ func (r apiLdapIdentityProvidersIdPutRequest) Execute() (IdentityProvider, *_net
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v IdentityProvider
+			var v LdapProvider
 			err = r.apiService.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
