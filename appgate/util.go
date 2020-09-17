@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-// overwriting duplicate keys, you should handle that if there is a need
 func mergeSchemaMaps(maps ...map[string]*schema.Schema) map[string]*schema.Schema {
 	result := make(map[string]*schema.Schema)
 	for _, m := range maps {

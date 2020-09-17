@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
@@ -42,6 +43,7 @@ func resourceAppgateLdapProvider() *schema.Resource {
 			}
 			s["ssl_enabled"] = &schema.Schema{
 				Type:     schema.TypeBool,
+				Computed: true,
 				Optional: true,
 			}
 			s["admin_distinguished_name"] = &schema.Schema{
@@ -59,14 +61,17 @@ func resourceAppgateLdapProvider() *schema.Resource {
 			}
 			s["object_class"] = &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			}
 			s["username_attribute"] = &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			}
 			s["membership_filter"] = &schema.Schema{
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			}
 			s["membership_base_dn"] = &schema.Schema{
@@ -75,15 +80,18 @@ func resourceAppgateLdapProvider() *schema.Resource {
 			}
 			s["password_warning"] = &schema.Schema{
 				Type:     schema.TypeMap,
+				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:     schema.TypeBool,
+							Computed: true,
 							Optional: true,
 						},
 						"threshold_days": {
 							Type:     schema.TypeInt,
+							Computed: true,
 							Optional: true,
 						},
 						"message": {
@@ -210,17 +218,109 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 		args.SetPasswordWarning(pw)
 	}
 	request := api.IdentityProvidersPost(ctx)
-	_, _, err = request.IdentityProvider(*args).Authorization(token).Execute()
+	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %+v", identityProviderLdap, prettyPrintAPIError(err))
 	}
+	d.SetId(p.Id)
 	return resourceAppgateLdapProviderRuleRead(d, meta)
 }
 
 func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Reading ldap identity provider id: %+v", d.Id())
+
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.LdapIdentityProvidersApi
+	ctx := context.TODO()
+	request := api.IdentityProvidersIdGet(ctx, d.Id())
+	ldap, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		d.SetId("")
+		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
+	}
+	log.Printf("[DEBUG] Reading ldap identity provider POOL IPV4: %+v", ldap.GetIpPoolV4())
+	d.Set("type", identityProviderLdap)
+	// base attributes
+	d.Set("name", ldap.Name)
+	d.Set("notes", ldap.Notes)
+	d.Set("tags", ldap.Tags)
+
+	// identity provider attributes
+	d.Set("default", ldap.GetDefault())
+	d.Set("client_provider", ldap.GetClientProvider())
+	d.Set("admin_provider", ldap.GetAdminProvider())
+	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
+		if err := d.Set("on_boarding_2fa", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
+			return err
+		}
+	}
+
+	d.Set("on_boarding_type", ldap.GetOnBoardingType())
+	d.Set("on_boarding_otp_provider", ldap.GetOnBoardingOtpProvider())
+	d.Set("on_boarding_otp_message", ldap.GetOnBoardingOtpMessage())
+	d.Set("inactivity_timeout_minutes", ldap.GetInactivityTimeoutMinutes())
+	if v, ok := ldap.GetIpPoolV4Ok(); ok {
+		d.Set("ip_pool_v4", *v)
+	}
+	if v, ok := ldap.GetIpPoolV6Ok(); ok {
+		d.Set("ip_pool_v6", v)
+	}
+
+	d.Set("dns_servers", ldap.GetDnsServers())
+	d.Set("dns_search_domains", ldap.GetDnsSearchDomains())
+	d.Set("block_local_dns_requests", ldap.GetBlockLocalDnsRequests())
+	if v, ok := ldap.GetClaimMappingsOk(); ok {
+		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(*v)); err != nil {
+			return err
+		}
+	}
+	if v, ok := ldap.GetOnDemandClaimMappingsOk(); ok {
+		d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v))
+	}
+	// ldap attributes
+	d.Set("hostnames", ldap.GetHostnames())
+	d.Set("port", ldap.GetPort())
+	d.Set("ssl_enabled", ldap.GetSslEnabled())
+	d.Set("admin_distinguished_name", ldap.GetAdminDistinguishedName())
+	if val, ok := d.GetOk("admin_password"); ok {
+		d.Set("admin_password", val.(string))
+	}
+	if v, ok := ldap.GetBaseDnOk(); ok {
+		d.Set("base_dn", v)
+	}
+
+	d.Set("object_class", ldap.GetObjectClass())
+	d.Set("username_attribute", ldap.GetUsernameAttribute())
+	d.Set("membership_filter", ldap.GetMembershipFilter())
+	if v, ok := ldap.GetMembershipBaseDnOk(); ok {
+		if err := d.Set("membership_base_dn", &v); err != nil {
+			return err
+		}
+	}
+	if v, ok := ldap.GetPasswordWarningOk(); ok {
+		if err := d.Set("password_warning", flattenLdapPasswordWarning(*v)); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
+func flattenLdapPasswordWarning(pw openapi.LdapProviderAllOfPasswordWarning) map[string]interface{} {
+	// TODO: wrong types on threshold_days, enabled
+	o := make(map[string]interface{})
+	if v, ok := pw.GetEnabledOk(); ok {
+		o["enabled"] = strconv.FormatBool(*v) // TODOD should be bool
+	}
+	if v, ok := pw.GetThresholdDaysOk(); ok {
+		o["threshold_days"] = strconv.Itoa(int(*v)) // TOOD Should be int
+	}
+	if v, ok := pw.GetMessageOk(); ok {
+		o["message"] = v
+	}
+	return o
+}
+
 func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Updating ldap identity provider id: %+v", d.Id())
 	return resourceAppgateLdapProviderRuleRead(d, meta)
 }

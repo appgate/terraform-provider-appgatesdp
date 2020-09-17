@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -45,12 +46,14 @@ func identityProviderSchema() map[string]*schema.Schema {
 
 		"default": {
 			Type:     schema.TypeBool,
+			Computed: true,
 			Optional: true,
 		},
 
 		"admin_provider": {
 			Type:     schema.TypeBool,
 			Optional: true,
+			Computed: true,
 		},
 		"on_boarding_2fa": {
 			Type:     schema.TypeMap,
@@ -75,6 +78,7 @@ func identityProviderSchema() map[string]*schema.Schema {
 
 		"inactivity_timeout_minutes": {
 			Type:     schema.TypeInt,
+			Computed: true,
 			Optional: true,
 		},
 		"ip_pool_v4": {
@@ -97,11 +101,13 @@ func identityProviderSchema() map[string]*schema.Schema {
 		},
 		"block_local_dns_requests": {
 			Type:     schema.TypeBool,
+			Computed: true,
 			Optional: true,
 		},
 		"claim_mappings": {
 			Type:     schema.TypeList,
 			Optional: true,
+			Computed: true,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"attribute_name": {
@@ -114,10 +120,12 @@ func identityProviderSchema() map[string]*schema.Schema {
 					},
 					"list": {
 						Type:     schema.TypeBool,
+						Computed: true,
 						Optional: true,
 					},
 					"encrypted": {
 						Type:     schema.TypeBool,
+						Computed: true,
 						Optional: true,
 					},
 				},
@@ -357,4 +365,56 @@ func identityProviderDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId("")
 	return nil
+}
+
+func flattenIdentityProviderClaimsMappning(claims []map[string]interface{}) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(claims), len(claims))
+	for i, claim := range claims {
+		row := make(map[string]interface{})
+		if v, ok := claim["attributeName"]; ok {
+			row["attribute_name"] = v.(string)
+		}
+		if v, ok := claim["claimName"]; ok {
+			row["claim_name"] = v.(string)
+		}
+		if v, ok := claim["list"]; ok {
+			row["list"] = v.(bool)
+		}
+		out[i] = row
+	}
+	return out
+}
+
+func flattenIdentityProviderOnDemandClaimsMappning(claims []map[string]interface{}) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(claims), len(claims))
+	for i, claim := range claims {
+		row := make(map[string]interface{})
+		if v, ok := claim["command"]; ok {
+			row["command"] = v.(string)
+		}
+		if v, ok := claim["parameters"]; ok {
+			row["parameters"] = v.(map[string]string)
+		}
+		if v, ok := claim["platform"]; ok {
+			row["platform"] = v.(bool)
+		}
+		out[i] = row
+	}
+	return out
+}
+
+func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnBoarding2FA) map[string]interface{} {
+	o := make(map[string]interface{})
+	if v, ok := input.GetMfaProviderIdOk(); ok {
+		o["mfa_provider_id"] = v
+	}
+	if v, ok := input.GetMessageOk(); ok {
+		o["message"] = v
+	}
+	if v, ok := input.GetDeviceLimitPerUserOk(); ok {
+		// TODO wrong type
+		o["device_limit_per_user"] = strconv.Itoa(int(*v))
+	}
+
+	return o
 }
