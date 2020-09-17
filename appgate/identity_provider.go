@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -55,14 +54,15 @@ func identityProviderSchema() map[string]*schema.Schema {
 			Optional: true,
 			Computed: true,
 		},
-		"on_boarding_2fa": {
-			Type:     schema.TypeMap,
+		"on_boarding_two_factor": {
+			Type:     schema.TypeList,
 			Optional: true,
+			MaxItems: 1,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"mfa_provider_id": {
 						Type:     schema.TypeString,
-						Optional: true,
+						Required: true,
 					},
 					"message": {
 						Type:     schema.TypeString,
@@ -70,6 +70,7 @@ func identityProviderSchema() map[string]*schema.Schema {
 					},
 					"device_limit_per_user": {
 						Type:     schema.TypeInt,
+						Computed: true,
 						Optional: true,
 					},
 				},
@@ -90,12 +91,12 @@ func identityProviderSchema() map[string]*schema.Schema {
 			Optional: true,
 		},
 		"dns_servers": {
-			Type:     schema.TypeSet,
+			Type:     schema.TypeList,
 			Optional: true,
 			Elem:     &schema.Schema{Type: schema.TypeString},
 		},
 		"dns_search_domains": {
-			Type:     schema.TypeSet,
+			Type:     schema.TypeList,
 			Optional: true,
 			Elem:     &schema.Schema{Type: schema.TypeString},
 		},
@@ -246,29 +247,24 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	if v, ok := d.GetOk("admin_provider"); ok {
 		provider.SetAdminProvider(v.(bool))
 	}
-	if v, ok := d.GetOk("on_boarding_2fa"); ok {
+	if v, ok := d.GetOk("on_boarding_two_factor"); ok {
 		onboarding := openapi.IdentityProviderAllOfOnBoarding2FA{}
-		raw := v.(map[string]interface{})
-		if v, ok := raw["mfa_provider_id"]; ok {
-			onboarding.SetMfaProviderId(v.(string))
+		for _, r := range v.([]interface{}) {
+			raw := r.(map[string]interface{})
+			if v, ok := raw["mfa_provider_id"]; ok {
+				onboarding.SetMfaProviderId(v.(string))
+			}
+			if v, ok := raw["message"]; ok {
+				onboarding.SetMessage(v.(string))
+			}
+			if v, ok := raw["device_limit_per_user"]; ok {
+				onboarding.SetDeviceLimitPerUser(int32(v.(int)))
+			}
+			provider.SetOnBoarding2FA(onboarding)
 		}
-		if v, ok := raw["message"]; ok {
-			onboarding.SetMessage(v.(string))
-		}
-		if v, ok := raw["device_limit_per_user"]; ok {
-			onboarding.SetDeviceLimitPerUser(int32(v.(int)))
-		}
-		provider.SetOnBoarding2FA(onboarding)
+
 	}
-	if v, ok := d.GetOk("on_boarding_type"); ok {
-		provider.SetOnBoardingType(v.(string))
-	}
-	if v, ok := d.GetOk("on_boarding_otp_provider"); ok {
-		provider.SetOnBoardingOtpProvider(v.(string))
-	}
-	if v, ok := d.GetOk("on_boarding_otp_message"); ok {
-		provider.SetOnBoardingOtpMessage(v.(string))
-	}
+
 	if v, ok := d.GetOk("inactivity_timeout_minutes"); ok {
 		provider.SetInactivityTimeoutMinutes(int32(v.(int)))
 	}
@@ -297,13 +293,14 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	}
 	if v, ok := d.GetOk("claim_mappings"); ok {
 		claims := make([]map[string]interface{}, 0)
-		for _, claim := range v.([]map[string]interface{}) {
+		for _, raw := range v.([]interface{}) {
+			claim := raw.(map[string]interface{})
 			c := make(map[string]interface{})
 			if v, ok := claim["attribute_name"]; ok {
-				c["attribute_name"] = v.(string)
+				c["attributeName"] = v.(string)
 			}
 			if v, ok := claim["claim_name"]; ok {
-				c["claim_name"] = v.(string)
+				c["claimName"] = v.(string)
 			}
 			if v, ok := claim["list"]; ok {
 				c["list"] = v.(bool)
@@ -403,7 +400,7 @@ func flattenIdentityProviderOnDemandClaimsMappning(claims []map[string]interface
 	return out
 }
 
-func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnBoarding2FA) map[string]interface{} {
+func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnBoarding2FA) []interface{} {
 	o := make(map[string]interface{})
 	if v, ok := input.GetMfaProviderIdOk(); ok {
 		o["mfa_provider_id"] = v
@@ -412,9 +409,8 @@ func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnB
 		o["message"] = v
 	}
 	if v, ok := input.GetDeviceLimitPerUserOk(); ok {
-		// TODO wrong type
-		o["device_limit_per_user"] = strconv.Itoa(int(*v))
+		o["device_limit_per_user"] = int(*v)
 	}
 
-	return o
+	return []interface{}{o}
 }

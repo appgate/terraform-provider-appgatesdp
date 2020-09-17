@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
@@ -79,9 +78,10 @@ func resourceAppgateLdapProvider() *schema.Resource {
 				Optional: true,
 			}
 			s["password_warning"] = &schema.Schema{
-				Type:     schema.TypeMap,
-				Computed: true,
+				Type:     schema.TypeList,
 				Optional: true,
+				MaxItems: 1,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -205,17 +205,19 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	}
 	if v, ok := d.GetOk("password_warning"); ok {
 		pw := openapi.LdapProviderAllOfPasswordWarning{}
-		raw := v.(map[string]interface{})
-		if v, ok := raw["enabled"]; ok {
-			pw.SetEnabled(v.(bool))
+		for _, r := range v.([]interface{}) {
+			raw := r.(map[string]interface{})
+			if v, ok := raw["enabled"]; ok {
+				pw.SetEnabled(v.(bool))
+			}
+			if v, ok := raw["threshold_days"]; ok {
+				pw.SetThresholdDays(int32(v.(int)))
+			}
+			if v, ok := raw["message"]; ok {
+				pw.SetMessage(v.(string))
+			}
+			args.SetPasswordWarning(pw)
 		}
-		if v, ok := raw["threshold_days"]; ok {
-			pw.SetThresholdDays(int32(v.(int)))
-		}
-		if v, ok := raw["message"]; ok {
-			pw.SetMessage(v.(string))
-		}
-		args.SetPasswordWarning(pw)
 	}
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
@@ -250,14 +252,11 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("client_provider", ldap.GetClientProvider())
 	d.Set("admin_provider", ldap.GetAdminProvider())
 	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_2fa", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
 			return err
 		}
 	}
 
-	d.Set("on_boarding_type", ldap.GetOnBoardingType())
-	d.Set("on_boarding_otp_provider", ldap.GetOnBoardingOtpProvider())
-	d.Set("on_boarding_otp_message", ldap.GetOnBoardingOtpMessage())
 	d.Set("inactivity_timeout_minutes", ldap.GetInactivityTimeoutMinutes())
 	if v, ok := ldap.GetIpPoolV4Ok(); ok {
 		d.Set("ip_pool_v4", *v)
@@ -305,19 +304,18 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func flattenLdapPasswordWarning(pw openapi.LdapProviderAllOfPasswordWarning) map[string]interface{} {
-	// TODO: wrong types on threshold_days, enabled
+func flattenLdapPasswordWarning(pw openapi.LdapProviderAllOfPasswordWarning) []interface{} {
 	o := make(map[string]interface{})
 	if v, ok := pw.GetEnabledOk(); ok {
-		o["enabled"] = strconv.FormatBool(*v) // TODOD should be bool
+		o["enabled"] = *v
 	}
 	if v, ok := pw.GetThresholdDaysOk(); ok {
-		o["threshold_days"] = strconv.Itoa(int(*v)) // TOOD Should be int
+		o["threshold_days"] = int(*v)
 	}
 	if v, ok := pw.GetMessageOk(); ok {
 		o["message"] = v
 	}
-	return o
+	return []interface{}{o}
 }
 
 func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
