@@ -204,21 +204,10 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 		args.SetMembershipBaseDn(v.(string))
 	}
 	if v, ok := d.GetOk("password_warning"); ok {
-		pw := openapi.LdapProviderAllOfPasswordWarning{}
-		for _, r := range v.([]interface{}) {
-			raw := r.(map[string]interface{})
-			if v, ok := raw["enabled"]; ok {
-				pw.SetEnabled(v.(bool))
-			}
-			if v, ok := raw["threshold_days"]; ok {
-				pw.SetThresholdDays(int32(v.(int)))
-			}
-			if v, ok := raw["message"]; ok {
-				pw.SetMessage(v.(string))
-			}
-			args.SetPasswordWarning(pw)
-		}
+		pw := readLdapPasswordWarningFromConfig(v.([]interface{}))
+		args.SetPasswordWarning(pw)
 	}
+
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
@@ -240,7 +229,6 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 		d.SetId("")
 		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
 	}
-	log.Printf("[DEBUG] Reading ldap identity provider POOL IPV4: %+v", ldap.GetIpPoolV4())
 	d.Set("type", identityProviderLdap)
 	// base attributes
 	d.Set("name", ldap.Name)
@@ -318,7 +306,147 @@ func flattenLdapPasswordWarning(pw openapi.LdapProviderAllOfPasswordWarning) []i
 	return []interface{}{o}
 }
 
+func readLdapPasswordWarningFromConfig(input []interface{}) openapi.LdapProviderAllOfPasswordWarning {
+	pw := openapi.LdapProviderAllOfPasswordWarning{}
+	for _, r := range input {
+		raw := r.(map[string]interface{})
+		if v, ok := raw["enabled"]; ok {
+			pw.SetEnabled(v.(bool))
+		}
+		if v, ok := raw["threshold_days"]; ok {
+			pw.SetThresholdDays(int32(v.(int)))
+		}
+		if v, ok := raw["message"]; ok {
+			pw.SetMessage(v.(string))
+		}
+	}
+	return pw
+}
+
 func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating ldap identity provider id: %+v", d.Id())
+	token := meta.(*Client).Token
+	api := meta.(*Client).API.LdapIdentityProvidersApi
+	ctx := context.TODO()
+	request := api.IdentityProvidersIdGet(ctx, d.Id())
+	originalLdapProvider, _, err := request.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
+	}
+	// base attributes
+	if d.HasChange("name") {
+		originalLdapProvider.SetName(d.Get("name").(string))
+	}
+
+	if d.HasChange("notes") {
+		originalLdapProvider.SetNotes(d.Get("notes").(string))
+	}
+
+	if d.HasChange("tags") {
+		originalLdapProvider.SetTags(schemaExtractTags(d))
+	}
+
+	// identity provider attributes
+	if d.HasChange("default") {
+		originalLdapProvider.SetDefault(d.Get("default").(bool))
+	}
+	if d.HasChange("client_provider") {
+		originalLdapProvider.SetClientProvider(d.Get("client_provider").(bool))
+	}
+	if d.HasChange("admin_provider") {
+		originalLdapProvider.SetAdminProvider(d.Get("admin_provider").(bool))
+	}
+	if d.HasChange("on_boarding_two_factor") {
+		_, v := d.GetChange("on_boarding_two_factor")
+		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
+		originalLdapProvider.SetOnBoarding2FA(onboarding)
+	}
+
+	if d.HasChange("inactivity_timeout_minutes") {
+		originalLdapProvider.SetInactivityTimeoutMinutes(int32(d.Get("inactivity_timeout_minutes").(int)))
+	}
+	if d.HasChange("ip_pool_v4") {
+		originalLdapProvider.SetIpPoolV4(d.Get("ip_pool_v4").(string))
+	}
+	if d.HasChange("ip_pool_v6") {
+		originalLdapProvider.SetIpPoolV6(d.Get("ip_pool_v6").(string))
+	}
+	if d.HasChange("dns_servers") {
+		_, v := d.GetChange("dns_servers")
+		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return fmt.Errorf("Failed to read dns servers %s", err)
+		}
+		originalLdapProvider.SetDnsServers(servers)
+	}
+	if d.HasChange("dns_search_domains") {
+		_, v := d.GetChange("dns_search_domains")
+		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return fmt.Errorf("Failed to read dns search domains %s", err)
+		}
+		originalLdapProvider.SetDnsSearchDomains(servers)
+	}
+	if d.HasChange("block_local_dns_requests") {
+		originalLdapProvider.SetBlockLocalDnsRequests(d.Get("block_local_dns_requests").(bool))
+	}
+	if d.HasChange("claim_mappings") {
+		_, v := d.GetChange("claim_mappings")
+		claims := readIdentityProviderClaimMappingFromConfig(v.([]interface{}))
+		originalLdapProvider.SetClaimMappings(claims)
+	}
+	if d.HasChange("on_demand_claim_mappings") {
+		_, v := d.GetChange("on_demand_claim_mappings")
+		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.([]interface{}))
+		originalLdapProvider.SetOnDemandClaimMappings(claims)
+	}
+
+	// ldap provider attributes
+	if d.HasChange("hostnames") {
+		_, v := d.GetChange("hostnames")
+		hostnames, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return err
+		}
+		originalLdapProvider.SetHostnames(hostnames)
+	}
+	if d.HasChange("port") {
+		originalLdapProvider.SetPort(int32(d.Get("port").(int)))
+	}
+	if d.HasChange("ssl_enabled") {
+		originalLdapProvider.SetSslEnabled(d.Get("ssl_enabled").(bool))
+	}
+	if d.HasChange("admin_distinguished_name") {
+		originalLdapProvider.SetAdminDistinguishedName(d.Get("admin_distinguished_name").(string))
+	}
+	if d.HasChange("admin_password") {
+		originalLdapProvider.SetAdminPassword(d.Get("admin_password").(string))
+	}
+	if d.HasChange("base_dn") {
+		originalLdapProvider.SetBaseDn(d.Get("base_dn").(string))
+	}
+	if d.HasChange("object_class") {
+		originalLdapProvider.SetObjectClass(d.Get("object_class").(string))
+	}
+	if d.HasChange("username_attribute") {
+		originalLdapProvider.SetUsernameAttribute(d.Get("username_attribute").(string))
+	}
+	if d.HasChange("membership_filter") {
+		originalLdapProvider.SetMembershipFilter(d.Get("membership_filter").(string))
+	}
+	if d.HasChange("membership_base_dn") {
+		originalLdapProvider.SetMembershipBaseDn(d.Get("membership_base_dn").(string))
+	}
+	if d.HasChange("password_warning") {
+		_, v := d.GetChange("password_warning")
+		pw := readLdapPasswordWarningFromConfig(v.([]interface{}))
+		originalLdapProvider.SetPasswordWarning(pw)
+	}
+	req := api.IdentityProvidersIdPut(ctx, d.Id())
+	req = req.IdentityProvider(originalLdapProvider)
+	_, _, err = req.Authorization(token).Execute()
+	if err != nil {
+		return fmt.Errorf("Could not update %s provider %+v", identityProviderLdap, prettyPrintAPIError(err))
+	}
 	return resourceAppgateLdapProviderRuleRead(d, meta)
 }

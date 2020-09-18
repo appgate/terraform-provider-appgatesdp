@@ -248,21 +248,8 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 		provider.SetAdminProvider(v.(bool))
 	}
 	if v, ok := d.GetOk("on_boarding_two_factor"); ok {
-		onboarding := openapi.IdentityProviderAllOfOnBoarding2FA{}
-		for _, r := range v.([]interface{}) {
-			raw := r.(map[string]interface{})
-			if v, ok := raw["mfa_provider_id"]; ok {
-				onboarding.SetMfaProviderId(v.(string))
-			}
-			if v, ok := raw["message"]; ok {
-				onboarding.SetMessage(v.(string))
-			}
-			if v, ok := raw["device_limit_per_user"]; ok {
-				onboarding.SetDeviceLimitPerUser(int32(v.(int)))
-			}
-			provider.SetOnBoarding2FA(onboarding)
-		}
-
+		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
+		provider.SetOnBoarding2FA(onboarding)
 	}
 
 	if v, ok := d.GetOk("inactivity_timeout_minutes"); ok {
@@ -292,61 +279,89 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 		provider.SetBlockLocalDnsRequests(v.(bool))
 	}
 	if v, ok := d.GetOk("claim_mappings"); ok {
-		claims := make([]map[string]interface{}, 0)
-		for _, raw := range v.([]interface{}) {
-			claim := raw.(map[string]interface{})
-			c := make(map[string]interface{})
-			if v, ok := claim["attribute_name"]; ok {
-				c["attributeName"] = v.(string)
-			}
-			if v, ok := claim["claim_name"]; ok {
-				c["claimName"] = v.(string)
-			}
-			if v, ok := claim["list"]; ok {
-				c["list"] = v.(bool)
-			}
-			if v, ok := claim["encrypt"]; ok {
-				c["encrypt"] = v.(bool)
-			}
-			claims = append(claims, c)
-		}
+		claims := readIdentityProviderClaimMappingFromConfig(v.([]interface{}))
 		if len(claims) > 0 {
 			provider.SetClaimMappings(claims)
 		}
 	}
 	if v, ok := d.GetOk("on_demand_claim_mappings"); ok {
-		claims := make([]map[string]interface{}, 0)
-		for _, claim := range v.([]map[string]interface{}) {
-			c := make(map[string]interface{})
-			if v, ok := claim["command"]; ok {
-				c["command"] = v.(string)
-			}
-			if v, ok := claim["claim_name"]; ok {
-				c["claim_name"] = v.(string)
-			}
-			if v, ok := claim["parameters"]; ok {
-				parameters := v.(map[string]interface{})
-				if v, ok := parameters["name"]; ok {
-					c["name"] = v.(string)
-				}
-				if v, ok := parameters["path"]; ok {
-					c["path"] = v.(string)
-				}
-				if v, ok := parameters["args"]; ok {
-					c["args"] = v.(string)
-				}
-				c["parameters"] = parameters
-			}
-			if v, ok := claim["platform"]; ok {
-				c["platform"] = v.(bool)
-			}
-			claims = append(claims, c)
-		}
+		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.([]interface{}))
 		if len(claims) > 0 {
 			provider.SetOnDemandClaimMappings(claims)
 		}
 	}
 	return &provider, nil
+}
+
+func readOnBoardingTwoFactorFromConfig(input []interface{}) openapi.IdentityProviderAllOfOnBoarding2FA {
+	onboarding := openapi.IdentityProviderAllOfOnBoarding2FA{}
+	for _, r := range input {
+		raw := r.(map[string]interface{})
+		if v, ok := raw["mfa_provider_id"]; ok {
+			onboarding.SetMfaProviderId(v.(string))
+		}
+		if v, ok := raw["message"]; ok {
+			onboarding.SetMessage(v.(string))
+		}
+		if v, ok := raw["device_limit_per_user"]; ok {
+			onboarding.SetDeviceLimitPerUser(int32(v.(int)))
+		}
+	}
+	return onboarding
+}
+
+func readIdentityProviderClaimMappingFromConfig(input []interface{}) []map[string]interface{} {
+	claims := make([]map[string]interface{}, 0)
+	for _, raw := range input {
+		claim := raw.(map[string]interface{})
+		c := make(map[string]interface{})
+		if v, ok := claim["attribute_name"]; ok {
+			c["attributeName"] = v.(string)
+		}
+		if v, ok := claim["claim_name"]; ok {
+			c["claimName"] = v.(string)
+		}
+		if v, ok := claim["list"]; ok {
+			c["list"] = v.(bool)
+		}
+		if v, ok := claim["encrypt"]; ok {
+			c["encrypt"] = v.(bool)
+		}
+		claims = append(claims, c)
+	}
+	return claims
+}
+
+func readIdentityProviderOnDemandClaimMappingFromConfig(input []interface{}) []map[string]interface{} {
+	claims := make([]map[string]interface{}, 0)
+	for _, raw := range input {
+		claim := raw.(map[string]interface{})
+		c := make(map[string]interface{})
+		if v, ok := claim["command"]; ok {
+			c["command"] = v.(string)
+		}
+		if v, ok := claim["claim_name"]; ok {
+			c["claim_name"] = v.(string)
+		}
+		if v, ok := claim["parameters"]; ok {
+			parameters := v.(map[string]interface{})
+			if v, ok := parameters["name"]; ok {
+				c["name"] = v.(string)
+			}
+			if v, ok := parameters["path"]; ok {
+				c["path"] = v.(string)
+			}
+			if v, ok := parameters["args"]; ok {
+				c["args"] = v.(string)
+			}
+			c["parameters"] = parameters
+		}
+		if v, ok := claim["platform"]; ok {
+			c["platform"] = v.(bool)
+		}
+		claims = append(claims, c)
+	}
+	return claims
 }
 
 func identityProviderDelete(d *schema.ResourceData, meta interface{}) error {
