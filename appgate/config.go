@@ -29,6 +29,7 @@ type Config struct {
 	Provider string
 	Insecure bool
 	Timeout  int
+	Debug    bool
 }
 
 // Client is the appgate API client.
@@ -62,7 +63,7 @@ func (c *Config) Client() (*Client, error) {
 			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", Version),
 		},
 		UserAgent: "Appgate-TerraformProvider/1.0.0/go",
-		Debug:     true,
+		Debug:     c.Debug,
 		Servers: []openapi.ServerConfiguration{
 			{
 				URL:         c.URL,
