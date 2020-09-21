@@ -91,16 +91,19 @@ func resourceAppgateMfaProvider() *schema.Resource {
 
 			"authentication_protocol": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			},
 
 			"timeout": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 			},
 
 			"mode": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 					s := v.(string)
@@ -208,6 +211,7 @@ func resourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("timeout", mfaProvider.GetTimeout())
 	d.Set("mode", mfaProvider.GetMode())
 	d.Set("use_user_password", mfaProvider.GetUseUserPassword())
+	d.Set("authentication_protocol", mfaProvider.GetAuthenticationProtocol())
 
 	return nil
 }
