@@ -10,8 +10,56 @@ import (
 	"sort"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
+
+func mergeSchemaMaps(maps ...map[string]*schema.Schema) map[string]*schema.Schema {
+	result := make(map[string]*schema.Schema)
+	for _, m := range maps {
+		for k, v := range m {
+			result[k] = v
+		}
+	}
+	return result
+}
+
+func baseEntitySchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Description: "Name of the object.",
+			Required:    true,
+		},
+		"notes": {
+			Type:        schema.TypeString,
+			Description: "Notes for the object. Used for documentation purposes.",
+			Default:     DefaultDescription,
+			Optional:    true,
+		},
+		"tags": {
+			Type:        schema.TypeSet,
+			Description: "Array of tags.",
+			Optional:    true,
+			Elem:        &schema.Schema{Type: schema.TypeString},
+		},
+	}
+}
+
+func readBaseEntityFromConfig(d *schema.ResourceData) (*openapi.BaseEntity, error) {
+	base := &openapi.BaseEntity{}
+	base.Id = uuid.New().String()
+	if v, ok := d.GetOk("name"); ok {
+		base.SetName(v.(string))
+	}
+	if v, ok := d.GetOk("notes"); ok {
+		base.SetNotes(v.(string))
+	}
+	if _, ok := d.GetOk("tags"); ok {
+		base.SetTags(schemaExtractTags(d))
+	}
+	return base, nil
+}
 
 // prettyPrintAPIError is used to show a formatted error message
 // from a HTTP 400-503 response from the http client.

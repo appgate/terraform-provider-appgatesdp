@@ -69,6 +69,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_ip_pool":                 resourceAppgateIPPool(),
 			"appgate_administrative_role":     resourceAppgateAdministrativeRole(),
 			"appgate_global_settings":         resourceGlobalSettings(),
+			"appgate_ldap_identity_provider":  resourceAppgateLdapProvider(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
