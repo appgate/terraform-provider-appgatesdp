@@ -85,3 +85,5 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
   it can also be sourced from the `APPGATE_PROVIDER` environment variables.
 
 * `insecure` - (Optional) Whether server should be accessed without verifying the TLS certificate. As the name suggests this is insecure and should not be used beyond experiments, accessing local (non-production) GHE instance etc. There is a number of ways to obtain trusted certificate for free, e.g. from Let's Encrypt. Such trusted certificate does not require this option to be enabled. Defaults to `true`.
+
+* `debug` - (Optional) Whether HTTP request should be displayed in debug mode, combine with [TF_LOG](https://www.terraform.io/docs/internals/debugging.html) Defaults to `false`.

@@ -34,6 +34,11 @@ func Provider() terraform.ResourceProvider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_INSECURE", true),
 			},
+			"debug": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_HTTP_DEBUG", false),
+			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":               dataSourceAppgateAppliance(),
@@ -77,6 +82,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Provider: d.Get("provider").(string),
 		Insecure: d.Get("insecure").(bool),
 		Timeout:  20,
+		Debug:    d.Get("debug").(bool),
 	}
 	return config.Client()
 }
