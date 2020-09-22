@@ -2,3 +2,6 @@ terraform-provider-appgate*
 .terraform/*
 terraform.tfstate*
 *.b64
+/bin/
+/build/
+/dist/
