@@ -70,6 +70,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_administrative_role":     resourceAppgateAdministrativeRole(),
 			"appgate_global_settings":         resourceGlobalSettings(),
 			"appgate_ldap_identity_provider":  resourceAppgateLdapProvider(),
+			"appgate_trusted_certificate":     resourceAppgateTrustedCertificate(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
