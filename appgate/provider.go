@@ -55,6 +55,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_administrative_role":     dataSourceAppgateAdministrativeRole(),
 			"appgate_global_settings":         dataSourceGlobalSettings(),
 			"appgate_trusted_certificate":     dataSourceAppgateTrustedCertificate(),
+			"appgate_mfa_provider":            dataSourceAppgateMfaProvider(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":               resourceAppgateAppliance(),
@@ -72,6 +73,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_global_settings":         resourceGlobalSettings(),
 			"appgate_ldap_identity_provider":  resourceAppgateLdapProvider(),
 			"appgate_trusted_certificate":     resourceAppgateTrustedCertificate(),
+			"appgate_mfa_provider":            resourceAppgateMfaProvider(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
