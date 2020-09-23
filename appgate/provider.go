@@ -56,6 +56,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_global_settings":         dataSourceGlobalSettings(),
 			"appgate_trusted_certificate":     dataSourceAppgateTrustedCertificate(),
 			"appgate_mfa_provider":            dataSourceAppgateMfaProvider(),
+			"appgate_local_user":              dataSourceAppgateLocalUser(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":               resourceAppgateAppliance(),
