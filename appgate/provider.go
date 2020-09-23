@@ -74,6 +74,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_ldap_identity_provider":  resourceAppgateLdapProvider(),
 			"appgate_trusted_certificate":     resourceAppgateTrustedCertificate(),
 			"appgate_mfa_provider":            resourceAppgateMfaProvider(),
+			"appgate_local_user":              resourceAppgateLocalUser(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
