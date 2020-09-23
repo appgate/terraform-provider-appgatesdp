@@ -71,14 +71,18 @@ func prettyPrintAPIError(err error) error {
 		}
 		if err, ok := model.(openapi.ValidationError); ok {
 			var ValidationErrors string
+			errorMessage := "Validation error"
 			for _, ve := range err.GetErrors() {
 				ValidationErrors = ValidationErrors + ve.GetField() + " " + ve.GetMessage() + "\n"
 			}
-			return fmt.Errorf("Validation error:\n %s", ValidationErrors)
+			if msg, o := err.GetMessageOk(); o {
+				errorMessage = fmt.Sprintf("%s %s", errorMessage, *msg)
+			}
+			return fmt.Errorf("%s \n %s", errorMessage, ValidationErrors)
 		}
-		return fmt.Errorf("Some error: %s", err.Error())
+		return fmt.Errorf("%s", err.Error())
 	}
-	return fmt.Errorf("Unresolved error %+v", err)
+	return fmt.Errorf("%+v", err)
 }
 
 func schemaExtractTags(d *schema.ResourceData) []string {
