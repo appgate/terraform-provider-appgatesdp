@@ -125,9 +125,10 @@ func resourceAppgateMfaProvider() *schema.Resource {
 			},
 
 			"challenge_shared_secret": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+				Computed:  true,
 			},
 		},
 	}
@@ -234,11 +235,41 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("notes") {
 		originalMfaProvider.SetNotes(d.Get("notes").(string))
 	}
-
 	if d.HasChange("tags") {
 		originalMfaProvider.SetTags(schemaExtractTags(d))
 	}
-
+	if d.HasChange("type") {
+		originalMfaProvider.SetType(d.Get("notes").(string))
+	}
+	if d.HasChange("hostnames") {
+		_, v := d.GetChange("hostnames")
+		hostnames, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return fmt.Errorf("Failed to read hostnames %s", err)
+		}
+		originalMfaProvider.SetHostnames(hostnames)
+	}
+	if d.HasChange("port") {
+		originalMfaProvider.SetPort(float32(d.Get("port").(int)))
+	}
+	if d.HasChange("shared_secret") {
+		originalMfaProvider.SetSharedSecret(d.Get("shared_secret").(string))
+	}
+	if d.HasChange("authentication_protocol") {
+		originalMfaProvider.SetAuthenticationProtocol(d.Get("authentication_protocol").(string))
+	}
+	if d.HasChange("timeout") {
+		originalMfaProvider.SetTimeout(float32(d.Get("timeout").(int)))
+	}
+	if d.HasChange("mode") {
+		originalMfaProvider.SetMode(d.Get("mode").(string))
+	}
+	if d.HasChange("use_user_password") {
+		originalMfaProvider.SetUseUserPassword(d.Get("use_user_password").(bool))
+	}
+	if d.HasChange("challenge_shared_secret") {
+		originalMfaProvider.SetChallengeSharedSecret(d.Get("challenge_shared_secret").(string))
+	}
 	req := api.MfaProvidersIdPut(ctx, d.Id())
 	req = req.MfaProvider(originalMfaProvider)
 	_, _, err = req.Authorization(token).Execute()
