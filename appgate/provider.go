@@ -80,6 +80,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_license":                 resourceAppgateLicense(),
 			"appgate_admin_mfa_settings":      resourceAdminMfaSettings(),
 			"appgate_client_connections":      resourceClientConnections(),
+			"appgate_blacklist_user":          resourceAppgateBlacklistUser(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
