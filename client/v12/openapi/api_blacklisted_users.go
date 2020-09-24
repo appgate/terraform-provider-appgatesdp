@@ -216,16 +216,16 @@ func (a *BlacklistedUsersApiService) BlacklistGet(ctx _context.Context) apiBlack
 
 /*
 Execute executes the request
- @return BlacklistEntry
+ @return BlackListList
 */
-func (r apiBlacklistGetRequest) Execute() (BlacklistEntry, *_nethttp.Response, error) {
+func (r apiBlacklistGetRequest) Execute() (BlackListList, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  BlacklistEntry
+		localVarReturnValue  BlackListList
 	)
 
 	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "BlacklistedUsersApiService.BlacklistGet")
@@ -295,7 +295,7 @@ func (r apiBlacklistGetRequest) Execute() (BlacklistEntry, *_nethttp.Response, e
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v BlacklistEntry
+			var v BlackListList
 			err = r.apiService.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
