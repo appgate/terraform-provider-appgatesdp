@@ -11,7 +11,7 @@ import (
 func TestAccBlacklistUserBasic(t *testing.T) {
 	resourceName := "appgate_blacklist_user.test_blacklist_user"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

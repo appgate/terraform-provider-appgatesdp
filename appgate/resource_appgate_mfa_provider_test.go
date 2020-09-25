@@ -12,7 +12,7 @@ import (
 func TestAccMfaProviderBasic(t *testing.T) {
 	resourceName := "appgate_mfa_provider.test_mfa_provider"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMfaProviderDestroy,

@@ -9,6 +9,7 @@ import (
 func TestAccAppgateGlobalSettingsDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: `data "appgate_global_settings" "test" {}`,

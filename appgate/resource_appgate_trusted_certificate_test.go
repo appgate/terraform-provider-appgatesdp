@@ -11,17 +11,17 @@ import (
 
 func TestAccTrustedCertificateBasic(t *testing.T) {
 	resourceName := "appgate_trusted_certificate.test_trusted_certificate"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckTrustedCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTrustedCertificateBasic(),
+				Config: testAccCheckTrustedCertificateBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTrustedCertificateExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "cli"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
@@ -39,10 +39,10 @@ func TestAccTrustedCertificateBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckTrustedCertificateBasic() string {
+func testAccCheckTrustedCertificateBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_trusted_certificate" "test_trusted_certificate" {
-  name = "cli"
+  name = "%s"
   tags = [
     "terraform",
     "api-created"
@@ -65,7 +65,7 @@ eIE/AV/qHWNEiLIMP5JO2FUbjpDCYtHkCOFDmv01e6rs86L3MQ8zF76T
 -----END CERTIFICATE-----
 EOF
 }
-`)
+`, rName)
 }
 
 func testAccCheckTrustedCertificateExists(resource string) resource.TestCheckFunc {

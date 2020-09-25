@@ -11,16 +11,17 @@ import (
 
 func TestAccRingfenceRuleBasicICMP(t *testing.T) {
 	resourceName := "appgate_ringfence_rule.test_ringfence_rule"
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRingfenceRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckRingfenceRuleICMP(),
+				Config: testAccCheckRingfenceRuleICMP(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRingfenceRuleExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "ringfence-rule-test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
@@ -47,10 +48,10 @@ func TestAccRingfenceRuleBasicICMP(t *testing.T) {
 	})
 }
 
-func testAccCheckRingfenceRuleICMP() string {
+func testAccCheckRingfenceRuleICMP(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_ringfence_rule" "test_ringfence_rule" {
-    name = "ringfence-rule-test"
+    name = "%s"
     tags = [
         "terraform",
         "api-created"
@@ -69,21 +70,22 @@ resource "appgate_ringfence_rule" "test_ringfence_rule" {
         ]
       }
 }
-`)
+`, rName)
 }
 
 func TestAccRingfenceRuleBasicTCP(t *testing.T) {
 	resourceName := "appgate_ringfence_rule.test_ringfence_rule_tcp"
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRingfenceRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckRingfenceRuleTCP(),
+				Config: testAccCheckRingfenceRuleTCP(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRingfenceRuleExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "ringfence-rule-test-tcp"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
@@ -112,10 +114,10 @@ func TestAccRingfenceRuleBasicTCP(t *testing.T) {
 		},
 	})
 }
-func testAccCheckRingfenceRuleTCP() string {
+func testAccCheckRingfenceRuleTCP(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_ringfence_rule" "test_ringfence_rule_tcp" {
-    name = "ringfence-rule-test-tcp"
+    name = "%s"
     tags = [
       "terraform",
       "api-created"
@@ -136,7 +138,7 @@ resource "appgate_ringfence_rule" "test_ringfence_rule_tcp" {
       ]
     }
 }
-`)
+`, rName)
 }
 
 func testAccCheckRingfenceRuleExists(resource string) resource.TestCheckFunc {

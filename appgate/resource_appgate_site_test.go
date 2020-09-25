@@ -11,13 +11,14 @@ import (
 
 func TestAccSiteBasic(t *testing.T) {
 	resourceName := "appgate_site.test_site"
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSiteDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckSite(),
+				Config: testAccCheckSite(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
@@ -26,7 +27,7 @@ func TestAccSiteBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.1013162454.excluded_subnets.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name", "The test site"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.3377416303.aws_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.3377416303.aws_resolvers.2001831033.access_key_id", "string1"),
@@ -125,10 +126,10 @@ func testAccCheckSiteDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckSite() string {
+func testAccCheckSite(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_site" "test_site" {
-    name       = "The test site"
+    name       = "%s"
     short_name = "tst"
     tags = [
         "developer",
@@ -202,7 +203,7 @@ resource "appgate_site" "test_site" {
         }
     }
 }
-`)
+`, rName)
 }
 
 func testAccCheckSiteExists(resource string) resource.TestCheckFunc {

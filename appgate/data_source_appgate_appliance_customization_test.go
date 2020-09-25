@@ -1,19 +1,22 @@
 package appgate
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccAppgateApplianceCustomizationDataSource(t *testing.T) {
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: `
+				Config: fmt.Sprintf(`
                 resource "appgate_appliance_customization" "test_appliance_customization" {
-                    name = "test customization"
+                    name = "%s"
                     file = "test-fixtures/appliance_customization_file.zip"
 
                     tags = [
@@ -21,13 +24,13 @@ func TestAccAppgateApplianceCustomizationDataSource(t *testing.T) {
                       "api-created"
                     ]
                 }
-				data "appgate_appliance_customization" "test" {
+                data "appgate_appliance_customization" "test" {
                     depends_on = [
                         appgate_appliance_customization.test_appliance_customization,
                     ]
-                    appliance_customization_name = "test customization"
+                    appliance_customization_name = "%s"
                 }
-                `,
+                `, rName, rName),
 				// Because of the `depends_on` in the datasource, the plan cannot be empty.
 				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
 				ExpectNonEmptyPlan: true,

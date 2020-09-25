@@ -12,7 +12,7 @@ import (
 func TestAccAdminMfaSettingsBasic(t *testing.T) {
 	resourceName := "appgate_admin_mfa_settings.test_example_mfa_settings"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

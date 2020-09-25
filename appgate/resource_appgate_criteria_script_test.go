@@ -11,19 +11,18 @@ import (
 
 func TestAccCriteriaScriptBasic(t *testing.T) {
 	resourceName := "appgate_criteria_script.test_criteria_script"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCriteriaScriptDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckCriteriaScriptBasic(),
+				Config: testAccCheckCriteriaScriptBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCriteriaScriptExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "testCriteriaScript"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "expression", "return claims.user.username === 'admin';"),
-					resource.TestCheckResourceAttr(resourceName, "name", "testCriteriaScript"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1389504093", "bb"),
@@ -39,17 +38,17 @@ func TestAccCriteriaScriptBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckCriteriaScriptBasic() string {
+func testAccCheckCriteriaScriptBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_criteria_script" "test_criteria_script" {
-  name       = "testCriteriaScript"
+  name       = "%s"
   expression = "return claims.user.username === 'admin';"
   tags = [
     "aa",
     "bb"
   ]
 }
-`)
+`, rName)
 }
 
 func testAccCheckCriteriaScriptExists(resource string) resource.TestCheckFunc {

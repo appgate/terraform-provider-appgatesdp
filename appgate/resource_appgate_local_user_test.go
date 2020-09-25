@@ -11,14 +11,14 @@ import (
 
 func TestAccLocalUserBasic(t *testing.T) {
 	resourceName := "appgate_local_user.test_local_user"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLocalUserDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckLocalUserBasic(),
+				Config: testAccCheckLocalUserBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLocalUserExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "email", "john.doe@test.com"),
@@ -26,7 +26,7 @@ func TestAccLocalUserBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "first_name", "john"),
 					resource.TestCheckResourceAttr(resourceName, "last_name", "doe"),
 					resource.TestCheckResourceAttr(resourceName, "lock_start", "2020-04-27T09:51:03Z"),
-					resource.TestCheckResourceAttr(resourceName, "name", "apiuser"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "password", "hunter3"),
 					resource.TestCheckResourceAttr(resourceName, "phone", "+1-202-555-0172"),
@@ -44,10 +44,10 @@ func TestAccLocalUserBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckLocalUserBasic() string {
+func testAccCheckLocalUserBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_local_user" "test_local_user" {
-    name                  = "apiuser"
+    name                  = "%s"
     first_name            = "john"
     last_name             = "doe"
     password              = "hunter3"
@@ -60,7 +60,7 @@ resource "appgate_local_user" "test_local_user" {
       "api-created"
     ]
 }
-`)
+`, rName)
 }
 
 func testAccCheckLocalUserExists(resource string) resource.TestCheckFunc {

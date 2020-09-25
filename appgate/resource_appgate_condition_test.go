@@ -11,16 +11,17 @@ import (
 
 func TestAccConditionBasic(t *testing.T) {
 	resourceName := "appgate_condition.test_condition"
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckConditionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckCondition(),
+				Config: testAccCheckCondition(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckConditionExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "condition-test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "expression", "return true;"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
@@ -47,10 +48,10 @@ func TestAccConditionBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckCondition() string {
+func testAccCheckCondition(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_condition" "test_condition" {
-    name = "condition-test"
+    name = "%s"
     tags = [
       "terraform",
       "api-created"
@@ -67,7 +68,7 @@ resource "appgate_condition" "test_condition" {
         message     = "This resoure requires you to enter your password again"
     }
 }
-`)
+`, rName)
 }
 
 func testAccCheckConditionExists(resource string) resource.TestCheckFunc {

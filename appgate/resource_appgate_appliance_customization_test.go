@@ -10,20 +10,20 @@ import (
 )
 
 func TestAccApplianceCustomizationBasic(t *testing.T) {
-	resourceName := "appgate_appliance_customization.test_appliance_customization"
-
-	resource.Test(t, resource.TestCase{
+	resourceName := "appgate_appliance_customization.test_acc_appliance_customization"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApplianceCustomizationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceCustomizationBasic(),
+				Config: testAccCheckApplianceCustomizationBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceCustomizationExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "checksum_sha256", "e3a9fb24832dff49ea59ff79cff9b1f24cbc0974ec62ec700165a0631fee779e"),
 					resource.TestCheckResourceAttr(resourceName, "file", "test-fixtures/appliance_customization_file.zip"),
-					resource.TestCheckResourceAttr(resourceName, "name", "test customization"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "size", "574"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
@@ -40,10 +40,10 @@ func TestAccApplianceCustomizationBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckApplianceCustomizationBasic() string {
+func testAccCheckApplianceCustomizationBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_appliance_customization" "test_appliance_customization" {
-    name = "test customization"
+resource "appgate_appliance_customization" "test_acc_appliance_customization" {
+    name = "%s"
     file = "test-fixtures/appliance_customization_file.zip"
 
     tags = [
@@ -51,7 +51,7 @@ resource "appgate_appliance_customization" "test_appliance_customization" {
       "api-created"
     ]
 }
-`)
+`, rName)
 }
 
 func testAccCheckApplianceCustomizationExists(resource string) resource.TestCheckFunc {
