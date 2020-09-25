@@ -11,16 +11,17 @@ import (
 
 func TestAccPolicyBasic(t *testing.T) {
 	resourceName := "appgate_policy.test_policy"
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckPolicyBasic(),
+				Config: testAccCheckPolicyBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "policy-test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "disabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "expression", "return true;\n"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "terraform policy notes"),
@@ -41,10 +42,10 @@ func TestAccPolicyBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckPolicyBasic() string {
+func testAccCheckPolicyBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_policy" "test_policy" {
-  name  = "policy-test"
+  name  = "%s"
   notes = "terraform policy notes"
   tags = [
     "terraform",
@@ -63,7 +64,7 @@ resource "appgate_policy" "test_policy" {
   ]
   tamper_proofing = true
 }
-`)
+`, rName)
 }
 
 func testAccCheckPolicyExists(resource string) resource.TestCheckFunc {

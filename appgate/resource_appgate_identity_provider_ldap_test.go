@@ -11,14 +11,14 @@ import (
 
 func TestAccLdapIdentityProviderBasic(t *testing.T) {
 	resourceName := "appgate_ldap_identity_provider.ldap_test_resource"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckLdapIdentityProviderDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckLdapIdentityProviderBasic(),
+				Config: testAccCheckLdapIdentityProviderBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLdapIdentityProviderExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "admin_distinguished_name", "CN=admin,OU=Users,DC=company,DC=com"),
@@ -64,7 +64,7 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "ip_pool_v6"),
 					resource.TestCheckResourceAttr(resourceName, "membership_base_dn", "OU=Groups,DC=company,DC=com"),
 					resource.TestCheckResourceAttr(resourceName, "membership_filter", "(objectCategory=group)"),
-					resource.TestCheckResourceAttr(resourceName, "name", "ldap_provider_acceptance_test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "object_class", "user"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "0"),
@@ -93,7 +93,7 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckLdapIdentityProviderBasic() string {
+func testAccCheckLdapIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_ip_pool" "ip_four_pool" {
   ip_pool_name = "default pool v4"
@@ -104,7 +104,7 @@ data "appgate_ip_pool" "ip_sex_pool" {
 }
 
 resource "appgate_ldap_identity_provider" "ldap_test_resource" {
-  name                     = "ldap_provider_acceptance_test"
+  name                     = "%s"
   port                     = 389
   admin_distinguished_name = "CN=admin,OU=Users,DC=company,DC=com"
   hostnames                = ["dc.ad.company.com"]
@@ -143,7 +143,7 @@ resource "appgate_ldap_identity_provider" "ldap_test_resource" {
     "api-created"
   ]
 }
-`)
+`, rName)
 }
 
 func testAccCheckLdapIdentityProviderExists(resource string) resource.TestCheckFunc {

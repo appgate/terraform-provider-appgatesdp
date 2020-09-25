@@ -1,19 +1,22 @@
 package appgate
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccAppgateTrustedCertificateDataSource(t *testing.T) {
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
+		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
-				Config: `
-				resource "appgate_trusted_certificate" "test_trusted_certificate" {
-				  name = "datasourcetestresource"
+				Config: fmt.Sprintf(`
+				resource "appgate_trusted_certificate" "test_data_trusted_certificate" {
+				  name = "%s"
 				  pem = <<-EOF
 				-----BEGIN CERTIFICATE-----
 				MIICZjCCAc+gAwIBAgIUT0AsBLRI7aKjaMTnH1N9J6eS+7EwDQYJKoZIhvcNAQEL
@@ -32,19 +35,19 @@ func TestAccAppgateTrustedCertificateDataSource(t *testing.T) {
 				-----END CERTIFICATE-----
 				EOF
 				}
-				data "appgate_trusted_certificate" "test" {
+				data "appgate_trusted_certificate" "testdd" {
                     depends_on = [
-                        appgate_trusted_certificate.test_trusted_certificate,
+                        appgate_trusted_certificate.test_data_trusted_certificate,
                     ]
-                    trusted_certificate_name = "datasourcetestresource"
+                    trusted_certificate_name = "%s"
                 }
-                `,
+                `, rName, rName),
 				// Because of the `depends_on` in the datasource, the plan cannot be empty.
 				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
 				ExpectNonEmptyPlan: true,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_trusted_certificate.test", "trusted_certificate_name"),
-					resource.TestCheckResourceAttrSet("data.appgate_trusted_certificate.test", "trusted_certificate_id"),
+					resource.TestCheckResourceAttrSet("data.appgate_trusted_certificate.testdd", "trusted_certificate_name"),
+					resource.TestCheckResourceAttrSet("data.appgate_trusted_certificate.testdd", "trusted_certificate_id"),
 				),
 			},
 		},

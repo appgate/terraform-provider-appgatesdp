@@ -11,17 +11,17 @@ import (
 
 func TestAccEntitlementBasicPing(t *testing.T) {
 	resourceName := "appgate_entitlement.test_item"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckItemDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckEntitlementBasicPing(),
+				Config: testAccCheckEntitlementBasicPing(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "ping"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
 
@@ -88,8 +88,7 @@ func testAccCheckItemDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckEntitlementBasicPing() string {
-	// TODO: conditions need to be dynamic, data attribute.
+func testAccCheckEntitlementBasicPing(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
 	   site_name = "Default site"
@@ -98,7 +97,7 @@ data "appgate_condition" "always" {
   condition_name = "Always"
 }
 resource "appgate_entitlement" "test_item" {
-  name        = "ping"
+  name        = "%s"
   site = data.appgate_site.default_site.id
     conditions = [
       data.appgate_condition.always.id
@@ -132,7 +131,7 @@ resource "appgate_entitlement" "test_item" {
     color_code = 5
   }
 }
-`)
+`, rName)
 }
 
 func testAccCheckEntitlementExists(resource string) resource.TestCheckFunc {

@@ -11,18 +11,18 @@ import (
 
 func TestAccEntitlementScriptBasic(t *testing.T) {
 	resourceName := "appgate_entitlement_script.test_entitlement_script"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckEntitlementScriptDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckEntitlementScriptBasic(),
+				Config: testAccCheckEntitlementScriptBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementScriptExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "expression", "return [];"),
-					resource.TestCheckResourceAttr(resourceName, "name", "test_entitlement_script"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "test only"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
@@ -38,10 +38,10 @@ func TestAccEntitlementScriptBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckEntitlementScriptBasic() string {
+func testAccCheckEntitlementScriptBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_entitlement_script" "test_entitlement_script" {
-  name       = "test_entitlement_script"
+  name       = "%s"
   expression = "return [];"
   notes      = "test only"
   tags = [
@@ -49,7 +49,7 @@ resource "appgate_entitlement_script" "test_entitlement_script" {
     "api-created"
   ]
 }
-`)
+`, rName)
 }
 
 func testAccCheckEntitlementScriptExists(resource string) resource.TestCheckFunc {

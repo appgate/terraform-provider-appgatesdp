@@ -11,14 +11,14 @@ import (
 
 func TestAccDeviceScriptBasic(t *testing.T) {
 	resourceName := "appgate_device_script.test_device_script"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDeviceScriptDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckDeviceScriptBasic(),
+				Config: testAccCheckDeviceScriptBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDeviceScriptExists(resourceName),
 
@@ -26,7 +26,7 @@ func TestAccDeviceScriptBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "content", "#!/usr/bin/env bash\necho \"hello world\"\n"),
 
 					resource.TestCheckResourceAttr(resourceName, "filename", "acceptance_script.sh"),
-					resource.TestCheckResourceAttr(resourceName, "name", "device_script_one"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
@@ -42,10 +42,10 @@ func TestAccDeviceScriptBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckDeviceScriptBasic() string {
+func testAccCheckDeviceScriptBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_device_script" "test_device_script" {
-  name     = "device_script_one"
+  name     = "%s"
   filename = "acceptance_script.sh"
   content  = <<-EOF
 #!/usr/bin/env bash
@@ -56,7 +56,7 @@ EOF
     "api-created"
   ]
 }
-`)
+`, rName)
 }
 
 func testAccCheckDeviceScriptExists(resource string) resource.TestCheckFunc {

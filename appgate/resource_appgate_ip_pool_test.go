@@ -11,20 +11,19 @@ import (
 
 func TestAccIPPoolBasic(t *testing.T) {
 	resourceName := "appgate_ip_pool.test_ip_pool_v4"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIPPoolDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckIPPoolBasic(),
+				Config: testAccCheckIPPoolBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIPPoolExists(resourceName),
-					testAccCheckExampleWidgetExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "ip_version6", "false"),
 					resource.TestCheckResourceAttr(resourceName, "lease_time_days", "5"),
-					resource.TestCheckResourceAttr(resourceName, "name", "ip range test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "ranges.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ranges.0.first", "10.0.0.1"),
@@ -43,10 +42,10 @@ func TestAccIPPoolBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckIPPoolBasic() string {
+func testAccCheckIPPoolBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_ip_pool" "test_ip_pool_v4" {
-    name            = "ip range test"
+    name            = "%s"
     lease_time_days = 5
     ranges {
       first = "10.0.0.1"
@@ -58,7 +57,7 @@ resource "appgate_ip_pool" "test_ip_pool_v4" {
       "api-created"
     ]
 }
-`)
+`, rName)
 }
 
 func testAccCheckIPPoolExists(resource string) resource.TestCheckFunc {

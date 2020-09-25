@@ -12,7 +12,7 @@ import (
 func TestAccClientConnectionsBasic(t *testing.T) {
 	resourceName := "appgate_client_connections.test_example_client_connections"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

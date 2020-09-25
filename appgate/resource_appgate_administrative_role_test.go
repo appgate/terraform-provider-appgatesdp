@@ -11,17 +11,17 @@ import (
 
 func TestAccadministrativeRoleBasic(t *testing.T) {
 	resourceName := "appgate_administrative_role.test_administrative_role"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckadministrativeRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckadministrativeRoleBasic(),
+				Config: testAccCheckadministrativeRoleBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckadministrativeRoleExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "tf-admin"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "hello world"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "Entitlement"),
@@ -39,10 +39,10 @@ func TestAccadministrativeRoleBasic(t *testing.T) {
 	})
 }
 
-func testAccCheckadministrativeRoleBasic() string {
+func testAccCheckadministrativeRoleBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_administrative_role" "test_administrative_role" {
-    name  = "tf-admin"
+    name  = "%s"
     notes = "hello world"
     tags = [
         "terraform"
@@ -53,16 +53,16 @@ resource "appgate_administrative_role" "test_administrative_role" {
         default_tags = ["api-created"]
     }
 }
-`)
+`, rName)
 }
 
-func testAccCheckadministrativeRoleWithScope() string {
+func testAccCheckadministrativeRoleWithScope(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
   site_name = "Default site"
 }
 resource "appgate_administrative_role" "administrative_role_with_scope" {
-  name = "tf-admin-with-scope"
+  name = "%s"
   tags = [
     "terraform"
   ]
@@ -75,23 +75,23 @@ resource "appgate_administrative_role" "administrative_role_with_scope" {
     }
   }
 }
-`)
+`, rName)
 }
 
 func TestAccadministrativeRoleWithScope(t *testing.T) {
 	resourceName := "appgate_administrative_role.administrative_role_with_scope"
-
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckadministrativeRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckadministrativeRoleWithScope(),
+				Config: testAccCheckadministrativeRoleWithScope(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckadministrativeRoleExists(resourceName),
 
-					resource.TestCheckResourceAttr(resourceName, "name", "tf-admin-with-scope"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "0"),

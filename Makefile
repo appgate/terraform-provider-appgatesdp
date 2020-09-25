@@ -1,8 +1,10 @@
 VERSION=$$(cat VERSION)
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 BIN_NAME=terraform-provider-appgate_${VERSION}
-TEST?=./...
+TEST?=./appgate
 GORELEASER_VERSION = 0.143.0
+ACCTEST_PARALLELISM?=20
+TEST_COUNT?=1
 
 build:
 	go build -o $(BIN_NAME)
@@ -17,7 +19,7 @@ test:
 	go test $(TEST)
 
 testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v -count=1 $(TESTARGS) -timeout 120m
+	TF_ACC=1 go test $(TEST) -v -count $(TEST_COUNT) -parallel $(ACCTEST_PARALLELISM) $(TESTARGS) -timeout 120m
 
 example: build
 	@mv $(BIN_NAME) examples/

@@ -11,17 +11,18 @@ import (
 
 func TestAccApplianceBasicController(t *testing.T) {
 	resourceName := "appgate_appliance.test_controller"
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApplianceDestroy,
 
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceBasicController(),
+				Config: testAccCheckApplianceBasicController(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", "controller-test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1337.devops"),
 
@@ -182,7 +183,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"site", "seed_file"},
 			},
 			{
-				Config: testAccCheckApplianceBasicControllerUpdate(),
+				Config: testAccCheckApplianceBasicControllerUpdate(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "0"),
@@ -242,14 +243,14 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckApplianceBasicController() string {
+func testAccCheckApplianceBasicController(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
   site_name = "Default site"
 }
 
 resource "appgate_appliance" "test_controller" {
-  name     = "controller-test"
+  name     = "%s"
   hostname = "envy-10-97-168-1337.devops"
 
   client_interface {
@@ -433,16 +434,17 @@ resource "appgate_appliance" "test_controller" {
     ]
   }
 }
-`)
+`, rName)
 }
-func testAccCheckApplianceBasicControllerUpdate() string {
+
+func testAccCheckApplianceBasicControllerUpdate(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
   site_name = "Default site"
 }
 
 resource "appgate_appliance" "test_controller" {
-  name     = "controller-test"
+  name     = "%s"
   hostname = "envy-10-97-168-1337.devops"
 
   client_interface {
@@ -618,19 +620,20 @@ resource "appgate_appliance" "test_controller" {
     ]
   }
 }
-`)
+`, rName)
 }
 
 func TestAccApplianceIoTConnector(t *testing.T) {
 	resourceName := "appgate_appliance.iot_connector"
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApplianceDestroy,
 
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceBasicIotConnector(),
+				Config: testAccCheckApplianceBasicIotConnector(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
@@ -656,7 +659,7 @@ func TestAccApplianceIoTConnector(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.sources.0.netmask", "24"),
 					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "name", "iot-connector-test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
 
@@ -706,14 +709,14 @@ func TestAccApplianceIoTConnector(t *testing.T) {
 	})
 }
 
-func testAccCheckApplianceBasicIotConnector() string {
+func testAccCheckApplianceBasicIotConnector(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
   site_name = "Default site"
 }
 
 resource "appgate_appliance" "iot_connector" {
-  name     = "iot-connector-test"
+  name     = "%s"
   hostname = "envy-10-97-168-1234.devops"
 
   client_interface {
@@ -779,7 +782,7 @@ resource "appgate_appliance" "iot_connector" {
     }
   }
 }
-`)
+`, rName)
 }
 
 func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
@@ -806,17 +809,18 @@ func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 
 func TestAccApplianceBasicGateway(t *testing.T) {
 	resourceName := "appgate_appliance.test_gateway"
-	resource.Test(t, resource.TestCase{
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApplianceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceBasicGateway(),
+				Config: testAccCheckApplianceBasicGateway(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 
-					resource.TestCheckResourceAttr(resourceName, "name", "gateway-test"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1338.devops"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
@@ -864,14 +868,14 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 	})
 }
 
-func testAccCheckApplianceBasicGateway() string {
+func testAccCheckApplianceBasicGateway(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
   site_name = "Default site"
 }
 
 resource "appgate_appliance" "test_gateway" {
-  name     = "gateway-test"
+  name     = "%s"
   hostname = "envy-10-97-168-1338.devops"
   site     = data.appgate_site.default_site.id
   client_interface {
@@ -933,5 +937,5 @@ resource "appgate_appliance" "test_gateway" {
     }
   }
 }
-`)
+`, rName)
 }
