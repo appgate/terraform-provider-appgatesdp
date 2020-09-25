@@ -79,6 +79,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_local_user":              resourceAppgateLocalUser(),
 			"appgate_license":                 resourceAppgateLicense(),
 			"appgate_admin_mfa_settings":      resourceAdminMfaSettings(),
+			"appgate_client_connections":      resourceClientConnections(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
