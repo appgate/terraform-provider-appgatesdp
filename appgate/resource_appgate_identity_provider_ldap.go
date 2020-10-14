@@ -250,7 +250,7 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 		d.Set("ip_pool_v4", *v)
 	}
 	if v, ok := ldap.GetIpPoolV6Ok(); ok {
-		d.Set("ip_pool_v6", v)
+		d.Set("ip_pool_v6", *v)
 	}
 
 	d.Set("dns_servers", ldap.GetDnsServers())
@@ -262,8 +262,11 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if v, ok := ldap.GetOnDemandClaimMappingsOk(); ok {
-		d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v))
+		if err := d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v)); err != nil {
+			return err
+		}
 	}
+
 	// ldap attributes
 	d.Set("hostnames", ldap.GetHostnames())
 	d.Set("port", ldap.GetPort())
@@ -273,7 +276,7 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 		d.Set("admin_password", val.(string))
 	}
 	if v, ok := ldap.GetBaseDnOk(); ok {
-		d.Set("base_dn", v)
+		d.Set("base_dn", *v)
 	}
 
 	d.Set("object_class", ldap.GetObjectClass())

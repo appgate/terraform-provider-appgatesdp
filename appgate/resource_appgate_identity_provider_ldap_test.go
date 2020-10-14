@@ -68,7 +68,12 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "object_class", "user"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.claim_name", "antiVirusIsRunning"),
+					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.command", "fileSize"),
+					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.parameters.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.parameters.0.path", "/usr/bin/python3"),
+					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.platform", "desktop.windows.all"),
 					resource.TestCheckResourceAttr(resourceName, "password_warning.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "password_warning.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "password_warning.0.message", "Your password is about to expire, Please change it"),
@@ -142,6 +147,14 @@ resource "appgate_ldap_identity_provider" "ldap_test_resource" {
     "terraform",
     "api-created"
   ]
+  on_demand_claim_mappings {
+    command    = "fileSize"
+    claim_name = "antiVirusIsRunning"
+    parameters {
+      path = "/usr/bin/python3"
+    }
+    platform = "desktop.windows.all"
+  }
 }
 `, rName)
 }
