@@ -14,8 +14,14 @@ Create a new LDAP Identity Provider.
 
 ```hcl
 
+data "appgate_ip_pool" "ip_four_pool" {
+  ip_pool_name = "default pool v4"
+}
 data "appgate_ip_pool" "ip_sex_pool" {
   ip_pool_name = "default pool v6"
+}
+data "appgate_mfa_provider" "fido" {
+  mfa_provider_name = "Default FIDO2 Provider"
 }
 
 resource "appgate_ldap_identity_provider" "ldap" {

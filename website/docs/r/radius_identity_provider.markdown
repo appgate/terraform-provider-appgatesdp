@@ -45,7 +45,7 @@ resource "appgate_radius_identity_provider" "radius" {
   ]
   block_local_dns_requests = true
   on_boarding_two_factor {
-    mfa_provider_id       = data.appgate_mfa_provider.radius.id
+    mfa_provider_id       = data.appgate_mfa_provider.fido.id
     device_limit_per_user = 6
     message               = "welcome"
   }
