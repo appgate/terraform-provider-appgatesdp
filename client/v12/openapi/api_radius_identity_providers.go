@@ -281,7 +281,7 @@ func (r apiRadiusIdentityProvidersGetRequest) Execute() (RadiusIdentityProviderL
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type apiRadisuIdentityProvidersIdAttributesPostRequest struct {
+type apiRadiusIdentityProvidersIdAttributesPostRequest struct {
 	ctx           _context.Context
 	apiService    *RadiusIdentityProvidersApiService
 	authorization *string
@@ -289,12 +289,12 @@ type apiRadisuIdentityProvidersIdAttributesPostRequest struct {
 	inlineObject4 *InlineObject4
 }
 
-func (r apiRadisuIdentityProvidersIdAttributesPostRequest) Authorization(authorization string) apiRadisuIdentityProvidersIdAttributesPostRequest {
+func (r apiRadiusIdentityProvidersIdAttributesPostRequest) Authorization(authorization string) apiRadiusIdentityProvidersIdAttributesPostRequest {
 	r.authorization = &authorization
 	return r
 }
 
-func (r apiRadisuIdentityProvidersIdAttributesPostRequest) InlineObject4(inlineObject4 InlineObject4) apiRadisuIdentityProvidersIdAttributesPostRequest {
+func (r apiRadiusIdentityProvidersIdAttributesPostRequest) InlineObject4(inlineObject4 InlineObject4) apiRadiusIdentityProvidersIdAttributesPostRequest {
 	r.inlineObject4 = &inlineObject4
 	return r
 }
@@ -304,10 +304,10 @@ IdentityProvidersIdAttributesPost Get user attributes from an existing Identity 
 Get raw attributes and mapped claims for a user.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param id ID of the object.
-@return apiRadisuIdentityProvidersIdAttributesPostRequest
+@return apiRadiusIdentityProvidersIdAttributesPostRequest
 */
-func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdAttributesPost(ctx _context.Context, id string) apiRadisuIdentityProvidersIdAttributesPostRequest {
-	return apiRadisuIdentityProvidersIdAttributesPostRequest{
+func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdAttributesPost(ctx _context.Context, id string) apiRadiusIdentityProvidersIdAttributesPostRequest {
+	return apiRadiusIdentityProvidersIdAttributesPostRequest{
 		apiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -318,7 +318,7 @@ func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdAttributesPost(ct
 Execute executes the request
  @return InlineResponse20010
 */
-func (r apiRadisuIdentityProvidersIdAttributesPostRequest) Execute() (InlineResponse20010, *_nethttp.Response, error) {
+func (r apiRadiusIdentityProvidersIdAttributesPostRequest) Execute() (InlineResponse20010, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
