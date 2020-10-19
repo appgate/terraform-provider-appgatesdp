@@ -9,22 +9,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccLdapIdentityProviderBasic(t *testing.T) {
-	resourceName := "appgate_ldap_identity_provider.ldap_test_resource"
+func TestAccRadiusIdentityProviderBasic(t *testing.T) {
+	resourceName := "appgate_radius_identity_provider.radius_test_resource"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckLdapIdentityProviderDestroy,
+		CheckDestroy: testAccCheckRadiusIdentityProviderDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckLdapIdentityProviderBasic(rName),
+				Config: testAccCheckRadiusIdentityProviderBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLdapIdentityProviderExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "admin_distinguished_name", "CN=admin,OU=Users,DC=company,DC=com"),
-					resource.TestCheckResourceAttr(resourceName, "admin_password", "helloworld"),
-					resource.TestCheckResourceAttr(resourceName, "admin_provider", "false"),
-					resource.TestCheckResourceAttr(resourceName, "base_dn", "OU=Users,DC=company,DC=com"),
+					testAccCheckRadiusIdentityProviderExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "admin_provider", "true"),
+					resource.TestCheckResourceAttr(resourceName, "authentication_protocol", "CHAP"),
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.#", "6"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.attribute_name", "objectGUID"),
@@ -58,77 +56,63 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "dns_servers.0", "172.17.18.19"),
 					resource.TestCheckResourceAttr(resourceName, "dns_servers.1", "192.100.111.31"),
 					resource.TestCheckResourceAttr(resourceName, "hostnames.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "hostnames.0", "dc.ad.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "28"),
-					resource.TestCheckResourceAttrSet(resourceName, "ip_pool_v4"),
-					resource.TestCheckResourceAttrSet(resourceName, "ip_pool_v6"),
-					resource.TestCheckResourceAttr(resourceName, "membership_base_dn", "OU=Groups,DC=company,DC=com"),
-					resource.TestCheckResourceAttr(resourceName, "membership_filter", "(objectCategory=group)"),
+					resource.TestCheckResourceAttr(resourceName, "hostnames.0", "radius.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_v4", "f572b4ab-7963-4a90-9e5a-3bf033bfe2cc"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_v6", "6935b379-205d-4fdd-847f-a0b5f14aff53"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "object_class", "user"),
-					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "6"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.message", "welcome"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.mfa_provider_id", "3ae98d53-c520-437f-99e4-451f936e6d2c"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.claim_name", "antiVirusIsRunning"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.command", "fileSize"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.parameters.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.parameters.0.args", ""),
+					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.parameters.0.name", ""),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.parameters.0.path", "/usr/bin/python3"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.platform", "desktop.windows.all"),
-					resource.TestCheckResourceAttr(resourceName, "password_warning.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "password_warning.0.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "password_warning.0.message", "Your password is about to expire, Please change it"),
-					resource.TestCheckResourceAttr(resourceName, "password_warning.0.threshold_days", "13"),
-					resource.TestCheckResourceAttr(resourceName, "port", "389"),
-					resource.TestCheckResourceAttr(resourceName, "ssl_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "port", "1812"),
+					resource.TestCheckResourceAttr(resourceName, "shared_secret", "hunter2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "type", "Ldap"),
-					resource.TestCheckResourceAttr(resourceName, "username_attribute", "sAMAccountName"),
+					resource.TestCheckResourceAttr(resourceName, "type", "Radius"),
 				),
 			},
 			{
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateCheck:        testAccLdapIdentityProviderImportStateCheckFunc(1),
-				ImportStateVerifyIgnore: []string{"admin_password"},
+				ImportStateCheck:        testAccRadiusIdentityProviderImportStateCheckFunc(1),
+				ImportStateVerifyIgnore: []string{"shared_secret"},
 			},
 		},
 	})
 }
 
-func testAccCheckLdapIdentityProviderBasic(rName string) string {
+func testAccCheckRadiusIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_ip_pool" "ip_four_pool" {
-  ip_pool_name = "default pool v4"
-}
-
 data "appgate_ip_pool" "ip_sex_pool" {
   ip_pool_name = "default pool v6"
 }
 
-resource "appgate_ldap_identity_provider" "ldap_test_resource" {
-  name                     = "%s"
-  port                     = 389
-  admin_distinguished_name = "CN=admin,OU=Users,DC=company,DC=com"
-  hostnames                = ["dc.ad.company.com"]
-  ssl_enabled              = true
-  base_dn                  = "OU=Users,DC=company,DC=com"
-  object_class             = "user"
-  username_attribute       = "sAMAccountName"
-  membership_filter        = "(objectCategory=group)"
-  membership_base_dn       = "OU=Groups,DC=company,DC=com"
-  password_warning {
-    enabled        = true
-    threshold_days = 13
-    message        = "Your password is about to expire, Please change it"
-  }
-  default                    = false
-  inactivity_timeout_minutes = 28
-  ip_pool_v4                 = data.appgate_ip_pool.ip_four_pool.id
-  ip_pool_v6                 = data.appgate_ip_pool.ip_sex_pool.id
-  admin_password             = "helloworld"
+data "appgate_ip_pool" "ip_four_pool" {
+  ip_pool_name = "default pool v4"
+}
+
+resource "appgate_radius_identity_provider" "radius_test_resource" {
+  name = "%s"
+  hostnames = [
+    "radius.company.com"
+  ]
+  admin_provider = true
+  port           = 1812
+  shared_secret  = "hunter2"
+  ip_pool_v4     = data.appgate_ip_pool.ip_four_pool.id
+  ip_pool_v6     = data.appgate_ip_pool.ip_sex_pool.id
   dns_servers = [
     "172.17.18.19",
     "192.100.111.31"
@@ -137,16 +121,52 @@ resource "appgate_ldap_identity_provider" "ldap_test_resource" {
     "internal.company.com"
   ]
   block_local_dns_requests = true
-# TODO Update when we have mfa data source
-#  on_boarding_two_factor {
-#    mfa_provider_id       = "data.appgate_mfa_provider.id"
-#    device_limit_per_user = 6
-#    message               = "welcome"
-#  }
+  on_boarding_two_factor {
+    mfa_provider_id       = "3ae98d53-c520-437f-99e4-451f936e6d2c"
+    device_limit_per_user = 6
+    message               = "welcome"
+  }
   tags = [
     "terraform",
     "api-created"
   ]
+  claim_mappings {
+    attribute_name = "objectGUID"
+    claim_name     = "userId"
+    encrypted      = false
+    list           = false
+  }
+  claim_mappings {
+    attribute_name = "sAMAccountName"
+    claim_name     = "username"
+    encrypted      = false
+    list           = false
+  }
+  claim_mappings {
+    attribute_name = "givenName"
+    claim_name     = "firstName"
+    encrypted      = false
+    list           = false
+  }
+  claim_mappings {
+    attribute_name = "sn"
+    claim_name     = "lastName"
+    encrypted      = false
+    list           = false
+  }
+  claim_mappings {
+    attribute_name = "mail"
+    claim_name     = "emails"
+    encrypted      = false
+    list           = true
+  }
+  claim_mappings {
+    attribute_name = "memberOf"
+    claim_name     = "groups"
+    encrypted      = false
+    list           = true
+  }
+
   on_demand_claim_mappings {
     command    = "fileSize"
     claim_name = "antiVirusIsRunning"
@@ -159,10 +179,10 @@ resource "appgate_ldap_identity_provider" "ldap_test_resource" {
 `, rName)
 }
 
-func testAccCheckLdapIdentityProviderExists(resource string) resource.TestCheckFunc {
+func testAccCheckRadiusIdentityProviderExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		token := testAccProvider.Meta().(*Client).Token
-		api := testAccProvider.Meta().(*Client).API.LdapIdentityProvidersApi
+		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -175,30 +195,30 @@ func testAccCheckLdapIdentityProviderExists(resource string) resource.TestCheckF
 
 		_, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
 		if err != nil {
-			return fmt.Errorf("error fetching ldap identity provider with resource %s. %s", resource, err)
+			return fmt.Errorf("error fetching radius identity provider with resource %s. %s", resource, err)
 		}
 		return nil
 	}
 }
 
-func testAccCheckLdapIdentityProviderDestroy(s *terraform.State) error {
+func testAccCheckRadiusIdentityProviderDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_ldap_identity_provider" {
+		if rs.Type != "appgate_radius_identity_provider" {
 			continue
 		}
 
 		token := testAccProvider.Meta().(*Client).Token
-		api := testAccProvider.Meta().(*Client).API.LdapIdentityProvidersApi
+		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
 
 		_, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
 		if err == nil {
-			return fmt.Errorf("ldap identity provider still exists, %+v", err)
+			return fmt.Errorf("radius identity provider still exists, %+v", err)
 		}
 	}
 	return nil
 }
 
-func testAccLdapIdentityProviderImportStateCheckFunc(expectedStates int) resource.ImportStateCheckFunc {
+func testAccRadiusIdentityProviderImportStateCheckFunc(expectedStates int) resource.ImportStateCheckFunc {
 	return func(s []*terraform.InstanceState) error {
 		if len(s) != expectedStates {
 			return fmt.Errorf("expected %d states, got %d: %+v", expectedStates, len(s), s)

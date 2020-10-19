@@ -171,20 +171,25 @@ func identityProviderSchema() map[string]*schema.Schema {
 						Required: true,
 					},
 					"parameters": {
-						Type:     schema.TypeMap,
+						Type:     schema.TypeList,
 						Optional: true,
+						MaxItems: 1,
+						Computed: true,
 						Elem: &schema.Resource{
 							Schema: map[string]*schema.Schema{
 								"name": {
 									Type:     schema.TypeString,
+									Computed: true,
 									Optional: true,
 								},
 								"path": {
 									Type:     schema.TypeString,
+									Computed: true,
 									Optional: true,
 								},
 								"args": {
 									Type:     schema.TypeString,
+									Computed: true,
 									Optional: true,
 								},
 							},
@@ -341,24 +346,28 @@ func readIdentityProviderOnDemandClaimMappingFromConfig(input []interface{}) []m
 			c["command"] = v.(string)
 		}
 		if v, ok := claim["claim_name"]; ok {
-			c["claim_name"] = v.(string)
-		}
-		if v, ok := claim["parameters"]; ok {
-			parameters := v.(map[string]interface{})
-			if v, ok := parameters["name"]; ok {
-				c["name"] = v.(string)
-			}
-			if v, ok := parameters["path"]; ok {
-				c["path"] = v.(string)
-			}
-			if v, ok := parameters["args"]; ok {
-				c["args"] = v.(string)
-			}
-			c["parameters"] = parameters
+			c["claimName"] = v.(string)
 		}
 		if v, ok := claim["platform"]; ok {
-			c["platform"] = v.(bool)
+			c["platform"] = v.(string)
 		}
+		if v, ok := claim["parameters"]; ok {
+			p := make(map[string]interface{})
+			for _, para := range v.([]interface{}) {
+				parameters := para.(map[string]interface{})
+				if v, ok := parameters["name"]; ok && len(v.(string)) > 0 {
+					p["name"] = v.(string)
+				}
+				if v, ok := parameters["path"]; ok && len(v.(string)) > 0 {
+					p["path"] = v.(string)
+				}
+				if v, ok := parameters["args"]; ok && len(v.(string)) > 0 {
+					p["args"] = v.(string)
+				}
+				c["parameters"] = p
+			}
+		}
+
 		claims = append(claims, c)
 	}
 	return claims
@@ -383,13 +392,16 @@ func flattenIdentityProviderClaimsMappning(claims []map[string]interface{}) []ma
 	var out = make([]map[string]interface{}, len(claims), len(claims))
 	for i, claim := range claims {
 		row := make(map[string]interface{})
-		if v, ok := claim["attributeName"]; ok {
+		if v, ok := claim["attributeName"]; ok && len(v.(string)) > 0 {
 			row["attribute_name"] = v.(string)
 		}
-		if v, ok := claim["claimName"]; ok {
+		if v, ok := claim["claimName"]; ok && len(v.(string)) > 0 {
 			row["claim_name"] = v.(string)
 		}
 		if v, ok := claim["list"]; ok {
+			row["list"] = v.(bool)
+		}
+		if v, ok := claim["encrypted"]; ok {
 			row["list"] = v.(bool)
 		}
 		out[i] = row
@@ -404,11 +416,27 @@ func flattenIdentityProviderOnDemandClaimsMappning(claims []map[string]interface
 		if v, ok := claim["command"]; ok {
 			row["command"] = v.(string)
 		}
+		if v, ok := claim["claimName"]; ok {
+			row["claim_name"] = v.(string)
+		}
 		if v, ok := claim["parameters"]; ok {
-			row["parameters"] = v.(map[string]string)
+			raw := v.(map[string]interface{})
+			parameters := make([]map[string]interface{}, 0)
+			parameter := make(map[string]interface{})
+			if v, ok := raw["name"]; ok && len(v.(string)) > 0 {
+				parameter["name"] = v.(string)
+			}
+			if v, ok := raw["path"]; ok && len(v.(string)) > 0 {
+				parameter["path"] = v.(string)
+			}
+			if v, ok := raw["args"]; ok && len(v.(string)) > 0 {
+				parameter["args"] = v.(string)
+			}
+			parameters = append(parameters, parameter)
+			row["parameters"] = parameters
 		}
 		if v, ok := claim["platform"]; ok {
-			row["platform"] = v.(bool)
+			row["platform"] = v.(string)
 		}
 		out[i] = row
 	}
