@@ -16,6 +16,8 @@ const (
 	identityProviderSaml            = "Saml"
 	identityProviderLdapCertificate = "LdapCertificate"
 	identityProviderIotConnector    = "IotConnector"
+
+	builtinProviderLocal = "local"
 )
 
 func identityProviderSchema() map[string]*schema.Schema {
