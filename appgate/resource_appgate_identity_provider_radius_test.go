@@ -102,7 +102,9 @@ data "appgate_ip_pool" "ip_sex_pool" {
 data "appgate_ip_pool" "ip_four_pool" {
   ip_pool_name = "default pool v4"
 }
-
+data "appgate_mfa_provider" "fido" {
+  mfa_provider_name = "Default FIDO2 Provider"
+}
 resource "appgate_radius_identity_provider" "radius_test_resource" {
   name = "%s"
   hostnames = [
@@ -122,7 +124,7 @@ resource "appgate_radius_identity_provider" "radius_test_resource" {
   ]
   block_local_dns_requests = true
   on_boarding_two_factor {
-    mfa_provider_id       = "3ae98d53-c520-437f-99e4-451f936e6d2c"
+    mfa_provider_id       = data.appgate_mfa_provider.fido.id
     device_limit_per_user = 6
     message               = "welcome"
   }
