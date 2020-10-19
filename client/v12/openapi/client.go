@@ -131,6 +131,8 @@ type APIClient struct {
 	LdapIdentityProvidersApi *LdapIdentityProvidersApiService
 
 	RadiusIdentityProvidersApi *RadiusIdentityProvidersApiService
+
+	SamlIdentityProvidersApi *SamlIdentityProvidersApiService
 }
 
 type service struct {
@@ -194,6 +196,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	// since openapi.generator does not play well with discriminator from the open api spec.
 	c.LdapIdentityProvidersApi = (*LdapIdentityProvidersApiService)(&c.common)
 	c.RadiusIdentityProvidersApi = (*RadiusIdentityProvidersApiService)(&c.common)
+	c.SamlIdentityProvidersApi = (*SamlIdentityProvidersApiService)(&c.common)
 
 	return c
 }
