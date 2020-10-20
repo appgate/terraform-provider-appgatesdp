@@ -72,17 +72,24 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 	password, passwordOk := d.GetOk("password")
 	sshKey, sshOk := d.GetOk("ssh_key")
 	cloudKey, cloudOk := d.GetOk("provide_cloud_ssh_key")
+
 	sshConfig := openapi.NewSSHConfig()
 	if passwordOk {
 		sshConfig.Password = openapi.PtrString(password.(string))
+		d.Set("password", password.(string))
 	}
 	if sshOk {
 		sshConfig.SshKey = openapi.PtrString(sshKey.(string))
+		d.Set("ssh_key", sshKey.(string))
 	}
 	if cloudOk {
 		sshConfig.ProvideCloudSSHKey = openapi.PtrBool(cloudKey.(bool))
+		d.Set("provide_cloud_ssh_key", true)
 	}
-
+	if _, lvOk := d.GetOk("latest_version"); lvOk {
+		exportRequest.LatestVersion(true)
+		d.Set("latest_version", true)
+	}
 	exportRequest = exportRequest.SSHConfig(*sshConfig)
 	seedmap, _, err := exportRequest.Authorization(token).Execute()
 	if err != nil {
@@ -92,10 +99,10 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("Could not parse json seed file: %+v", err)
 	}
-	d.Set("seed_file", b64.StdEncoding.EncodeToString([]byte(encodedSeed)))
 
 	d.SetId(applianceID.(string))
 	d.Set("appliance_id", appliance.Id)
+	d.Set("seed_file", b64.StdEncoding.EncodeToString([]byte(encodedSeed)))
 
 	return nil
 }
