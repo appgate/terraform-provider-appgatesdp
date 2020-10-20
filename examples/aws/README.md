@@ -1,7 +1,7 @@
 # Terraform example to deploy appgate on AWS
 
 
-This directory is an example how to deploy AppGate with one controller, and one gateway on AWS using a pre-existing AMI published by appgate on the marketplace.
+This directory is an example how to deploy Appgate with one controller, and one gateway on AWS using a pre-existing AMI published by appgate on the marketplace.
 
 
 We need to do this in 2 steps, since the terraform_appgate provider is dependent

@@ -1,16 +1,16 @@
 ---
 layout: "appgate"
-page_title: "Provider: AppGate"
+page_title: "Provider: Appgate"
 description: |-
 
 ---
 
-# AppGate
+# Appgate
 
 ## Example Usage
 
 ```hcl
-# Configure the AppGate Provider
+# Configure the Appgate Provider
 provider "appgate" {
   username = "admin"
   password = "admin"
@@ -24,7 +24,7 @@ provider "appgate" {
 
 ## Authentication
 
-The AppGate provider offers a flexible means of providing credentials for
+The Appgate provider offers a flexible means of providing credentials for
 authentication. The following methods are supported, in this order, and
 explained below:
 
@@ -38,7 +38,7 @@ recommended, and risks secret leakage should this file ever be committed to a
 public version control system.
 
 Static credentials can be provided by adding an `username` and `password`
-in-line in the AppGate provider block:
+in-line in the Appgate provider block:
 
 Usage:
 
@@ -72,16 +72,16 @@ $ terraform plan
 ## Argument Reference
 
 In addition to [generic `provider` arguments](https://www.terraform.io/docs/configuration/providers.html)
-(e.g. `alias` and `version`), the following arguments are supported in the AppGate
+(e.g. `alias` and `version`), the following arguments are supported in the Appgate
  `provider` block:
 
-* `username` - (Optional) This is the AppGate username. It must be provided, but
+* `username` - (Optional) This is the Appgate username. It must be provided, but
   it can also be sourced from the `APPGATE_USERNAME` environment variable.
 
-* `password` - (Optional) This is the AppGate password. It must be provided, but
+* `password` - (Optional) This is the Appgate password. It must be provided, but
   it can also be sourced from the `APPGATE_PASSWORD` environment variable.
 
-* `provider` - (Optional) This is the AppGate provider. It must be provided, but
+* `provider` - (Optional) This is the Appgate provider. It must be provided, but
   it can also be sourced from the `APPGATE_PROVIDER` environment variables.
 
 * `insecure` - (Optional) Whether server should be accessed without verifying the TLS certificate. As the name suggests this is insecure and should not be used beyond experiments, accessing local (non-production) GHE instance etc. There is a number of ways to obtain trusted certificate for free, e.g. from Let's Encrypt. Such trusted certificate does not require this option to be enabled. Defaults to `true`.

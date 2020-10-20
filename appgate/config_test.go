@@ -129,7 +129,7 @@ func TestGetToken200(t *testing.T) {
   },
   "token": "very-long-string",
   "expires": "2020-01-27T08:50:34Z",
-  "messageOfTheDay": "Welcome to AppGate SDP."
+  "messageOfTheDay": "Welcome to Appgate SDP."
 }`)
 		testMethod(t, r, http.MethodPost)
 
