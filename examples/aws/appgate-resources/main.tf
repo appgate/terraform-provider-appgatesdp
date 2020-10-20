@@ -20,7 +20,7 @@ resource "appgate_appliance" "new_gateway" {
   client_interface {
     hostname       = var.gateway_dns
     proxy_protocol = true
-    https_port     = 443
+    https_port     = 8443
     dtls_port      = 443
     allow_sources {
       address = "0.0.0.0"
@@ -82,22 +82,6 @@ resource "appgate_appliance" "new_gateway" {
 
   }
 
-
-
-  ssh_server {
-    enabled                 = true
-    port                    = 22
-    password_authentication = true
-    allow_sources {
-      address = "0.0.0.0"
-      netmask = 0
-    }
-    allow_sources {
-      address = "::"
-      netmask = 0
-    }
-  }
-
   # https://sdphelp.appgate.com/adminguide/v5.1/about-appliances.html?anchor=gateway-a
   gateway {
     enabled = true
@@ -110,6 +94,23 @@ resource "appgate_appliance" "new_gateway" {
     }
   }
 
+}
+
+data "appgate_appliance_seed" "gateway_seed_file" {
+  depends_on = [
+    appgate_appliance.new_gateway,
+  ]
+  appliance_id   = appgate_appliance.new_gateway.id
+  password       = "cz"
+  latest_version = true
+}
+
+resource "null_resource" "seed_gateway" {
+
+  depends_on = [
+    data.appgate_appliance_seed.gateway_seed_file,
+  ]
+
   connection {
     type        = "ssh"
     user        = "cz"
@@ -120,14 +121,12 @@ resource "appgate_appliance" "new_gateway" {
 
 
   provisioner "local-exec" {
-    command = "echo ${appgate_appliance.new_gateway.seed_file} > seed.b64"
+    command = "echo ${data.appgate_appliance_seed.gateway_seed_file.seed_file} > seed.b64"
   }
   provisioner "remote-exec" {
     inline = [
-      "echo ${appgate_appliance.new_gateway.seed_file}  > raw.b64",
+      "echo ${data.appgate_appliance_seed.gateway_seed_file.seed_file}  > raw.b64",
       "cat raw.b64 | base64 -d  | jq .  >> seed.json",
     ]
   }
-
-
 }
