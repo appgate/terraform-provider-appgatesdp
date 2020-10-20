@@ -51,7 +51,7 @@ resource "aws_route_table" "appgate_route_table" {
 }
 
 resource "aws_security_group" "appgate_security_group" {
-  description = "Security group used by AppGate."
+  description = "Security group used by Appgate."
   vpc_id      = var.vpc_id
 
   # Allow all protocols
@@ -103,7 +103,7 @@ data "aws_ami" "appgate" {
 
   filter {
     name   = "name"
-    values = ["AppGate-SDP-5.1.*"]
+    values = ["Appgate-SDP-5.1.*"]
   }
 
   filter {

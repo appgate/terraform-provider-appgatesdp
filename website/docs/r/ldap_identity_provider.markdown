@@ -145,14 +145,14 @@ The dns search domains to be assigned to Clients of the users in this Identity P
 The mapping of Identity Provider attributes to claims.
 
 * `attribute_name`:  (Optional) The name of the attribute coming from the Identity Provider.
-* `claim_name`:  (Optional) The name of the user claim to be used in AppGate SDP.
+* `claim_name`:  (Optional) The name of the user claim to be used in Appgate SDP.
 * `list`:  (Optional)  default value `false` Whether the claim is expected to be a list and have multiple values or not.
 * `encrypt`:  (Optional)  default value `false` Whether the claim should be encrypted or not.
 ### on_demand_claim_mappings
 The mapping of Identity Provider on demand attributes to claims.
 
 * `command`:  (Optional)  Enum values: `fileSize,fileExists,fileCreated,fileUpdated,fileVersion,fileSha512,processRunning,processList,serviceRunning,serviceList,regExists,regQuery,runScript`The name of the command.
-* `claim_name`:  (Optional) The name of the device claim to be used in AppGate SDP.
+* `claim_name`:  (Optional) The name of the device claim to be used in Appgate SDP.
 * `parameters`:  (Optional) Depending on the command type, extra parameters to pass to the on-demand claim.
 * `platform`:  (Optional)  Enum values: `desktop.windows.all,desktop.macos.all,desktop.linux.all,desktop.all,mobile.android.all,mobile.ios.all,mobile.all,all`The platform(s) to run the on-demand claim.
 ### tags
