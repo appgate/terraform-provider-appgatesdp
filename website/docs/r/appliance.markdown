@@ -8,11 +8,12 @@ description: |-
 
 # appgate_appliance
 
-Create a new inactive Appliance..
+Create a new inactive Appliance.
 
 ## Example Usage
 
 ```hcl
+
 
 data "appgate_site" "default_site" {
   site_name = "Default site"
@@ -53,11 +54,11 @@ resource "appgate_appliance" "new_gateway" {
       "ECDHE-RSA-AES256-GCM-SHA384",
       "ECDHE-RSA-AES128-GCM-SHA256"
     ]
-    # allow_sources {
-    #   address = "1.3.3.7"
-    #   netmask = 0
-    #   nic     = "eth0"
-    # }
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
   }
 
   tags = [
@@ -66,13 +67,6 @@ resource "appgate_appliance" "new_gateway" {
   ]
   notes = "hello world"
   site  = data.appgate_site.default_site.id
-
-  connection {
-    type     = "ssh"
-    user     = "cz"
-    password = "cz"
-    host     = "10.97.168.30"
-  }
 
   networking {
 
@@ -135,11 +129,11 @@ resource "appgate_appliance" "new_gateway" {
       netmask = 0
       nic     = "eth0"
     }
-    # allow_sources {
-    #   address = "0.0.0.0"
-    #   netmask = 0
-    #   nic     = "eth1"
-    # }
+    allow_sources {
+      address = "0.0.0.0"
+      netmask = 0
+      nic     = "eth1"
+    }
   }
 
   snmp_server {
@@ -257,8 +251,6 @@ resource "appgate_appliance" "new_gateway" {
   #   }
   # }
 
-
-
 }
 
 ```
@@ -295,8 +287,6 @@ The following arguments are supported:
 * `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
-* `created`: (Optional) Create date.
-* `updated`: (Optional) Last update date.
 * `tags`: (Optional) Array of tags.
 
 
@@ -390,6 +380,9 @@ System route settings.
 * `netmask`: (Required) Netmask for the subnet to route. Example: 24.
 * `gateway`: (Optional) Gateway to use for routing. Example: 10.0.0.254.
 * `nic`: (Optional) NIC name to use for routing. Example: eth0.
+### ntp_servers
+Deprecated as of 4.3.0, use 'ntp' field instead. NTP servers to synchronize time.
+
 ### ntp
 NTP configuration.
 
@@ -508,6 +501,18 @@ A list of clients to run on the appliance with the given configuration.
 * `device_id`: (Optional) The device ID to assign to this client. It will be used to generate device distinguished name. Example: 12699e27-b584-464a-81ee-5b4784b6d425.
 * `sources`: (Optional) Source configuration to allow via iptables.
 * `snat`: (Optional) Use Source NAT for IoT client tunnel.
+### rsyslog_destinations
+Rsyslog destination settings to forward appliance logs.
+
+* `selector`:  (Optional)  default value `*.*` Rsyslog selector.
+* `template`:  (Optional)  default value `%HOSTNAME% %msg%` Rsyslog template to forward logs with.
+* `destination`:  (Optional) Rsyslog server destination.
+### hostname_aliases
+Hostname aliases. They are added to the Appliance certificate as Subject Alternative Names so it is trusted using different IPs or hostnames. Requires manual certificate renewal to apply changes to the certificate.
+
+### tags
+Array of tags.
+
 
 
 

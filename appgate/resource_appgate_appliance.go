@@ -2,8 +2,6 @@ package appgate
 
 import (
 	"context"
-	b64 "encoding/base64"
-	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -58,11 +56,6 @@ func resourceAppgateAppliance() *schema.Resource {
 			"appliance_id": {
 				Type:        schema.TypeString,
 				Description: "ID of the object.",
-				Computed:    true,
-			},
-			"seed_file": {
-				Type:        schema.TypeString,
-				Description: "Seed file (json) generated from appliance used in remote-exec.",
 				Computed:    true,
 			},
 			"activated": {
@@ -1426,26 +1419,6 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 	}
-
-	if ok, _ := appliance.GetActivatedOk(); *ok {
-		d.Set("seed_file", "")
-		d.Set("activated", true)
-		return nil
-	}
-	exportRequest := api.AppliancesIdExportPost(ctx, appliance.Id)
-	exportRequest = exportRequest.SSHConfig(openapi.SSHConfig{
-		Password: openapi.PtrString("cz"),
-	})
-	seedmap, _, err := exportRequest.Authorization(token).Execute()
-	if err != nil {
-		return fmt.Errorf("Could not export appliance %+v", prettyPrintAPIError(err))
-	}
-	encodedSeed, err := json.Marshal(seedmap)
-	if err != nil {
-		return fmt.Errorf("Could not parse json seed file: %+v", err)
-	}
-	d.Set("seed_file", b64.StdEncoding.EncodeToString([]byte(encodedSeed)))
-
 	return nil
 }
 

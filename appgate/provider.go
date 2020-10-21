@@ -58,6 +58,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_mfa_provider":            dataSourceAppgateMfaProvider(),
 			"appgate_local_user":              dataSourceAppgateLocalUser(),
 			"appgate_identity_provider":       dataSourceAppgateIdentityProvider(),
+			"appgate_appliance_seed":          dataSourceAppgateApplianceSeed(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":                resourceAppgateAppliance(),
