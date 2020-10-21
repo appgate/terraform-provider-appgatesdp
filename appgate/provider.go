@@ -82,6 +82,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_client_connections":       resourceClientConnections(),
 			"appgate_blacklist_user":           resourceAppgateBlacklistUser(),
 			"appgate_radius_identity_provider": resourceAppgateRadiusProvider(),
+			"appgate_saml_identity_provider":   resourceAppgateSamlProvider(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

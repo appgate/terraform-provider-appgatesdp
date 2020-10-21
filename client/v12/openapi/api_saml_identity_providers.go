@@ -24,34 +24,34 @@ var (
 	_ _context.Context
 )
 
-// RadiusIdentityProviderList struct for RadiusIdentityProviderList
-type RadiusIdentityProviderList struct {
+// SamlIdentityProviderList struct for SamlIdentityProviderList
+type SamlIdentityProviderList struct {
 	ResultList
 	// List of Identity Providers.
-	Data *[]RadiusProvider `json:"data,omitempty"`
+	Data *[]SamlProvider `json:"data,omitempty"`
 }
 
-// NewRadiusIdentityProviderList instantiates a new RadiusIdentityProviderList object
+// NewSamlIdentityProviderList instantiates a new SamlIdentityProviderList object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewRadiusIdentityProviderList() *RadiusIdentityProviderList {
-	this := RadiusIdentityProviderList{}
+func NewSamlIdentityProviderList() *SamlIdentityProviderList {
+	this := SamlIdentityProviderList{}
 	return &this
 }
 
-// NewRadiusIdentityProviderListWithDefaults instantiates a new RadiusIdentityProviderList object
+// NewSamlIdentityProviderListWithDefaults instantiates a new SamlIdentityProviderList object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewRadiusIdentityProviderListWithDefaults() *RadiusIdentityProviderList {
-	this := RadiusIdentityProviderList{}
+func NewSamlIdentityProviderListWithDefaults() *SamlIdentityProviderList {
+	this := SamlIdentityProviderList{}
 	return &this
 }
 
 // GetData returns the Data field value if set, zero value otherwise.
-func (o *RadiusIdentityProviderList) GetData() []RadiusProvider {
+func (o *SamlIdentityProviderList) GetData() []SamlProvider {
 	if o == nil || o.Data == nil {
-		var ret []RadiusProvider
+		var ret []SamlProvider
 		return ret
 	}
 	return *o.Data
@@ -59,7 +59,7 @@ func (o *RadiusIdentityProviderList) GetData() []RadiusProvider {
 
 // GetDataOk returns a tuple with the Data field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *RadiusIdentityProviderList) GetDataOk() (*[]RadiusProvider, bool) {
+func (o *SamlIdentityProviderList) GetDataOk() (*[]SamlProvider, bool) {
 	if o == nil || o.Data == nil {
 		return nil, false
 	}
@@ -67,7 +67,7 @@ func (o *RadiusIdentityProviderList) GetDataOk() (*[]RadiusProvider, bool) {
 }
 
 // HasData returns a boolean if a field has been set.
-func (o *RadiusIdentityProviderList) HasData() bool {
+func (o *SamlIdentityProviderList) HasData() bool {
 	if o != nil && o.Data != nil {
 		return true
 	}
@@ -76,11 +76,11 @@ func (o *RadiusIdentityProviderList) HasData() bool {
 }
 
 // SetData gets a reference to the given []IdentityProvider and assigns it to the Data field.
-func (o *RadiusIdentityProviderList) SetData(v []RadiusProvider) {
+func (o *SamlIdentityProviderList) SetData(v []SamlProvider) {
 	o.Data = &v
 }
 
-func (o RadiusIdentityProviderList) MarshalJSON() ([]byte, error) {
+func (o SamlIdentityProviderList) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	serializedResultList, errResultList := json.Marshal(o.ResultList)
 	if errResultList != nil {
@@ -96,12 +96,12 @@ func (o RadiusIdentityProviderList) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-// RadiusIdentityProvidersApiService IdentityProvidersApi service
-type RadiusIdentityProvidersApiService service
+// SamlIdentityProvidersApiService IdentityProvidersApi service
+type SamlIdentityProvidersApiService service
 
-type apiRadiusIdentityProvidersGetRequest struct {
+type apiSamlIdentityProvidersGetRequest struct {
 	ctx           _context.Context
-	apiService    *RadiusIdentityProvidersApiService
+	apiService    *SamlIdentityProvidersApiService
 	authorization *string
 	query         *string
 	range_        *string
@@ -109,27 +109,27 @@ type apiRadiusIdentityProvidersGetRequest struct {
 	descending    *string
 }
 
-func (r apiRadiusIdentityProvidersGetRequest) Authorization(authorization string) apiRadiusIdentityProvidersGetRequest {
+func (r apiSamlIdentityProvidersGetRequest) Authorization(authorization string) apiSamlIdentityProvidersGetRequest {
 	r.authorization = &authorization
 	return r
 }
 
-func (r apiRadiusIdentityProvidersGetRequest) Query(query string) apiRadiusIdentityProvidersGetRequest {
+func (r apiSamlIdentityProvidersGetRequest) Query(query string) apiSamlIdentityProvidersGetRequest {
 	r.query = &query
 	return r
 }
 
-func (r apiRadiusIdentityProvidersGetRequest) Range_(range_ string) apiRadiusIdentityProvidersGetRequest {
+func (r apiSamlIdentityProvidersGetRequest) Range_(range_ string) apiSamlIdentityProvidersGetRequest {
 	r.range_ = &range_
 	return r
 }
 
-func (r apiRadiusIdentityProvidersGetRequest) OrderBy(orderBy string) apiRadiusIdentityProvidersGetRequest {
+func (r apiSamlIdentityProvidersGetRequest) OrderBy(orderBy string) apiSamlIdentityProvidersGetRequest {
 	r.orderBy = &orderBy
 	return r
 }
 
-func (r apiRadiusIdentityProvidersGetRequest) Descending(descending string) apiRadiusIdentityProvidersGetRequest {
+func (r apiSamlIdentityProvidersGetRequest) Descending(descending string) apiSamlIdentityProvidersGetRequest {
 	r.descending = &descending
 	return r
 }
@@ -138,10 +138,10 @@ func (r apiRadiusIdentityProvidersGetRequest) Descending(descending string) apiR
 IdentityProvidersGet List all Identity Providers.
 List all Identity Providers visible to current user.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-@return apiRadiusIdentityProvidersGetRequest
+@return apiSamlIdentityProvidersGetRequest
 */
-func (a *RadiusIdentityProvidersApiService) IdentityProvidersGet(ctx _context.Context) apiRadiusIdentityProvidersGetRequest {
-	return apiRadiusIdentityProvidersGetRequest{
+func (a *SamlIdentityProvidersApiService) IdentityProvidersGet(ctx _context.Context) apiSamlIdentityProvidersGetRequest {
+	return apiSamlIdentityProvidersGetRequest{
 		apiService: a,
 		ctx:        ctx,
 	}
@@ -149,19 +149,19 @@ func (a *RadiusIdentityProvidersApiService) IdentityProvidersGet(ctx _context.Co
 
 /*
 Execute executes the request
- @return RadiusIdentityProviderList
+ @return SamlIdentityProviderList
 */
-func (r apiRadiusIdentityProvidersGetRequest) Execute() (RadiusIdentityProviderList, *_nethttp.Response, error) {
+func (r apiSamlIdentityProvidersGetRequest) Execute() (SamlIdentityProviderList, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  RadiusIdentityProviderList
+		localVarReturnValue  SamlIdentityProviderList
 	)
 
-	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "RadiusIdentityProvidersApiService.IdentityProvidersGet")
+	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "SamlIdentityProvidersApiService.IdentityProvidersGet")
 	if err != nil {
 		return localVarReturnValue, nil, GenericOpenAPIError{error: err.Error()}
 	}
@@ -228,7 +228,7 @@ func (r apiRadiusIdentityProvidersGetRequest) Execute() (RadiusIdentityProviderL
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v RadiusIdentityProviderList
+			var v SamlIdentityProviderList
 			err = r.apiService.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -281,20 +281,20 @@ func (r apiRadiusIdentityProvidersGetRequest) Execute() (RadiusIdentityProviderL
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type apiRadiusIdentityProvidersIdAttributesPostRequest struct {
+type apiSamlIdentityProvidersIdAttributesPostRequest struct {
 	ctx           _context.Context
-	apiService    *RadiusIdentityProvidersApiService
+	apiService    *SamlIdentityProvidersApiService
 	authorization *string
 	id            string
 	inlineObject4 *InlineObject4
 }
 
-func (r apiRadiusIdentityProvidersIdAttributesPostRequest) Authorization(authorization string) apiRadiusIdentityProvidersIdAttributesPostRequest {
+func (r apiSamlIdentityProvidersIdAttributesPostRequest) Authorization(authorization string) apiSamlIdentityProvidersIdAttributesPostRequest {
 	r.authorization = &authorization
 	return r
 }
 
-func (r apiRadiusIdentityProvidersIdAttributesPostRequest) InlineObject4(inlineObject4 InlineObject4) apiRadiusIdentityProvidersIdAttributesPostRequest {
+func (r apiSamlIdentityProvidersIdAttributesPostRequest) InlineObject4(inlineObject4 InlineObject4) apiSamlIdentityProvidersIdAttributesPostRequest {
 	r.inlineObject4 = &inlineObject4
 	return r
 }
@@ -304,10 +304,10 @@ IdentityProvidersIdAttributesPost Get user attributes from an existing Identity 
 Get raw attributes and mapped claims for a user.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param id ID of the object.
-@return apiRadiusIdentityProvidersIdAttributesPostRequest
+@return apiSamlIdentityProvidersIdAttributesPostRequest
 */
-func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdAttributesPost(ctx _context.Context, id string) apiRadiusIdentityProvidersIdAttributesPostRequest {
-	return apiRadiusIdentityProvidersIdAttributesPostRequest{
+func (a *SamlIdentityProvidersApiService) IdentityProvidersIdAttributesPost(ctx _context.Context, id string) apiSamlIdentityProvidersIdAttributesPostRequest {
+	return apiSamlIdentityProvidersIdAttributesPostRequest{
 		apiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -318,7 +318,7 @@ func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdAttributesPost(ct
 Execute executes the request
  @return InlineResponse20010
 */
-func (r apiRadiusIdentityProvidersIdAttributesPostRequest) Execute() (InlineResponse20010, *_nethttp.Response, error) {
+func (r apiSamlIdentityProvidersIdAttributesPostRequest) Execute() (InlineResponse20010, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
@@ -328,7 +328,7 @@ func (r apiRadiusIdentityProvidersIdAttributesPostRequest) Execute() (InlineResp
 		localVarReturnValue  InlineResponse20010
 	)
 
-	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "RadiusIdentityProvidersApiService.IdentityProvidersIdAttributesPost")
+	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "SamlIdentityProvidersApiService.IdentityProvidersIdAttributesPost")
 	if err != nil {
 		return localVarReturnValue, nil, GenericOpenAPIError{error: err.Error()}
 	}
@@ -469,14 +469,14 @@ func (r apiRadiusIdentityProvidersIdAttributesPostRequest) Execute() (InlineResp
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type apiRadiusIdentityProvidersIdDeleteRequest struct {
+type apiSamlIdentityProvidersIdDeleteRequest struct {
 	ctx           _context.Context
-	apiService    *RadiusIdentityProvidersApiService
+	apiService    *SamlIdentityProvidersApiService
 	authorization *string
 	id            string
 }
 
-func (r apiRadiusIdentityProvidersIdDeleteRequest) Authorization(authorization string) apiRadiusIdentityProvidersIdDeleteRequest {
+func (r apiSamlIdentityProvidersIdDeleteRequest) Authorization(authorization string) apiSamlIdentityProvidersIdDeleteRequest {
 	r.authorization = &authorization
 	return r
 }
@@ -486,10 +486,10 @@ IdentityProvidersIdDelete Delete a specific Identity Provider.
 Delete a specific Identity Provider.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param id ID of the object.
-@return apiRadiusIdentityProvidersIdDeleteRequest
+@return apiSamlIdentityProvidersIdDeleteRequest
 */
-func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdDelete(ctx _context.Context, id string) apiRadiusIdentityProvidersIdDeleteRequest {
-	return apiRadiusIdentityProvidersIdDeleteRequest{
+func (a *SamlIdentityProvidersApiService) IdentityProvidersIdDelete(ctx _context.Context, id string) apiSamlIdentityProvidersIdDeleteRequest {
+	return apiSamlIdentityProvidersIdDeleteRequest{
 		apiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -500,7 +500,7 @@ func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdDelete(ctx _conte
 Execute executes the request
 
 */
-func (r apiRadiusIdentityProvidersIdDeleteRequest) Execute() (*_nethttp.Response, error) {
+func (r apiSamlIdentityProvidersIdDeleteRequest) Execute() (*_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodDelete
 		localVarPostBody     interface{}
@@ -509,7 +509,7 @@ func (r apiRadiusIdentityProvidersIdDeleteRequest) Execute() (*_nethttp.Response
 		localVarFileBytes    []byte
 	)
 
-	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "RadiusIdentityProvidersApiService.IdentityProvidersIdDelete")
+	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "SamlIdentityProvidersApiService.IdentityProvidersIdDelete")
 	if err != nil {
 		return nil, GenericOpenAPIError{error: err.Error()}
 	}
@@ -609,14 +609,14 @@ func (r apiRadiusIdentityProvidersIdDeleteRequest) Execute() (*_nethttp.Response
 	return localVarHTTPResponse, nil
 }
 
-type apiRadiusIdentityProvidersIdGetRequest struct {
+type apiSamlIdentityProvidersIdGetRequest struct {
 	ctx           _context.Context
-	apiService    *RadiusIdentityProvidersApiService
+	apiService    *SamlIdentityProvidersApiService
 	authorization *string
 	id            string
 }
 
-func (r apiRadiusIdentityProvidersIdGetRequest) Authorization(authorization string) apiRadiusIdentityProvidersIdGetRequest {
+func (r apiSamlIdentityProvidersIdGetRequest) Authorization(authorization string) apiSamlIdentityProvidersIdGetRequest {
 	r.authorization = &authorization
 	return r
 }
@@ -626,10 +626,10 @@ IdentityProvidersIdGet Get a specific Identity Provider.
 Get a specific Identity Provider.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param id ID of the object.
-@return apiRadiusIdentityProvidersIdGetRequest
+@return apiSamlIdentityProvidersIdGetRequest
 */
-func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdGet(ctx _context.Context, id string) apiRadiusIdentityProvidersIdGetRequest {
-	return apiRadiusIdentityProvidersIdGetRequest{
+func (a *SamlIdentityProvidersApiService) IdentityProvidersIdGet(ctx _context.Context, id string) apiSamlIdentityProvidersIdGetRequest {
+	return apiSamlIdentityProvidersIdGetRequest{
 		apiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -640,17 +640,17 @@ func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdGet(ctx _context.
 Execute executes the request
  @return IdentityProvider
 */
-func (r apiRadiusIdentityProvidersIdGetRequest) Execute() (RadiusProvider, *_nethttp.Response, error) {
+func (r apiSamlIdentityProvidersIdGetRequest) Execute() (SamlProvider, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  RadiusProvider
+		localVarReturnValue  SamlProvider
 	)
 
-	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "RadiusIdentityProvidersApiService.IdentityProvidersIdGet")
+	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "SamlIdentityProvidersApiService.IdentityProvidersIdGet")
 	if err != nil {
 		return localVarReturnValue, nil, GenericOpenAPIError{error: err.Error()}
 	}
@@ -769,20 +769,20 @@ func (r apiRadiusIdentityProvidersIdGetRequest) Execute() (RadiusProvider, *_net
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type apiRadiusIdentityProvidersIdPutRequest struct {
+type apiSamlIdentityProvidersIdPutRequest struct {
 	ctx              _context.Context
-	apiService       *RadiusIdentityProvidersApiService
+	apiService       *SamlIdentityProvidersApiService
 	authorization    *string
 	id               string
-	identityProvider *RadiusProvider
+	identityProvider *SamlProvider
 }
 
-func (r apiRadiusIdentityProvidersIdPutRequest) Authorization(authorization string) apiRadiusIdentityProvidersIdPutRequest {
+func (r apiSamlIdentityProvidersIdPutRequest) Authorization(authorization string) apiSamlIdentityProvidersIdPutRequest {
 	r.authorization = &authorization
 	return r
 }
 
-func (r apiRadiusIdentityProvidersIdPutRequest) IdentityProvider(identityProvider RadiusProvider) apiRadiusIdentityProvidersIdPutRequest {
+func (r apiSamlIdentityProvidersIdPutRequest) IdentityProvider(identityProvider SamlProvider) apiSamlIdentityProvidersIdPutRequest {
 	r.identityProvider = &identityProvider
 	return r
 }
@@ -792,10 +792,10 @@ IdentityProvidersIdPut Update an existing Identity Provider.
 Update an existing Identity Provider.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param id ID of the object.
-@return apiRadiusIdentityProvidersIdPutRequest
+@return apiSamlIdentityProvidersIdPutRequest
 */
-func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdPut(ctx _context.Context, id string) apiRadiusIdentityProvidersIdPutRequest {
-	return apiRadiusIdentityProvidersIdPutRequest{
+func (a *SamlIdentityProvidersApiService) IdentityProvidersIdPut(ctx _context.Context, id string) apiSamlIdentityProvidersIdPutRequest {
+	return apiSamlIdentityProvidersIdPutRequest{
 		apiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -804,19 +804,19 @@ func (a *RadiusIdentityProvidersApiService) IdentityProvidersIdPut(ctx _context.
 
 /*
 Execute executes the request
- @return RadiusProvider
+ @return SamlProvider
 */
-func (r apiRadiusIdentityProvidersIdPutRequest) Execute() (RadiusProvider, *_nethttp.Response, error) {
+func (r apiSamlIdentityProvidersIdPutRequest) Execute() (SamlProvider, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPut
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  RadiusProvider
+		localVarReturnValue  SamlProvider
 	)
 
-	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "RadiusIdentityProvidersApiService.IdentityProvidersIdPut")
+	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "SamlIdentityProvidersApiService.IdentityProvidersIdPut")
 	if err != nil {
 		return localVarReturnValue, nil, GenericOpenAPIError{error: err.Error()}
 	}
@@ -961,19 +961,19 @@ func (r apiRadiusIdentityProvidersIdPutRequest) Execute() (RadiusProvider, *_net
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type apiRadiusIdentityProvidersPostRequest struct {
+type apiSamlIdentityProvidersPostRequest struct {
 	ctx              _context.Context
-	apiService       *RadiusIdentityProvidersApiService
+	apiService       *SamlIdentityProvidersApiService
 	authorization    *string
-	identityProvider *RadiusProvider
+	identityProvider *SamlProvider
 }
 
-func (r apiRadiusIdentityProvidersPostRequest) Authorization(authorization string) apiRadiusIdentityProvidersPostRequest {
+func (r apiSamlIdentityProvidersPostRequest) Authorization(authorization string) apiSamlIdentityProvidersPostRequest {
 	r.authorization = &authorization
 	return r
 }
 
-func (r apiRadiusIdentityProvidersPostRequest) IdentityProvider(identityProvider RadiusProvider) apiRadiusIdentityProvidersPostRequest {
+func (r apiSamlIdentityProvidersPostRequest) IdentityProvider(identityProvider SamlProvider) apiSamlIdentityProvidersPostRequest {
 	r.identityProvider = &identityProvider
 	return r
 }
@@ -982,10 +982,10 @@ func (r apiRadiusIdentityProvidersPostRequest) IdentityProvider(identityProvider
 IdentityProvidersPost Create a new Identity Provider.
 Create a new Identity Provider.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-@return apiRadiusIdentityProvidersPostRequest
+@return apiSamlIdentityProvidersPostRequest
 */
-func (a *RadiusIdentityProvidersApiService) IdentityProvidersPost(ctx _context.Context) apiRadiusIdentityProvidersPostRequest {
-	return apiRadiusIdentityProvidersPostRequest{
+func (a *SamlIdentityProvidersApiService) IdentityProvidersPost(ctx _context.Context) apiSamlIdentityProvidersPostRequest {
+	return apiSamlIdentityProvidersPostRequest{
 		apiService: a,
 		ctx:        ctx,
 	}
@@ -993,19 +993,19 @@ func (a *RadiusIdentityProvidersApiService) IdentityProvidersPost(ctx _context.C
 
 /*
 Execute executes the request
- @return RadiusProvider
+ @return SamlProvider
 */
-func (r apiRadiusIdentityProvidersPostRequest) Execute() (RadiusProvider, *_nethttp.Response, error) {
+func (r apiSamlIdentityProvidersPostRequest) Execute() (SamlProvider, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  RadiusProvider
+		localVarReturnValue  SamlProvider
 	)
 
-	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "RadiusIdentityProvidersApiService.IdentityProvidersPost")
+	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "SamlIdentityProvidersApiService.IdentityProvidersPost")
 	if err != nil {
 		return localVarReturnValue, nil, GenericOpenAPIError{error: err.Error()}
 	}
@@ -1066,7 +1066,7 @@ func (r apiRadiusIdentityProvidersPostRequest) Execute() (RadiusProvider, *_neth
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v RadiusProvider
+			var v SamlProvider
 			err = r.apiService.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1149,19 +1149,19 @@ func (r apiRadiusIdentityProvidersPostRequest) Execute() (RadiusProvider, *_neth
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type apiRadiusIdentityProvidersTestPostRequest struct {
+type apiSamlIdentityProvidersTestPostRequest struct {
 	ctx              _context.Context
-	apiService       *RadiusIdentityProvidersApiService
+	apiService       *SamlIdentityProvidersApiService
 	authorization    *string
-	identityProvider *RadiusProvider
+	identityProvider *SamlProvider
 }
 
-func (r apiRadiusIdentityProvidersTestPostRequest) Authorization(authorization string) apiRadiusIdentityProvidersTestPostRequest {
+func (r apiSamlIdentityProvidersTestPostRequest) Authorization(authorization string) apiSamlIdentityProvidersTestPostRequest {
 	r.authorization = &authorization
 	return r
 }
 
-func (r apiRadiusIdentityProvidersTestPostRequest) IdentityProvider(identityProvider RadiusProvider) apiRadiusIdentityProvidersTestPostRequest {
+func (r apiSamlIdentityProvidersTestPostRequest) IdentityProvider(identityProvider SamlProvider) apiSamlIdentityProvidersTestPostRequest {
 	r.identityProvider = &identityProvider
 	return r
 }
@@ -1170,10 +1170,10 @@ func (r apiRadiusIdentityProvidersTestPostRequest) IdentityProvider(identityProv
 IdentityProvidersTestPost Test an Identity Provider connection.
 Test connection for the given Identity Provider JSON.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-@return apiRadiusIdentityProvidersTestPostRequest
+@return apiSamlIdentityProvidersTestPostRequest
 */
-func (a *RadiusIdentityProvidersApiService) IdentityProvidersTestPost(ctx _context.Context) apiRadiusIdentityProvidersTestPostRequest {
-	return apiRadiusIdentityProvidersTestPostRequest{
+func (a *SamlIdentityProvidersApiService) IdentityProvidersTestPost(ctx _context.Context) apiSamlIdentityProvidersTestPostRequest {
+	return apiSamlIdentityProvidersTestPostRequest{
 		apiService: a,
 		ctx:        ctx,
 	}
@@ -1183,7 +1183,7 @@ func (a *RadiusIdentityProvidersApiService) IdentityProvidersTestPost(ctx _conte
 Execute executes the request
  @return InlineResponse2009
 */
-func (r apiRadiusIdentityProvidersTestPostRequest) Execute() (InlineResponse2009, *_nethttp.Response, error) {
+func (r apiSamlIdentityProvidersTestPostRequest) Execute() (InlineResponse2009, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
@@ -1193,7 +1193,7 @@ func (r apiRadiusIdentityProvidersTestPostRequest) Execute() (InlineResponse2009
 		localVarReturnValue  InlineResponse2009
 	)
 
-	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "RadiusIdentityProvidersApiService.IdentityProvidersTestPost")
+	localBasePath, err := r.apiService.client.cfg.ServerURLWithContext(r.ctx, "SamlIdentityProvidersApiService.IdentityProvidersTestPost")
 	if err != nil {
 		return localVarReturnValue, nil, GenericOpenAPIError{error: err.Error()}
 	}

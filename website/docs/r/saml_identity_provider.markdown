@@ -1,19 +1,18 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_radius_identity_provider"
-sidebar_current: "docs-appgate-resource-radius_identity_provider"
+page_title: "APPGATE: appgate_saml_identity_provider"
+sidebar_current: "docs-appgate-resource-saml_identity_provider"
 description: |-
-   Create a new Radius Identity Provider.
+   Create a new Saml Identity Provider.
 ---
 
-# appgate_radius_identity_provider
+# appgate_saml_identity_provider
 
-Create a new Radius Identity Provider.
+Create a new Saml Identity Provider.
 
 ## Example Usage
 
 ```hcl
-
 data "appgate_ip_pool" "ip_sex_pool" {
   ip_pool_name = "default pool v6"
 }
@@ -21,19 +20,14 @@ data "appgate_ip_pool" "ip_sex_pool" {
 data "appgate_ip_pool" "ip_four_pool" {
   ip_pool_name = "default pool v4"
 }
-
 data "appgate_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
 
-resource "appgate_radius_identity_provider" "radius" {
-  name = "the-radius"
-  hostnames = [
-    "radius.company.com"
-  ]
+resource "appgate_saml_identity_provider" "test_saml_identity_provider" {
+  name = "saml"
+
   admin_provider = true
-  port           = 1812
-  shared_secret  = "hunter2"
   ip_pool_v4     = data.appgate_ip_pool.ip_four_pool.id
   ip_pool_v6     = data.appgate_ip_pool.ip_sex_pool.id
   dns_servers = [
@@ -43,6 +37,18 @@ resource "appgate_radius_identity_provider" "radius" {
   dns_search_domains = [
     "internal.company.com"
   ]
+  redirect_url = "https://saml.company.com"
+  issuer       = "http://adfs-test.company.com/adfs/services/trust"
+  audience     = "Company Appgate SDP"
+
+
+  provider_certificate = <<-EOF
+-----BEGIN CERTIFICATE-----
+....
+....
+-----END CERTIFICATE-----
+EOF
+
   block_local_dns_requests = true
   on_boarding_two_factor {
     mfa_provider_id       = data.appgate_mfa_provider.fido.id
@@ -51,7 +57,7 @@ resource "appgate_radius_identity_provider" "radius" {
   }
   tags = [
     "terraform",
-    "api-created"
+
   ]
   claim_mappings {
     attribute_name = "objectGUID"
@@ -98,6 +104,7 @@ resource "appgate_radius_identity_provider" "radius" {
     }
     platform = "desktop.windows.all"
   }
+
 }
 
 ```
@@ -124,11 +131,10 @@ The following arguments are supported:
 * `block_local_dns_requests`: (Optional) Whether the Windows Client will block local DNS requests or not.
 * `claim_mappings`: (Optional) The mapping of Identity Provider attributes to claims.
 * `on_demand_claim_mappings`: (Optional) The mapping of Identity Provider on demand attributes to claims.
-* `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
-* `hostnames`: (Required) Hostnames/IP addresses to connect.
+* `hostnames`: (Optional) Hostnames/IP addresses to connect.
 * `port`: (Optional) Port to connect.
 * `ssl_enabled`: (Optional) Whether to use LDAPS protocol or not.
 * `admin_distinguished_name`: (Optional) The Distinguished Name to login to LDAP and query users with.
@@ -139,8 +145,11 @@ The following arguments are supported:
 * `membership_filter`: (Optional) The filter to use while querying users' nested groups.
 * `membership_base_dn`: (Optional) The subset of the LDAP server to search groups from. If not set, "baseDn" is used.
 * `password_warning`: (Optional) Password warning configuration for Active Directory. If enabled, the client will display the configured message before the password expiration.
-* `shared_secret`: (Required) Radius shared secret to authenticate to the server.
-* `authentication_protocol`: (Optional) Radius protocol to use while authenticating users.
+* `redirect_url`: (Required) The URL to redirect the user browsers to authenticate against the SAML Server. Also known as Single Sign-on URL. AuthNRequest will be added automatically.
+* `issuer`: (Required) SAML issuer ID to make sure the sender of the Token is the expected SAML provider.
+* `audience`: (Required) SAML audience to make sure the recipient of the Token is this Controller.
+* `provider_certificate`: (Required) The certificate of the SAML provider to verify the SAML tokens. In PEM format.
+* `decryption_key`: (Optional) The private key to decrypt encrypted assertions if there is any. In PEM format.
 
 
 ### on_boarding_two_factor
@@ -189,5 +198,5 @@ Password warning configuration for Active Directory. If enabled, the client will
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_radius_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgate_saml_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
 ```
