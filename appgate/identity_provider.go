@@ -15,74 +15,102 @@ const (
 	identityProviderLdap            = "Ldap"
 	identityProviderSaml            = "Saml"
 	identityProviderLdapCertificate = "LdapCertificate"
-	identityProviderIotConnector    = "IotConnector"
-	builtinProviderLocal            = "local"
+	// TODO Update when we upgrade client api.
+	identityProviderConnector = "IotConnector"
+	builtinProviderLocal      = "local"
+	// TODO Update value when we update client lib.
+	// IoT Connector in <= appliance 5.1
+	// Connector in > 5.1
+	builtinProviderConnector = "IoT Connector"
 )
 
 func identityProviderSchema() map[string]*schema.Schema {
-	return mergeSchemaMaps(baseEntitySchema(), map[string]*schema.Schema{
-		"type": {
-			Optional: true,
-			Type:     schema.TypeString,
-			ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
-				s := v.(string)
-				list := []string{
-					identityProviderLocalDatabase,
-					identityProviderRadius,
-					identityProviderLdap,
-					identityProviderSaml,
-					identityProviderLdapCertificate,
-					identityProviderIotConnector,
-				}
-				for _, x := range list {
-					if s == x {
-						return
+	return mergeSchemaMaps(baseEntitySchema(), identityProviderIPPoolSchema(), identityProviderClaimsSchema(), func() map[string]*schema.Schema {
+		ip := map[string]*schema.Schema{
+			"type": {
+				Optional: true,
+				Type:     schema.TypeString,
+				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+					s := v.(string)
+					list := []string{
+						identityProviderLocalDatabase,
+						identityProviderRadius,
+						identityProviderLdap,
+						identityProviderSaml,
+						identityProviderLdapCertificate,
+						identityProviderConnector,
 					}
-				}
-				errs = append(errs, fmt.Errorf("type must be on of %v, got %s", list, s))
-				return
+					for _, x := range list {
+						if s == x {
+							return
+						}
+					}
+					errs = append(errs, fmt.Errorf("type must be on of %v, got %s", list, s))
+					return
+				},
 			},
-		},
 
-		"default": {
-			Type:     schema.TypeBool,
-			Computed: true,
-			Optional: true,
-		},
+			"default": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+			},
 
-		"admin_provider": {
-			Type:     schema.TypeBool,
-			Optional: true,
-			Computed: true,
-		},
-		"on_boarding_two_factor": {
-			Type:     schema.TypeList,
-			Optional: true,
-			MaxItems: 1,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"mfa_provider_id": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"message": {
-						Type:     schema.TypeString,
-						Optional: true,
-					},
-					"device_limit_per_user": {
-						Type:     schema.TypeInt,
-						Computed: true,
-						Optional: true,
+			"admin_provider": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"on_boarding_two_factor": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mfa_provider_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"message": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"device_limit_per_user": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Optional: true,
+						},
 					},
 				},
 			},
-		},
 
-		"inactivity_timeout_minutes": {
-			Type:     schema.TypeInt,
-			Computed: true,
-			Optional: true,
-		},
+			"inactivity_timeout_minutes": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+			},
+			"dns_servers": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"dns_search_domains": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"block_local_dns_requests": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+			},
+		}
+		return ip
+	}())
+}
+
+func identityProviderIPPoolSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
 		"ip_pool_v4": {
 			Type:     schema.TypeString,
 			Optional: true,
@@ -91,21 +119,11 @@ func identityProviderSchema() map[string]*schema.Schema {
 			Type:     schema.TypeString,
 			Optional: true,
 		},
-		"dns_servers": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem:     &schema.Schema{Type: schema.TypeString},
-		},
-		"dns_search_domains": {
-			Type:     schema.TypeList,
-			Optional: true,
-			Elem:     &schema.Schema{Type: schema.TypeString},
-		},
-		"block_local_dns_requests": {
-			Type:     schema.TypeBool,
-			Computed: true,
-			Optional: true,
-		},
+	}
+}
+
+func identityProviderClaimsSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
 		"claim_mappings": {
 			Type:     schema.TypeList,
 			Optional: true,
@@ -223,7 +241,7 @@ func identityProviderSchema() map[string]*schema.Schema {
 				},
 			},
 		},
-	})
+	}
 }
 
 // ldapProviderSchema return the default base schema for
