@@ -63,7 +63,7 @@ func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorI
 	var connectorIP *openapi.IoTConnectorProvider
 	request := api.IdentityProvidersGet(ctx)
 
-	provider, _, err := request.Query(builtinProviderConnector).OrderBy("name").Range_("0-1").Authorization(token).Execute()
+	provider, _, err := request.Query(builtinProviderConnector).OrderBy("name").Range_("0-25").Authorization(token).Execute()
 	if err != nil {
 		return connectorIP, err
 	}
