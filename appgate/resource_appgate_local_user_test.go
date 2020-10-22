@@ -28,7 +28,7 @@ func TestAccLocalUserBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lock_start", "2020-04-27T09:51:03Z"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "password", "hunter3"),
+					resource.TestCheckResourceAttr(resourceName, "password", "password_is_hunter2"),
 					resource.TestCheckResourceAttr(resourceName, "phone", "+1-202-555-0172"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
@@ -50,7 +50,7 @@ resource "appgate_local_user" "test_local_user" {
     name                  = "%s"
     first_name            = "john"
     last_name             = "doe"
-    password              = "hunter3"
+    password              = "password_is_hunter2"
     email                 = "john.doe@test.com"
     phone                 = "+1-202-555-0172"
     failed_login_attempts = 30
