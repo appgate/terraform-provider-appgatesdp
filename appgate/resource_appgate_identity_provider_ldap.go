@@ -28,79 +28,9 @@ func resourceAppgateLdapProvider() *schema.Resource {
 		},
 
 		Schema: func() map[string]*schema.Schema {
-			s := identityProviderSchema()
+			s := ldapProviderSchema()
 			s["type"].Default = identityProviderLdap
 
-			s["hostnames"] = &schema.Schema{
-				Type:     schema.TypeList,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			}
-			s["port"] = &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
-			}
-			s["ssl_enabled"] = &schema.Schema{
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-			}
-			s["admin_distinguished_name"] = &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-			}
-			s["admin_password"] = &schema.Schema{
-				Type:      schema.TypeString,
-				Sensitive: true,
-				Optional:  true,
-			}
-			s["base_dn"] = &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			}
-			s["object_class"] = &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-			}
-			s["username_attribute"] = &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-			}
-			s["membership_filter"] = &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-			}
-			s["membership_base_dn"] = &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			}
-			s["password_warning"] = &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
-							Optional: true,
-						},
-						"threshold_days": {
-							Type:     schema.TypeInt,
-							Computed: true,
-							Optional: true,
-						},
-						"message": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-					},
-				},
-			}
 			return s
 		}(),
 	}
