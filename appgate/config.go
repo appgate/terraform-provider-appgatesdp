@@ -8,14 +8,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v12/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
 
 	"github.com/google/uuid"
 )
 
 const (
 	// Version is the Appgate controller version.
-	Version = 12
+	Version = 13
 
 	// DefaultDescription is the default string for terraform resources.
 	DefaultDescription = "Managed by terraform"

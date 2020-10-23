@@ -623,8 +623,8 @@ resource "appgate_appliance" "test_controller" {
 `, rName)
 }
 
-func TestAccApplianceIoTConnector(t *testing.T) {
-	resourceName := "appgate_appliance.iot_connector"
+func TestAccApplianceConnector(t *testing.T) {
+	resourceName := "appgate_appliance.connector"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -633,7 +633,7 @@ func TestAccApplianceIoTConnector(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceBasicIotConnector(rName),
+				Config: testAccCheckApplianceBasicConnector(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
@@ -649,16 +649,15 @@ func TestAccApplianceIoTConnector(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1234.devops"),
 
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.device_id", "12699e27-b584-464a-81ee-5b4784b6d425"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.name", "Printers"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.snat", "true"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.sources.0.netmask", "24"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.clients.0.sources.0.nic", "eth0"),
-					resource.TestCheckResourceAttr(resourceName, "iot_connector.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "connector.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.netmask", "24"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.device_id", "12699e27-b584-464a-81ee-5b4784b6d425"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.name", "Printers"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.snat_to_resources", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
@@ -709,78 +708,77 @@ func TestAccApplianceIoTConnector(t *testing.T) {
 	})
 }
 
-func testAccCheckApplianceBasicIotConnector(rName string) string {
+func testAccCheckApplianceBasicConnector(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
-  site_name = "Default site"
+    site_name = "Default site"
 }
+resource "appgate_appliance" "connector" {
+    name     = "%s"
+    hostname = "envy-10-97-168-1234.devops"
+    site     = data.appgate_site.default_site.id
 
-resource "appgate_appliance" "iot_connector" {
-  name     = "%s"
-  hostname = "envy-10-97-168-1234.devops"
-
-  client_interface {
-    hostname       = "envy-10-97-168-1234.devops"
-    proxy_protocol = true
-    https_port     = 444
-    dtls_port      = 445
-    allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
-      nic     = "eth0"
-    }
-    override_spa_mode = "TCP"
-  }
-
-  peer_interface {
-    hostname   = "envy-10-97-168-1234.devops"
-    https_port = "1337"
-  }
-  tags = [
-    "terraform",
-    "api-test-created"
-  ]
-  networking {
-
-    hosts {
-      hostname = "bla"
-      address  = "0.0.0.0"
-    }
-
-    nics {
-      enabled = true
-      name    = "eth0"
-      ipv4 {
-        dhcp {
-          enabled = true
-          dns     = true
-          routers = true
-          ntp     = true
-        }
-      }
-      ipv6 {
-        dhcp {
-          enabled = false
-          dns     = true
-          ntp     = false
-        }
-      }
-    }
-  }
-  iot_connector {
-    enabled = true
-    clients {
-      name      = "Printers"
-      device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
-
-      sources {
+    client_interface {
+      hostname       = "envy-10-97-168-1234.devops"
+      proxy_protocol = true
+      https_port     = 444
+      dtls_port      = 445
+      allow_sources {
         address = "1.3.3.7"
-        netmask = 24
+        netmask = 0
         nic     = "eth0"
       }
-      snat = true
+      override_spa_mode = "TCP"
     }
-  }
+
+    peer_interface {
+      hostname   = "envy-10-97-168-1234.devops"
+      https_port = "1337"
+    }
+    tags = [
+      "terraform",
+      "api-test-created"
+    ]
+    networking {
+
+      hosts {
+        hostname = "bla"
+        address  = "0.0.0.0"
+      }
+
+      nics {
+        enabled = true
+        name    = "eth0"
+        ipv4 {
+          dhcp {
+            enabled = true
+            dns     = true
+            routers = true
+            ntp     = true
+          }
+        }
+        ipv6 {
+          dhcp {
+            enabled = false
+            dns     = true
+            ntp     = false
+          }
+        }
+      }
+    }
+    connector {
+      enabled = true
+      express_clients {
+        name      = "Printers"
+        device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
+
+        allow_resources {
+          address = "1.3.3.7"
+          netmask = 24
+        }
+        snat_to_resources = true
+      }
+    }
 }
 `, rName)
 }

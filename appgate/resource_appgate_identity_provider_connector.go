@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v12/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -59,8 +60,8 @@ func resourceAppgateConnectorProviderRuleCreate(d *schema.ResourceData, meta int
 	return resourceAppgateConnectorProviderRuleUpdate(d, meta)
 }
 
-func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorIdentityProvidersApiService, token string) (*openapi.IoTConnectorProvider, error) {
-	var connectorIP *openapi.IoTConnectorProvider
+func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorIdentityProvidersApiService, token string) (*openapi.ConnectorProvider, error) {
+	var connectorIP *openapi.ConnectorProvider
 	request := api.IdentityProvidersGet(ctx)
 
 	provider, _, err := request.Query(builtinProviderConnector).OrderBy("name").Range_("0-25").Authorization(token).Execute()
