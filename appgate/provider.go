@@ -86,6 +86,7 @@ func Provider() terraform.ResourceProvider {
 			"appgate_saml_identity_provider":             resourceAppgateSamlProvider(),
 			"appgate_local_database_identity_provider":   resourceAppgateLocalDatabaseProvider(),
 			"appgate_ldap_certificate_identity_provider": resourceAppgateLdapCertificateProvider(),
+			"appgate_connector_identity_provider":        resourceAppgateConnectorProvider(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

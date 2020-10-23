@@ -68,7 +68,7 @@ func getBuiltinLocalDatabaseProviderUUID(ctx context.Context, api openapi.LocalD
 	var localDatabase *openapi.LocalDatabaseProvider
 	request := api.IdentityProvidersGet(ctx)
 
-	provider, _, err := request.Query(builtinProviderLocal).OrderBy("name").Range_("0-1").Authorization(token).Execute()
+	provider, _, err := request.Query(builtinProviderLocal).OrderBy("name").Range_("0-25").Authorization(token).Execute()
 	if err != nil {
 		return localDatabase, err
 	}

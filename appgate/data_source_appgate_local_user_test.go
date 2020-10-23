@@ -19,7 +19,7 @@ func TestAccAppgateLocalUserDataSource(t *testing.T) {
                     name                  = "%s"
                     first_name            = "john"
                     last_name             = "doe"
-                    password              = "hunter2"
+                    password              = "password_is_hunter2"
                     email                 = "john.doe@test.com"
                     phone                 = "+1-202-555-0172"
                     failed_login_attempts = 30
