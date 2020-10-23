@@ -100,11 +100,11 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 
 func testAccCheckLdapIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_ip_pool" "ip_four_pool" {
+data "appgate_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
-data "appgate_ip_pool" "ip_sex_pool" {
+data "appgate_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
@@ -126,8 +126,8 @@ resource "appgate_ldap_identity_provider" "ldap_test_resource" {
   }
   default                    = false
   inactivity_timeout_minutes = 28
-  ip_pool_v4                 = data.appgate_ip_pool.ip_four_pool.id
-  ip_pool_v6                 = data.appgate_ip_pool.ip_sex_pool.id
+  ip_pool_v4                 = data.appgate_ip_pool.ip_v4_pool.id
+  ip_pool_v6                 = data.appgate_ip_pool.ip_v6_pool.id
   admin_password             = "helloworld"
   dns_servers = [
     "172.17.18.19",

@@ -14,11 +14,11 @@ Create a new Radius Identity Provider.
 
 ```hcl
 
-data "appgate_ip_pool" "ip_sex_pool" {
+data "appgate_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_four_pool" {
+data "appgate_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
@@ -34,8 +34,8 @@ resource "appgate_radius_identity_provider" "radius" {
   admin_provider = true
   port           = 1812
   shared_secret  = "hunter2"
-  ip_pool_v4     = data.appgate_ip_pool.ip_four_pool.id
-  ip_pool_v6     = data.appgate_ip_pool.ip_sex_pool.id
+  ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
+  ip_pool_v6     = data.appgate_ip_pool.ip_v6_pool.id
   dns_servers = [
     "172.17.18.19",
     "192.100.111.31"

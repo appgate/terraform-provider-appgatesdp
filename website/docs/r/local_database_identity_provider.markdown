@@ -20,18 +20,18 @@ $ terraform import 'appgate_local_database_identity_provider.local' local
 
 ```hcl
 
-data "appgate_ip_pool" "ip_sex_pool" {
+data "appgate_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_four_pool" {
+data "appgate_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
 resource "appgate_local_database_identity_provider" "local" {
   notes      = "Built-in Identity Provider on local database."
-  ip_pool_v4 = data.appgate_ip_pool.ip_four_pool.id
-  ip_pool_v6 = data.appgate_ip_pool.ip_sex_pool.id
+  ip_pool_v4 = data.appgate_ip_pool.ip_v4_pool.id
+  ip_pool_v6 = data.appgate_ip_pool.ip_v6_pool.id
 
   user_lockout_threshold = 7
 	min_password_length = 9

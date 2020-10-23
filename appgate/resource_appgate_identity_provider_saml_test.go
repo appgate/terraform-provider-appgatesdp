@@ -94,11 +94,11 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 
 func testAccCheckSamlIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_ip_pool" "ip_sex_pool" {
+data "appgate_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_four_pool" {
+data "appgate_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 data "appgate_mfa_provider" "fido" {
@@ -108,8 +108,8 @@ resource "appgate_saml_identity_provider" "saml_test_resource" {
   name = "%s"
 
   admin_provider = true
-  ip_pool_v4     = data.appgate_ip_pool.ip_four_pool.id
-  ip_pool_v6     = data.appgate_ip_pool.ip_sex_pool.id
+  ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
+  ip_pool_v6     = data.appgate_ip_pool.ip_v6_pool.id
   dns_servers = [
     "172.17.18.19",
     "192.100.111.31",
