@@ -4,50 +4,55 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceAppgateLdapProvider() *schema.Resource {
+func resourceAppgateLdapCertificateProvider() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAppgateLdapProviderRuleCreate,
-		Read:   resourceAppgateLdapProviderRuleRead,
-		Update: resourceAppgateLdapProviderRuleUpdate,
+		Create: resourceAppgateLdapCertificateProviderRuleCreate,
+		Read:   resourceAppgateLdapCertificateProviderRuleRead,
+		Update: resourceAppgateLdapCertificateProviderRuleUpdate,
 		Delete: identityProviderDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
-		},
-
 		Schema: func() map[string]*schema.Schema {
 			s := ldapProviderSchema()
-			s["type"].Default = identityProviderLdap
+			s["type"].Default = identityProviderLdapCertificate
+
+			s["ca_certificates"] = &schema.Schema{
+				Type:     schema.TypeList,
+				Required: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			}
+			s["certificate_user_attribute"] = &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			}
+			// LDAP Certificate does not use password_warning
+			// wrong in the openapi spec.
+			delete(s, "password_warning")
 
 			return s
 		}(),
 	}
 }
 
-func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Creating LdapProvider: %s", d.Get("name").(string))
+func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Creating LdapCertificateProvider: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
-	api := meta.(*Client).API.LdapIdentityProvidersApi
+	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
-	provider := openapi.NewIdentityProvider(identityProviderLdap)
+	provider := openapi.NewIdentityProvider(identityProviderLdapCertificate)
 	provider, err := readProviderFromConfig(d, *provider)
 	if err != nil {
-		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdap, err)
+		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdapCertificate, err)
 	}
 
-	args := openapi.NewLdapProviderWithDefaults()
+	args := openapi.NewLdapCertificateProviderWithDefaults()
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())
@@ -137,21 +142,33 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 		pw := readLdapPasswordWarningFromConfig(v.([]interface{}))
 		args.SetPasswordWarning(pw)
 	}
+	// ldadp certificcate attributes
+	if v, ok := d.GetOk("ca_certificates"); ok {
+		certificates, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return err
+		}
+		args.SetCaCertificates(certificates)
+	}
+
+	if v, ok := d.GetOk("certificate_user_attribute"); ok {
+		args.SetCertificateUserAttribute(v.(string))
+	}
 
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create %s provider %+v", identityProviderLdap, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create %s provider %+v", identityProviderLdapCertificate, prettyPrintAPIError(err))
 	}
 	d.SetId(p.Id)
-	return resourceAppgateLdapProviderRuleRead(d, meta)
+	return resourceAppgateLdapCertificateProviderRuleRead(d, meta)
 }
 
-func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading ldap identity provider id: %+v", d.Id())
 
 	token := meta.(*Client).Token
-	api := meta.(*Client).API.LdapIdentityProvidersApi
+	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	ldap, _, err := request.Authorization(token).Execute()
@@ -159,7 +176,7 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 		d.SetId("")
 		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
 	}
-	d.Set("type", identityProviderLdap)
+	d.Set("type", identityProviderLdapCertificate)
 	// base attributes
 	d.Set("name", ldap.Name)
 	d.Set("notes", ldap.Notes)
@@ -222,87 +239,59 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 			return err
 		}
 	}
+
+	d.Set("ca_certificates", ldap.GetCaCertificates())
+	d.Set("certificate_user_attribute", ldap.GetCertificateUserAttribute())
 	return nil
 }
 
-func flattenLdapPasswordWarning(pw openapi.LdapProviderAllOfPasswordWarning) []interface{} {
-	o := make(map[string]interface{})
-	if v, ok := pw.GetEnabledOk(); ok {
-		o["enabled"] = *v
-	}
-	if v, ok := pw.GetThresholdDaysOk(); ok {
-		o["threshold_days"] = int(*v)
-	}
-	if v, ok := pw.GetMessageOk(); ok {
-		o["message"] = v
-	}
-	return []interface{}{o}
-}
-
-func readLdapPasswordWarningFromConfig(input []interface{}) openapi.LdapProviderAllOfPasswordWarning {
-	pw := openapi.LdapProviderAllOfPasswordWarning{}
-	for _, r := range input {
-		raw := r.(map[string]interface{})
-		if v, ok := raw["enabled"]; ok {
-			pw.SetEnabled(v.(bool))
-		}
-		if v, ok := raw["threshold_days"]; ok {
-			pw.SetThresholdDays(int32(v.(int)))
-		}
-		if v, ok := raw["message"]; ok {
-			pw.SetMessage(v.(string))
-		}
-	}
-	return pw
-}
-
-func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating ldap identity provider id: %+v", d.Id())
 	token := meta.(*Client).Token
-	api := meta.(*Client).API.LdapIdentityProvidersApi
+	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	originalLdapProvider, _, err := request.Authorization(token).Execute()
+	originalLdapCertificateProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
 	}
 	// base attributes
 	if d.HasChange("name") {
-		originalLdapProvider.SetName(d.Get("name").(string))
+		originalLdapCertificateProvider.SetName(d.Get("name").(string))
 	}
 
 	if d.HasChange("notes") {
-		originalLdapProvider.SetNotes(d.Get("notes").(string))
+		originalLdapCertificateProvider.SetNotes(d.Get("notes").(string))
 	}
 
 	if d.HasChange("tags") {
-		originalLdapProvider.SetTags(schemaExtractTags(d))
+		originalLdapCertificateProvider.SetTags(schemaExtractTags(d))
 	}
 
 	// identity provider attributes
 	if d.HasChange("default") {
-		originalLdapProvider.SetDefault(d.Get("default").(bool))
+		originalLdapCertificateProvider.SetDefault(d.Get("default").(bool))
 	}
 	if d.HasChange("client_provider") {
-		originalLdapProvider.SetClientProvider(d.Get("client_provider").(bool))
+		originalLdapCertificateProvider.SetClientProvider(d.Get("client_provider").(bool))
 	}
 	if d.HasChange("admin_provider") {
-		originalLdapProvider.SetAdminProvider(d.Get("admin_provider").(bool))
+		originalLdapCertificateProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
 		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
-		originalLdapProvider.SetOnBoarding2FA(onboarding)
+		originalLdapCertificateProvider.SetOnBoarding2FA(onboarding)
 	}
 
 	if d.HasChange("inactivity_timeout_minutes") {
-		originalLdapProvider.SetInactivityTimeoutMinutes(int32(d.Get("inactivity_timeout_minutes").(int)))
+		originalLdapCertificateProvider.SetInactivityTimeoutMinutes(int32(d.Get("inactivity_timeout_minutes").(int)))
 	}
 	if d.HasChange("ip_pool_v4") {
-		originalLdapProvider.SetIpPoolV4(d.Get("ip_pool_v4").(string))
+		originalLdapCertificateProvider.SetIpPoolV4(d.Get("ip_pool_v4").(string))
 	}
 	if d.HasChange("ip_pool_v6") {
-		originalLdapProvider.SetIpPoolV6(d.Get("ip_pool_v6").(string))
+		originalLdapCertificateProvider.SetIpPoolV6(d.Get("ip_pool_v6").(string))
 	}
 	if d.HasChange("dns_servers") {
 		_, v := d.GetChange("dns_servers")
@@ -310,7 +299,7 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return fmt.Errorf("Failed to read dns servers %s", err)
 		}
-		originalLdapProvider.SetDnsServers(servers)
+		originalLdapCertificateProvider.SetDnsServers(servers)
 	}
 	if d.HasChange("dns_search_domains") {
 		_, v := d.GetChange("dns_search_domains")
@@ -318,20 +307,20 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return fmt.Errorf("Failed to read dns search domains %s", err)
 		}
-		originalLdapProvider.SetDnsSearchDomains(servers)
+		originalLdapCertificateProvider.SetDnsSearchDomains(servers)
 	}
 	if d.HasChange("block_local_dns_requests") {
-		originalLdapProvider.SetBlockLocalDnsRequests(d.Get("block_local_dns_requests").(bool))
+		originalLdapCertificateProvider.SetBlockLocalDnsRequests(d.Get("block_local_dns_requests").(bool))
 	}
 	if d.HasChange("claim_mappings") {
 		_, v := d.GetChange("claim_mappings")
 		claims := readIdentityProviderClaimMappingFromConfig(v.([]interface{}))
-		originalLdapProvider.SetClaimMappings(claims)
+		originalLdapCertificateProvider.SetClaimMappings(claims)
 	}
 	if d.HasChange("on_demand_claim_mappings") {
 		_, v := d.GetChange("on_demand_claim_mappings")
 		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.([]interface{}))
-		originalLdapProvider.SetOnDemandClaimMappings(claims)
+		originalLdapCertificateProvider.SetOnDemandClaimMappings(claims)
 	}
 
 	// ldap provider attributes
@@ -341,45 +330,60 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return err
 		}
-		originalLdapProvider.SetHostnames(hostnames)
+		originalLdapCertificateProvider.SetHostnames(hostnames)
 	}
 	if d.HasChange("port") {
-		originalLdapProvider.SetPort(int32(d.Get("port").(int)))
+		originalLdapCertificateProvider.SetPort(int32(d.Get("port").(int)))
 	}
 	if d.HasChange("ssl_enabled") {
-		originalLdapProvider.SetSslEnabled(d.Get("ssl_enabled").(bool))
+		originalLdapCertificateProvider.SetSslEnabled(d.Get("ssl_enabled").(bool))
 	}
 	if d.HasChange("admin_distinguished_name") {
-		originalLdapProvider.SetAdminDistinguishedName(d.Get("admin_distinguished_name").(string))
+		originalLdapCertificateProvider.SetAdminDistinguishedName(d.Get("admin_distinguished_name").(string))
 	}
 	if d.HasChange("admin_password") {
-		originalLdapProvider.SetAdminPassword(d.Get("admin_password").(string))
+		originalLdapCertificateProvider.SetAdminPassword(d.Get("admin_password").(string))
 	}
 	if d.HasChange("base_dn") {
-		originalLdapProvider.SetBaseDn(d.Get("base_dn").(string))
+		originalLdapCertificateProvider.SetBaseDn(d.Get("base_dn").(string))
 	}
 	if d.HasChange("object_class") {
-		originalLdapProvider.SetObjectClass(d.Get("object_class").(string))
+		originalLdapCertificateProvider.SetObjectClass(d.Get("object_class").(string))
 	}
 	if d.HasChange("username_attribute") {
-		originalLdapProvider.SetUsernameAttribute(d.Get("username_attribute").(string))
+		originalLdapCertificateProvider.SetUsernameAttribute(d.Get("username_attribute").(string))
 	}
 	if d.HasChange("membership_filter") {
-		originalLdapProvider.SetMembershipFilter(d.Get("membership_filter").(string))
+		originalLdapCertificateProvider.SetMembershipFilter(d.Get("membership_filter").(string))
 	}
 	if d.HasChange("membership_base_dn") {
-		originalLdapProvider.SetMembershipBaseDn(d.Get("membership_base_dn").(string))
+		originalLdapCertificateProvider.SetMembershipBaseDn(d.Get("membership_base_dn").(string))
 	}
 	if d.HasChange("password_warning") {
 		_, v := d.GetChange("password_warning")
 		pw := readLdapPasswordWarningFromConfig(v.([]interface{}))
-		originalLdapProvider.SetPasswordWarning(pw)
+		originalLdapCertificateProvider.SetPasswordWarning(pw)
 	}
+
+	// ldadp certificcate attributes
+	if d.HasChange("ca_certificates") {
+		_, v := d.GetChange("ca_certificates")
+		certificates, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return err
+		}
+		originalLdapCertificateProvider.SetCaCertificates(certificates)
+	}
+
+	if d.HasChange("certificate_user_attribute") {
+		originalLdapCertificateProvider.SetCertificateUserAttribute(d.Get("certificate_user_attribute").(string))
+	}
+
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
-	req = req.IdentityProvider(originalLdapProvider)
+	req = req.IdentityProvider(originalLdapCertificateProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update %s provider %+v", identityProviderLdap, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update %s provider %+v", identityProviderLdapCertificate, prettyPrintAPIError(err))
 	}
-	return resourceAppgateLdapProviderRuleRead(d, meta)
+	return resourceAppgateLdapCertificateProviderRuleRead(d, meta)
 }

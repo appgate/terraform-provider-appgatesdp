@@ -67,7 +67,10 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "object_class", "user"),
-					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "6"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.message", "welcome"),
+					resource.TestCheckResourceAttrSet(resourceName, "on_boarding_two_factor.0.mfa_provider_id"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.claim_name", "antiVirusIsRunning"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.command", "fileSize"),
@@ -107,7 +110,9 @@ data "appgate_ip_pool" "ip_v4_pool" {
 data "appgate_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
-
+data "appgate_mfa_provider" "fido" {
+  mfa_provider_name = "Default FIDO2 Provider"
+}
 resource "appgate_ldap_identity_provider" "ldap_test_resource" {
   name                     = "%s"
   port                     = 389
@@ -137,12 +142,11 @@ resource "appgate_ldap_identity_provider" "ldap_test_resource" {
     "internal.company.com"
   ]
   block_local_dns_requests = true
-# TODO Update when we have mfa data source
-#  on_boarding_two_factor {
-#    mfa_provider_id       = "data.appgate_mfa_provider.id"
-#    device_limit_per_user = 6
-#    message               = "welcome"
-#  }
+  on_boarding_two_factor {
+    mfa_provider_id       = data.appgate_mfa_provider.fido.id
+    device_limit_per_user = 6
+    message               = "welcome"
+  }
   tags = [
     "terraform",
     "api-created"
