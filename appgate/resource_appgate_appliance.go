@@ -101,6 +101,12 @@ func resourceAppgateAppliance() *schema.Resource {
 				Optional:    true,
 			},
 
+			"connect_to_peers_using_client_port_with_spa": {
+				Type:        schema.TypeBool,
+				Description: "Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect.",
+				Optional:    true,
+			},
+
 			"client_interface": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -879,6 +885,10 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		args.SetCustomization(v.(string))
 	}
 
+	if v, ok := d.GetOk("connect_to_peers_using_client_port_with_spa"); ok {
+		args.SetConnectToPeersUsingClientPortWithSpa(v.(bool))
+	}
+
 	if c, ok := d.GetOk("client_interface"); ok {
 		cinterface, err := readClientInterfaceFromConfig(c.([]interface{}))
 		if err != nil {
@@ -1250,6 +1260,10 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 
 	if v, ok := d.GetOkExists("customization"); ok {
 		d.Set("customization", v)
+	}
+
+	if v, ok := d.GetOkExists("connect_to_peers_using_client_port_with_spa"); ok {
+		d.Set("connect_to_peers_using_client_port_with_spa", v)
 	}
 
 	if v, o := appliance.GetClientInterfaceOk(); o != false {
@@ -1789,6 +1803,10 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("customization") {
 		originalAppliance.SetCustomization(d.Get("customization").(string))
+	}
+
+	if d.HasChange("connect_to_peers_using_client_port_with_spa") {
+		originalAppliance.SetConnectToPeersUsingClientPortWithSpa(d.Get("connect_to_peers_using_client_port_with_spa").(bool))
 	}
 
 	if d.HasChange("client_interface") {

@@ -25,6 +25,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
@@ -252,7 +253,7 @@ data "appgate_site" "default_site" {
 resource "appgate_appliance" "test_controller" {
   name     = "%s"
   hostname = "envy-10-97-168-1337.devops"
-
+  connect_to_peers_using_client_port_with_spa = true
   client_interface {
     hostname       = "envy-10-97-168-1337.devops"
     proxy_protocol = true
