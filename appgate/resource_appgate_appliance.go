@@ -242,6 +242,10 @@ func resourceAppgateAppliance() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"mtu": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
 									"ipv4": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -1049,6 +1053,9 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 		if v := raw["name"].(string); v != "" {
 			nic.Name = v
 		}
+		if v, ok := raw["mtu"]; ok {
+			nic.Mtu = openapi.PtrInt32(int32(v.(int)))
+		}
 
 		if v := raw["ipv4"].([]interface{}); len(v) > 0 {
 			ipv4networking := openapi.ApplianceAllOfNetworkingIpv4{}
@@ -1659,6 +1666,9 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 			}
 			if v, o := h.GetNameOk(); o != false {
 				nic["name"] = *v
+			}
+			if v, o := h.GetMtuOk(); o != false {
+				nic["mtu"] = *v
 			}
 
 			if v, o := h.GetIpv4Ok(); o != false {
