@@ -736,19 +736,19 @@ func resourceAppgateAppliance() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"name": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"host": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"port": {
 										Type:     schema.TypeInt,
-										Optional: true,
+										Required: true,
 									},
 									"format": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 										ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 											s := v.(string)
 											enums := []string{"json", "syslog"}
