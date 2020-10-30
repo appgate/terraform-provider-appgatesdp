@@ -303,6 +303,10 @@ func resourceAppgateAppliance() *schema.Resource {
 														},
 													},
 												},
+												"virtual_ip": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
 											},
 										},
 									},
@@ -357,6 +361,10 @@ func resourceAppgateAppliance() *schema.Resource {
 															},
 														},
 													},
+												},
+												"virtual_ip": {
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 											},
 										},
@@ -1069,6 +1077,9 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 				if item := ipv4Data["static"]; len(item.([]interface{})) > 0 {
 					ipv4networking.SetStatic(readNetworkIpv4StaticFromConfig(item.([]interface{})))
 				}
+				if v, o := ipv4Data["virtual_ip"]; o && len(v.(string)) > 0 {
+					ipv4networking.SetVirtualIp(v.(string))
+				}
 			}
 			nic.SetIpv4(ipv4networking)
 		}
@@ -1084,6 +1095,9 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 				}
 				if v := ipv6Data["static"]; len(v.([]interface{})) > 0 {
 					ipv6networking.SetStatic(readNetworkIpv6StaticFromConfig(v.([]interface{})))
+				}
+				if v, o := ipv6Data["virtual_ip"]; o && len(v.(string)) > 0 {
+					ipv6networking.SetVirtualIp(v.(string))
 				}
 			}
 			nic.SetIpv6(ipv6networking)
@@ -1675,6 +1689,7 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 				dhcp := make(map[string]interface{})
 				staticList := make([]map[string]interface{}, 0)
 				dhcpValue := v.GetDhcp()
+
 				if v, o := dhcpValue.GetEnabledOk(); o != false {
 					dhcp["enabled"] = *v
 				}
@@ -1703,10 +1718,13 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 					}
 					staticList = append(staticList, static)
 				}
-				nic["ipv4"] = []map[string]interface{}{{
-					"dhcp":   []map[string]interface{}{dhcp},
-					"static": staticList,
-				}}
+				ipv4map := make(map[string]interface{})
+				ipv4map["dhcp"] = []map[string]interface{}{dhcp}
+				ipv4map["static"] = staticList
+				if v, o := v.GetVirtualIpOk(); o && len(*v) > 0 {
+					ipv4map["virtual_ip"] = *v
+				}
+				nic["ipv4"] = []map[string]interface{}{ipv4map}
 			}
 			if v, o := h.GetIpv6Ok(); o != false {
 				dhcp := make(map[string]interface{})
@@ -1738,11 +1756,14 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 					}
 					staticList = append(staticList, static)
 				}
+				ipv6map := make(map[string]interface{})
+				ipv6map["dhcp"] = []map[string]interface{}{dhcp}
+				ipv6map["static"] = staticList
+				if v, o := v.GetVirtualIpOk(); o && len(*v) > 0 {
+					ipv6map["virtual_ip"] = *v
+				}
+				nic["ipv6"] = []map[string]interface{}{ipv6map}
 
-				nic["ipv6"] = []map[string]interface{}{{
-					"dhcp":   []map[string]interface{}{dhcp},
-					"static": staticList,
-				}}
 			}
 			nics = append(nics, nic)
 		}
