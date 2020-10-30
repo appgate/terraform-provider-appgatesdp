@@ -772,7 +772,63 @@ func resourceAppgateAppliance() *schema.Resource {
 								},
 							},
 						},
-
+						"aws_kineses": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"aws_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"aws_secret": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"aws_region": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"use_instance_credentials": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"type": {
+										Type:     schema.TypeString,
+										Required: true,
+										ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+											s := v.(string)
+											enums := []string{"Stream", "Firehose"}
+											if inArray(s, enums) {
+												return
+											}
+											errs = append(errs, fmt.Errorf(
+												"%s: is invalid option, expected %+v", name, enums,
+											))
+											return
+										},
+									},
+									"stream_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"batch_size": {
+										Type:     schema.TypeInt,
+										Computed: true,
+										Optional: true,
+									},
+									"number_of_partition_keys": {
+										Type:     schema.TypeInt,
+										Computed: true,
+										Optional: true,
+									},
+									"filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 						"sites": {
 							Type:        schema.TypeSet,
 							Description: "Array of sites.",
@@ -1573,6 +1629,23 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map
 			tcpClientList = append(tcpClientList, client)
 		}
 		logforward["tcp_clients"] = tcpClientList
+	}
+	if v, o := in.GetAwsKinesesOk(); o != false {
+		kinesesList := make([]map[string]interface{}, 0)
+		for _, kineses := range *v {
+			k := make(map[string]interface{})
+			k["aws_id"] = kineses.GetAwsId()
+			k["aws_secret"] = kineses.GetAwsSecret()
+			k["aws_region"] = kineses.GetAwsRegion()
+			k["use_instance_credentials"] = kineses.GetUseInstanceCredentials()
+			k["type"] = kineses.GetType()
+			k["stream_name"] = kineses.GetStreamName()
+			k["batch_size"] = kineses.GetBatchSize()
+			k["number_of_partition_keys"] = kineses.GetNumberOfPartitionKeys()
+			k["filter"] = kineses.GetFilter()
+			kinesesList = append(kinesesList, k)
+		}
+		logforward["aws_kineses"] = kinesesList
 	}
 	logforward["sites"] = in.GetSites()
 
@@ -2517,6 +2590,41 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 				tcpClients = append(tcpClients, tcpClient)
 			}
 			val.SetTcpClients(tcpClients)
+		}
+		if v := raw["aws_kineses"]; len(v.([]interface{})) > 0 {
+			awsKineses := make([]openapi.AwsKinesis, 0)
+			for _, awsk := range v.([]interface{}) {
+				kinesis := openapi.AwsKinesis{}
+				row := awsk.(map[string]interface{})
+				if v, ok := row["aws_id"]; ok {
+					kinesis.SetAwsId(v.(string))
+				}
+				if v, ok := row["aws_secret"]; ok {
+					kinesis.SetAwsSecret(v.(string))
+				}
+				if v, ok := row["aws_region"]; ok {
+					kinesis.SetAwsRegion(v.(string))
+				}
+				if v, ok := row["use_instance_credentials"]; ok {
+					kinesis.SetUseInstanceCredentials(v.(bool))
+				}
+				if v, ok := row["type"]; ok {
+					kinesis.SetType(v.(string))
+				}
+				if v, ok := row["stream_name"]; ok {
+					kinesis.SetStreamName(v.(string))
+				}
+				if v, ok := row["batch_size"]; ok {
+					kinesis.SetBatchSize(int32(v.(int)))
+				}
+				if v, ok := row["number_of_partition_keys"]; ok {
+					kinesis.SetNumberOfPartitionKeys(int32(v.(int)))
+				}
+				if v, ok := row["filter"]; ok {
+					kinesis.SetFilter(v.(string))
+				}
+			}
+			val.SetAwsKineses(awsKineses)
 		}
 		sites := make([]string, 0)
 		if v := raw["sites"].(*schema.Set); v.Len() > 0 {
