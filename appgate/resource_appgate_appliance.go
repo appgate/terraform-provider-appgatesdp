@@ -765,6 +765,10 @@ func resourceAppgateAppliance() *schema.Resource {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
+									"filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -1565,6 +1569,7 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map
 			client["port"] = tcpClient.GetPort()
 			client["format"] = tcpClient.GetFormat()
 			client["use_tls"] = tcpClient.GetUseTLS()
+			client["filter"] = tcpClient.GetFilter()
 			tcpClientList = append(tcpClientList, client)
 		}
 		logforward["tcp_clients"] = tcpClientList
@@ -2505,6 +2510,9 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 				}
 				if v, ok := r["use_tls"]; ok {
 					tcpClient.SetUseTLS(v.(bool))
+				}
+				if v, ok := r["filter"]; ok {
+					tcpClient.SetFilter(v.(string))
 				}
 				tcpClients = append(tcpClients, tcpClient)
 			}
