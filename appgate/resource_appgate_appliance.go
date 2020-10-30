@@ -833,8 +833,29 @@ func resourceAppgateAppliance() *schema.Resource {
 								},
 							},
 						},
-						// TODO Implement
-						// "advanced_clients" : {},
+						"advanced_clients": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"device_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+
+									"allow_resources": reUsableSchemas["allow_sources"],
+
+									"snat_to_tunnel": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1579,6 +1600,23 @@ func flatttenApplianceConnector(in openapi.ApplianceAllOfConnector) ([]map[strin
 			clients = append(clients, c)
 		}
 		connector["express_clients"] = clients
+	}
+	if v, o := in.GetAdvancedClientsOk(); o != false {
+		clients := make([]map[string]interface{}, 0)
+		for _, client := range *v {
+			c := make(map[string]interface{})
+			c["name"] = client.GetName()
+			c["device_id"] = client.GetDeviceId()
+			alloweResources, err := readAllowSourcesFromConfig(client.GetAllowResources())
+			if err != nil {
+				return nil, err
+			}
+			c["allow_resources"] = alloweResources
+			c["snat_to_tunnel"] = client.GetSnatToTunnel()
+
+			clients = append(clients, c)
+		}
+		connector["advanced_clients"] = clients
 	}
 	connectors = append(connectors, connector)
 	return connectors, nil
@@ -2539,6 +2577,35 @@ func readApplianceConnectorFromConfig(connectors []interface{}) (openapi.Applian
 				clients = append(clients, client)
 			}
 			val.SetExpressClients(clients)
+		}
+		if v := raw["advanced_clients"]; len(v.([]interface{})) > 0 {
+			clients := make([]openapi.ApplianceAllOfConnectorAdvancedClients, 0)
+			for _, c := range v.([]interface{}) {
+				client := openapi.ApplianceAllOfConnectorAdvancedClients{}
+				r := c.(map[string]interface{})
+				if v, ok := r["name"]; ok {
+					client.SetName(v.(string))
+				}
+				if v, ok := r["device_id"]; ok {
+					client.SetDeviceId(v.(string))
+				}
+				if v := r["allow_resources"]; len(v.([]interface{})) > 0 {
+					as, err := listToMapList(v.([]interface{}))
+					if err != nil {
+						return val, err
+					}
+					sources, err := readAllowSourcesFromConfig(as)
+					if err != nil {
+						return val, err
+					}
+					client.SetAllowResources(sources)
+				}
+				if v, ok := r["snat_to_tunnel"]; ok {
+					client.SetSnatToTunnel(v.(bool))
+				}
+				clients = append(clients, client)
+			}
+			val.SetAdvancedClients(clients)
 		}
 	}
 	return val, nil
