@@ -38,9 +38,9 @@ The following arguments are supported:
 ### profiles
 Client Profiles.
 
-* `name`:  (Optional) A name to identify the client profile. It will appear on the client UI.
-* `spa_key_name`:  (Optional) SPA key name to be used in the profile. Same key names in different profiles will have the same SPA key. SPA key is used by the client to connect to the controllers.
-* `identity_provider_name`:  (Optional) Name of the Identity Provider to be used to authenticate.
+* `name`: (Required) A name to identify the client profile. It will appear on the client UI.
+* `spa_key_name`: (Required) SPA key name to be used in the profile. Same key names in different profiles will have the same SPA key. SPA key is used by the client to connect to the controllers.
+* `identity_provider_name`: (Required) Name of the Identity Provider to be used to authenticate.
 * `url`:  (Computed) Connection URL for the profile.
 
 
