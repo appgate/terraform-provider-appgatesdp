@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/appgate/terraform-provider-appgate/client/v12/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v12/openapi"
 	"github.com/google/uuid"
 )
 
