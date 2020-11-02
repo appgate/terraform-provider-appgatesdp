@@ -171,6 +171,12 @@ func resourceAppgateEntitlement() *schema.Resource {
 					},
 				},
 			},
+
+			"app_shortcut_scripts": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -213,8 +219,15 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 		if err != nil {
 			return err
 		}
-		log.Printf("[DEBUG] Creating Entitlement SHORTCUT: %+v", appShortcuts)
 		args.SetAppShortcuts(appShortcuts)
+	}
+
+	if v, ok := d.GetOk("app_shortcut_scripts"); ok {
+		scripts, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetAppShortcutScripts(scripts)
 	}
 
 	request := api.EntitlementsPost(context.Background())
@@ -261,6 +274,9 @@ func resourceAppgateEntitlementRuleRead(d *schema.ResourceData, meta interface{}
 		if err = d.Set("actions", flattenEntitlementActions(entitlement.Actions)); err != nil {
 			return err
 		}
+	}
+	if v, ok := entitlement.GetAppShortcutScriptsOk(); ok {
+		d.Set("app_shortcut_scripts", *v)
 	}
 
 	return nil
@@ -368,6 +384,15 @@ func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface
 			return err
 		}
 		orginalEntitlment.SetAppShortcuts(appShortcut)
+	}
+
+	if d.HasChange("app_shortcut_scripts") {
+		_, v := d.GetChange("app_shortcut_scripts")
+		scripts, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalEntitlment.SetAppShortcutScripts(scripts)
 	}
 
 	req := api.EntitlementsIdPut(ctx, d.Id())
