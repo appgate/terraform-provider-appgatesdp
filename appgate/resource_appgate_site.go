@@ -45,6 +45,11 @@ func resourceAppgateSite() *schema.Resource {
 				Required:    true,
 			},
 
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"notes": {
 				Type:        schema.TypeString,
 				Description: "Notes for the object. Used for documentation purposes.",
@@ -437,6 +442,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
 	args.SetShortName(d.Get("short_name").(string))
+	args.SetDescription(d.Get("description").(string))
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))
 
@@ -511,6 +517,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(site.Id)
 	d.Set("site_id", site.Id)
 	d.Set("name", site.Name)
+	d.Set("description", site.Description)
 	d.Set("notes", site.Notes)
 	d.Set("tags", site.Tags)
 	d.Set("network_subnets", site.NetworkSubnets)
