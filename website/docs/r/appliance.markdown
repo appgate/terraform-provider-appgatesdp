@@ -255,6 +255,7 @@ resource "appgate_appliance" "new_gateway" {
 
 ```
 
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -265,7 +266,9 @@ The following arguments are supported:
 * `version`: (Optional) Peer version of the Appliance.
 * `hostname`: (Required) Generic hostname of the appliance. Used as linux hostname and to identify within logs.
 * `site`: (Optional) Site served by the Appliance. Entitlements on this Site will be included in the Entitlement Token for this Appliance. Not useful if Gateway role is not enabled.
+* `site_name`: (Optional) Name of the Site for this Appliance. For convenience only.
 * `customization`: (Optional) Customization assigned to this Appliance.
+* `connect_to_peers_using_client_port_with_spa`: (Optional) Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect.
 * `client_interface`: (Required) The details of the Client connection interface.
 * `peer_interface`: (Required) The details of peer connection interface. Used by other appliances and administrative UI.
 * `admin_interface`: (Optional) The details of the admin connection interface. If null, admin interface will be accessible via peerInterface.
@@ -281,7 +284,7 @@ The following arguments are supported:
 * `controller`: (Optional) Controller settings.
 * `gateway`: (Optional) Gateway settings.
 * `log_forwarder`: (Optional) LogForwarder settings. LogForwarder collects audit logs from the appliances in the given sites and sends them to the given endpoints.
-* `iot_connector`: (Optional) IoT Connector settings.
+* `connector`: (Optional) Connector settings.
 * `rsyslog_destinations`: (Optional) Rsyslog destination settings to forward appliance logs.
 * `hostname_aliases`: (Optional) Hostname aliases. They are added to the Appliance certificate as Subject Alternative Names so it is trusted using different IPs or hostnames. Requires manual certificate renewal to apply changes to the certificate.
 * `id`: (Required) ID of the object.
@@ -347,29 +350,36 @@ System NIC configuration
 * `name`: (Required) NIC name Example: eth0.
 * `ipv4`: (Optional) IPv4 settings for this NIC.
 * `ipv6`: (Optional) IPv6 settings for this NIC.
+* `mtu`: (Optional) MTU setting for the NIC. If left empty, appliance default will be used. Example: 1500.
 ##### dhcp
 IPv4 DHCP configuration for the NIC.
 * `enabled`: Whether DHCP for IPv4 is enabled.
 * `dns`: Whether to use DHCP for setting IPv4 DNS settings on the appliance.
 * `routers`: Whether to use DHCP for setting IPv4 default gateway on the appliance.
 * `ntp`: Whether to use DHCP for setting NTP on the appliance.
+* `mtu`: Whether to use DHCP for setting MTU on the appliance.
 ##### static
 IPv4 static NIC configuration for the NIC.
 * `address`: IPv4 Address of the network interface.
 * `netmask`: Netmask of the network interface.
 * `hostname`: NIC hostname.
 * `snat`: Enable SNAT on this IP.
+##### virtual_ip
+Virtual IP to use for IPv4.
 ##### dhcp
 IPv6 DHCP configuration for the NIC.
 * `enabled`: Whether DHCP for IPv6 is enabled.
 * `dns`: Whether to use DHCP for setting IPv6 DNS settings on the Appliance.
 * `ntp`: Whether to use DHCP for setting NTP on the appliance.
+* `mtu`: Whether to use DHCP for setting MTU on the appliance.
 ##### static
 IPv6 static NIC configuration for the NIC.
 * `address`: IPv6 Address of the network interface.
 * `netmask`: Netmask of the network interface.
 * `hostname`: NIC hostname.
 * `snat`: Enable SNAT on this IP.
+##### virtual_ip
+Virtual IP to use for IPv6.
 #### dns_servers
 DNS Server addresses.
 #### dns_domains
@@ -472,35 +482,57 @@ LogForwarder settings. LogForwarder collects audit logs from the appliances in t
 * `enabled`:  (Optional)  default value `false` Whether the LogForwarder is enabled on this appliance or not.
 * `elasticsearch`:  (Optional) Elasticsearch endpoint configuration on AWS.
 * `tcp_clients`:  (Optional) TCP endpoints to connect and send the audit logs with the given format.
+* `aws_kineses`:  (Optional) AWS Kinesis endpoints to connect and send the audit logs with the given format.
 * `sites`:  (Optional) The sites to collect logs from and forward.
 #### elasticsearch
 Elasticsearch endpoint configuration on AWS.
-* `url`: (Optional) The URL of the elasticsearch server. Example: https://aws.com/elasticsearch/instance/asdaxllkmda64.
 * `aws_id`: (Optional) AWS ID to login. Only required if AWS Access Keys are being used to authenticate.
 * `aws_secret`: (Optional) AWS secret to login. Only required if AWS Access Keys are being used to authenticate.
 * `aws_region`: (Optional) AWS region. Only required if AWS Access Keys are being used to authenticate. Example: eu-west-2.
 * `use_instance_credentials`: (Optional) Whether to use the credentials from the AWS instance or not.
+* `url`: (Required) The URL of the elasticsearch server. Example: https://aws.com/elasticsearch/instance/asdaxllkmda64.
 * `retention_days`: (Optional) Optional field to enable log retention on the configured AWS elasticsearch. Defines how many days the audit logs will be kept. Example: 30.
 #### tcp_clients
 TCP endpoints to connect and send the audit logs with the given format.
-* `name`: (Optional) Name of the endpoint. Example: Company SIEM.
-* `host`: (Optional) Hostname or the IP address of the endpoint. Example: siem.company.com.
-* `port`: (Optional) Port of the endpoint. Example: 8888.
-* `format`: (Optional) The format to send the audit logs. ENUM: json,syslog.
-* `use_t_l_s`: (Optional) Whether to use TLS to connect to endpoint or not. If enabled, make sure the LogForwarder appliance trusts the certificate of the endpoint.
+* `name`: (Required) Name of the endpoint. Example: Company SIEM.
+* `host`: (Required) Hostname or the IP address of the endpoint. Example: siem.company.com.
+* `port`: (Required) Port of the endpoint. Example: 8888.
+* `format`: (Required) The format to send the audit logs. ENUM: json,syslog.
+* `use_tls`: (Optional) Whether to use TLS to connect to endpoint or not. If enabled, make sure the LogForwarder appliance trusts the certificate of the endpoint.
+* `filter`: (Optional) JMESPath expression to filter audit logs to forward. Example: event_type=='authentication_succeeded'.
+#### aws_kineses
+AWS Kinesis endpoints to connect and send the audit logs with the given format.
+* `aws_id`: (Optional) AWS ID to login. Only required if AWS Access Keys are being used to authenticate.
+* `aws_secret`: (Optional) AWS secret to login. Only required if AWS Access Keys are being used to authenticate.
+* `aws_region`: (Optional) AWS region. Only required if AWS Access Keys are being used to authenticate. Example: eu-west-2.
+* `use_instance_credentials`: (Optional) Whether to use the credentials from the AWS instance or not.
+* `url`: (Optional) The URL of the elasticsearch server. Example: https://aws.com/elasticsearch/instance/asdaxllkmda64.
+* `retention_days`: (Optional) Optional field to enable log retention on the configured AWS elasticsearch. Defines how many days the audit logs will be kept. Example: 30.
+* `type`: (Optional) AWS Kinesis type ENUM: Stream,Firehose.
+* `stream_name`: (Optional) Name of the stream. Example: AppGate_SDP_audit.
+* `batch_size`: (Optional) Batch size for the stream. Used only for "Stream" type.
+* `number_of_partition_keys`: (Optional) Number of partition keys to use for the stream. Used only for "Stream" type.
+* `filter`: (Optional) JMESPath expression to filter audit logs to forward. Example: event_type=='authentication_succeeded'.
 #### sites
 The sites to collect logs from and forward.
-### iot_connector
-IoT Connector settings.
+### connector
+Connector settings.
 
-* `enabled`:  (Optional)  default value `false` Whether the Iot Connector is enabled on this appliance or not.
-* `clients`:  (Optional) A list of clients to run on the appliance with the given configuration.
-#### clients
-A list of clients to run on the appliance with the given configuration.
-* `name`: (Required) Name for the client. It will be mapped to the user claim 'clientName'. Example: Printers.
-* `device_id`: (Optional) The device ID to assign to this client. It will be used to generate device distinguished name. Example: 12699e27-b584-464a-81ee-5b4784b6d425.
-* `sources`: (Optional) Source configuration to allow via iptables.
-* `snat`: (Optional) Use Source NAT for IoT client tunnel.
+* `enabled`:  (Optional)  default value `false` Whether the Connector is enabled on this appliance or not.
+* `express_clients`:  (Optional) A list of Clients to run on the appliance with the given configuration. The Clients will get the necessary tokens automatically according to the Site assigned to this Appliance. Currently only one allowed.
+* `advanced_clients`:  (Optional) A list of Clients to run on the appliance with the given configuration. Requires manual Policy configuration.
+#### express_clients
+A list of Clients to run on the appliance with the given configuration. The Clients will get the necessary tokens automatically according to the Site assigned to this Appliance. Currently only one allowed.
+* `name`: (Required) Name for the Client. It will be mapped to the user claim 'clientName'. Example: Printers.
+* `device_id`: (Optional) The device ID to assign to this Client. It will be used to generate device distinguished name. Example: 12699e27-b584-464a-81ee-5b4784b6d425.
+* `allow_resources`: (Optional) A list of subnets to allow access via Client.
+* `snat_to_resources`: (Optional) Use Source NAT for the resources.
+#### advanced_clients
+A list of Clients to run on the appliance with the given configuration. Requires manual Policy configuration.
+* `name`: (Required) Name for the Client. It will be mapped to the user claim 'clientName'. Example: Printers.
+* `device_id`: (Optional) The device ID to assign to this Client. It will be used to generate device distinguished name. Example: 12699e27-b584-464a-81ee-5b4784b6d425.
+* `allow_resources`: (Optional) Source configuration to allow via iptables.
+* `snat_to_tunnel`: (Optional) Use Source NAT for the Client tunnel.
 ### rsyslog_destinations
 Rsyslog destination settings to forward appliance logs.
 
