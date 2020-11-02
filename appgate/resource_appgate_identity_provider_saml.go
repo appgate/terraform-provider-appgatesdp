@@ -51,6 +51,10 @@ func resourceAppgateSamlProvider() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			}
+			s["force_authn"] = &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			}
 			return s
 		}(),
 	}
@@ -135,6 +139,9 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	if v, ok := d.GetOk("decryption_key"); ok {
 		args.SetDecryptionKey(v.(string))
 	}
+	if v, ok := d.GetOk("force_authn"); ok {
+		args.SetForceAuthn(v.(bool))
+	}
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
@@ -197,6 +204,7 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("audience", saml.GetAudience())
 	d.Set("provider_certificate", saml.GetProviderCertificate())
 	d.Set("decryption_key", saml.GetDecryptionKey())
+	d.Set("force_authn", saml.GetForceAuthn())
 
 	return nil
 }
@@ -294,6 +302,9 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 	if d.HasChange("decryption_key") {
 		originalSamlProvider.SetDecryptionKey(d.Get("decryption_key").(string))
+	}
+	if d.HasChange("force_authn") {
+		originalSamlProvider.SetForceAuthn(d.Get("force_authn").(bool))
 	}
 
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
