@@ -57,6 +57,11 @@ func resourceAppgateEntitlementScript() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"expression": {
 				Type:        schema.TypeString,
 				Description: "A JavaScript expression that returns a list of IPs and names.",
@@ -78,6 +83,9 @@ func resourceAppgateEntitlementScriptCreate(d *schema.ResourceData, meta interfa
 
 	if v, ok := d.GetOk("expression"); ok {
 		args.SetExpression(v.(string))
+	}
+	if v, ok := d.GetOk("type"); ok {
+		args.SetType(v.(string))
 	}
 
 	request := api.EntitlementScriptsPost(context.TODO())
@@ -111,6 +119,7 @@ func resourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface
 	d.Set("notes", EntitlementScript.Notes)
 	d.Set("tags", EntitlementScript.Tags)
 	d.Set("expression", EntitlementScript.Expression)
+	d.Set("type", EntitlementScript.GetType())
 
 	return nil
 }
@@ -137,6 +146,10 @@ func resourceAppgateEntitlementScriptUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("tags") {
 		originalEntitlementScript.SetTags(schemaExtractTags(d))
+	}
+
+	if d.HasChange("type") {
+		originalEntitlementScript.SetType(d.Get("type").(string))
 	}
 
 	if d.HasChange("expression") {
