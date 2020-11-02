@@ -105,6 +105,7 @@ func resourceAppgateAppliance() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect.",
 				Optional:    true,
+				Computed:    true,
 			},
 
 			"client_interface": {
@@ -313,6 +314,7 @@ func resourceAppgateAppliance() *schema.Resource {
 									"ipv6": {
 										Type:     schema.TypeList,
 										Optional: true,
+										Computed: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -325,14 +327,17 @@ func resourceAppgateAppliance() *schema.Resource {
 															"enabled": {
 																Type:     schema.TypeBool,
 																Optional: true,
+																Computed: true,
 															},
 															"dns": {
 																Type:     schema.TypeBool,
 																Optional: true,
+																Computed: true,
 															},
 															"ntp": {
 																Type:     schema.TypeBool,
 																Optional: true,
+																Computed: true,
 															},
 														},
 													},
@@ -1118,7 +1123,6 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		args.SetHostnameAliases(hostnames)
 	}
 
-	log.Printf("\n appliance arguments: \n %+v \n", args)
 	request := api.AppliancesPost(ctx)
 	request = request.Appliance(*args)
 	appliance, _, err := request.Authorization(token).Execute()
@@ -1143,7 +1147,10 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 			nic.Name = v
 		}
 		if v, ok := raw["mtu"]; ok {
-			nic.Mtu = openapi.PtrInt32(int32(v.(int)))
+			mtu := openapi.PtrInt32(int32(v.(int)))
+			if *mtu > int32(64) {
+				nic.SetMtu(*mtu)
+			}
 		}
 
 		if v := raw["ipv4"].([]interface{}); len(v) > 0 {
@@ -1364,9 +1371,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		d.Set("customization", v)
 	}
 
-	if v, ok := d.GetOkExists("connect_to_peers_using_client_port_with_spa"); ok {
-		d.Set("connect_to_peers_using_client_port_with_spa", v)
-	}
+	d.Set("connect_to_peers_using_client_port_with_spa", appliance.GetConnectToPeersUsingClientPortWithSpa())
 
 	if v, o := appliance.GetClientInterfaceOk(); o != false {
 		ci, err := flattenApplianceClientInterface(*v)

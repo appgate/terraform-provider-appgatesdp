@@ -429,6 +429,7 @@ resource "appgate_appliance" "test_controller" {
       port    = 8888
       format  = "json"
       use_tls = true
+      filter  = "log.client_ip=='10.0.23.523'"
     }
     sites = [
       data.appgate_site.default_site.id
@@ -615,6 +616,7 @@ resource "appgate_appliance" "test_controller" {
       port    = 8888
       format  = "json"
       use_tls = true
+      filter  = "log.client_ip=='10.0.23.523'"
     }
     sites = [
       data.appgate_site.default_site.id
