@@ -80,18 +80,18 @@ List of Condition IDs applies to this Entitlement.
 ### actions
 List of all IP Access actions in this Entitlement.
 
-* `subtype`:  (Optional)  Enum values: `icmp_up,icmp_down,icmpv6_up,icmpv6_down,udp_up,udp_down,tcp_up,tcp_down,ah_up,ah_down,esp_up,esp_down,gre_up,gre_down,http_up`Type of the IP Access action.
-* `action`:  (Optional)  Enum values: `allow,block,alert`Applied action to the traffic.
-* `hosts`:  (Optional) Hosts to apply the action to. See admin manual for possible values.
+* `subtype`: (Required)  Enum values: `icmp_up,icmp_down,icmpv6_up,icmpv6_down,udp_up,udp_down,tcp_up,tcp_down,ah_up,ah_down,esp_up,esp_down,gre_up,gre_down,http_up`Type of the IP Access action.
+* `action`: (Required)  Enum values: `allow,block,alert`Applied action to the traffic.
+* `hosts`: (Required) Hosts to apply the action to. See admin manual for possible values.
 * `ports`:  (Optional) Destination port. Multiple ports can be entered comma separated. Port ranges can be entered dash separated. Only valid for tcp and udp subtypes
 * `types`:  (Optional) ICMP type. Only valid for icmp subtypes.
 * `monitor`:  (Optional) Only available for tcp_up subtype. If enabled, Gateways will monitor this action for responsiveness and act accordingly. See admin manual for more details.
 ### app_shortcuts
 Array of App Shortcuts.
 
-* `name`:  (Required) Name for the App Shortcut which will be visible on the Client UI.
+* `name`: (Required) Name for the App Shortcut which will be visible on the Client UI.
 * `description`:  (Optional) Description for the App Shortcut which will be visible on the Client UI.
-* `url`:  (Required) The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL.
+* `url`: (Required) The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL.
 * `color_code`:  (Optional)  default value `1` The code of the published app on the client.
 - 1: Light Green
 - 2: Green
