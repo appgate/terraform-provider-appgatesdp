@@ -8,7 +8,7 @@ description: |-
 
 # appgate_condition
 
-Create a new Condition..
+Create a new Condition.
 
 ## Example Usage
 
@@ -58,10 +58,27 @@ The following arguments are supported:
 * `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
-* `created`: (Optional) Create date.
-* `updated`: (Optional) Last update date.
 * `tags`: (Optional) Array of tags.
 
+
+### repeat_schedules
+A list of schedules that decides when to reevaluate the Condition. All the scheduled times will be effective. One will not override the other. - It can be a time of the day, e.g. 13:00, 10:25, 2:10 etc. - It can be one of the predefined
+  intervals, e.g. 1m, 5m, 15m, 1h. These intervals
+  will be always rounded up, i.e. if it's 15m and the
+  time is 12:07 when the Condition is evaluated
+  first, then the next evaluation will occur at
+  12:15, and the next one will be at
+  12:30 and so on.
+
+### remedy_methods
+The remedy methods that will be triggered if the evaluation fails.
+
+* `type`: (Required)  Enum values: `DisplayMessage,OtpAuthentication,PasswordAuthentication,Reason`remedy method type.
+* `message`: (Required) Message to be shown to the user. Required for all remedy method.
+* `claim_suffix`:  (Optional) Suffix to be added to the claim. Required for OtpAuthentication, PasswordAuthentication and Reason remedy methods.
+* `provider_id`:  (Optional) MFA Provider Id. Required for OtpAuthentication remedy method.
+### tags
+Array of tags.
 
 
 

@@ -6,7 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v12/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -98,6 +99,13 @@ func resourceAppgateAppliance() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Customization assigned to this Appliance.",
 				Optional:    true,
+			},
+
+			"connect_to_peers_using_client_port_with_spa": {
+				Type:        schema.TypeBool,
+				Description: "Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect.",
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"client_interface": {
@@ -235,6 +243,10 @@ func resourceAppgateAppliance() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"mtu": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
 									"ipv4": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -292,12 +304,17 @@ func resourceAppgateAppliance() *schema.Resource {
 														},
 													},
 												},
+												"virtual_ip": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
 											},
 										},
 									},
 									"ipv6": {
 										Type:     schema.TypeList,
 										Optional: true,
+										Computed: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -310,14 +327,17 @@ func resourceAppgateAppliance() *schema.Resource {
 															"enabled": {
 																Type:     schema.TypeBool,
 																Optional: true,
+																Computed: true,
 															},
 															"dns": {
 																Type:     schema.TypeBool,
 																Optional: true,
+																Computed: true,
 															},
 															"ntp": {
 																Type:     schema.TypeBool,
 																Optional: true,
+																Computed: true,
 															},
 														},
 													},
@@ -346,6 +366,10 @@ func resourceAppgateAppliance() *schema.Resource {
 															},
 														},
 													},
+												},
+												"virtual_ip": {
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 											},
 										},
@@ -614,7 +638,7 @@ func resourceAppgateAppliance() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				Computed:      true,
-				ConflictsWith: []string{"iot_connector"},
+				ConflictsWith: []string{"connector"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -717,19 +741,19 @@ func resourceAppgateAppliance() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"name": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"host": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"port": {
 										Type:     schema.TypeInt,
-										Optional: true,
+										Required: true,
 									},
 									"format": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 										ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 											s := v.(string)
 											enums := []string{"json", "syslog"}
@@ -746,10 +770,70 @@ func resourceAppgateAppliance() *schema.Resource {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
+									"filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
-
+						"aws_kineses": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"aws_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"aws_secret": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"aws_region": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"use_instance_credentials": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"type": {
+										Type:     schema.TypeString,
+										Required: true,
+										ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+											s := v.(string)
+											enums := []string{"Stream", "Firehose"}
+											if inArray(s, enums) {
+												return
+											}
+											errs = append(errs, fmt.Errorf(
+												"%s: is invalid option, expected %+v", name, enums,
+											))
+											return
+										},
+									},
+									"stream_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"batch_size": {
+										Type:     schema.TypeInt,
+										Computed: true,
+										Optional: true,
+									},
+									"number_of_partition_keys": {
+										Type:     schema.TypeInt,
+										Computed: true,
+										Optional: true,
+									},
+									"filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 						"sites": {
 							Type:        schema.TypeSet,
 							Description: "Array of sites.",
@@ -760,7 +844,7 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 
-			"iot_connector": {
+			"connector": {
 				Type:          schema.TypeList,
 				MaxItems:      1,
 				Optional:      true,
@@ -775,7 +859,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Default:  false,
 						},
 
-						"clients": {
+						"express_clients": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
@@ -789,9 +873,48 @@ func resourceAppgateAppliance() *schema.Resource {
 										Optional: true,
 									},
 
-									"sources": reUsableSchemas["allow_sources"],
+									"allow_resources": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validateIPaddress,
+												},
+												"netmask": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+											},
+										},
+									},
 
-									"snat": {
+									"snat_to_resources": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+								},
+							},
+						},
+						"advanced_clients": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"device_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+
+									"allow_resources": reUsableSchemas["allow_sources"],
+
+									"snat_to_tunnel": {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
@@ -858,6 +981,10 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("customization"); ok {
 		args.SetCustomization(v.(string))
+	}
+
+	if v, ok := d.GetOk("connect_to_peers_using_client_port_with_spa"); ok {
+		args.SetConnectToPeersUsingClientPortWithSpa(v.(bool))
 	}
 
 	if c, ok := d.GetOk("client_interface"); ok {
@@ -972,12 +1099,12 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		args.SetLogForwarder(lf)
 	}
 
-	if v, ok := d.GetOk("iot_connector"); ok {
-		iot, err := readIotConnectorFromConfig(v.([]interface{}))
+	if v, ok := d.GetOk("connector"); ok {
+		connector, err := readApplianceConnectorFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
-		args.SetIotConnector(iot)
+		args.SetConnector(connector)
 	}
 
 	if v, ok := d.GetOk("rsyslog_destinations"); ok {
@@ -996,7 +1123,6 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		args.SetHostnameAliases(hostnames)
 	}
 
-	log.Printf("\n appliance arguments: \n %+v \n", args)
 	request := api.AppliancesPost(ctx)
 	request = request.Appliance(*args)
 	appliance, _, err := request.Authorization(token).Execute()
@@ -1020,6 +1146,12 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 		if v := raw["name"].(string); v != "" {
 			nic.Name = v
 		}
+		if v, ok := raw["mtu"]; ok {
+			mtu := openapi.PtrInt32(int32(v.(int)))
+			if *mtu > int32(64) {
+				nic.SetMtu(*mtu)
+			}
+		}
 
 		if v := raw["ipv4"].([]interface{}); len(v) > 0 {
 			ipv4networking := openapi.ApplianceAllOfNetworkingIpv4{}
@@ -1032,6 +1164,9 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 				}
 				if item := ipv4Data["static"]; len(item.([]interface{})) > 0 {
 					ipv4networking.SetStatic(readNetworkIpv4StaticFromConfig(item.([]interface{})))
+				}
+				if v, o := ipv4Data["virtual_ip"]; o && len(v.(string)) > 0 {
+					ipv4networking.SetVirtualIp(v.(string))
 				}
 			}
 			nic.SetIpv4(ipv4networking)
@@ -1048,6 +1183,9 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 				}
 				if v := ipv6Data["static"]; len(v.([]interface{})) > 0 {
 					ipv6networking.SetStatic(readNetworkIpv6StaticFromConfig(v.([]interface{})))
+				}
+				if v, o := ipv6Data["virtual_ip"]; o && len(v.(string)) > 0 {
+					ipv6networking.SetVirtualIp(v.(string))
 				}
 			}
 			nic.SetIpv6(ipv6networking)
@@ -1233,6 +1371,8 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		d.Set("customization", v)
 	}
 
+	d.Set("connect_to_peers_using_client_port_with_spa", appliance.GetConnectToPeersUsingClientPortWithSpa())
+
 	if v, o := appliance.GetClientInterfaceOk(); o != false {
 		ci, err := flattenApplianceClientInterface(*v)
 		if err != nil {
@@ -1388,13 +1528,13 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	if _, o := d.GetOkExists("iot_connector"); o {
-		iot, err := flatttenApplianceIotConnector(appliance.GetIotConnector())
+	if _, o := d.GetOkExists("connector"); o {
+		iot, err := flatttenApplianceConnector(appliance.GetConnector())
 		if err != nil {
 			return err
 		}
-		if err := d.Set("iot_connector", iot); err != nil {
-			return fmt.Errorf("Unable to read iots %s", err)
+		if err := d.Set("connector", iot); err != nil {
+			return fmt.Errorf("Unable to read connectors %s", err)
 		}
 	}
 
@@ -1490,9 +1630,27 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map
 			client["port"] = tcpClient.GetPort()
 			client["format"] = tcpClient.GetFormat()
 			client["use_tls"] = tcpClient.GetUseTLS()
+			client["filter"] = tcpClient.GetFilter()
 			tcpClientList = append(tcpClientList, client)
 		}
 		logforward["tcp_clients"] = tcpClientList
+	}
+	if v, o := in.GetAwsKinesesOk(); o != false {
+		kinesesList := make([]map[string]interface{}, 0)
+		for _, kineses := range *v {
+			k := make(map[string]interface{})
+			k["aws_id"] = kineses.GetAwsId()
+			k["aws_secret"] = kineses.GetAwsSecret()
+			k["aws_region"] = kineses.GetAwsRegion()
+			k["use_instance_credentials"] = kineses.GetUseInstanceCredentials()
+			k["type"] = kineses.GetType()
+			k["stream_name"] = kineses.GetStreamName()
+			k["batch_size"] = kineses.GetBatchSize()
+			k["number_of_partition_keys"] = kineses.GetNumberOfPartitionKeys()
+			k["filter"] = kineses.GetFilter()
+			kinesesList = append(kinesesList, k)
+		}
+		logforward["aws_kineses"] = kinesesList
 	}
 	logforward["sites"] = in.GetSites()
 
@@ -1500,27 +1658,51 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map
 	return logforwarders, nil
 }
 
-func flatttenApplianceIotConnector(in openapi.ApplianceAllOfIotConnector) ([]map[string]interface{}, error) {
-	var iots []map[string]interface{}
-	iot := make(map[string]interface{})
+func flatttenApplianceConnector(in openapi.ApplianceAllOfConnector) ([]map[string]interface{}, error) {
+	var connectors []map[string]interface{}
+	connector := make(map[string]interface{})
 	if v, o := in.GetEnabledOk(); o != false {
-		iot["enabled"] = *v
+		connector["enabled"] = *v
 	}
-	if v, o := in.GetClientsOk(); o != false {
+	if v, o := in.GetExpressClientsOk(); o != false {
 		clients := make([]map[string]interface{}, 0)
 		for _, client := range *v {
 			c := make(map[string]interface{})
 			c["name"] = client.GetName()
 			c["device_id"] = client.GetDeviceId()
-			c["sources"] = client.GetSources()
-			c["snat"] = client.GetSnat()
+			alloweResources := make([]map[string]interface{}, 0)
+			for _, arRaw := range client.GetAllowResources() {
+				ar := make(map[string]interface{})
+				ar["address"] = arRaw.GetAddress()
+				ar["netmask"] = arRaw.GetNetmask()
+				alloweResources = append(alloweResources, ar)
+			}
+			c["allow_resources"] = alloweResources
+			c["snat_to_resources"] = client.GetSnatToResources()
 
 			clients = append(clients, c)
 		}
-		iot["clients"] = clients
+		connector["express_clients"] = clients
 	}
-	iots = append(iots, iot)
-	return iots, nil
+	if v, o := in.GetAdvancedClientsOk(); o != false {
+		clients := make([]map[string]interface{}, 0)
+		for _, client := range *v {
+			c := make(map[string]interface{})
+			c["name"] = client.GetName()
+			c["device_id"] = client.GetDeviceId()
+			alloweResources, err := readAllowSourcesFromConfig(client.GetAllowResources())
+			if err != nil {
+				return nil, err
+			}
+			c["allow_resources"] = alloweResources
+			c["snat_to_tunnel"] = client.GetSnatToTunnel()
+
+			clients = append(clients, c)
+		}
+		connector["advanced_clients"] = clients
+	}
+	connectors = append(connectors, connector)
+	return connectors, nil
 }
 
 func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) ([]interface{}, error) {
@@ -1620,11 +1802,15 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 			if v, o := h.GetNameOk(); o != false {
 				nic["name"] = *v
 			}
+			if v, o := h.GetMtuOk(); o != false {
+				nic["mtu"] = *v
+			}
 
 			if v, o := h.GetIpv4Ok(); o != false {
 				dhcp := make(map[string]interface{})
 				staticList := make([]map[string]interface{}, 0)
 				dhcpValue := v.GetDhcp()
+
 				if v, o := dhcpValue.GetEnabledOk(); o != false {
 					dhcp["enabled"] = *v
 				}
@@ -1653,10 +1839,13 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 					}
 					staticList = append(staticList, static)
 				}
-				nic["ipv4"] = []map[string]interface{}{{
-					"dhcp":   []map[string]interface{}{dhcp},
-					"static": staticList,
-				}}
+				ipv4map := make(map[string]interface{})
+				ipv4map["dhcp"] = []map[string]interface{}{dhcp}
+				ipv4map["static"] = staticList
+				if v, o := v.GetVirtualIpOk(); o && len(*v) > 0 {
+					ipv4map["virtual_ip"] = *v
+				}
+				nic["ipv4"] = []map[string]interface{}{ipv4map}
 			}
 			if v, o := h.GetIpv6Ok(); o != false {
 				dhcp := make(map[string]interface{})
@@ -1688,11 +1877,14 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 					}
 					staticList = append(staticList, static)
 				}
+				ipv6map := make(map[string]interface{})
+				ipv6map["dhcp"] = []map[string]interface{}{dhcp}
+				ipv6map["static"] = staticList
+				if v, o := v.GetVirtualIpOk(); o && len(*v) > 0 {
+					ipv6map["virtual_ip"] = *v
+				}
+				nic["ipv6"] = []map[string]interface{}{ipv6map}
 
-				nic["ipv6"] = []map[string]interface{}{{
-					"dhcp":   []map[string]interface{}{dhcp},
-					"static": staticList,
-				}}
 			}
 			nics = append(nics, nic)
 		}
@@ -1763,6 +1955,10 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("customization") {
 		originalAppliance.SetCustomization(d.Get("customization").(string))
+	}
+
+	if d.HasChange("connect_to_peers_using_client_port_with_spa") {
+		originalAppliance.SetConnectToPeersUsingClientPortWithSpa(d.Get("connect_to_peers_using_client_port_with_spa").(bool))
 	}
 
 	if d.HasChange("client_interface") {
@@ -1891,13 +2087,13 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		originalAppliance.SetLogForwarder(lf)
 	}
 
-	if d.HasChange("iot_connector") {
-		_, n := d.GetChange("iot_connector")
-		iot, err := readIotConnectorFromConfig(n.([]interface{}))
+	if d.HasChange("connector") {
+		_, n := d.GetChange("connector")
+		iot, err := readApplianceConnectorFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
 		}
-		originalAppliance.SetIotConnector(iot)
+		originalAppliance.SetConnector(iot)
 	}
 
 	if d.HasChange("rsyslog_destinations") {
@@ -2348,7 +2544,7 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 		}
 
 		if v := raw["elasticsearch"].([]interface{}); len(v) > 0 {
-			elasticsearch := openapi.ApplianceAllOfLogForwarderElasticsearch{}
+			elasticsearch := openapi.Elasticsearch{}
 			for _, s := range v {
 				r := s.(map[string]interface{})
 				if v, ok := r["url"]; ok {
@@ -2393,9 +2589,47 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 				if v, ok := r["use_tls"]; ok {
 					tcpClient.SetUseTLS(v.(bool))
 				}
+				if v, ok := r["filter"]; ok {
+					tcpClient.SetFilter(v.(string))
+				}
 				tcpClients = append(tcpClients, tcpClient)
 			}
 			val.SetTcpClients(tcpClients)
+		}
+		if v := raw["aws_kineses"]; len(v.([]interface{})) > 0 {
+			awsKineses := make([]openapi.AwsKinesis, 0)
+			for _, awsk := range v.([]interface{}) {
+				kinesis := openapi.AwsKinesis{}
+				row := awsk.(map[string]interface{})
+				if v, ok := row["aws_id"]; ok {
+					kinesis.SetAwsId(v.(string))
+				}
+				if v, ok := row["aws_secret"]; ok {
+					kinesis.SetAwsSecret(v.(string))
+				}
+				if v, ok := row["aws_region"]; ok {
+					kinesis.SetAwsRegion(v.(string))
+				}
+				if v, ok := row["use_instance_credentials"]; ok {
+					kinesis.SetUseInstanceCredentials(v.(bool))
+				}
+				if v, ok := row["type"]; ok {
+					kinesis.SetType(v.(string))
+				}
+				if v, ok := row["stream_name"]; ok {
+					kinesis.SetStreamName(v.(string))
+				}
+				if v, ok := row["batch_size"]; ok {
+					kinesis.SetBatchSize(int32(v.(int)))
+				}
+				if v, ok := row["number_of_partition_keys"]; ok {
+					kinesis.SetNumberOfPartitionKeys(int32(v.(int)))
+				}
+				if v, ok := row["filter"]; ok {
+					kinesis.SetFilter(v.(string))
+				}
+			}
+			val.SetAwsKineses(awsKineses)
 		}
 		sites := make([]string, 0)
 		if v := raw["sites"].(*schema.Set); v.Len() > 0 {
@@ -2411,22 +2645,22 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 	return val, nil
 }
 
-func readIotConnectorFromConfig(iots []interface{}) (openapi.ApplianceAllOfIotConnector, error) {
-	val := openapi.ApplianceAllOfIotConnector{}
-	for _, iot := range iots {
-		if iot == nil {
+func readApplianceConnectorFromConfig(connectors []interface{}) (openapi.ApplianceAllOfConnector, error) {
+	val := openapi.ApplianceAllOfConnector{}
+	for _, connector := range connectors {
+		if connector == nil {
 			continue
 		}
 
-		raw := iot.(map[string]interface{})
+		raw := connector.(map[string]interface{})
 
 		if v, ok := raw["enabled"]; ok {
 			val.SetEnabled(v.(bool))
 		}
-		if v := raw["clients"]; len(v.([]interface{})) > 0 {
-			clients := make([]openapi.ApplianceAllOfIotConnectorClients, 0)
+		if v := raw["express_clients"]; len(v.([]interface{})) > 0 {
+			clients := make([]openapi.ApplianceAllOfConnectorExpressClients, 0)
 			for _, c := range v.([]interface{}) {
-				client := openapi.ApplianceAllOfIotConnectorClients{}
+				client := openapi.ApplianceAllOfConnectorExpressClients{}
 				r := c.(map[string]interface{})
 				if v, ok := r["name"]; ok {
 					client.SetName(v.(string))
@@ -2435,7 +2669,7 @@ func readIotConnectorFromConfig(iots []interface{}) (openapi.ApplianceAllOfIotCo
 					client.SetDeviceId(v.(string))
 				}
 				// allowed sources
-				if v := r["sources"]; len(v.([]interface{})) > 0 {
+				if v := r["allow_resources"]; len(v.([]interface{})) > 0 {
 					as, err := listToMapList(v.([]interface{}))
 					if err != nil {
 						return val, err
@@ -2444,14 +2678,55 @@ func readIotConnectorFromConfig(iots []interface{}) (openapi.ApplianceAllOfIotCo
 					if err != nil {
 						return val, err
 					}
-					client.SetSources(sources)
+					allowedResources := make([]openapi.ApplianceAllOfConnectorAllowResources, 0)
+					for _, s := range sources {
+						ar := openapi.ApplianceAllOfConnectorAllowResources{}
+						if v, ok := s["address"]; ok {
+							ar.SetAddress(v.(string))
+						}
+						if v, ok := s["netmask"]; ok {
+							ar.SetNetmask(int32(v.(int)))
+						}
+						allowedResources = append(allowedResources, ar)
+					}
+					// TODO loop source convert to openapi.ApplianceAllOfConnectorAllowResources
+					client.SetAllowResources(allowedResources)
 				}
-				if v, ok := r["snat"]; ok {
-					client.SetSnat(v.(bool))
+				if v, ok := r["snat_to_resources"]; ok {
+					client.SetSnatToResources(v.(bool))
 				}
 				clients = append(clients, client)
 			}
-			val.SetClients(clients)
+			val.SetExpressClients(clients)
+		}
+		if v := raw["advanced_clients"]; len(v.([]interface{})) > 0 {
+			clients := make([]openapi.ApplianceAllOfConnectorAdvancedClients, 0)
+			for _, c := range v.([]interface{}) {
+				client := openapi.ApplianceAllOfConnectorAdvancedClients{}
+				r := c.(map[string]interface{})
+				if v, ok := r["name"]; ok {
+					client.SetName(v.(string))
+				}
+				if v, ok := r["device_id"]; ok {
+					client.SetDeviceId(v.(string))
+				}
+				if v := r["allow_resources"]; len(v.([]interface{})) > 0 {
+					as, err := listToMapList(v.([]interface{}))
+					if err != nil {
+						return val, err
+					}
+					sources, err := readAllowSourcesFromConfig(as)
+					if err != nil {
+						return val, err
+					}
+					client.SetAllowResources(sources)
+				}
+				if v, ok := r["snat_to_tunnel"]; ok {
+					client.SetSnatToTunnel(v.(bool))
+				}
+				clients = append(clients, client)
+			}
+			val.SetAdvancedClients(clients)
 		}
 	}
 	return val, nil

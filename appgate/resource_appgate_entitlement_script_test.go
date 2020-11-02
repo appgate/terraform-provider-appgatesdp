@@ -23,6 +23,7 @@ func TestAccEntitlementScriptBasic(t *testing.T) {
 					testAccCheckEntitlementScriptExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "expression", "return [];"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "appShortcut"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "test only"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
@@ -42,6 +43,7 @@ func testAccCheckEntitlementScriptBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_entitlement_script" "test_entitlement_script" {
   name       = "%s"
+  type       = "appShortcut"
   expression = "return [];"
   notes      = "test only"
   tags = [

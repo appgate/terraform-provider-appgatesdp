@@ -6,7 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v12/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 

@@ -24,7 +24,6 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
-
 					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.hosts.#", "5"),
 					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.hosts.0", "10.0.0.1"),
@@ -38,10 +37,10 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.types.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.types.0", "0-16"),
 
-					resource.TestCheckResourceAttr(resourceName, "app_shortcut.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "app_shortcut.1872821293.color_code", "5"),
-					resource.TestCheckResourceAttr(resourceName, "app_shortcut.1872821293.name", "ping"),
-					resource.TestCheckResourceAttr(resourceName, "app_shortcut.1872821293.url", "https://www.google.com"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", "ping"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "https://www.google.com"),
 					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
 
 					resource.TestCheckResourceAttr(resourceName, "disabled", "true"),
@@ -125,7 +124,7 @@ resource "appgate_entitlement" "test_item" {
     ]
   }
 
-  app_shortcut {
+  app_shortcuts {
     name       = "ping"
     url        = "https://www.google.com"
     color_code = 5

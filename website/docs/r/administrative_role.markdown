@@ -8,7 +8,7 @@ description: |-
 
 # appgate_administrative_role
 
-Create a new Administrative Role..
+Create a new Administrative Role.
 
 ## Example Usage
 
@@ -70,8 +70,8 @@ The following arguments are supported:
 ### privileges
 Administrative privilege list.
 
-* `type`:  (Optional)  Enum values: `All,View,Create,Edit,Tag,Delete,Revoke,Export,Upgrade,RenewCertificate,DownloadLogs,Test,GetUserAttributes,Backup,CheckStatus,Reevaluate`The type of the Privilege defines the possible administrator actions.
-* `target`:  (Optional)  Enum values: `All,Appliance,Condition,CriteriaScript,Entitlement,AdministrativeRole,IdentityProvider,MfaProvider,IpPool,LocalUser,Policy,Site,DeviceScript,EntitlementScript,RingfenceRule,ApplianceCustomization,OtpSeed,TokenRecord,Blacklist,UserLicense,OnBoardedDevice,AllocatedIp,SessionInfo,AuditLog,AdminMessage,GlobalSetting,CaCertificate,File,FailedAuthentication`The target of the Privilege defines the possible target objects for that type.
+* `type`: (Required)  Enum values: `All,View,Create,Edit,Tag,Delete,Revoke,Export,Upgrade,RenewCertificate,DownloadLogs,Test,GetUserAttributes,Backup,CheckStatus,Reevaluate`The type of the Privilege defines the possible administrator actions.
+* `target`: (Required)  Enum values: `All,Appliance,Condition,CriteriaScript,Entitlement,AdministrativeRole,IdentityProvider,MfaProvider,IpPool,LocalUser,Policy,Site,DeviceScript,EntitlementScript,RingfenceRule,ApplianceCustomization,OtpSeed,TokenRecord,Blacklist,UserLicense,OnBoardedDevice,AllocatedIp,SessionInfo,AuditLog,AdminMessage,GlobalSetting,CaCertificate,File,FailedAuthentication`The target of the Privilege defines the possible target objects for that type.
 * `scope`:  (Optional) The scope of the Privilege. Only applicable to certain type-target combinations. Some types depends on the IdP/MFA type, such as GetUserAttributes. This field must be omitted if not applicable.
 * `default_tags`:  (Optional) The items in this list would be added automatically to the newly created objects' tags. Only applicable on "Create" type and targets with tagging capability. This field must be omitted if not applicable.
 ### tags

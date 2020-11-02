@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v12/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -15,13 +16,9 @@ const (
 	identityProviderLdap            = "Ldap"
 	identityProviderSaml            = "Saml"
 	identityProviderLdapCertificate = "LdapCertificate"
-	// TODO Update when we upgrade client api.
-	identityProviderConnector = "IotConnector"
-	builtinProviderLocal      = "local"
-	// TODO Update value when we update client lib.
-	// IoT Connector in <= appliance 5.1
-	// Connector in > 5.1
-	builtinProviderConnector = "IoT Connector"
+	identityProviderConnector       = "Connector"
+	builtinProviderLocal            = "local"
+	builtinProviderConnector        = "Connector"
 )
 
 func identityProviderSchema() map[string]*schema.Schema {

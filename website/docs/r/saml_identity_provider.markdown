@@ -150,6 +150,7 @@ The following arguments are supported:
 * `audience`: (Required) SAML audience to make sure the recipient of the Token is this Controller.
 * `provider_certificate`: (Required) The certificate of the SAML provider to verify the SAML tokens. In PEM format.
 * `decryption_key`: (Optional) The private key to decrypt encrypted assertions if there is any. In PEM format.
+* `force_authn`: (Optional) Enables ForceAuthn flag in the SAML Request. If the SAML Provider supports this flag, it will require user to enter their credentials every time Client requires SAML authentication.
 
 
 ### on_boarding_two_factor
