@@ -42,7 +42,8 @@ resource "appgate_site" "gbg_site" {
 The following arguments are supported:
 
 
-* `short_name`: (Optional) A short 4 letter name for the site
+* `short_name`: (Optional) A short 4 letter name for the Site to be displayed on the Client.
+* `description`: (Optional) Description of the Site to be displayed on the Client.
 * `network_subnets`: (Optional) Network subnets in CIDR format to define the Site's boundaries. They are added as routes by the Client.
 * `ip_pool_mappings`: (Optional) List of IP Pool mappings for this specific Site. When IPs are allocated this Site, they will be mapped to a new one using this setting.
 * `default_gateway`: (Optional) Default Gateway configuration.
@@ -109,7 +110,7 @@ Resolvers to resolve Amazon machines by querying Amazon Web Services.
 * `vpcs`: (Optional) VPC IDs to resolve names.
 * `vpc_auto_discovery`: (Optional) Use VPC auto discovery.
 * `regions`: (Optional) Amazon regions.
-* `use_i_a_m_role`: (Optional) Uses the built-in IAM role in AWS instances to authenticate against the API.
+* `use_iamrole`: (Optional) Uses the built-in IAM role in AWS instances to authenticate against the API.
 * `access_key_id`: (Optional) ID of the access key.
 * `secret_access_key`: (Optional) Secret access key for accessKeyId.
 * `https_proxy`: (Optional) Proxy address to use while communicating with AWS. format: username:password@ip/hostname:port
