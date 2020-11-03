@@ -1,6 +1,21 @@
 Terraform Provider for Appgate
 ==================
 
+Version compatibility
+---------------------------
+Our goal is to always support the latest stable release of Appgate.
+
+The current version of the master branch supports Appgate appliance API version 13.
+
+|                         	|  client version 12 	| **client version 13** 	| client version 14 	|
+|-------------------------	|--------------------	|-------------------	    |-------------------	|
+| Appgate SDP 5.1.*     	| Full support       	|                   	    |                   	|
+| **Appgate SDP 5.2.***  	| Partial support    	| Full support      	    |                   	|
+| Appgate SDP 5.3.*     	| Partial support   	| Partial support   	    | Partial support      	|
+
+
+
+
 Requirements
 ------------
 
