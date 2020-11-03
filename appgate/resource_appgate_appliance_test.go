@@ -656,8 +656,8 @@ func TestAccApplianceConnector(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "connector.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.netmask", "24"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.device_id", "12699e27-b584-464a-81ee-5b4784b6d425"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.name", "Printers"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.snat_to_resources", "true"),
@@ -776,8 +776,8 @@ resource "appgate_appliance" "connector" {
         device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
 
         allow_resources {
-          address = "1.3.3.7"
-          netmask = 24
+          address = "0.0.0.0"
+          netmask = 32
         }
         snat_to_resources = true
       }
