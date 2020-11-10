@@ -774,6 +774,15 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 		orginalSite.SetTags(schemaExtractTags(d))
 	}
 
+	if d.HasChange("network_subnets") {
+		_, n := d.GetChange("network_subnets")
+		networkSubnets, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalSite.SetNetworkSubnets(networkSubnets)
+	}
+
 	if d.HasChange("ip_pool_mappings") {
 		_, n := d.GetChange("ip_pool_mappings")
 		ipPoolMappings, err := readIPPoolMappingsFromConfig(n.(*schema.Set).List())
