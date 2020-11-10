@@ -127,8 +127,8 @@ func resourceAppgateSite() *schema.Resource {
 
 			"entitlement_based_routing": {
 				Type:     schema.TypeBool,
-				Computed: true,
-				// Default:  true,
+				Optional: true,
+				Default:  false,
 			},
 
 			"vpn": {
@@ -773,7 +773,10 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("tags") {
 		orginalSite.SetTags(schemaExtractTags(d))
 	}
-
+	if d.HasChange("entitlement_based_routing") {
+		_, v := d.GetChange("entitlement_based_routing")
+		orginalSite.SetEntitlementBasedRouting(v.(bool))
+	}
 	if d.HasChange("network_subnets") {
 		_, n := d.GetChange("network_subnets")
 		networkSubnets, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())

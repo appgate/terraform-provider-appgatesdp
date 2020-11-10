@@ -104,6 +104,10 @@ func TestAccSiteBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.1525215129", "10.20.0.0/24"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.2657174977", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1941342072", "developer"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.3344272348", "updated-tag"),
 				),
 			},
 			{
@@ -166,7 +170,7 @@ resource "appgate_site" "test_site" {
     ]
 
     notes = "This object has been created for test purposes."
-
+    entitlement_based_routing = false
     network_subnets = [
         "10.0.0.0/16"
     ]
@@ -246,7 +250,7 @@ resource "appgate_site" "test_site" {
 	    "updated-tag"
     ]
     notes = "This object has been created for test purposes."
-
+    entitlement_based_routing = false
 	network_subnets = [
         "10.0.0.0/16",
         "10.20.0.0/24",
@@ -274,10 +278,17 @@ resource "appgate_site" "test_site" {
 
         aws_resolvers {
             name = "AWS Resolver 1"
+            regions = [
+                "eu-central-1",
+                "eu-west-1"
+            ]
             update_interval    = 59
+            vpcs               = []
+            vpc_auto_discovery = true
             use_iam_role       = true
             access_key_id      = "string1"
             secret_access_key  = "string2"
+            resolve_with_master_credentials = true
         }
 
         azure_resolvers {
@@ -319,8 +330,8 @@ resource "appgate_site" "test_site" {
         "api-created",
     	"updated-tag"
     ]
-	
-	notes = "This object has been created for test purposes."
+    notes = "This object has been created for test purposes."
+    entitlement_based_routing = false
     network_subnets = [
         "10.20.0.0/24"
     ]
