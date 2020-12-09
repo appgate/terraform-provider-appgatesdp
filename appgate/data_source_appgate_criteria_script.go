@@ -6,7 +6,7 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceCriteriaScript() *schema.Resource {
