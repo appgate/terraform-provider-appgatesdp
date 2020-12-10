@@ -239,25 +239,25 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 				),
 			},
 			{
-                // Make sure moving around claims results in an empty plan
-                Config: testAccCheckSamlIdentityProviderClaimMoves(rName),
-                Check: resource.ComposeTestCheckFunc(
-                    testAccCheckSamlIdentityProviderExists(resourceName),
+				// Make sure moving around claims results in an empty plan
+				Config: testAccCheckSamlIdentityProviderClaimMoves(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSamlIdentityProviderExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-                ),
-                ExpectNonEmptyPlan: false,
-            },
+				),
+				ExpectNonEmptyPlan: false,
+			},
 		},
 	})
 }
 
 func testAccCheckSamlIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
-	data "appgate_ip_pools" "ip_v6_pool" {
+	data "appgate_ip_pool" "ip_v6_pool" {
 	ip_pool_name = "default pool v6"
 	}
 
-	data "appgate_ip_pools" "ip_v4_pool" {
+	data "appgate_ip_pool" "ip_v4_pool" {
 	ip_pool_name = "default pool v4"
 	}
 	data "appgate_mfa_provider" "fido" {
@@ -267,8 +267,8 @@ func testAccCheckSamlIdentityProviderBasic(rName string) string {
 	name = "%s"
 
 	admin_provider = true
-	ip_pool_v4     = data.appgate_ip_pools.ip_v4_pool.id
-	ip_pool_v6     = data.appgate_ip_pools.ip_v6_pool.id
+	ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
+	ip_pool_v6     = data.appgate_ip_pool.ip_v6_pool.id
 	dns_servers = [
 		"172.17.18.19",
 		"192.100.111.31",
@@ -361,11 +361,11 @@ func testAccCheckSamlIdentityProviderBasic(rName string) string {
 
 func testAccCheckSamlIdentityProviderUpdates(rName string) string {
 	return fmt.Sprintf(`
-	data "appgate_ip_pools" "ip_v6_pool" {
+	data "appgate_ip_pool" "ip_v6_pool" {
 	ip_pool_name = "default pool v6"
 	}
 
-	data "appgate_ip_pools" "ip_v4_pool" {
+	data "appgate_ip_pool" "ip_v4_pool" {
 	ip_pool_name = "default pool v4"
 	}
 	data "appgate_mfa_provider" "fido" {
@@ -375,7 +375,7 @@ func testAccCheckSamlIdentityProviderUpdates(rName string) string {
 	name = "%s"
 	notes = "Test note change"
 	admin_provider = false
-	ip_pool_v4     = data.appgate_ip_pools.ip_v4_pool.id
+	ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
 	dns_servers = [
 		"172.17.18.21",
 		"192.100.111.31",
@@ -493,11 +493,11 @@ func testAccCheckSamlIdentityProviderUpdates(rName string) string {
 
 func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
 	return fmt.Sprintf(`
-  data "appgate_ip_pools" "ip_v6_pool" {
+  data "appgate_ip_pool" "ip_v6_pool" {
     ip_pool_name = "default pool v6"
   }
-  
-  data "appgate_ip_pools" "ip_v4_pool" {
+
+  data "appgate_ip_pool" "ip_v4_pool" {
     ip_pool_name = "default pool v4"
   }
   data "appgate_mfa_provider" "fido" {
@@ -507,7 +507,7 @@ func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
     name = "%s"
     notes = "Test note change"
     admin_provider = false
-    ip_pool_v4     = data.appgate_ip_pools.ip_v4_pool.id
+    ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
     dns_servers = [
       "192.100.111.32",
       "172.17.18.20"
@@ -518,8 +518,8 @@ func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
     redirect_url = "https://saml.update.company.com"
     issuer       = "http://adfs-test.update.company.com/adfs/services/trust"
     audience     = "Company Appgate SDP - Update"
-  
-  
+
+
     provider_certificate = <<-EOF
   -----BEGIN CERTIFICATE-----
   MIICZjCCAc+gAwIBAgIUT0AsBLRI7aKjaMTnH1N9J6eS+7EwDQYJKoZIhvcNAQEL
@@ -537,7 +537,7 @@ func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
   eIE/AV/qHWNEiLIMP5JO2FUbjpDCYtHkCOFDmv01e6rs86L3MQ8zF76T
   -----END CERTIFICATE-----
   EOF
-  
+
     block_local_dns_requests = false
     inactivity_timeout_minutes = 5
     on_boarding_two_factor {
@@ -592,17 +592,17 @@ func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
       }
       platform = "desktop.windows.all"
     }
-    
+
   }`, rName)
 }
 
 func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
 	return fmt.Sprintf(`
-  data "appgate_ip_pools" "ip_v6_pool" {
+  data "appgate_ip_pool" "ip_v6_pool" {
     ip_pool_name = "default pool v6"
   }
-  
-  data "appgate_ip_pools" "ip_v4_pool" {
+
+  data "appgate_ip_pool" "ip_v4_pool" {
     ip_pool_name = "default pool v4"
   }
   data "appgate_mfa_provider" "fido" {
@@ -612,7 +612,7 @@ func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
     name = "%s"
     notes = "Test note change"
     admin_provider = false
-    ip_pool_v4     = data.appgate_ip_pools.ip_v4_pool.id
+    ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
     dns_servers = [
       "192.100.111.32",
       "172.17.18.20"
@@ -623,8 +623,8 @@ func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
     redirect_url = "https://saml.update.company.com"
     issuer       = "http://adfs-test.update.company.com/adfs/services/trust"
     audience     = "Company Appgate SDP - Update"
-  
-  
+
+
     provider_certificate = <<-EOF
   -----BEGIN CERTIFICATE-----
   MIICZjCCAc+gAwIBAgIUT0AsBLRI7aKjaMTnH1N9J6eS+7EwDQYJKoZIhvcNAQEL
@@ -642,7 +642,7 @@ func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
   eIE/AV/qHWNEiLIMP5JO2FUbjpDCYtHkCOFDmv01e6rs86L3MQ8zF76T
   -----END CERTIFICATE-----
   EOF
-  
+
     block_local_dns_requests = false
     inactivity_timeout_minutes = 5
     on_boarding_two_factor {
@@ -705,7 +705,7 @@ func testAccCheckSamlIdentityProviderExists(resource string) resource.TestCheckF
 		token := testAccProvider.Meta().(*Client).Token
 		api := testAccProvider.Meta().(*Client).API.SamlIdentityProvidersApi
 		rs, ok := state.RootModule().Resources[resource]
-		fmt.Println(rs.Primary)
+
 		if !ok {
 			return fmt.Errorf("Not found: %s", resource)
 		}
