@@ -30,7 +30,7 @@ func dataSourceAppgateApplianceSeed() *schema.Resource {
 				ConflictsWith: []string{"provide_cloud_ssh_key", "password"},
 			},
 			"latest_version": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"password": {
