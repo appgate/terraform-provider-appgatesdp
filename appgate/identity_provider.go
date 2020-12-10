@@ -122,7 +122,7 @@ func identityProviderIPPoolSchema() map[string]*schema.Schema {
 func identityProviderClaimsSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
 		"claim_mappings": {
-			Type:     schema.TypeList,
+			Type:     schema.TypeSet,
 			Optional: true,
 			Computed: true,
 			Elem: &schema.Resource{
@@ -149,7 +149,7 @@ func identityProviderClaimsSchema() map[string]*schema.Schema {
 			},
 		},
 		"on_demand_claim_mappings": {
-			Type:     schema.TypeList,
+			Type:     schema.TypeSet,
 			Optional: true,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
@@ -378,13 +378,13 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 		provider.SetBlockLocalDnsRequests(v.(bool))
 	}
 	if v, ok := d.GetOk("claim_mappings"); ok {
-		claims := readIdentityProviderClaimMappingFromConfig(v.([]interface{}))
+		claims := readIdentityProviderClaimMappingFromConfig(v.(*schema.Set).List())
 		if len(claims) > 0 {
 			provider.SetClaimMappings(claims)
 		}
 	}
 	if v, ok := d.GetOk("on_demand_claim_mappings"); ok {
-		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.([]interface{}))
+		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.(*schema.Set).List())
 		if len(claims) > 0 {
 			provider.SetOnDemandClaimMappings(claims)
 		}
@@ -423,7 +423,7 @@ func readIdentityProviderClaimMappingFromConfig(input []interface{}) []map[strin
 		if v, ok := claim["list"]; ok {
 			c["list"] = v.(bool)
 		}
-		if v, ok := claim["encrypt"]; ok {
+		if v, ok := claim["encrypted"]; ok {
 			c["encrypt"] = v.(bool)
 		}
 		claims = append(claims, c)
@@ -495,8 +495,8 @@ func flattenIdentityProviderClaimsMappning(claims []map[string]interface{}) []ma
 		if v, ok := claim["list"]; ok {
 			row["list"] = v.(bool)
 		}
-		if v, ok := claim["encrypted"]; ok {
-			row["list"] = v.(bool)
+		if v, ok := claim["encrypt"]; ok {
+			row["encrypted"] = v.(bool)
 		}
 		out[i] = row
 	}
