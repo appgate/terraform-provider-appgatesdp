@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
@@ -134,7 +133,7 @@ func resourceAppgateSite() *schema.Resource {
 			"vpn": {
 				// Due to the limitation of tf-11115 it is not possible to nest maps.
 				// https://github.com/hashicorp/terraform/issues/11115
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
@@ -152,7 +151,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"tls": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -165,7 +164,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"dtls": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -178,7 +177,7 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"route_via": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeSet,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -301,6 +300,7 @@ func resourceAppgateSite() *schema.Resource {
 									"resolve_with_master_credentials": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  true,
 									},
 									"assumed_roles": {
 										Type:     schema.TypeList,
@@ -389,8 +389,9 @@ func resourceAppgateSite() *schema.Resource {
 										Optional: true,
 									},
 									"username": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:      schema.TypeString,
+										Required:  true,
+										Sensitive: true,
 									},
 									"password": {
 										Type:      schema.TypeString,
@@ -550,6 +551,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -586,16 +588,23 @@ func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 	if v, o := in.GetSnatOk(); o != false {
 		m["snat"] = v
 	}
-	if in.HasTls() {
-		tls := make(map[string]interface{})
-		tls["enabled"] = strconv.FormatBool(in.Tls.GetEnabled())
-		m["tls"] = tls
-	}
+
 	if in.HasDtls() {
 		dtls := make(map[string]interface{})
-		dtls["enabled"] = strconv.FormatBool(in.Dtls.GetEnabled())
-		m["dtls"] = dtls
+		if _, o := in.Dtls.GetEnabledOk(); o != false {
+			dtls["enabled"] = in.Dtls.GetEnabled()
+		}
+		m["dtls"] = []interface{}{dtls}
 	}
+
+	if in.HasTls() {
+		tls := make(map[string]interface{})
+		if _, o := in.Tls.GetEnabledOk(); o != false {
+			tls["enabled"] = in.Tls.GetEnabled()
+		}
+		m["tls"] = []interface{}{tls}
+	}
+
 	if in.HasRouteVia() && in.RouteVia.Ipv4 != nil {
 		routeVia := make(map[string]interface{})
 		routeVia["ipv4"] = in.RouteVia.GetIpv4()
@@ -786,6 +795,15 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 		orginalSite.SetNetworkSubnets(networkSubnets)
 	}
 
+	if d.HasChange("network_subnets") {
+		_, n := d.GetChange("network_subnets")
+		networkSubnets, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalSite.SetNetworkSubnets(networkSubnets)
+	}
+
 	if d.HasChange("ip_pool_mappings") {
 		_, n := d.GetChange("ip_pool_mappings")
 		ipPoolMappings, err := readIPPoolMappingsFromConfig(n.(*schema.Set).List())
@@ -905,45 +923,64 @@ func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 		}
 		if v, ok := raw["tls"]; ok {
 			tls := openapi.NewSiteAllOfVpnTlsWithDefaults()
-			rawTLS := v.(map[string]interface{})
-
-			if v, ok := rawTLS["enabled"]; ok {
-				tls.SetEnabled(v.(bool))
+			rawTLS := v.(*schema.Set).List()
+			for _, d := range rawTLS {
+				raw := d.(map[string]interface{})
+				if v, ok := raw["enabled"]; ok {
+					tls.SetEnabled(v.(bool))
+				}
 			}
 			result.SetTls(*tls)
 		}
 
 		if v, ok := raw["dtls"]; ok {
 			dtls := openapi.NewSiteAllOfVpnDtlsWithDefaults()
-			rawDTLS := v.(map[string]interface{})
+			rawDTLS := v.(*schema.Set).List()
+			for _, d := range rawDTLS {
+				raw := d.(map[string]interface{})
 
-			if v, ok := rawDTLS["enabled"]; ok {
-				dtls.SetEnabled(v.(bool))
+				if v, ok := raw["enabled"]; ok {
+					dtls.SetEnabled(v.(bool))
+				}
 			}
+
 			result.SetDtls(*dtls)
 		}
 
 		if v, ok := raw["route_via"]; ok {
-			routeVia := openapi.NewSiteAllOfVpnRouteViaWithDefaults()
-			rawRouteVia := v.(map[string]interface{})
-
-			if v, ok := rawRouteVia["ipv4"]; ok {
-				routeVia.SetIpv4(v.(string))
+			routeVia, err := readSiteVPNRouteViaFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, fmt.Errorf("Failed to parse/retrieve route_via config %+v", err)
 			}
-			if v, ok := rawRouteVia["ipv6"]; ok {
-				routeVia.SetIpv6(v.(string))
-			}
-			result.SetRouteVia(*routeVia)
+			result.SetRouteVia(routeVia)
 		}
 
 		if v, ok := raw["web_proxy_enabled"]; ok {
 			result.SetWebProxyEnabled(v.(bool))
 		}
-		if v, ok := raw["web_proxy_key_store"]; ok {
+		if v, ok := raw["web_proxy_key_store"]; ok && len(v.(string)) > 0 {
 			result.SetWebProxyKeyStore(v.(string))
 		}
 		if v, ok := raw["ip_access_log_interval_seconds"]; ok {
 			result.SetIpAccessLogIntervalSeconds(float32(v.(int)))
+		}
+	}
+	return result, nil
+}
+
+func readSiteVPNRouteViaFromConfig(routeViaConf []interface{}) (openapi.SiteAllOfVpnRouteVia, error) {
+	result := openapi.SiteAllOfVpnRouteVia{}
+	for _, r := range routeViaConf {
+		if r == nil {
+			continue
+		}
+
+		raw := r.(map[string]interface{})
+		if r, ok := raw["ipv4"]; ok {
+			result.SetIpv4(r.(string))
+		}
+		if r, ok := raw["ipv6"]; ok {
+			result.SetIpv6(r.(string))
 		}
 	}
 	return result, nil
@@ -1038,10 +1075,11 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 	for _, resolver := range awsConfigs {
 		raw := resolver.(map[string]interface{})
 		row := openapi.SiteAllOfNameResolutionAwsResolvers{}
+
 		if v, ok := raw["name"]; ok {
 			row.SetName(v.(string))
 		}
-		if v, ok := raw["update_interval"]; ok {
+		if v, ok := raw["update_interval"]; ok && v != nil {
 			row.SetUpdateInterval(int32(v.(int)))
 		}
 		if v := raw["vpcs"]; len(v.([]interface{})) > 0 {
@@ -1054,7 +1092,7 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v, ok := raw["vpc_auto_discovery"]; ok && v.(bool) {
 			row.SetVpcAutoDiscovery(v.(bool))
 		}
-		if v := raw["regions"]; len(v.([]interface{})) > 0 {
+		if v := raw["regions"]; len(v.([]interface{})) > 0 && v.([]interface{}) != nil {
 			regions, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, fmt.Errorf("Failed to resolve regions from aws config: %+v", err)
@@ -1073,7 +1111,7 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v, ok := raw["https_proxy"]; ok && len(v.(string)) > 0 {
 			row.SetHttpsProxy(v.(string))
 		}
-		if v, ok := raw["resolve_with_master_credentials"]; ok && v.(bool) {
+		if v, ok := raw["resolve_with_master_credentials"]; ok && v != nil && v.(bool) {
 			row.SetResolveWithMasterCredentials(v.(bool))
 		}
 		if v, ok := raw["assumed_roles"]; ok {
