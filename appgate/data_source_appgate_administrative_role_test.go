@@ -17,7 +17,7 @@ func TestAccAppgateAdministrativeRoleDataSource(t *testing.T) {
 				Config: administrativeRoleDataSourceConfig(rName),
 				// Because of the `depends_on` in the datasource, the plan cannot be empty.
 				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				ExpectNonEmptyPlan: true,
+				//ExpectNonEmptyPlan: true,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.appgate_administrative_role.test_administrative_role_ds", "administrative_role_name"),
 					resource.TestCheckResourceAttrSet("data.appgate_administrative_role.test_administrative_role_ds", "administrative_role_id"),

@@ -78,7 +78,7 @@ func dataSourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Got Site: %+v", site)
 
 	d.SetId(site.Id)
-	d.Set("name", site.Name)
+	d.Set("site_name", site.Name)
 	d.Set("short_name", site.ShortName)
 	d.Set("site_id", site.Id)
 	d.Set("notes", site.Notes)
