@@ -120,7 +120,7 @@ func resourceAppgateMfaProvider() *schema.Resource {
 			},
 
 			"use_user_password": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},

@@ -156,7 +156,7 @@ func resourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("email", localUser.GetEmail())
 	d.Set("phone", localUser.GetPhone())
 	d.Set("failed_login_attempts", localUser.GetFailedLoginAttempts())
-	d.Set("lock_start", localUser.GetLockStart())
+	d.Set("lock_start", localUser.GetLockStart().String())
 
 	return nil
 }
