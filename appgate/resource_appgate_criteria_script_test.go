@@ -25,8 +25,8 @@ func TestAccCriteriaScriptBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "expression", "return claims.user.username === 'admin';"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.1389504093", "bb"),
-					resource.TestCheckResourceAttr(resourceName, "tags.2075773895", "aa"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "aa"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "bb"),
 				),
 			},
 			{

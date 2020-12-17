@@ -184,6 +184,7 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 
 	// identity provider attributes
 	d.Set("default", ldap.GetDefault())
+	// TODO: remove - deprecated in 5.1
 	d.Set("client_provider", ldap.GetClientProvider())
 	d.Set("admin_provider", ldap.GetAdminProvider())
 	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
@@ -272,6 +273,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	if d.HasChange("default") {
 		originalLdapCertificateProvider.SetDefault(d.Get("default").(bool))
 	}
+	// TODO: remove - deprecated in 5.1
 	if d.HasChange("client_provider") {
 		originalLdapCertificateProvider.SetClientProvider(d.Get("client_provider").(bool))
 	}

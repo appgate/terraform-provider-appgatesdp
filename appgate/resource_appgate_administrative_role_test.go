@@ -27,7 +27,7 @@ func TestAccadministrativeRoleBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "Entitlement"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "Create"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
 				),
 			},
 			{
@@ -104,7 +104,7 @@ func TestAccadministrativeRoleWithScope(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "Site"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "View"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
 				),
 			},
 			{

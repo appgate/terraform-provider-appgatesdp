@@ -29,8 +29,8 @@ func TestAccIPPoolBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ranges.0.first", "10.0.0.1"),
 					resource.TestCheckResourceAttr(resourceName, "ranges.0.last", "10.0.0.254"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 				),
 			},
 			{

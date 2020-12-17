@@ -45,7 +45,7 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.message", "welcome"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.mfa_provider_id", "3ae98d53-c520-437f-99e4-451f936e6d2c"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Saml"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.#", "6"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3889155743.attribute_name", "givenName"),

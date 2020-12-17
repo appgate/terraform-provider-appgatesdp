@@ -61,7 +61,7 @@ func TestAccLocalDatabaseIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "on_boarding_two_factor.#"),
 					resource.TestCheckResourceAttrSet(resourceName, "on_demand_claim_mappings.#"),
 					resource.TestCheckResourceAttrSet(resourceName, "tags.#"),
-					resource.TestCheckResourceAttrSet(resourceName, "tags.3551210388"),
+					resource.TestCheckResourceAttrSet(resourceName, "tags.0"),
 				),
 			},
 			{
