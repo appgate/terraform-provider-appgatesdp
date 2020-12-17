@@ -68,6 +68,7 @@ func resourceClientConnections() *schema.Resource {
 }
 
 func resourceClientConnectionsCreate(d *schema.ResourceData, meta interface{}) error {
+	//TODO: Fix function, as it causes overwrites each run & drops all the SPA Keys
 	return resourceClientConnectionsUpdate(d, meta)
 }
 

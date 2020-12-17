@@ -30,12 +30,12 @@ func TestAccConditionBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "remedy_methods.0.type", "DisplayMessage"),
 
 					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.2107984292", "13:32"),
-					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.3334954558", "1h"),
+					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.0", "13:32"),
+					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.1", "1h"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 				),
 			},
 			{

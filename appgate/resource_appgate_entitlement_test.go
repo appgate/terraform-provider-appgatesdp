@@ -24,18 +24,18 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.action", "allow"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.hosts.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.hosts.0", "10.0.0.1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.hosts.1", "10.0.0.0/24"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.hosts.2", "hostname.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.hosts.3", "dns://hostname.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.hosts.4", "aws://security-group:accounting"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.ports.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "5"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "10.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.1", "10.0.0.0/24"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.2", "hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.3", "dns://hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.4", "aws://security-group:accounting"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "0"),
 
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.subtype", "icmp_up"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.types.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.3805508908.types.0", "0-16"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "icmp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.types.0", "0-16"),
 
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
@@ -47,8 +47,8 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 				),
 			},
 			{
@@ -90,7 +90,7 @@ func testAccCheckItemDestroy(s *terraform.State) error {
 func testAccCheckEntitlementBasicPing(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
-	   site_name = "Default site"
+	   site_name = "Default Site"
 }
 data "appgate_condition" "always" {
   condition_name = "Always"

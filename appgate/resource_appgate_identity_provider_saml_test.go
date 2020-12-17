@@ -78,7 +78,7 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.platform", "desktop.windows.all"),
 					resource.TestCheckResourceAttr(resourceName, "redirect_url", "https://saml.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "type", "Saml"),
 				),
 			},

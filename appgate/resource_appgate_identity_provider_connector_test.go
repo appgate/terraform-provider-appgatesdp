@@ -52,7 +52,7 @@ func TestAccConnectorIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Built-in Identity Provider on local database."),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.3551210388", "builtin"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "builtin"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip_pool_v4"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip_pool_v6"),
 				),

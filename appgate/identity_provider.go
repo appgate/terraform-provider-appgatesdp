@@ -58,6 +58,12 @@ func identityProviderSchema() map[string]*schema.Schema {
 				Optional: true,
 				Computed: true,
 			},
+			//TODO: Remove - deprecated in 5.1
+			"client_provider": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"on_boarding_two_factor": {
 				Type:     schema.TypeList,
 				Optional: true,
