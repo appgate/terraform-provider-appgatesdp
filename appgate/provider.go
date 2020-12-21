@@ -1,6 +1,9 @@
 package appgate
 
 import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -87,19 +90,45 @@ func Provider() *schema.Provider {
 			"appgate_ldap_certificate_identity_provider": resourceAppgateLdapCertificateProvider(),
 			"appgate_connector_identity_provider":        resourceAppgateConnectorProvider(),
 		},
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	config := Config{
-		URL:      d.Get("url").(string),
-		Username: d.Get("username").(string),
-		Password: d.Get("password").(string),
-		Provider: d.Get("provider").(string),
-		Insecure: d.Get("insecure").(bool),
-		Timeout:  20,
-		Debug:    d.Get("debug").(bool),
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	username := d.Get("username").(string)
+	password := d.Get("password").(string)
+
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
+
+	if (username != "") && (password != "") {
+		config := Config{
+			URL:      d.Get("url").(string),
+			Username: d.Get("username").(string),
+			Password: d.Get("password").(string),
+			Provider: d.Get("provider").(string),
+			Insecure: d.Get("insecure").(bool),
+			Timeout:  20,
+			Debug:    d.Get("debug").(bool),
+		}
+		c, err := config.Client()
+		if err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Unable to create Appgate client",
+				Detail:   "Unable to authenticate user for authenticated Appgate client",
+			})
+
+			return nil, diags
+		}
+
+		return c, diags
 	}
-	return config.Client()
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "Using unauthenicated Appgate client",
+		Detail:   "Appgate client is unauthenicated. Provide user credentials to access restricted resources.",
+	})
+
+	return nil, diags
 }
