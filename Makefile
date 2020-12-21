@@ -1,10 +1,13 @@
-VERSION=$$(cat VERSION)
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
-BIN_NAME=terraform-provider-appgate_${VERSION}
+BIN_NAME=terraform-provider-appgate
 TEST?=./appgate
 GORELEASER_VERSION = 0.143.0
 ACCTEST_PARALLELISM?=20
 TEST_COUNT?=1
+GOOS=$(shell go env GOOS)
+GOARCH=$(shell go env GOARCH)
+INSTALL_PATH=~/.terraform.d/plugins/${GOOS}_${GOARCH}
+
 
 build:
 	go build -o $(BIN_NAME)
@@ -21,10 +24,9 @@ test:
 testacc: fmtcheck
 	TF_ACC=1 go test $(TEST) -v -count $(TEST_COUNT) -parallel $(ACCTEST_PARALLELISM) $(TESTARGS) -timeout 120m
 
-example: build
-	@mv $(BIN_NAME) examples/
-	@cp examples/$(BIN_NAME) examples/aws/appgate-resources
-
+dev:
+	mkdir -p $(INSTALL_PATH)
+	go build -o $(INSTALL_PATH)/terraform-provider-appgate main.go
 
 
 bin/goreleaser: bin/goreleaser-${GORELEASER_VERSION}
