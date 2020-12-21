@@ -33,7 +33,7 @@ func TestAccAppgateApplianceCustomizationDataSource(t *testing.T) {
                 `, rName, rName),
 				// Because of the `depends_on` in the datasource, the plan cannot be empty.
 				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				//ExpectNonEmptyPlan: true,
+				ExpectNonEmptyPlan: true,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.appgate_appliance_customization.test", "appliance_customization_name"),
 					resource.TestCheckResourceAttrSet("data.appgate_appliance_customization.test", "appliance_customization_id"),
