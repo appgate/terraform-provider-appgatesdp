@@ -19,7 +19,7 @@ The current version of the master branch supports Appgate appliance API version 
 Requirements
 ------------
 
-- [Terraform](https://www.terraform.io/downloads.html) v0.12.19
+- [Terraform](https://www.terraform.io/downloads.html) v0.12.26
 - [Go](https://golang.org/doc/install) 1.13 (to build the provider plugin)
 
 
