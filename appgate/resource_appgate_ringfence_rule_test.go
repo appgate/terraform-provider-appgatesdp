@@ -35,8 +35,8 @@ func TestAccRingfenceRuleBasicICMP(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 				),
 			},
 			{
@@ -102,8 +102,8 @@ func TestAccRingfenceRuleBasicTCP(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.2", "1024-2048"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.2876187004", "api-created"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 				),
 			},
 			{

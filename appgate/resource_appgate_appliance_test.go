@@ -1144,8 +1144,8 @@ func TestAccApplianceConnector(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1337"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.1314595521", "api-test-created"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-test-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 				),
 			},
 			{
