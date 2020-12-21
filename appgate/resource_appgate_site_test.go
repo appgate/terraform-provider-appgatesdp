@@ -408,7 +408,6 @@ func testAccCheckSiteExists(resource string) resource.TestCheckFunc {
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No Record ID is set")
 		}
-		fmt.Println(rs.Primary)
 
 		_, _, err := api.SitesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
 		if err != nil {
