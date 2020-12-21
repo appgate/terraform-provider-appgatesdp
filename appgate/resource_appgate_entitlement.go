@@ -10,15 +10,16 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceAppgateEntitlement() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAppgateEntitlementRuleCreate,
-		Read:   resourceAppgateEntitlementRuleRead,
-		Update: resourceAppgateEntitlementRuleUpdate,
-		Delete: resourceAppgateEntitlementRuleDelete,
+		CreateContext: resourceAppgateEntitlementRuleCreate,
+		ReadContext:   resourceAppgateEntitlementRuleRead,
+		UpdateContext: resourceAppgateEntitlementRuleUpdate,
+		DeleteContext: resourceAppgateEntitlementRuleDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -92,9 +93,8 @@ func resourceAppgateEntitlement() *schema.Resource {
 			},
 
 			"actions": {
-				Type:       schema.TypeSet,
-				Required:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:     schema.TypeList,
+				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -181,7 +181,10 @@ func resourceAppgateEntitlement() *schema.Resource {
 	}
 }
 
-func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
+
 	log.Printf("[DEBUG] Creating Entitlement: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.EntitlementsApi
@@ -201,15 +204,15 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 	if c, ok := d.GetOk("conditions"); ok {
 		conditions, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetConditions(conditions)
 	}
 
-	if c, ok := d.GetOk("actions"); ok {
-		actions, err := readConditionActionsFromConfig(c.(*schema.Set).List())
+	if v, ok := d.GetOk("actions"); ok {
+		actions, err := readConditionActionsFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetActions(actions)
 	}
@@ -217,7 +220,7 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 	if v, ok := d.GetOk("app_shortcuts"); ok {
 		appShortcuts, err := readAppShortcutFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetAppShortcuts(appShortcuts)
 	}
@@ -225,7 +228,7 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 	if v, ok := d.GetOk("app_shortcut_scripts"); ok {
 		scripts, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetAppShortcutScripts(scripts)
 	}
@@ -234,52 +237,56 @@ func resourceAppgateEntitlementRuleCreate(d *schema.ResourceData, meta interface
 	request = request.Entitlement(*args)
 	ent, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create entitlement %+v", prettyPrintAPIError(err))
+		return diag.FromErr(fmt.Errorf("Could not create entitlement %+v", prettyPrintAPIError(err)))
 	}
 
 	d.SetId(ent.Id)
 	d.Set("entitlement_id", ent.Id)
-	return resourceAppgateEntitlementRuleRead(d, meta)
+	resourceAppgateEntitlementRuleRead(ctx, d, meta)
+
+	return diags
 }
 
-func resourceAppgateEntitlementRuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
+
 	log.Printf("[DEBUG] Reading Entitlement Name: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Reading Entitlement id: %+v", d.Id())
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.EntitlementsApi
-	ctx := context.TODO()
+
 	request := api.EntitlementsIdGet(ctx, d.Id())
 	entitlement, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		// TODO check if 404
 		d.SetId("")
-		return fmt.Errorf("Failed to read Entitlement, %+v", err)
+		return diag.FromErr(fmt.Errorf("Failed to read Entitlement, %+v", err))
 	}
 	d.SetId(entitlement.Id)
 	d.Set("entitlement_id", entitlement.Id)
 	d.Set("name", entitlement.Name)
 	d.Set("disabled", entitlement.Disabled)
 	d.Set("notes", entitlement.Notes)
-	d.Set("actions", entitlement.Actions)
 	d.Set("conditions", entitlement.Conditions)
 	d.Set("condition_logic", entitlement.ConditionLogic)
 	d.Set("tags", entitlement.Tags)
 	d.Set("site", entitlement.Site)
 	if entitlement.AppShortcuts != nil {
 		if err = d.Set("app_shortcuts", flattenEntitlementAppShortcut(*entitlement.AppShortcuts)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 	if entitlement.Actions != nil {
 		if err = d.Set("actions", flattenEntitlementActions(entitlement.Actions)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 	if v, ok := entitlement.GetAppShortcutScriptsOk(); ok {
 		d.Set("app_shortcut_scripts", *v)
 	}
 
-	return nil
+	return diags
 }
 
 func flattenEntitlementAppShortcut(in []openapi.AppShortcut) []map[string]interface{} {
@@ -323,16 +330,16 @@ func flattenEntitlementActionMonitor(in *openapi.EntitlementAllOfMonitor) []inte
 	return []interface{}{m}
 }
 
-func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Updating Entitlement: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Updating Entitlement id: %+v", d.Id())
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.EntitlementsApi
-	ctx := context.TODO()
+
 	request := api.EntitlementsIdGet(ctx, d.Id())
 	orginalEntitlment, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Entitlement while updating, %+v", err)
+		return diag.FromErr(fmt.Errorf("Failed to read Entitlement while updating, %+v", err))
 	}
 
 	if d.HasChange("name") {
@@ -363,7 +370,7 @@ func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface
 		_, n := d.GetChange("conditions")
 		conditions, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		orginalEntitlment.SetConditions(conditions)
 	}
@@ -372,7 +379,7 @@ func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface
 		_, n := d.GetChange("actions")
 		actions, err := readConditionActionsFromConfig(n.(*schema.Set).List())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		orginalEntitlment.SetActions(actions)
 	}
@@ -381,7 +388,7 @@ func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface
 		_, n := d.GetChange("app_shortcut")
 		appShortcut, err := readAppShortcutFromConfig(n.(*schema.Set).List())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		orginalEntitlment.SetAppShortcuts(appShortcut)
 	}
@@ -390,7 +397,7 @@ func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface
 		_, v := d.GetChange("app_shortcut_scripts")
 		scripts, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		orginalEntitlment.SetAppShortcutScripts(scripts)
 	}
@@ -399,13 +406,15 @@ func resourceAppgateEntitlementRuleUpdate(d *schema.ResourceData, meta interface
 	req = req.Entitlement(orginalEntitlment)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Entitlement %+v", prettyPrintAPIError(err))
+		return diag.FromErr(fmt.Errorf("Could not update Entitlement %+v", prettyPrintAPIError(err)))
 	}
 
-	return resourceAppgateEntitlementRuleRead(d, meta)
+	return resourceAppgateEntitlementRuleRead(ctx, d, meta)
 }
 
-func resourceAppgateEntitlementRuleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateEntitlementRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Delete Entitlement: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Reading Entitlement id: %+v", d.Id())
 	token := meta.(*Client).Token
@@ -415,10 +424,10 @@ func resourceAppgateEntitlementRuleDelete(d *schema.ResourceData, meta interface
 
 	_, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not delete Entitlement %+v", prettyPrintAPIError(err))
+		return diag.FromErr(fmt.Errorf("Could not delete Entitlement %+v", prettyPrintAPIError(err)))
 	}
 	d.SetId("")
-	return nil
+	return diags
 }
 
 func readConditionActionsFromConfig(actions []interface{}) ([]openapi.EntitlementAllOfActions, error) {
