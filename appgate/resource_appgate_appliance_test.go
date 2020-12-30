@@ -532,7 +532,7 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 func testAccCheckApplianceBasicController(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
-  site_name = "ftb_aws_use2"
+  site_name = "Default site"
 }
 
 resource "appgate_appliance" "test_controller" {
@@ -726,7 +726,7 @@ resource "appgate_appliance" "test_controller" {
 func testAccCheckApplianceBasicControllerUpdate(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
-  site_name = "ftb_aws_use2"
+  site_name = "Default site"
 }
 
 resource "appgate_appliance" "test_controller" {
@@ -960,7 +960,7 @@ resource "appgate_appliance" "test_controller" {
 func testAccCheckApplianceBasicControllerDisableDelete(rName string) string {
 	return fmt.Sprintf(`
 data "appgate_site" "default_site" {
-  site_name = "ftb_aws_use2"
+  site_name = "Default site"
 }
 
 resource "appgate_appliance" "test_controller" {
