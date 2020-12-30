@@ -2016,7 +2016,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("snmp_server") {
-		_, n := d.GetChange("ssh_server")
+		_, n := d.GetChange("snmp_server")
 		srv, err := readSNMPServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
