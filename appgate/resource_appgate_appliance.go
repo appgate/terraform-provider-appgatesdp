@@ -1429,7 +1429,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if _, o := d.GetOkExists("ssh_server"); o {
 		v := appliance.GetSshServer()
 		sshServer := make(map[string]interface{})
-		sshServer["enabled"] = true
+		sshServer["enabled"] = v.GetEnabled()
 		sshServer["port"] = v.GetPort()
 		sshServer["allow_sources"] = v.GetAllowSources()
 		sshServer["password_authentication"] = v.GetPasswordAuthentication()
@@ -1456,7 +1456,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if _, o := d.GetOkExists("healthcheck_server"); o {
 		v := appliance.GetHealthcheckServer()
 		healthSrv := make(map[string]interface{})
-		healthSrv["enabled"] = true
+		healthSrv["enabled"] = v.GetEnabled()
 		healthSrv["port"] = v.GetPort()
 		healthSrv["allow_sources"] = v.GetAllowSources()
 
@@ -1468,7 +1468,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if _, o := d.GetOkExists("prometheus_exporter"); o {
 		v := appliance.GetPrometheusExporter()
 		exporter := make(map[string]interface{})
-		exporter["enabled"] = true
+		exporter["enabled"] = v.GetEnabled()
 		exporter["port"] = v.GetPort()
 		exporter["allow_sources"] = v.GetAllowSources()
 
@@ -2016,7 +2016,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("snmp_server") {
-		_, n := d.GetChange("ssh_server")
+		_, n := d.GetChange("snmp_server")
 		srv, err := readSNMPServerFromConfig(n.([]interface{}))
 		if err != nil {
 			return err
