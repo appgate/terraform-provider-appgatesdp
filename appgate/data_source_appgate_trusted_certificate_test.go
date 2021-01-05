@@ -44,7 +44,7 @@ func TestAccAppgateTrustedCertificateDataSource(t *testing.T) {
                 `, rName, rName),
 				// Because of the `depends_on` in the datasource, the plan cannot be empty.
 				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				ExpectNonEmptyPlan: true,
+				//ExpectNonEmptyPlan: true,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.appgate_trusted_certificate.testdd", "trusted_certificate_name"),
 					resource.TestCheckResourceAttrSet("data.appgate_trusted_certificate.testdd", "trusted_certificate_id"),

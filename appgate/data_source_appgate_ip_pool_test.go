@@ -37,7 +37,7 @@ func TestAccAppgateIPPoolDataSource(t *testing.T) {
                 `, rName, rName),
 				// Because of the `depends_on` in the datasource, the plan cannot be empty.
 				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				ExpectNonEmptyPlan: true,
+				//ExpectNonEmptyPlan: true,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.appgate_ip_pool.test_ip_pool_data_source", "ip_pool_name"),
 					resource.TestCheckResourceAttrSet("data.appgate_ip_pool.test_ip_pool_data_source", "ip_pool_id"),
