@@ -208,9 +208,9 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "13371"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "tags.4033392763", "api-test-created-updated"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "tags.1708413170", "new"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-test-created-updated"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "new"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 
 					resource.TestCheckResourceAttr(resourceName, "ntp.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.#", "3"),
@@ -235,10 +235,10 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.1696055461.dns", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.1696055461.enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.1696055461.ntp", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.1696055461.routers", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.address", "10.10.10.10"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.hostname", "appgate-updated.company.com"),
@@ -250,49 +250,49 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.4288886452.dns", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.4288886452.enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.4288886452.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.156169847.dns", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.156169847.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.156169847.ntp", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.156169847.routers", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.dns", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.routers", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.4288886452.dns", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.4288886452.enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.4288886452.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.ntp", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.name", "eth1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.156169847.dns", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.156169847.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.156169847.ntp", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.156169847.routers", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.0.dns", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.dhcp.0.routers", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv4.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.dhcp.4288886452.dns", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.dhcp.4288886452.enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.dhcp.4288886452.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.dhcp.0.ntp", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.name", "eth2"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.252265981", "aa-updated.com"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.442206848", "new.com"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa-updated.com"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.1", "new.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.251826590", "1.1.1.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.2112610058", "8.8.4.4"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1048647934", "2.2.2.2"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "2.2.2.2"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.2", "8.8.4.4"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.0.address", "1.0.0.0"),
@@ -397,8 +397,8 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "13371"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "tags.4033392763", "api-test-created-updated"),
-					resource.TestCheckResourceAttr(resourceName, "tags.535570215", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-test-created-updated"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 
 					resource.TestCheckResourceAttr(resourceName, "ntp.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.#", "1"),
@@ -412,31 +412,31 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.156169847.dns", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.156169847.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.156169847.ntp", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.156169847.routers", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.4288886452.dns", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.4288886452.enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.4288886452.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.156169847.dns", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.156169847.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.156169847.ntp", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.156169847.routers", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.dns", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.routers", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.4288886452.dns", "true"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.4288886452.enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.4288886452.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.ntp", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.name", "eth1"),
 
@@ -879,7 +879,7 @@ resource "appgate_appliance" "test_controller" {
   controller {
     enabled = true
   }
-  
+
   snmp_server {
     enabled    = true
     tcp_port   = 160
@@ -997,7 +997,7 @@ resource "appgate_appliance" "test_controller" {
   }
 
   networking {
-    
+
     nics {
       enabled = true
       name    = "eth0"
@@ -1039,7 +1039,7 @@ resource "appgate_appliance" "test_controller" {
     }
 
   }
-  
+
   controller {
     enabled = false
   }
@@ -1069,7 +1069,7 @@ resource "appgate_appliance" "test_controller" {
 
   ping {
   }
-  
+
   log_forwarder {
     enabled = false
   }
