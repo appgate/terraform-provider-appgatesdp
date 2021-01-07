@@ -9,18 +9,17 @@ import (
 
 func TestAccAppgateAdministrativeRoleDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	resource.Test(t, resource.TestCase{
+	dataSourceName := "data.appgate_administrative_role.test_administrative_role_ds"
+	resourceName := "appgate_administrative_role.test_administrative_role"
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: administrativeRoleDataSourceConfig(rName),
-				// Because of the `depends_on` in the datasource, the plan cannot be empty.
-				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				//ExpectNonEmptyPlan: true,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_administrative_role.test_administrative_role_ds", "administrative_role_name"),
-					resource.TestCheckResourceAttrSet("data.appgate_administrative_role.test_administrative_role_ds", "administrative_role_id"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "administrative_role_name", resourceName, "name"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "administrative_role_id", resourceName, "id"),
 				),
 			},
 		},
@@ -42,9 +41,6 @@ resource "appgate_administrative_role" "test_administrative_role" {
     }
 }
 data "appgate_administrative_role" "test_administrative_role_ds" {
-    depends_on = [
-        appgate_administrative_role.test_administrative_role,
-    ]
-    administrative_role_name = "%s"
-}`, rName, rName)
+    administrative_role_id = appgate_administrative_role.test_administrative_role.id
+}`, rName)
 }

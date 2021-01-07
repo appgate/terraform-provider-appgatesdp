@@ -9,7 +9,9 @@ import (
 
 func TestAccAppgateTrustedCertificateDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	resource.Test(t, resource.TestCase{
+	dataSourceName := "data.appgate_trusted_certificate.testdd"
+	resourceName := "appgate_trusted_certificate.test_data_trusted_certificate"
+	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
@@ -36,18 +38,12 @@ func TestAccAppgateTrustedCertificateDataSource(t *testing.T) {
 				EOF
 				}
 				data "appgate_trusted_certificate" "testdd" {
-                    depends_on = [
-                        appgate_trusted_certificate.test_data_trusted_certificate,
-                    ]
-                    trusted_certificate_name = "%s"
+                    trusted_certificate_id = appgate_trusted_certificate.test_data_trusted_certificate.id
                 }
-                `, rName, rName),
-				// Because of the `depends_on` in the datasource, the plan cannot be empty.
-				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				//ExpectNonEmptyPlan: true,
+                `, rName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_trusted_certificate.testdd", "trusted_certificate_name"),
-					resource.TestCheckResourceAttrSet("data.appgate_trusted_certificate.testdd", "trusted_certificate_id"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "trusted_certificate_name", resourceName, "name"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "trusted_certificate_id", resourceName, "id"),
 				),
 			},
 		},

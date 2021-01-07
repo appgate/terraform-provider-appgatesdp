@@ -14,14 +14,14 @@ func dataSourceAppgateIPPool() *schema.Resource {
 		Read: dataSourceAppgateIPPoolRead,
 		Schema: map[string]*schema.Schema{
 			"ip_pool_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"ip_pool_name"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"ip_pool_name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"ip_pool_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}

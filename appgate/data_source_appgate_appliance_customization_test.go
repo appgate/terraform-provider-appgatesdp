@@ -9,7 +9,9 @@ import (
 
 func TestAccAppgateApplianceCustomizationDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	resource.Test(t, resource.TestCase{
+	dataSourceName := "data.appgate_appliance_customization.test"
+	resourceName := "appgate_appliance_customization.test_appliance_customization"
+	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
@@ -25,18 +27,12 @@ func TestAccAppgateApplianceCustomizationDataSource(t *testing.T) {
                     ]
                 }
                 data "appgate_appliance_customization" "test" {
-                    depends_on = [
-                        appgate_appliance_customization.test_appliance_customization,
-                    ]
-                    appliance_customization_name = "%s"
+                    appliance_customization_id = appgate_appliance_customization.test_appliance_customization.id
                 }
-                `, rName, rName),
-				// Because of the `depends_on` in the datasource, the plan cannot be empty.
-				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				//ExpectNonEmptyPlan: true,
+                `, rName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_appliance_customization.test", "appliance_customization_name"),
-					resource.TestCheckResourceAttrSet("data.appgate_appliance_customization.test", "appliance_customization_id"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "appliance_customization_name", resourceName, "name"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "appliance_customization_id", resourceName, "id"),
 				),
 			},
 		},

@@ -9,6 +9,8 @@ import (
 
 func TestAccAppgateIPPoolDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	dataSourceName := "data.appgate_ip_pool.test_ip_pool_data_source"
+	resourceName := "appgate_ip_pool.test_data_ip_pool"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -29,18 +31,12 @@ func TestAccAppgateIPPoolDataSource(t *testing.T) {
                     ]
                 }
 				data "appgate_ip_pool" "test_ip_pool_data_source" {
-                    depends_on = [
-                        appgate_ip_pool.test_data_ip_pool,
-                    ]
-                    ip_pool_name = "%s"
+                    ip_pool_id = appgate_ip_pool.test_data_ip_pool.id
                 }
-                `, rName, rName),
-				// Because of the `depends_on` in the datasource, the plan cannot be empty.
-				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				//ExpectNonEmptyPlan: true,
+                `, rName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_ip_pool.test_ip_pool_data_source", "ip_pool_name"),
-					resource.TestCheckResourceAttrSet("data.appgate_ip_pool.test_ip_pool_data_source", "ip_pool_id"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "ip_pool_name", resourceName, "name"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "ip_pool_id", resourceName, "id"),
 				),
 			},
 		},

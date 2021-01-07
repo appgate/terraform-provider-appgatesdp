@@ -9,7 +9,9 @@ import (
 
 func TestAccAppgateMfaProviderDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	resource.Test(t, resource.TestCase{
+	dataSourceName := "data.appgate_mfa_provider.test_mfa_ds"
+	resourceName := "appgate_mfa_provider.test_mfa_provider"
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -30,19 +32,14 @@ func TestAccAppgateMfaProviderDataSource(t *testing.T) {
 					    "api-created"
 					  ]
 					}
-					data "appgate_mfa_provider" "test" {
-					  depends_on = [
-					    appgate_mfa_provider.test_mfa_provider,
-					  ]
-					  mfa_provider_name = "%s"
+					data "appgate_mfa_provider" "test_mfa_ds" {
+					  mfa_provider_id = appgate_mfa_provider.test_mfa_provider.id
 					}
-                `, rName, rName),
-				// Because of the `depends_on` in the datasource, the plan cannot be empty.
-				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				//ExpectNonEmptyPlan: true,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_mfa_provider.test", "mfa_provider_name"),
-					resource.TestCheckResourceAttrSet("data.appgate_mfa_provider.test", "mfa_provider_id"),
+                `, rName),
+
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair(dataSourceName, "mfa_provider_name", resourceName, "name"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "mfa_provider_id", resourceName, "id"),
 				),
 			},
 		},

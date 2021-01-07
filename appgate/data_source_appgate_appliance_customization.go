@@ -15,14 +15,14 @@ func dataSourceAppgateApplianceCustomization() *schema.Resource {
 		Read: dataSourceAppgateApplianceCustomizationRead,
 		Schema: map[string]*schema.Schema{
 			"appliance_customization_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"appliance_customization_name"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"appliance_customization_name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"appliance_customization_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}

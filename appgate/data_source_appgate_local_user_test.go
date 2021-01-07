@@ -9,6 +9,8 @@ import (
 
 func TestAccAppgateLocalUserDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	dataSourceName := "data.appgate_local_user.testdslu"
+	resourceName := "appgate_local_user.new_user_for_ds"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -30,18 +32,13 @@ func TestAccAppgateLocalUserDataSource(t *testing.T) {
                     ]
                 }
                 data "appgate_local_user" "testdslu" {
-                    depends_on = [
-                        appgate_local_user.new_user_for_ds,
-                    ]
-                    local_user_name = "%s"
+                    local_user_id = appgate_local_user.new_user_for_ds.local_user_id
                 }
-                `, rName, rName),
-				// Because of the `depends_on` in the datasource, the plan cannot be empty.
-				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				//ExpectNonEmptyPlan: true,
+                `, rName),
+
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_local_user.testdslu", "local_user_name"),
-					resource.TestCheckResourceAttrSet("data.appgate_local_user.testdslu", "local_user_id"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "local_user_name", resourceName, "name"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "local_user_id", resourceName, "id"),
 				),
 			},
 		},

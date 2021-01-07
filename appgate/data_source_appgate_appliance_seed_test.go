@@ -9,17 +9,17 @@ import (
 
 func TestAccAppgateApplianceSeedDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	dataSourceName := "data.appgate_appliance_seed.test_gateway_seed_file"
+	resourceName := "appgate_appliance.new_test_gateway"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSeedTest(rName),
-				// Because of the `depends_on` in the datasource, the plan cannot be empty.
-				// See https://www.terraform.io/docs/configuration/data-sources.html#data-resource-dependencies
-				// ExpectNonEmptyPlan: true,
+
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_appliance_seed.test_gateway_seed_file", "appliance_id"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "appliance_id", resourceName, "id"),
 					resource.TestCheckResourceAttrSet("data.appgate_appliance_seed.test_gateway_seed_file", "latest_version"),
 					resource.TestCheckResourceAttrSet("data.appgate_appliance_seed.test_gateway_seed_file", "password"),
 					resource.TestCheckResourceAttrSet("data.appgate_appliance_seed.test_gateway_seed_file", "seed_file"),
@@ -83,9 +83,6 @@ resource "appgate_appliance" "new_test_gateway" {
 
 
 data "appgate_appliance_seed" "test_gateway_seed_file" {
-  depends_on = [
-    appgate_appliance.new_test_gateway,
-  ]
   appliance_id   = appgate_appliance.new_test_gateway.id
   password       = "cz"
   latest_version = true

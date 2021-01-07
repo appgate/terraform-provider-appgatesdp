@@ -15,14 +15,14 @@ func dataSourceAppgateTrustedCertificate() *schema.Resource {
 		Read: dataSourceAppgateTrustedCertificateRead,
 		Schema: map[string]*schema.Schema{
 			"trusted_certificate_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"trusted_certificate_name"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"trusted_certificate_name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"trusted_certificate_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -49,7 +49,7 @@ func dataSourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interf
 	if reqErr != nil {
 		return reqErr
 	}
-	log.Printf("[DEBUG] Got trusted certificate: %+v", trustedCert)
+	log.Printf("[DEBUG] Got trusted certificate: %+v", trustedCert.Id)
 
 	d.SetId(trustedCert.Id)
 	d.Set("trusted_certificate_name", trustedCert.Name)

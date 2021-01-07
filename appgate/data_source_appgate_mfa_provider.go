@@ -15,14 +15,14 @@ func dataSourceAppgateMfaProvider() *schema.Resource {
 		Read: dataSourceAppgateMfaProviderRead,
 		Schema: map[string]*schema.Schema{
 			"mfa_provider_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"mfa_provider_name"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"mfa_provider_name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"mfa_provider_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -49,7 +49,7 @@ func dataSourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) 
 	if reqErr != nil {
 		return reqErr
 	}
-	log.Printf("[DEBUG] Got MFA provider: %+v", provider)
+	log.Printf("[DEBUG] Got MFA provider: %+v", provider.Id)
 
 	d.SetId(provider.Id)
 	d.Set("mfa_provider_name", provider.Name)

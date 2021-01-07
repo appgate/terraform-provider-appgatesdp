@@ -7,28 +7,29 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceAppgateAdministrativeRole() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAppgateAdministrativeRoleRead,
+		ReadContext: dataSourceAppgateAdministrativeRoleRead,
 		Schema: map[string]*schema.Schema{
 			"administrative_role_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"administrative_role_name"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"administrative_role_name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"administrative_role_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
 }
 
-func dataSourceAppgateAdministrativeRoleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Data source Administrative role")
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.AdministrativeRolesApi
@@ -37,7 +38,7 @@ func dataSourceAppgateAdministrativeRoleRead(d *schema.ResourceData, meta interf
 	adminName, nok := d.GetOk("administrative_role_name")
 
 	if !iok && !nok {
-		return fmt.Errorf("please provide one of administrative_role_id or administrative_role_name attributes")
+		return diag.Errorf("please provide one of administrative_role_id or administrative_role_name attributes")
 	}
 	var reqErr error
 	var admin *openapi.AdministrativeRole
@@ -47,7 +48,7 @@ func dataSourceAppgateAdministrativeRoleRead(d *schema.ResourceData, meta interf
 		admin, reqErr = findAdministrativeRoleByName(api, adminName.(string), token)
 	}
 	if reqErr != nil {
-		return reqErr
+		return diag.FromErr(reqErr)
 	}
 	log.Printf("[DEBUG] Got Administrative role: %+v", admin)
 

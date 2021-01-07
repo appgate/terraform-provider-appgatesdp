@@ -15,14 +15,14 @@ func dataSourceAppgateLocalUser() *schema.Resource {
 		Read: dataSourceAppgateLocalUserRead,
 		Schema: map[string]*schema.Schema{
 			"local_user_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"local_user_name"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"local_user_name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"local_user_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
