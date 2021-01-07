@@ -4,6 +4,6 @@ go 1.13
 
 require (
 	github.com/appgate/sdp-api-client-go v0.0.0-20201027095345-9088e5fdad40
-	github.com/google/uuid v1.1.1
+	github.com/google/uuid v1.1.4
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.0
 )
