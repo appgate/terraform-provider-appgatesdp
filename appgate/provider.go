@@ -61,6 +61,7 @@ func Provider() *schema.Provider {
 			"appgate_local_user":              dataSourceAppgateLocalUser(),
 			"appgate_identity_provider":       dataSourceAppgateIdentityProvider(),
 			"appgate_appliance_seed":          dataSourceAppgateApplianceSeed(),
+			"appgate_certificate_authority":   dataSourceAppgateCertificateAuthority(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgate_appliance":                          resourceAppgateAppliance(),
