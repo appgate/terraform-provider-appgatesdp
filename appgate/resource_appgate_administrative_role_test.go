@@ -23,9 +23,29 @@ func TestAccadministrativeRoleBasic(t *testing.T) {
 					testAccCheckadministrativeRoleExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "hello world"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.0", "cc"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.1", "dd"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.all", "false"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "Entitlement"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "Create"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.default_tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.all", "false"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.0", "aa"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.1", "bb"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.target", "Appliance"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.type", "View"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
 				),
@@ -48,9 +68,16 @@ resource "appgate_administrative_role" "test_administrative_role" {
         "terraform"
     ]
     privileges {
-        type   = "Create"
-        target = "Entitlement"
-        default_tags = ["api-created"]
+        type         = "Create"
+        target       = "Entitlement"
+        default_tags = ["cc", "dd"]
+    }
+    privileges {
+        type   = "View"
+        target = "Appliance"
+        scope {
+        tags = ["aa", "bb"]
+        }
     }
 }
 `, rName)

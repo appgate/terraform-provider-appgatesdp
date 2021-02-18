@@ -2,6 +2,7 @@ package appgate
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -11,6 +12,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+// errDefaultTagsError is used when trying to use default tags on priviliges that does not allow it.
+// The items in this list would be added automatically to the newly created objects' tags.
+// Only applicable on "Create" type and targets with tagging capability.
+// This field must be omitted if not applicable.
+var errDefaultTagsError = errors.New("default tags are only applicable on \"Create\" type and targets with tagging capability")
 
 func resourceAppgateAdministrativeRole() *schema.Resource {
 	return &schema.Resource{
@@ -59,7 +66,7 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 
 			"privileges": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -146,23 +153,27 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 							Type:     schema.TypeList,
 							MaxItems: 1,
 							Optional: true,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"all": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Computed: true,
 									},
 
 									"ids": {
 										Type:     schema.TypeList,
 										Optional: true,
+										Computed: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 
 									"tags": {
 										Type:     schema.TypeList,
 										Optional: true,
+										Computed: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 								},
@@ -170,8 +181,9 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 						},
 
 						"default_tags": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
+							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
@@ -259,10 +271,16 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 			}
 		}
 
-		if v := raw["default_tags"]; len(v.([]interface{})) > 0 {
-			tags, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if v, ok := raw["default_tags"]; ok {
+			tags, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, fmt.Errorf("Failed to resolve privileges default tags: %+v", err)
+			}
+			// The items in this list would be added automatically to the newly created objects' tags.
+			// Only applicable on "Create" type and targets with tagging capability.
+			// This field must be omitted if not applicable.
+			if a.GetType() != "Create" && len(tags) > 0 {
+				return result, fmt.Errorf("You used %s, %s", a.GetType(), errDefaultTagsError)
 			}
 			a.SetDefaultTags(tags)
 		}
@@ -290,7 +308,11 @@ func resourceAppgateAdministrativeRoleRead(d *schema.ResourceData, meta interfac
 	d.Set("tags", administrativeRole.Tags)
 
 	if administrativeRole.Privileges != nil {
-		if err = d.Set("privileges", flattenAdministrativeRolePrivileges(administrativeRole.Privileges)); err != nil {
+		privileges, err := flattenAdministrativeRolePrivileges(administrativeRole.Privileges)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("privileges", privileges); err != nil {
 			return fmt.Errorf("Failed to read privileges %s", err)
 		}
 	}
@@ -298,7 +320,7 @@ func resourceAppgateAdministrativeRoleRead(d *schema.ResourceData, meta interfac
 	return nil
 }
 
-func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePrivilege) []map[string]interface{} {
+func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePrivilege) ([]map[string]interface{}, error) {
 	var out = make([]map[string]interface{}, len(privileges), len(privileges))
 	for i, v := range privileges {
 		m := make(map[string]interface{})
@@ -312,12 +334,18 @@ func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePriv
 			m["scope"] = flattenAdministrativeRolePrivilegesScope(*val)
 		}
 		if val, ok := v.GetDefaultTagsOk(); ok {
+			// The items in this list would be added automatically to the newly created objects' tags.
+			// Only applicable on "Create" type and targets with tagging capability.
+			// This field must be omitted if not applicable.
+			if m["type"] != "Create" {
+				return out, fmt.Errorf("You used %s, %s", m["type"], errDefaultTagsError)
+			}
 			m["default_tags"] = *val
 		}
 
 		out[i] = m
 	}
-	return out
+	return out, nil
 }
 
 func flattenAdministrativeRolePrivilegesScope(scope openapi.AdministrativePrivilegeScope) []interface{} {
@@ -331,15 +359,7 @@ func flattenAdministrativeRolePrivilegesScope(scope openapi.AdministrativePrivil
 	if val, ok := scope.GetTagsOk(); ok {
 		m["tags"] = *val
 	}
-	// the response body always include 1 scope
-	// example:
-	// { "scope":{"all":false,"ids":[],"tags":[]} }
-	// but if we dont have it defined in our state, we should not add it now either.
-	if len(m["tags"].([]string)) > 0 && len(m["ids"].([]string)) > 0 {
-		return []interface{}{m}
-	}
-
-	return []interface{}{}
+	return []interface{}{m}
 }
 
 func resourceAppgateAdministrativeRoleUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -366,8 +386,8 @@ func resourceAppgateAdministrativeRoleUpdate(d *schema.ResourceData, meta interf
 	}
 
 	if d.HasChange("privileges") {
-		_, n := d.GetChange("privileges")
-		privileges, err := readAdminIstrativeRolePrivileges(n.([]interface{}))
+		_, v := d.GetChange("privileges")
+		privileges, err := readAdminIstrativeRolePrivileges(v.([]interface{}))
 		if err != nil {
 			return fmt.Errorf("Failed to administrative role privileges %s", err)
 		}
