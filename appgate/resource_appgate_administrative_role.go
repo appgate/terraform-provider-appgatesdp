@@ -153,7 +153,17 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 							Type:     schema.TypeList,
 							MaxItems: 1,
 							Optional: true,
-							Computed: true,
+							DefaultFunc: func() (interface{}, error) {
+								var out = make([]map[string]interface{}, 0, 0)
+								m := make(map[string]interface{})
+								m["all"] = false
+								emptyList := make([]string, 0)
+								m["ids"] = emptyList
+								m["tags"] = emptyList
+								out = append(out, m)
+								return out, nil
+							},
+							DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
@@ -166,15 +176,21 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 									"ids": {
 										Type:     schema.TypeList,
 										Optional: true,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										DefaultFunc: func() (interface{}, error) {
+											emptyList := make([]string, 0)
+											return emptyList, nil
+										},
+										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 
 									"tags": {
 										Type:     schema.TypeList,
 										Optional: true,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
+										DefaultFunc: func() (interface{}, error) {
+											emptyList := make([]string, 0)
+											return emptyList, nil
+										},
+										Elem: &schema.Schema{Type: schema.TypeString},
 									},
 								},
 							},
