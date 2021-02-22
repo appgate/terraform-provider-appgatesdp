@@ -37,7 +37,7 @@ Using the provider
 
 Detailed documentation for the Appgate provider can be found in the docs directory, [here](./website/docs).
 
-A detailed example how to deploy Appgate to AWS can be found [here](./examples/aws).
+Examples how to deploy Appgate to cloud platforms can be found [here](https://github.com/appgate/sdp-tf-reference-architecture).
 
 
 
