@@ -264,7 +264,6 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 			if len(rawScopes) > 0 {
 				for _, v := range rawScopes {
 					rawScope := v.(map[string]interface{})
-					log.Printf("[DEBUG] readAdminIstrativeRolePrivileges: Raw SCOPE %+v", rawScope)
 					if v, ok := rawScope["all"]; ok {
 						scope.SetAll(v.(bool))
 					}
@@ -277,15 +276,11 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 						scope.SetIds(ids)
 					}
 					if v, ok := rawScope["tags"]; ok {
-						log.Printf("[DEBUG] readAdminIstrativeRolePrivileges: TAGS CHECK %+v ", v.([]interface{}))
 						tags, err := readArrayOfStringsFromConfig(v.([]interface{}))
 						if err != nil {
 							return result, fmt.Errorf("Failed to resolve privileges scope tags: %+v", err)
 						}
-						log.Printf("[DEBUG] readAdminIstrativeRolePrivileges: Resolved tags %+v", tags)
 						scope.SetTags(tags)
-					} else {
-						log.Printf("[DEBUG] readAdminIstrativeRolePrivileges: ELSE IF")
 					}
 				}
 			}
