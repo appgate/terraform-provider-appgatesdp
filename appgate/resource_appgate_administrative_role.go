@@ -193,8 +193,10 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 						"default_tags": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
+							DefaultFunc: func() (interface{}, error) {
+								return nil, nil
+							},
+							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
