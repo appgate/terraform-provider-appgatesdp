@@ -6,7 +6,10 @@ ACCTEST_PARALLELISM?=20
 TEST_COUNT?=1
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
-INSTALL_PATH=~/.terraform.d/plugins/${GOOS}_${GOARCH}
+HOSTNAME=appgate.com
+NAMESPACE=appgate
+NAME=appgate
+VERSION=0.3.2
 
 
 build:
@@ -24,9 +27,9 @@ test:
 testacc: fmtcheck
 	TF_ACC=1 go test $(TEST) -v -count $(TEST_COUNT) -parallel $(ACCTEST_PARALLELISM) $(TESTARGS) -timeout 120m
 
-dev:
-	mkdir -p $(INSTALL_PATH)
-	go build -o $(INSTALL_PATH)/terraform-provider-appgate main.go
+dev: build
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${GOOS}_${GOARCH}
+	mv ${BIN_NAME} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${GOOS}_${GOARCH}
 
 
 bin/goreleaser: bin/goreleaser-${GORELEASER_VERSION}
