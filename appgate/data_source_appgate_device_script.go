@@ -29,7 +29,7 @@ func dataSourceDeviceScript() *schema.Resource {
 
 func dataSourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) error {
 	token := meta.(*Client).Token
-	api := meta.(*Client).API.DeviceScriptsApi
+	api := meta.(*Client).API.DeviceClaimScriptsApi
 
 	deviceScriptID, iok := d.GetOk("device_script_id")
 	deviceScriptName, nok := d.GetOk("device_script_name")
@@ -54,7 +54,7 @@ func dataSourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func findDeviceScriptByUUID(api *openapi.DeviceScriptsApiService, id string, token string) (*openapi.DeviceScript, error) {
+func findDeviceScriptByUUID(api *openapi.DeviceClaimScriptsApiService, id string, token string) (*openapi.DeviceScript, error) {
 	deviceScript, _, err := api.DeviceScriptsIdGet(context.Background(), id).Authorization(token).Execute()
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func findDeviceScriptByUUID(api *openapi.DeviceScriptsApiService, id string, tok
 	return &deviceScript, nil
 }
 
-func findDeviceScriptByName(api *openapi.DeviceScriptsApiService, name string, token string) (*openapi.DeviceScript, error) {
+func findDeviceScriptByName(api *openapi.DeviceClaimScriptsApiService, name string, token string) (*openapi.DeviceScript, error) {
 	request := api.DeviceScriptsGet(context.Background())
 
 	deviceScript, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
