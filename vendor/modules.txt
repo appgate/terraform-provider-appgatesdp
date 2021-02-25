@@ -12,8 +12,8 @@ cloud.google.com/go/storage
 github.com/agext/levenshtein
 # github.com/apparentlymart/go-textseg v1.0.0
 github.com/apparentlymart/go-textseg/textseg
-# github.com/appgate/sdp-api-client-go v0.0.0-20201027095345-9088e5fdad40
-github.com/appgate/sdp-api-client-go/api/v13/openapi
+# github.com/appgate/sdp-api-client-go v1.0.0
+github.com/appgate/sdp-api-client-go/api/v14/openapi
 # github.com/aws/aws-sdk-go v1.25.3
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/awserr
