@@ -419,13 +419,6 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// ntp_server Deprecated as of 4.3.0, use 'ntp' field instead. NTP servers to synchronize time.
-			// "ntp_servers": {
-			// 	Type:        schema.TypeSet,
-			// 	Description: "Array of tags.",
-			// 	Optional:    true,
-			// 	Elem:        &schema.Schema{Type: schema.TypeString},
-			// },
 			"ntp": {
 				Type:     schema.TypeList,
 				Optional: true,
