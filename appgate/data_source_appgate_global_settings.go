@@ -49,9 +49,9 @@ func dataSourceGlobalSettings() *schema.Resource {
 				Computed:    true,
 			},
 			"has_backup_passphrase": {
-				Type:        schema.TypeBool,
-				Description: "Whether there is a backup passphrase set or not. Deprecated as of 5.0. Use backupApiEnabled instead.",
-				Computed:    true,
+				Type:       schema.TypeBool,
+				Deprecated: "Whether there is a backup passphrase set or not. Deprecated as of 5.0. Use backupApiEnabled instead.",
+				Computed:   true,
 			},
 			"fips": {
 				Type:        schema.TypeBool,
@@ -99,7 +99,6 @@ func dataSourceAppgateGlobalSettingsRead(d *schema.ResourceData, meta interface{
 	d.Set("login_banner_message", settings.GetLoginBannerMessage())
 	d.Set("message_of_the_day", settings.GetMessageOfTheDay())
 	d.Set("backup_api_enabled", settings.GetBackupApiEnabled())
-	d.Set("has_backup_passphrase", settings.GetHasBackupPassphrase())
 	d.Set("fips", settings.GetFips())
 	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())

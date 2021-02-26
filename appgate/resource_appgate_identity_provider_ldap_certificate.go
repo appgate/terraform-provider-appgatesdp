@@ -71,15 +71,6 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	if provider.OnBoarding2FA != nil {
 		args.SetOnBoarding2FA(*provider.OnBoarding2FA)
 	}
-	if provider.OnBoardingType != nil {
-		args.SetOnBoardingType(*provider.OnBoardingType)
-	}
-	if provider.OnBoardingOtpProvider != nil {
-		args.SetOnBoardingOtpProvider(*provider.OnBoardingOtpProvider)
-	}
-	if provider.OnBoardingOtpMessage != nil {
-		args.SetOnBoardingOtpMessage(*provider.OnBoardingOtpMessage)
-	}
 	if provider.InactivityTimeoutMinutes != nil {
 		args.SetInactivityTimeoutMinutes(*provider.InactivityTimeoutMinutes)
 	}

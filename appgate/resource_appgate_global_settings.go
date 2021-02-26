@@ -77,6 +77,7 @@ func resourceGlobalSettings() *schema.Resource {
 				Description: "Whether there is a backup passphrase set or not. Deprecated as of 5.0. Use backupApiEnabled instead.",
 				Optional:    true,
 				Computed:    true,
+				Deprecated:  "Deprecated as of 5.0. Use backupApiEnabled instead.",
 			},
 			"backup_passphrase": {
 				Type:        schema.TypeString,
@@ -142,7 +143,6 @@ func resourceGlobalSettingsRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("login_banner_message", settings.GetLoginBannerMessage())
 	d.Set("message_of_the_day", settings.GetMessageOfTheDay())
 	d.Set("backup_api_enabled", settings.GetBackupApiEnabled())
-	d.Set("has_backup_passphrase", settings.GetHasBackupPassphrase())
 	if val, ok := d.GetOk("backup_passphrase"); ok {
 		d.Set("backup_passphrase", val)
 	} else {
@@ -188,9 +188,6 @@ func resourceGlobalSettingsUpdate(d *schema.ResourceData, meta interface{}) erro
 	}
 	if d.HasChange("backup_api_enabled") {
 		originalsettings.SetBackupApiEnabled(d.Get("backup_api_enabled").(bool))
-	}
-	if d.HasChange("has_backup_passphrase") {
-		originalsettings.SetHasBackupPassphrase(d.Get("has_backup_passphrase").(bool))
 	}
 	if d.HasChange("backup_passphrase") {
 		originalsettings.SetBackupPassphrase(d.Get("backup_passphrase").(string))
