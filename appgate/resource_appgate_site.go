@@ -202,6 +202,12 @@ func resourceAppgateSite() *schema.Resource {
 							Description: "The PKCS12 package to be used for web proxy. The file must be with no password and must include the full certificate chain and a private key. In Base64 format.",
 							Optional:    true,
 						},
+						"web_proxy_verify_upstream_certificate": {
+							Type:        schema.TypeBool,
+							Description: "Gateway will verify the certificate of the endpoints.",
+							Optional:    true,
+							Default:     true,
+						},
 						"ip_access_log_interval_seconds": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -618,6 +624,9 @@ func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 	if v, o := in.GetWebProxyKeyStoreOk(); o != false {
 		m["web_proxy_key_store"] = v
 	}
+	if v, o := in.GetWebProxyVerifyUpstreamCertificateOk(); o != false {
+		m["web_proxy_verify_upstream_certificate"] = v
+	}
 	m["ip_access_log_interval_seconds"] = in.IpAccessLogIntervalSeconds
 	return []interface{}{m}
 }
@@ -960,6 +969,9 @@ func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 		}
 		if v, ok := raw["web_proxy_key_store"]; ok && len(v.(string)) > 0 {
 			result.SetWebProxyKeyStore(v.(string))
+		}
+		if v, ok := raw["web_proxy_verify_upstream_certificate"]; ok {
+			result.SetWebProxyVerifyUpstreamCertificate(v.(bool))
 		}
 		if v, ok := raw["ip_access_log_interval_seconds"]; ok {
 			result.SetIpAccessLogIntervalSeconds(float32(v.(int)))
