@@ -32,6 +32,14 @@ func resourceAppgateLdapCertificateProvider() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			}
+			s["certificate_attribute"] = &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			}
+			s["skip_x509_external_checks"] = &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			}
 			// LDAP Certificate does not use password_warning
 			// wrong in the openapi spec.
 			delete(s, "password_warning")
@@ -145,7 +153,12 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	if v, ok := d.GetOk("certificate_user_attribute"); ok {
 		args.SetCertificateUserAttribute(v.(string))
 	}
-
+	if v, ok := d.GetOk("certificate_attribute"); ok {
+		args.SetCertificateAttribute(v.(string))
+	}
+	if v, ok := d.GetOk("skip_x509_external_checks"); ok {
+		args.SetSkipX509ExternalChecks(v.(bool))
+	}
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
@@ -234,6 +247,8 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 
 	d.Set("ca_certificates", ldap.GetCaCertificates())
 	d.Set("certificate_user_attribute", ldap.GetCertificateUserAttribute())
+	d.Set("certificate_attribute", ldap.GetCertificateAttribute())
+	d.Set("skip_x509_external_checks", ldap.GetSkipX509ExternalChecks())
 	return nil
 }
 
@@ -371,7 +386,12 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	if d.HasChange("certificate_user_attribute") {
 		originalLdapCertificateProvider.SetCertificateUserAttribute(d.Get("certificate_user_attribute").(string))
 	}
-
+	if d.HasChange("certificate_attribute") {
+		originalLdapCertificateProvider.SetCertificateAttribute(d.Get("certificate_attribute").(string))
+	}
+	if d.HasChange("skip_x509_external_checks") {
+		originalLdapCertificateProvider.SetSkipX509ExternalChecks(d.Get("skip_x509_external_checks").(bool))
+	}
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
 	req = req.IdentityProvider(originalLdapCertificateProvider)
 	_, _, err = req.Authorization(token).Execute()
