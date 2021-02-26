@@ -84,6 +84,23 @@ func resourceAppgateMfaProvider() *schema.Resource {
 				Required: true,
 			},
 
+			"input_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "Masked",
+				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+					s := v.(string)
+					list := []string{"Masked", "Numeric", "Text"}
+					for _, x := range list {
+						if s == x {
+							return
+						}
+					}
+					errs = append(errs, fmt.Errorf("input_type must be on of %v, got %s", list, s))
+					return
+				},
+			},
+
 			"shared_secret": {
 				Type:      schema.TypeString,
 				Optional:  true,
@@ -160,6 +177,9 @@ func resourceAppgateMfaProviderCreate(d *schema.ResourceData, meta interface{}) 
 	if v, ok := d.GetOk("shared_secret"); ok {
 		args.SetSharedSecret(v.(string))
 	}
+	if v, ok := d.GetOk("input_type"); ok {
+		args.SetInputType(v.(string))
+	}
 	if v, ok := d.GetOk("authentication_protocol"); ok {
 		args.SetAuthenticationProtocol(v.(string))
 	}
@@ -209,6 +229,7 @@ func resourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("tags", mfaProvider.GetTags())
 	d.Set("hostnames", mfaProvider.GetHostnames())
 	d.Set("port", mfaProvider.GetPort())
+	d.Set("input_type", mfaProvider.GetInputType())
 	d.Set("authentication_protocol", mfaProvider.GetAuthenticationProtocol())
 	d.Set("timeout", mfaProvider.GetTimeout())
 	d.Set("mode", mfaProvider.GetMode())
@@ -255,6 +276,9 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 	if d.HasChange("shared_secret") {
 		originalMfaProvider.SetSharedSecret(d.Get("shared_secret").(string))
+	}
+	if d.HasChange("input_type") {
+		originalMfaProvider.SetInputType(d.Get("input_type").(string))
 	}
 	if d.HasChange("authentication_protocol") {
 		originalMfaProvider.SetAuthenticationProtocol(d.Get("authentication_protocol").(string))
