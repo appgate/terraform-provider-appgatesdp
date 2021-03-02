@@ -54,11 +54,17 @@ resource "appgate_appliance_customization" "test_customization" {
 The following arguments are supported:
 
 
-* `file`: (Required) The Appliance Customization binary in Base64 format.
+* `file`: (Optional) The Appliance Customization binary in Base64 format.
+* `checksum`: (Optional) SHA256 checksum of the file.
+* `size`: (Optional) Binary file's size in bytes.
+* `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
 
+
+### tags
+Array of tags.
 
 
 

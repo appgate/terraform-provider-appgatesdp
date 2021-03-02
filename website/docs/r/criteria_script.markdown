@@ -8,7 +8,7 @@ description: |-
 
 # appgate_criteria_script
 
-Create a new Criteria Script..
+Create a new Criteria Script.
 
 ## Example Usage
 
@@ -32,6 +32,9 @@ The following arguments are supported:
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
 
+
+### tags
+Array of tags.
 
 
 

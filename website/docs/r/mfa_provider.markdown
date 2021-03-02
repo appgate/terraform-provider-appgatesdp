@@ -40,6 +40,11 @@ The following arguments are supported:
 * `type`: (Required) The type of the MFA Provider. "DefaultTimeBased" is built-in, a new one cannot be created.
 * `hostnames`: (Required) Hostnames/IP addresses to connect.
 * `port`: (Required) Port to connect.
+* `input_type`: (Optional) The input type used in the client to enter the MFA code. 
+ * "Masked" - The input is masked the same way as a password field.
+ * "Numeric" - The input is marked as a numeric input.
+ * "Text" - The input is handled as a regular plain text field.
+
 * `shared_secret`: (Optional) Radius shared secret to authenticate to the server.
 * `authentication_protocol`: (Optional) Radius protocol to use while authenticating users.
 * `timeout`: (Optional) Timeout in seconds before giving up on response.

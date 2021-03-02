@@ -54,6 +54,7 @@ The following arguments are supported:
   first, then the next evaluation will occur at
   12:15, and the next one will be at
   12:30 and so on.
+* `remedy_logic`: (Optional) Whether all the Remedy Methods must succeed to pass this Condition or just one.
 * `remedy_methods`: (Optional) The remedy methods that will be triggered if the evaluation fails.
 * `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.

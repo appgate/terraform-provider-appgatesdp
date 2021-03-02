@@ -273,7 +273,6 @@ The following arguments are supported:
 * `peer_interface`: (Required) The details of peer connection interface. Used by other appliances and administrative UI.
 * `admin_interface`: (Optional) The details of the admin connection interface. If null, admin interface will be accessible via peerInterface.
 * `networking`: (Required) Networking configuration of the system.
-* `ntp_servers`: (Optional) Deprecated as of 4.3.0, use 'ntp' field instead. NTP servers to synchronize time.
 * `ntp`: (Optional) NTP configuration.
 * `ssh_server`: (Optional) SSH server configuration.
 * `snmp_server`: (Optional) SNMP Server configuration.
@@ -390,9 +389,6 @@ System route settings.
 * `netmask`: (Required) Netmask for the subnet to route. Example: 24.
 * `gateway`: (Optional) Gateway to use for routing. Example: 10.0.0.254.
 * `nic`: (Optional) NIC name to use for routing. Example: eth0.
-### ntp_servers
-Deprecated as of 4.3.0, use 'ntp' field instead. NTP servers to synchronize time.
-
 ### ntp
 NTP configuration.
 
@@ -509,7 +505,7 @@ AWS Kinesis endpoints to connect and send the audit logs with the given format.
 * `url`: (Optional) The URL of the elasticsearch server. Example: https://aws.com/elasticsearch/instance/asdaxllkmda64.
 * `retention_days`: (Optional) Optional field to enable log retention on the configured AWS elasticsearch. Defines how many days the audit logs will be kept. Example: 30.
 * `type`: (Optional) AWS Kinesis type ENUM: Stream,Firehose.
-* `stream_name`: (Optional) Name of the stream. Example: AppGate_SDP_audit.
+* `stream_name`: (Optional) Name of the stream. Example: Appgate_SDP_audit.
 * `batch_size`: (Optional) Batch size for the stream. Used only for "Stream" type.
 * `number_of_partition_keys`: (Optional) Number of partition keys to use for the stream. Used only for "Stream" type.
 * `filter`: (Optional) JMESPath expression to filter audit logs to forward. Example: event_type=='authentication_succeeded'.
@@ -538,7 +534,7 @@ Rsyslog destination settings to forward appliance logs.
 
 * `selector`:  (Optional)  default value `*.*` Rsyslog selector.
 * `template`:  (Optional)  default value `%HOSTNAME% %msg%` Rsyslog template to forward logs with.
-* `destination`:  (Optional) Rsyslog server destination.
+* `destination`: (Required) Rsyslog server destination.
 ### hostname_aliases
 Hostname aliases. They are added to the Appliance certificate as Subject Alternative Names so it is trusted using different IPs or hostnames. Requires manual certificate renewal to apply changes to the certificate.
 
