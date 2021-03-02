@@ -87,10 +87,10 @@ VPN configuration for this Site.
 * `ip_access_log_interval_seconds`:  (Optional)  default value `120` Frequency configuration for generating IP Access audit logs for a connection.
 #### tls
 VPN over TLS protocol configuration.
-* `enabled`: (Optional) undefined
+* `enabled`: (Optional)
 #### dtls
 VPN over DTLS protocol configuration.
-* `enabled`: (Optional) undefined
+* `enabled`: (Optional)
 #### route_via
 Override routing for tunnel traffic.
 * `ipv4`: (Optional) IPv4 address for routing tunnel traffic. Example: 10.0.0.2.

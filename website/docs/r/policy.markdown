@@ -78,13 +78,13 @@ List of Ringfence Rule tags in this Policy.
 ### proxy_auto_config
 Client configures PAC URL on the client OS.
 
-* `enabled`:  (Optional) undefined
+* `enabled`:  (Optional)
 * `url`:  (Optional) The URL to set on the Client OS. Example: https://pac.company.com/file.pac.
 * `persist`:  (Optional) If true Client will leave the PAC URL configured after signing out.
 ### trusted_network_check
 Client suspends operations when it's in a trusted network.
 
-* `enabled`:  (Optional) undefined
+* `enabled`:  (Optional)
 * `dns_suffix`:  (Optional) Client checks if the DNS suffix has been configured on the OS to decide whether it's on a trusted network or not.
 ### administrative_roles
 List of Administrative Role IDs in this Policy.

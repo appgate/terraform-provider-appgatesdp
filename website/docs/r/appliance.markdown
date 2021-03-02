@@ -392,7 +392,7 @@ System route settings.
 ### ntp
 NTP configuration.
 
-* `servers`:  (Optional) undefined
+* `servers`:  (Optional)
 #### servers
 
 * `hostname`: (Required) Hostname or IP of the NTP server. Example: 0.ubuntu.pool.ntp.org.
