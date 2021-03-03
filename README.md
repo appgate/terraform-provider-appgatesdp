@@ -1,4 +1,4 @@
-Terraform Provider for Appgate
+Terraform Provider for Appgate SDP
 ==================
 
 Version compatibility
