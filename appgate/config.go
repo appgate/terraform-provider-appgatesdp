@@ -14,9 +14,6 @@ import (
 )
 
 const (
-	// Version is the Appgate controller version.
-	Version = 13
-
 	// DefaultDescription is the default string for terraform resources.
 	DefaultDescription = "Managed by terraform"
 )
@@ -30,6 +27,7 @@ type Config struct {
 	Insecure bool
 	Timeout  int
 	Debug    bool
+	Version  int
 }
 
 // Client is the appgate API client.
@@ -57,17 +55,14 @@ func (c *Config) Client() (*Client, error) {
 		Timeout:   ((timeoutDuration * 2) * time.Second),
 	}
 	clientCfg := &openapi.Configuration{
-		// Host:   c.URL,
-		// Scheme: "https",
 		DefaultHeader: map[string]string{
-			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", Version),
+			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", c.Version),
 		},
 		UserAgent: "Appgate-TerraformProvider/1.0.0/go",
 		Debug:     c.Debug,
 		Servers: []openapi.ServerConfiguration{
 			{
-				URL:         c.URL,
-				Description: "Controller one",
+				URL: c.URL,
 			},
 		},
 		HTTPClient: httpclient,
@@ -87,7 +82,6 @@ func (c *Config) Client() (*Client, error) {
 }
 
 func getToken(apiClient *openapi.APIClient, cfg *Config) (string, error) {
-
 	ctx := context.Background()
 	// Login first, save token
 	loginOpts := openapi.LoginRequest{
@@ -99,7 +93,7 @@ func getToken(apiClient *openapi.APIClient, cfg *Config) (string, error) {
 
 	loginResponse, _, err := apiClient.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
 	if err != nil {
-		return "", err
+		return "", prettyPrintAPIError(err)
 	}
 	return fmt.Sprintf("Bearer %s", *openapi.PtrString(*loginResponse.Token)), nil
 }
