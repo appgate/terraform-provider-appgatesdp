@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -102,6 +102,53 @@ func resourceAppgatePolicy() *schema.Resource {
 				Optional: true,
 			},
 
+			"proxy_auto_config": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "Client configures PAC URL on the client OS.",
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"url": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"persist": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+
+			"trusted_network_check": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "Client suspends operations when it's in a trusted network.",
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"dns_suffix": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			"administrative_roles": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -175,6 +222,13 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	if c, ok := d.GetOk("override_site"); ok {
 		args.SetOverrideSite(c.(string))
 	}
+	if v, ok := d.GetOk("proxy_auto_config"); ok {
+		args.SetProxyAutoConfig(readProxyAutoConfigFromConfig(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("trusted_network_check"); ok {
+		args.SetTrustedNetworkCheck(readTrustedNetworkCheckFromConfig(v.([]interface{})))
+	}
 
 	if c, ok := d.GetOk("administrative_roles"); ok {
 		administrativeRoles, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
@@ -193,6 +247,43 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId(policy.Id)
 	return resourceAppgatePolicyRead(d, meta)
+}
+
+func readTrustedNetworkCheckFromConfig(trustedNetworks []interface{}) openapi.PolicyAllOfTrustedNetworkCheck {
+	result := openapi.PolicyAllOfTrustedNetworkCheck{}
+	for _, r := range trustedNetworks {
+		if r == nil {
+			continue
+		}
+		raw := r.(map[string]interface{})
+		if v, ok := raw["enabled"]; ok {
+			result.SetEnabled(v.(bool))
+		}
+		if v, ok := raw["dns_suffix"]; ok {
+			result.SetDnsSuffix(v.(string))
+		}
+	}
+	return result
+}
+
+func readProxyAutoConfigFromConfig(proxyAutoConfigs []interface{}) openapi.PolicyAllOfProxyAutoConfig {
+	pac := openapi.PolicyAllOfProxyAutoConfig{}
+	for _, r := range proxyAutoConfigs {
+		if r == nil {
+			continue
+		}
+		raw := r.(map[string]interface{})
+		if v, ok := raw["enabled"]; ok {
+			pac.SetEnabled(v.(bool))
+		}
+		if v, ok := raw["url"]; ok {
+			pac.SetUrl(v.(string))
+		}
+		if v, ok := raw["persist"]; ok {
+			pac.SetPersist(v.(bool))
+		}
+	}
+	return pac
 }
 
 func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
@@ -220,7 +311,48 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("tamper_proofing", policy.GetTamperProofing())
 	d.Set("administrative_roles", policy.GetAdministrativeRoles())
 
+	if v, o := policy.GetProxyAutoConfigOk(); o != false {
+		pac, err := flattenProxyAutoConfig(*v)
+		if err != nil {
+			return err
+		}
+		d.Set("proxy_auto_config", pac)
+	}
+	if v, o := policy.GetTrustedNetworkCheckOk(); o != false {
+		t, err := flattenTrustedNetworkCheck(*v)
+		if err != nil {
+			return err
+		}
+		d.Set("trusted_network_check", t)
+	}
 	return nil
+}
+
+func flattenProxyAutoConfig(in openapi.PolicyAllOfProxyAutoConfig) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, o := in.GetEnabledOk(); o != false {
+		m["enabled"] = *v
+	}
+	if v, o := in.GetUrlOk(); o != false {
+		m["url"] = *v
+	}
+	if v, o := in.GetPersistOk(); o != false {
+		m["persist"] = *v
+	}
+
+	return []interface{}{m}, nil
+}
+
+func flattenTrustedNetworkCheck(in openapi.PolicyAllOfTrustedNetworkCheck) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, o := in.GetEnabledOk(); o != false {
+		m["enabled"] = v
+	}
+	if v, o := in.GetDnsSuffixOk(); o != false {
+		m["dns_suffix"] = v
+	}
+	log.Printf("[DEBUG] flattenTrustedNetworkCheck: %+v", m)
+	return []interface{}{m}, nil
 }
 
 func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -296,6 +428,16 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("override_site") {
 		orginalPolicy.SetOverrideSite(d.Get("override_site").(string))
+	}
+
+	if d.HasChange("proxy_auto_config") {
+		_, v := d.GetChange("proxy_auto_config")
+		orginalPolicy.SetProxyAutoConfig(readProxyAutoConfigFromConfig(v.([]interface{})))
+	}
+
+	if d.HasChange("trusted_network_check") {
+		_, v := d.GetChange("trusted_network_check")
+		orginalPolicy.SetTrustedNetworkCheck(readTrustedNetworkCheckFromConfig(v.([]interface{})))
 	}
 
 	if d.HasChange("administrative_roles") {

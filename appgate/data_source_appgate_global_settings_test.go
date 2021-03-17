@@ -20,7 +20,6 @@ func TestAccAppgateGlobalSettingsDataSource(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.appgate_global_settings.test", "vpn_certificate_expiration"),
 
 					resource.TestCheckResourceAttrSet("data.appgate_global_settings.test", "backup_api_enabled"),
-					resource.TestCheckResourceAttrSet("data.appgate_global_settings.test", "has_backup_passphrase"),
 
 					resource.TestCheckResourceAttrSet("data.appgate_global_settings.test", "fips"),
 					resource.TestCheckResourceAttrSet("data.appgate_global_settings.test", "geo_ip_updates"),

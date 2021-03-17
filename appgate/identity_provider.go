@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -60,9 +60,10 @@ func identityProviderSchema() map[string]*schema.Schema {
 			},
 			//TODO: Remove - deprecated in 5.1
 			"client_provider": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Type:       schema.TypeBool,
+				Deprecated: "Whether the provider will be listed in the Client UI or not. Deprecated as of 5.1 since the Client does not have the option to choose Identity Provider anymore.",
+				Optional:   true,
+				Computed:   true,
 			},
 			"on_boarding_two_factor": {
 				Type:     schema.TypeList,
@@ -81,6 +82,15 @@ func identityProviderSchema() map[string]*schema.Schema {
 						"device_limit_per_user": {
 							Type:     schema.TypeInt,
 							Computed: true,
+							Optional: true,
+						},
+						"claim_suffix": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "onBoarding",
+						},
+						"always_required": {
+							Type:     schema.TypeBool,
 							Optional: true,
 						},
 					},
@@ -411,6 +421,12 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}) openapi.IdentityProv
 		if v, ok := raw["device_limit_per_user"]; ok {
 			onboarding.SetDeviceLimitPerUser(int32(v.(int)))
 		}
+		if v, ok := raw["claim_suffix"]; ok {
+			onboarding.SetClaimSuffix(v.(string))
+		}
+		if v, ok := raw["always_required"]; ok {
+			onboarding.SetAlwaysRequired(v.(bool))
+		}
 	}
 	return onboarding
 }
@@ -553,6 +569,12 @@ func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnB
 	}
 	if v, ok := input.GetDeviceLimitPerUserOk(); ok {
 		o["device_limit_per_user"] = int(*v)
+	}
+	if v, ok := input.GetClaimSuffixOk(); ok {
+		o["claim_suffix"] = v
+	}
+	if v, ok := input.GetAlwaysRequiredOk(); ok {
+		o["always_required"] = v
 	}
 
 	return []interface{}{o}

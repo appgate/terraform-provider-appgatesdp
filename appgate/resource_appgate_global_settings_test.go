@@ -29,7 +29,6 @@ func TestAccGlobalSettingsBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "entitlement_token_expiration", "500"),
 					resource.TestCheckResourceAttrSet(resourceName, "fips"),
 					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
-					resource.TestCheckResourceAttrSet(resourceName, "has_backup_passphrase"),
 					resource.TestCheckResourceAttr(resourceName, "login_banner_message", "Welcome"),
 					resource.TestCheckResourceAttr(resourceName, "message_of_the_day", "hello world"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpn_certificate_expiration"),

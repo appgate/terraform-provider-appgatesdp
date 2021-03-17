@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -96,15 +96,6 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	}
 	if provider.OnBoarding2FA != nil {
 		args.SetOnBoarding2FA(*provider.OnBoarding2FA)
-	}
-	if provider.OnBoardingType != nil {
-		args.SetOnBoardingType(*provider.OnBoardingType)
-	}
-	if provider.OnBoardingOtpProvider != nil {
-		args.SetOnBoardingOtpProvider(*provider.OnBoardingOtpProvider)
-	}
-	if provider.OnBoardingOtpMessage != nil {
-		args.SetOnBoardingOtpMessage(*provider.OnBoardingOtpMessage)
 	}
 	if provider.InactivityTimeoutMinutes != nil {
 		args.SetInactivityTimeoutMinutes(*provider.InactivityTimeoutMinutes)

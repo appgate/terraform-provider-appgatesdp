@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -88,7 +88,7 @@ func resourceAppgateDeviceScript() *schema.Resource {
 func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Device script: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
-	api := meta.(*Client).API.DeviceScriptsApi
+	api := meta.(*Client).API.DeviceClaimScriptsApi
 	args := openapi.NewDeviceScriptWithDefaults()
 	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
@@ -121,7 +121,7 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Device script id: %+v", d.Id())
 	token := meta.(*Client).Token
-	api := meta.(*Client).API.DeviceScriptsApi
+	api := meta.(*Client).API.DeviceClaimScriptsApi
 	ctx := context.TODO()
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
 	deviceScript, _, err := request.Authorization(token).Execute()
@@ -144,7 +144,7 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Updating Device script: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Updating Device script id: %+v", d.Id())
 	token := meta.(*Client).Token
-	api := meta.(*Client).API.DeviceScriptsApi
+	api := meta.(*Client).API.DeviceClaimScriptsApi
 	ctx := context.TODO()
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
 	originalDeviceScript, _, err := request.Authorization(token).Execute()
@@ -187,7 +187,7 @@ func resourceAppgateDeviceScriptDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Delete Device script: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Reading Device script id: %+v", d.Id())
 	token := meta.(*Client).Token
-	api := meta.(*Client).API.DeviceScriptsApi
+	api := meta.(*Client).API.DeviceClaimScriptsApi
 
 	request := api.DeviceScriptsIdDelete(context.TODO(), d.Id())
 

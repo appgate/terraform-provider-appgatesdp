@@ -2,6 +2,7 @@ package appgate
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,6 +41,11 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_HTTP_DEBUG", false),
+			},
+			"client_version": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", 14),
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -103,6 +109,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	var diags diag.Diagnostics
 
 	if (username != "") && (password != "") {
+		v := d.Get("client_version").(int)
 		config := Config{
 			URL:      d.Get("url").(string),
 			Username: d.Get("username").(string),
@@ -111,13 +118,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			Insecure: d.Get("insecure").(bool),
 			Timeout:  20,
 			Debug:    d.Get("debug").(bool),
+			Version:  v,
 		}
 		c, err := config.Client()
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  "Unable to create Appgate client",
-				Detail:   "Unable to authenticate user for authenticated Appgate client",
+				Summary:  fmt.Sprintf("Unable to create Appgate SDK client v%d", v),
+				Detail:   fmt.Sprintf("Unable to authenticate user for authenticated Appgate client %s", err),
 			})
 
 			return nil, diags
