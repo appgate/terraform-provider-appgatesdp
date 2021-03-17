@@ -35,6 +35,8 @@ The following arguments are supported:
 
 
 * `pem`: (Required) A certificate in PEM format.
+* `details`: (Optional) X509 certificate details.
+* `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

@@ -8,7 +8,7 @@ description: |-
 
 # appgate_site
 
-Create a new Site..
+Create a new Site.
 
 ## Example Usage
 
@@ -53,11 +53,17 @@ The following arguments are supported:
 * `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
-* `created`: (Optional) Create date.
-* `updated`: (Optional) Last update date.
 * `tags`: (Optional) Array of tags.
 
 
+### network_subnets
+Network subnets in CIDR format to define the Site's boundaries. They are added as routes by the Client.
+
+### ip_pool_mappings
+List of IP Pool mappings for this specific Site. When IPs are allocated this Site, they will be mapped to a new one using this setting.
+
+* `from`:  (Optional) IP Pool ID to map from. If a user is authorizing with this IP Pool via Identity Provider assignment and has access to this Site, mapping will occur for that user.
+* `to`:  (Optional) IP Pool ID to map to.
 ### default_gateway
 Default Gateway configuration.
 
@@ -76,14 +82,15 @@ VPN configuration for this Site.
 * `route_via`:  (Optional) Override routing for tunnel traffic.
 * `web_proxy_enabled`:  (Optional) Flag for manipulating web proxy p12 file. Setting this false will delete the existing p12 file from database.
 * `web_proxy_key_store`:  (Optional) The PKCS12 package to be used for web proxy. The file must be with no password and must include the full certificate chain and a private key. In Base64 format.
+* `web_proxy_verify_upstream_certificate`:  (Optional)  default value `true` Gateway will verify the certificate of the endpoints.
 * `web_proxy_certificate_subject_name`:  (Optional) The subject name of the certificate with private key in the PKCS12 file for web proxy assigned to this site.
 * `ip_access_log_interval_seconds`:  (Optional)  default value `120` Frequency configuration for generating IP Access audit logs for a connection.
 #### tls
 VPN over TLS protocol configuration.
-* `enabled`: (Optional) undefined
+* `enabled`: (Optional)
 #### dtls
 VPN over DTLS protocol configuration.
-* `enabled`: (Optional) undefined
+* `enabled`: (Optional)
 #### route_via
 Override routing for tunnel traffic.
 * `ipv4`: (Optional) IPv4 address for routing tunnel traffic. Example: 10.0.0.2.
@@ -137,6 +144,9 @@ Resolvers to resolve GCP machine by querying Google web services.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
 * `project_filter`: (Optional) GCP project filter.
 * `instance_filter`: (Optional) GCP instance filter.
+### tags
+Array of tags.
+
 
 
 

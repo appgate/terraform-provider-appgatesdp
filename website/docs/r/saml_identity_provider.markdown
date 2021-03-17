@@ -114,26 +114,25 @@ EOF
 The following arguments are supported:
 
 
+* `id`: (Required) ID of the object.
+* `name`: (Required) Name of the object.
+* `notes`: (Optional) Notes for the object. Used for documentation purposes.
+* `tags`: (Optional) Array of tags.
 * `type`: (Required) The type of the Identity Provider.
 * `display_name`: (Optional) The name displayed to the user. "name" field is used for Distinguished Name generation. Deprecated as of 5.1 since the Client does not have the option to choose Identity Provider anymore.
 * `default`: (Optional) Whether the provider will be chosen by default in the Client UI. If enabled, it will remove the default flag of the current default Identity Provider.
 * `client_provider`: (Optional) Whether the provider will be listed in the Client UI or not. Deprecated as of 5.1 since the Client does not have the option to choose Identity Provider anymore.
 * `admin_provider`: (Optional) Whether the provider will be listed in the Admin UI or not.
-* `on_boarding_two_factor`: (Optional) On-boarding two-factor authentication settings. Leave it empty keep it disabled.
-* `on_boarding_type`: (Optional) Client on-boarding type. Deprecated as of 5.0. Use onBoarding2FA object instead.
-* `on_boarding_otp_provider`: (Optional) On-boarding MFA Provider ID if "onBoardingType" is Require2FA.  Deprecated as of 5.0. Use onBoarding2FA object instead.
-* `on_boarding_otp_message`: (Optional) On-boarding MFA message to be displayed on the Client UI if "onBoardingType" is Require2FA. Deprecated as of 5.0. Use onBoarding2FA object instead.
+* `on_boarding2_fa`: (Optional) On-boarding two-factor authentication settings. Leave it empty keep it disabled.
 * `inactivity_timeout_minutes`: (Optional) (Desktop) clients will sign out automatically after the user has been inactive on the device for the configured duration. Set it to 0 to disable.
 * `ip_pool_v4`: (Optional) The IPv4 Pool ID the users in this Identity Provider are going to use to allocate IP addresses for the tunnels.
 * `ip_pool_v6`: (Optional) The IPv6 Pool ID the users in this Identity Provider are going to use to allocate IP addresses for the tunnels.
-* `dns_servers`: (Optional) The dns servers to be assigned to the Clients of the users in this Identity Provider.
-* `dns_search_domains`: (Optional) The dns search domains to be assigned to Clients of the users in this Identity Provider.
+* `dns_servers`: (Optional) The DNS servers to be assigned to the Clients of the users in this Identity Provider.
+* `dns_search_domains`: (Optional) The DNS search domains to be assigned to Clients of the users in this Identity Provider.
 * `block_local_dns_requests`: (Optional) Whether the Windows Client will block local DNS requests or not.
 * `claim_mappings`: (Optional) The mapping of Identity Provider attributes to claims.
 * `on_demand_claim_mappings`: (Optional) The mapping of Identity Provider on demand attributes to claims.
-* `name`: (Required) Name of the object.
-* `notes`: (Optional) Notes for the object. Used for documentation purposes.
-* `tags`: (Optional) Array of tags.
+* `user_scripts`: (Optional) ID of the User Claim Scripts to run during authorization.
 * `hostnames`: (Optional) Hostnames/IP addresses to connect.
 * `port`: (Optional) Port to connect.
 * `ssl_enabled`: (Optional) Whether to use LDAPS protocol or not.
@@ -153,34 +152,39 @@ The following arguments are supported:
 * `force_authn`: (Optional) Enables ForceAuthn flag in the SAML Request. If the SAML Provider supports this flag, it will require user to enter their credentials every time Client requires SAML authentication.
 
 
-### on_boarding_two_factor
+### tags
+Array of tags.
+
+### on_boarding2_fa
 On-boarding two-factor authentication settings. Leave it empty keep it disabled.
 
 * `mfa_provider_id`: (Required) MFA provider ID to use for the authentication.
 * `message`:  (Optional) On-boarding MFA message to be displayed on the Client UI during the second-factor authentication. Example: Please use your multi factor authentication device to on-board..
 * `device_limit_per_user`:  (Optional)  default value `100` The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.
+* `claim_suffix`:  (Optional)  default value `onBoarding` Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled.
+* `always_required`:  (Optional) If enabled, MFA will be required on every authentication.
 ### dns_servers
-The dns servers to be assigned to the Clients of the users in this Identity Provider.
+The DNS servers to be assigned to the Clients of the users in this Identity Provider.
 
 ### dns_search_domains
-The dns search domains to be assigned to Clients of the users in this Identity Provider.
+The DNS search domains to be assigned to Clients of the users in this Identity Provider.
 
 ### claim_mappings
 The mapping of Identity Provider attributes to claims.
 
-* `attribute_name`:  (Optional) The name of the attribute coming from the Identity Provider.
-* `claim_name`:  (Optional) The name of the user claim to be used in Appgate SDP.
+* `attribute_name`: (Required) The name of the attribute coming from the Identity Provider.
+* `claim_name`: (Required) The name of the user claim to be used in Appgate SDP.
 * `list`:  (Optional)  default value `false` Whether the claim is expected to be a list and have multiple values or not.
 * `encrypt`:  (Optional)  default value `false` Whether the claim should be encrypted or not.
 ### on_demand_claim_mappings
 The mapping of Identity Provider on demand attributes to claims.
 
-* `command`:  (Optional)  Enum values: `fileSize,fileExists,fileCreated,fileUpdated,fileVersion,fileSha512,processRunning,processList,serviceRunning,serviceList,regExists,regQuery,runScript`The name of the command.
-* `claim_name`:  (Optional) The name of the device claim to be used in Appgate SDP.
+* `command`: (Required)  Enum values: `fileSize,fileExists,fileCreated,fileUpdated,fileVersion,fileSha512,processRunning,processList,serviceRunning,serviceList,regExists,regQuery,runScript`The name of the command.
+* `claim_name`: (Required) The name of the device claim to be used in Appgate SDP.
 * `parameters`:  (Optional) Depending on the command type, extra parameters to pass to the on-demand claim.
-* `platform`:  (Optional)  Enum values: `desktop.windows.all,desktop.macos.all,desktop.linux.all,desktop.all,mobile.android.all,mobile.ios.all,mobile.all,all`The platform(s) to run the on-demand claim.
-### tags
-Array of tags.
+* `platform`: (Required)  Enum values: `desktop.windows.all,desktop.macos.all,desktop.linux.all,desktop.all,mobile.android.all,mobile.ios.all,mobile.all,all`The platform(s) to run the on-demand claim.
+### user_scripts
+ID of the User Claim Scripts to run during authorization.
 
 ### hostnames
 Hostnames/IP addresses to connect.

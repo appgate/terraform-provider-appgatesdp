@@ -63,6 +63,7 @@ The following arguments are supported:
 
 * `disabled`: (Optional) If true, the Entitlement will be disregarded during authorization.
 * `site`: (Required) ID of the Site for this Entitlement.
+* `site_name`: (Optional) Name of the Site for this Entitlement. For convenience only.
 * `condition_logic`: (Optional) Whether all the Conditions must succeed to have access to this Entitlement or just one.
 * `conditions`: (Required) List of Condition IDs applies to this Entitlement.
 * `actions`: (Required) List of all IP Access actions in this Entitlement.

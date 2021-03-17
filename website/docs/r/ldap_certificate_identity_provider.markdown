@@ -77,27 +77,14 @@ EOF
   }
 }
 
+
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `default`: (Optional) Whether the provider will be chosen by default in the Client UI. If enabled, it will remove the default flag of the current default Identity Provider.
 
-* `admin_provider`: (Optional) Whether the provider will be listed in the Admin UI or not.
-* `on_boarding_two_factor`: (Optional) On-boarding two-factor authentication settings. Leave it empty keep it disabled.
-* `inactivity_timeout_minutes`: (Optional) (Desktop) clients will sign out automatically after the user has been inactive on the device for the configured duration. Set it to 0 to disable.
-* `ip_pool_v4`: (Optional) The IPv4 Pool ID the users in this Identity Provider are going to use to allocate IP addresses for the tunnels.
-* `ip_pool_v6`: (Optional) The IPv6 Pool ID the users in this Identity Provider are going to use to allocate IP addresses for the tunnels.
-* `dns_servers`: (Optional) The dns servers to be assigned to the Clients of the users in this Identity Provider.
-* `dns_search_domains`: (Optional) The dns search domains to be assigned to Clients of the users in this Identity Provider.
-* `block_local_dns_requests`: (Optional) Whether the Windows Client will block local DNS requests or not.
-* `claim_mappings`: (Optional) The mapping of Identity Provider attributes to claims.
-* `on_demand_claim_mappings`: (Optional) The mapping of Identity Provider on demand attributes to claims.
-* `name`: (Required) Name of the object.
-* `notes`: (Optional) Notes for the object. Used for documentation purposes.
-* `tags`: (Optional) Array of tags.
 * `hostnames`: (Required) Hostnames/IP addresses to connect.
 * `port`: (Required) Port to connect.
 * `ssl_enabled`: (Optional) Whether to use LDAPS protocol or not.
@@ -108,41 +95,26 @@ The following arguments are supported:
 * `username_attribute`: (Optional) The name of the attribute to get the exact username from the LDAP server.
 * `membership_filter`: (Optional) The filter to use while querying users' nested groups.
 * `membership_base_dn`: (Optional) The subset of the LDAP server to search groups from. If not set, "baseDn" is used.
+* `password_warning`: (Optional) Password warning configuration for Active Directory. If enabled, the client will display the configured message before the password expiration.
 * `ca_certificates`: (Required) CA certificates to verify the Client certificates. In PEM format.
 * `certificate_user_attribute`: (Optional) The LDAP attribute to compare the Client certificate's Subject Alternative Name.
+* `certificate_attribute`: (Optional) The LDAP attribute to compare the Client certificate binary. Leave it null to skip this comparison.
+* `skip_x509_external_checks`: (Optional) By default, Controller contacts the endpoints on the certificate extensions in order to verify revocation status and pull the intermediate CA certificates. Set this flag in order to skip them.
 
-
-### on_boarding_two_factor
-On-boarding two-factor authentication settings. Leave it empty keep it disabled.
-
-* `mfa_provider_id`: (Required) MFA provider ID to use for the authentication.
-* `message`:  (Optional) On-boarding MFA message to be displayed on the Client UI during the second-factor authentication. Example: Please use your multi factor authentication device to on-board..
-* `device_limit_per_user`:  (Optional)  default value `100` The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.
-### dns_servers
-The dns servers to be assigned to the Clients of the users in this Identity Provider.
-
-### dns_search_domains
-The dns search domains to be assigned to Clients of the users in this Identity Provider.
-
-### claim_mappings
-The mapping of Identity Provider attributes to claims.
-
-* `attribute_name`:  (Optional) The name of the attribute coming from the Identity Provider.
-* `claim_name`:  (Optional) The name of the user claim to be used in Appgate SDP.
-* `list`:  (Optional)  default value `false` Whether the claim is expected to be a list and have multiple values or not.
-* `encrypt`:  (Optional)  default value `false` Whether the claim should be encrypted or not.
-### on_demand_claim_mappings
-The mapping of Identity Provider on demand attributes to claims.
-
-* `command`:  (Optional)  Enum values: `fileSize,fileExists,fileCreated,fileUpdated,fileVersion,fileSha512,processRunning,processList,serviceRunning,serviceList,regExists,regQuery,runScript`The name of the command.
-* `claim_name`:  (Optional) The name of the device claim to be used in Appgate SDP.
-* `parameters`:  (Optional) Depending on the command type, extra parameters to pass to the on-demand claim.
-* `platform`:  (Optional)  Enum values: `desktop.windows.all,desktop.macos.all,desktop.linux.all,desktop.all,mobile.android.all,mobile.ios.all,mobile.all,all`The platform(s) to run the on-demand claim.
-### tags
-Array of tags.
 
 ### hostnames
 Hostnames/IP addresses to connect.
+
+### password_warning
+Password warning configuration for Active Directory. If enabled, the client will display the configured message before the password expiration.
+
+* `enabled`:  (Optional) Whether to check and warn the users for password expiration.
+* `threshold_days`:  (Optional)  default value `5` How many days before the password warning to be displayed to the user.
+* `message`:  (Optional) The given message will be displayed to the user. Use this field to guide the users on how to change their passwords. The expiration time will displayed on the client on a separate section. Example: Your password is about to expire. Please change it..
+### ca_certificates
+CA certificates to verify the Client certificates. In PEM format.
+
+
 
 
 ## Import

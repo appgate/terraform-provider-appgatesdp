@@ -49,12 +49,17 @@ The following arguments are supported:
 
 
 * `filename`: (Required) The name of the file to be downloaded as to the client devices.
-* `file`: (Optional) The Device Script binary path, conflicts with `content`.
-* `content`: (Optional) The Device Script content, conflicts with `file`.
+* `file`: (Optional) The Device Claim Script binary in Base64 format.
+* `checksum`: (Optional) MD5 checksum of the file. It's used by the Client to decide whether to download the script again or not. Deprecated as of 5.0. Use checksumSha256 field.
+* `checksum_sha256`: (Optional) SHA256 checksum of the file. It's used by the Client to decide whether to download the script again or not.
+* `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
 
+
+### tags
+Array of tags.
 
 
 

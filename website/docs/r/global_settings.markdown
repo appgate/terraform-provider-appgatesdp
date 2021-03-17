@@ -32,7 +32,6 @@ The following arguments are supported:
 * `login_banner_message`: (Optional) The configured message will be displayed on the login UI.
 * `message_of_the_day`: (Optional) The configured message will be displayed after a successful loging.
 * `backup_api_enabled`: (Optional) Whether the backup API is enabled or not.
-* `has_backup_passphrase`: (Optional) Whether there is a backup passphrase set or not. Deprecated as of 5.0. Use backupApiEnabled instead.
 * `backup_passphrase`: (Optional) The passphrase to encrypt Appliance Backups when backup API is used.
 * `fips`: (Optional) FIPS 140-2 Compliant Tunneling.
 * `geo_ip_updates`: (Optional) Whether the automatic GeoIp updates are enabled or not.
