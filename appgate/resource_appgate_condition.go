@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -58,7 +58,7 @@ func resourceAppgateCondition() *schema.Resource {
 
 			"expression": {
 				Type:        schema.TypeString,
-				Description: "Name of the object.",
+				Description: "Boolean expression in JavaScript.",
 				Required:    true,
 			},
 
@@ -66,6 +66,24 @@ func resourceAppgateCondition() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"remedy_logic": {
+				Type:        schema.TypeString,
+				Description: "Whether all the Remedy Methods must succeed to pass this Condition or just one.",
+				Optional:    true,
+				Default:     "and",
+				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+					s := v.(string)
+					list := []string{"and", "or"}
+					for _, x := range list {
+						if s == x {
+							return
+						}
+					}
+					errs = append(errs, fmt.Errorf("remedy_logic must be on of %v, got %s", list, s))
+					return
+				},
 			},
 
 			"remedy_methods": {
@@ -127,8 +145,11 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 
 	args.SetTags(schemaExtractTags(d))
 
-	if c, ok := d.GetOk("expression"); ok {
-		args.SetExpression(c.(string))
+	if v, ok := d.GetOk("expression"); ok {
+		args.SetExpression(v.(string))
+	}
+	if v, ok := d.GetOk("remedy_logic"); ok {
+		args.SetRemedyLogic(v.(string))
 	}
 
 	if c, ok := d.GetOk("repeat_schedules"); ok {
@@ -176,6 +197,7 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("notes", remoteCondition.Notes)
 	d.Set("tags", remoteCondition.Tags)
 	d.Set("expression", remoteCondition.Expression)
+	d.Set("remedy_logic", remoteCondition.GetRemedyLogic())
 	d.Set("repeat_schedules", remoteCondition.RepeatSchedules)
 	if remoteCondition.RemedyMethods != nil {
 		if err = d.Set("remedy_methods", flattenConditionRemedyMethods(*remoteCondition.RemedyMethods)); err != nil {
@@ -223,6 +245,9 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("expression") {
 		orginalCondition.SetExpression(d.Get("expression").(string))
+	}
+	if d.HasChange("remedy_logic") {
+		orginalCondition.SetRemedyLogic(d.Get("remedy_logic").(string))
 	}
 
 	if d.HasChange("repeat_schedules") {

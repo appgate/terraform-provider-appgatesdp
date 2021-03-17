@@ -45,25 +45,35 @@ func TestAccPolicyBasic(t *testing.T) {
 func testAccCheckPolicyBasic(rName string) string {
 	return fmt.Sprintf(`
 resource "appgate_policy" "test_policy" {
-  name  = "%s"
-  notes = "terraform policy notes"
-  tags = [
-    "terraform",
-    "api-created"
-  ]
-  disabled = false
+    name  = "%s"
+    notes = "terraform policy notes"
+    tags = [
+        "terraform",
+        "api-created"
+    ]
+    disabled = false
 
-  expression = <<-EOF
-    return true;
-  EOF
-  entitlement_links = [
-    "developer"
-  ]
-  ringfence_rule_links = [
-    "developer"
-  ]
-  tamper_proofing = true
+    expression = <<-EOF
+        return true;
+    EOF
+    entitlement_links = [
+        "developer"
+    ]
+    ringfence_rule_links = [
+        "developer"
+    ]
+    tamper_proofing = true
+    proxy_auto_config {
+        enabled = true
+        url     = "http://foo.com"
+        persist = false
+    }
+    trusted_network_check {
+        enabled    = true
+        dns_suffix = "aa"
+    }
 }
+
 `, rName)
 }
 

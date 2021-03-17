@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v13/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -419,13 +419,6 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
-			// ntp_server Deprecated as of 4.3.0, use 'ntp' field instead. NTP servers to synchronize time.
-			// "ntp_servers": {
-			// 	Type:        schema.TypeSet,
-			// 	Description: "Array of tags.",
-			// 	Optional:    true,
-			// 	Elem:        &schema.Schema{Type: schema.TypeString},
-			// },
 			"ntp": {
 				Type:     schema.TypeList,
 				Optional: true,
