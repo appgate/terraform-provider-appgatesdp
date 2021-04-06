@@ -82,7 +82,7 @@ func TestAccLocalDatabaseIdentityProviderBasic(t *testing.T) {
 }
 
 func testAccCheckLocalDatabaseIdentityProviderBasic() string {
-	return fmt.Sprintf(`
+	return `
 data "appgate_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
@@ -103,7 +103,7 @@ resource "appgate_local_database_identity_provider" "local_database_test_resourc
     "builtin",
   ]
 }
-`)
+`
 }
 
 func testAccLocalDatabaseIdentityProviderImportStateCheckFunc(expectedStates int) resource.ImportStateCheckFunc {

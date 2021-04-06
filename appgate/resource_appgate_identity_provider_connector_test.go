@@ -74,7 +74,7 @@ func TestAccConnectorIdentityProviderBasic(t *testing.T) {
 }
 
 func testAccCheckConnectorIdentityProviderBasic() string {
-	return fmt.Sprintf(`
+	return `
 data "appgate_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
@@ -91,7 +91,7 @@ resource "appgate_connector_identity_provider" "connector_test_resource" {
     "builtin",
   ]
 }
-`)
+`
 }
 
 func testAccConnectorIdentityProviderImportStateCheckFunc(expectedStates int) resource.ImportStateCheckFunc {

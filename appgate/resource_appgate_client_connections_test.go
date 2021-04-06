@@ -39,7 +39,7 @@ func TestAccClientConnectionsBasic(t *testing.T) {
 }
 
 func testAccCheckClientConnectionsBasic() string {
-	return fmt.Sprintf(`
+	return `
     resource "appgate_client_connections" "test_example_client_connections" {
         spa_mode = "TCP"
         profiles {
@@ -48,7 +48,7 @@ func testAccCheckClientConnectionsBasic() string {
           identity_provider_name = "local"
         }
       }
-`)
+`
 }
 
 func testAccCheckClientConnectionsExists(resource string) resource.TestCheckFunc {

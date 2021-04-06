@@ -44,13 +44,13 @@ func TestAccGlobalSettingsBasic(t *testing.T) {
 }
 
 func testAccCheckGlobalSettingsBasic() string {
-	return fmt.Sprintf(`
+	return `
 resource "appgate_global_settings" "test_global_settings" {
   message_of_the_day           = "hello world"
   entitlement_token_expiration = 500
   login_banner_message         = "Welcome"
 }
-`)
+`
 }
 
 func testAccCheckGlobalSettingsExists(resource string) resource.TestCheckFunc {

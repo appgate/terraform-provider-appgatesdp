@@ -477,6 +477,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 	})
 }
 
+//lint:file-ignore U1000 Debug function, used during development
 func testAccCheckExampleWidgetExists(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// retrieve the resource by name from state
