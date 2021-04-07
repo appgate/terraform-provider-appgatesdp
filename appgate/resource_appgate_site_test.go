@@ -127,7 +127,7 @@ func TestAccSiteBasic(t *testing.T) {
 			{
 				ResourceName:     resourceName,
 				ImportState:      true,
-				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
 			},
 		},
 	})
@@ -240,7 +240,7 @@ resource "appgate_site" "test_site" {
 }
 
 func testAccCheckSiteUpdate() string {
-	return fmt.Sprintf(`
+	return `
 resource "appgate_site" "test_site" {
     name       = "The test site"
     short_name = "tst"
@@ -316,12 +316,11 @@ resource "appgate_site" "test_site" {
         }
     }
 }
-`)
+`
 }
 
 func testAccCheckSiteNetworkDelete() string {
-	return fmt.Sprintf(`
-
+	return `
 resource "appgate_site" "test_site" {
     name       = "The test site"
     short_name = "tst"
@@ -392,7 +391,7 @@ resource "appgate_site" "test_site" {
         }
     }
 }
-`)
+`
 }
 
 func testAccCheckSiteExists(resource string) resource.TestCheckFunc {

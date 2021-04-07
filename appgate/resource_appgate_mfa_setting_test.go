@@ -35,13 +35,13 @@ func TestAccAdminMfaSettingsBasic(t *testing.T) {
 }
 
 func testAccCheckAdminMfaSettingsBasic() string {
-	return fmt.Sprintf(`
+	return `
 resource "appgate_admin_mfa_settings" "test_example_mfa_settings" {
     exempted_users = [
         "CN=JohnDoe,OU=local"
     ]
 }
-`)
+`
 }
 
 func testAccCheckAdminMfaSettingsExists(resource string) resource.TestCheckFunc {
