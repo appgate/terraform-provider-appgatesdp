@@ -39,7 +39,7 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
-					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", "ping"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", rName),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "https://www.google.com"),
 					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
 
@@ -125,12 +125,12 @@ resource "appgate_entitlement" "test_item" {
   }
 
   app_shortcuts {
-    name       = "ping"
+    name       = "%s"
     url        = "https://www.google.com"
     color_code = 5
   }
 }
-`, rName)
+`, rName, rName)
 }
 
 func testAccCheckEntitlementExists(resource string) resource.TestCheckFunc {
@@ -231,12 +231,12 @@ resource "appgate_entitlement" "monitor_entitlement" {
 	}
   
 	app_shortcuts {
-	  name       = "ping"
+	  name       = "%s"
 	  url        = "https://www.google.com"
 	  color_code = 5
 	}
   }
-`, rName)
+`, rName, rName)
 }
 
 func testAccCheckEntitlementWithMonitorUpdated(rName string) string {
@@ -273,10 +273,10 @@ resource "appgate_entitlement" "monitor_entitlement" {
 	}
   
 	app_shortcuts {
-	  name       = "ping"
+	  name       = "%s"
 	  url        = "https://www.google.com"
 	  color_code = 5
 	}
   }
-`, rName)
+`, rName, rName)
 }
