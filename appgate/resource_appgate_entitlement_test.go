@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccEntitlementBasicPing(t *testing.T) {
-	resourceName := "appgatesdp_entitlement.test_item"
+	resourceName := "appgatesdp_entitlement.test_ping_item"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -95,7 +95,7 @@ data "appgatesdp_site" "default_site" {
 data "appgatesdp_condition" "always" {
   condition_name = "Always"
 }
-resource "appgatesdp_entitlement" "test_item" {
+resource "appgatesdp_entitlement" "test_ping_item" {
   name        = "%s"
   site = data.appgatesdp_site.default_site.id
     conditions = [
@@ -282,7 +282,7 @@ resource "appgatesdp_entitlement" "monitor_entitlement" {
 }
 
 func TestAccEntitlementUpdateActionOrder(t *testing.T) {
-	resourceName := "appgate_entitlement.test_item"
+	resourceName := "appgatesdp_entitlement.test_action_order_item"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -322,12 +322,10 @@ func TestAccEntitlementUpdateActionOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.description", ""),
-					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", "gcwogskflp"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "https://www.google.com"),
 					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "disabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "name", "gcwogskflp"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "site", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
@@ -359,17 +357,17 @@ func TestAccEntitlementUpdateActionOrder(t *testing.T) {
 
 func testAccCheckEntitlementMultipleActions(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
 	site_name = "Default Site"
 }
-data "appgate_condition" "always" {
+data "appgatesdp_condition" "always" {
 	condition_name = "Always"
 }
-resource "appgate_entitlement" "test_item" {
+resource "appgatesdp_entitlement" "test_action_order_item" {
 	name = "%s"
-	site = data.appgate_site.default_site.id
+	site = data.appgatesdp_site.default_site.id
 	conditions = [
-		data.appgate_condition.always.id
+		data.appgatesdp_condition.always.id
 	]
 	tags = [
 		"terraform",
@@ -404,17 +402,17 @@ resource "appgate_entitlement" "test_item" {
 
 func testAccCheckEntitlementWithActionOrderUpdated(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
 	site_name = "Default Site"
 }
-data "appgate_condition" "always" {
+data "appgatesdp_condition" "always" {
 	condition_name = "Always"
 }
-resource "appgate_entitlement" "test_item" {
+resource "appgatesdp_entitlement" "test_action_order_item" {
 	name = "%s"
-	site = data.appgate_site.default_site.id
+	site = data.appgatesdp_site.default_site.id
 	conditions = [
-		data.appgate_condition.always.id
+		data.appgatesdp_condition.always.id
 	]
 	tags = [
 		"terraform",
