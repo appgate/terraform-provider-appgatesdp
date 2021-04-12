@@ -127,18 +127,29 @@ func resourceAppgateEntitlement() *schema.Resource {
 						},
 
 						"monitor": {
-							Type:       schema.TypeSet,
-							Optional:   true,
-							ConfigMode: schema.SchemaConfigModeAttr,
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							DefaultFunc: func() (interface{}, error) {
+								var out = make([]map[string]interface{}, 0, 0)
+								m := make(map[string]interface{})
+								m["enabled"] = false
+								m["timeout"] = 30
+								out = append(out, m)
+								return out, nil
+							},
+							DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"timeout": {
 										Type:     schema.TypeInt,
 										Optional: true,
+										Default:  30,
 									},
 								},
 							},
@@ -376,8 +387,8 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	if d.HasChange("actions") {
-		_, n := d.GetChange("actions")
-		actions, err := readConditionActionsFromConfig(n.(*schema.Set).List())
+		_, v := d.GetChange("actions")
+		actions, err := readConditionActionsFromConfig(v.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -465,10 +476,9 @@ func readConditionActionsFromConfig(actions []interface{}) ([]openapi.Entitlemen
 			}
 			a.SetTypes(types)
 		}
-
+		monitor := openapi.NewEntitlementAllOfMonitorWithDefaults()
 		if v, ok := raw["monitor"]; ok {
-			monitor := openapi.NewEntitlementAllOfMonitorWithDefaults()
-			rawMonitors := v.(*schema.Set).List()
+			rawMonitors := v.([]interface{})
 			for _, v := range rawMonitors {
 				rawMonitor := v.(map[string]interface{})
 				if v, ok := rawMonitor["enabled"]; ok {
@@ -477,9 +487,9 @@ func readConditionActionsFromConfig(actions []interface{}) ([]openapi.Entitlemen
 				if v, ok := rawMonitor["timeout"]; ok {
 					monitor.SetTimeout(int32(v.(int)))
 				}
-				a.SetMonitor(*monitor)
 			}
 		}
+		a.SetMonitor(*monitor)
 		result = append(result, *a)
 	}
 	return result, nil

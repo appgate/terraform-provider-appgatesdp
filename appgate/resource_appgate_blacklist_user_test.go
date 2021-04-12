@@ -34,11 +34,11 @@ func TestAccBlacklistUserBasic(t *testing.T) {
 }
 
 func testAccCheckBlacklistUserBasic() string {
-	return fmt.Sprintf(`
+	return `
     resource "appgate_blacklist_user" "test_blacklist_user" {
         user_distinguished_name = "CN=TestUser,OU=ldap"
       }
-`)
+`
 }
 
 func testAccBlacklistUserImportStateCheckFunc(expectedStates int) resource.ImportStateCheckFunc {

@@ -47,7 +47,7 @@ func TestAccMfaProviderBasic(t *testing.T) {
 }
 
 func testAccCheckMfaProviderBasic() string {
-	return fmt.Sprintf(`
+	return `
 resource "appgate_mfa_provider" "test_mfa_provider" {
   name = "themfaprovider"
   port = 1812
@@ -63,7 +63,7 @@ resource "appgate_mfa_provider" "test_mfa_provider" {
     "api-created"
   ]
 }
-`)
+`
 }
 
 func testAccCheckMfaProviderExists(resource string) resource.TestCheckFunc {
