@@ -40,7 +40,7 @@ func dataSourceGlobalSettings() *schema.Resource {
 			},
 			"message_of_the_day": {
 				Type:        schema.TypeString,
-				Description: "The configured message will be displayed after a successful loging.",
+				Description: "The configured message will be displayed after a successful logging.",
 				Computed:    true,
 			},
 			"backup_api_enabled": {

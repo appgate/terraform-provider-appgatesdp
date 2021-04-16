@@ -73,5 +73,5 @@ func findCriteriaScriptByName(api *openapi.CriteriaScriptsApiService, name strin
 	for _, c := range criteraScript.GetData() {
 		return &c, nil
 	}
-	return nil, fmt.Errorf("Failed to find Critera script %s", name)
+	return nil, fmt.Errorf("Failed to find Criteria script %s", name)
 }

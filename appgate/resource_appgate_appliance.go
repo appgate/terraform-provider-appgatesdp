@@ -2128,13 +2128,13 @@ func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("Failed to delete Appliance while GET, %+v", err)
 	}
-	// Deactive
+	// Deactivate
 	if ok, _ := appliance.GetActivatedOk(); *ok {
-		log.Printf("[DEBUG] Appliance is active, deactive and wiping before deleting")
+		log.Printf("[DEBUG] Appliance is active, deactivate and wiping before deleting")
 		deactiveRequest := api.AppliancesIdDeactivatePost(ctx, appliance.GetId())
 		_, err = deactiveRequest.Wipe(true).Authorization(token).Execute()
 		if err != nil {
-			return fmt.Errorf("Failed to delete Appliance while deactiving, %+v", err)
+			return fmt.Errorf("Failed to delete Appliance while deactivating, %+v", err)
 		}
 	}
 

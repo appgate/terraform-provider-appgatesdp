@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// errDefaultTagsError is used when trying to use default tags on priviliges that does not allow it.
+// errDefaultTagsError is used when trying to use default tags on privileges that does not allow it.
 // The items in this list would be added automatically to the newly created objects' tags.
 // Only applicable on "Create" type and targets with tagging capability.
 // This field must be omitted if not applicable.

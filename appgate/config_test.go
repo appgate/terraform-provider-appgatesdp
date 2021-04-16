@@ -57,7 +57,7 @@ func TestLoginInternalServerError(t *testing.T) {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, `{
   "id": "string",
-  "message": "An unexpected error occured."
+  "message": "An unexpected error occurred."
 }`)
 		testMethod(t, r, http.MethodPost)
 
@@ -86,8 +86,8 @@ func TestLoginInternalServerError(t *testing.T) {
 	if !ok {
 		t.Fatalf("Expected openapi Error, got %+v", m)
 	}
-	if *m.Message != "An unexpected error occured." {
-		t.Fatalf("Expected error message 'An unexpected error occured.', got %s", *m.Message)
+	if *m.Message != "An unexpected error occurred." {
+		t.Fatalf("Expected error message 'An unexpected error occurred.', got %s", *m.Message)
 	}
 }
 

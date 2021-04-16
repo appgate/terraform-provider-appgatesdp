@@ -135,8 +135,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 	diags = append(diags, diag.Diagnostic{
 		Severity: diag.Warning,
-		Summary:  "Using unauthenicated Appgate client",
-		Detail:   "Appgate client is unauthenicated. Provide user credentials to access restricted resources.",
+		Summary:  "Using unauthenticated Appgate client",
+		Detail:   "Appgate client is unauthenticated. Provide user credentials to access restricted resources.",
 	})
 
 	return nil, diags
