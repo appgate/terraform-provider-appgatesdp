@@ -23,7 +23,7 @@ data "appgate_global_settings" "default_global_settings" {}
 * `administration_token_expiration` - Number of minutes the administration Token is valid for administrators.
 * `vpn_certificate_expiration` - Number of minutes the VPN certificates is valid for clients.
 * `login_banner_message` - The configured message will be displayed on the login UI.
-* `message_of_the_day` - The onfigured message will be displayed after a successful loging.
+* `message_of_the_day` - The onfigured message will be displayed after a successful logging.
 * `backup_api_enabled` - Whether the backup API is enabled or not.
 * `has_backup_passphrase` - Whether there is a backup passphrase set or not. Deprecated as of 5.0. Use backupApiEnabled instead.
 * `fips` -  FIPS 140-2 Compliant Tunneling.

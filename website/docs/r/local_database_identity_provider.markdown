@@ -9,7 +9,7 @@ description: |-
 # appgate_local_database_identity_provider
 
 Local database Identity Provider is a builtin default singleton resource, that cannot be deleted.
-But we can modifiy the existing one, import the default state from the collective with terraform import.
+But we can modify the existing one, import the default state from the collective with terraform import.
 
 ```bash
 $ terraform import 'appgate_local_database_identity_provider.local' local
