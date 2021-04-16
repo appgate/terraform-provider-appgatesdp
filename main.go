@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 
-	"github.com/appgate/terraform-provider-appgate/appgate"
+	"github.com/appgate/terraform-provider-appgate-sdp/appgate"
 )
 
 func main() {
