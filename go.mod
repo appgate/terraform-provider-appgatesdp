@@ -1,4 +1,4 @@
-module github.com/appgate/terraform-provider-appgate
+module github.com/appgate/terraform-provider-appgate-sdp
 
 go 1.13
 
