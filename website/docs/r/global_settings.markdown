@@ -30,7 +30,7 @@ The following arguments are supported:
 * `administration_token_expiration`: (Optional) Number of minutes the administration Token is valid for administrators.
 * `vpn_certificate_expiration`: (Optional) Number of minutes the VPN certificates is valid for clients.
 * `login_banner_message`: (Optional) The configured message will be displayed on the login UI.
-* `message_of_the_day`: (Optional) The configured message will be displayed after a successful loging.
+* `message_of_the_day`: (Optional) The configured message will be displayed after a successful logging.
 * `backup_api_enabled`: (Optional) Whether the backup API is enabled or not.
 * `backup_passphrase`: (Optional) The passphrase to encrypt Appliance Backups when backup API is used.
 * `fips`: (Optional) FIPS 140-2 Compliant Tunneling.

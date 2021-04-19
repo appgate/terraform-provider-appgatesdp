@@ -74,7 +74,7 @@ func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorI
 		}
 	}
 	if connectorIP == nil {
-		return connectorIP, fmt.Errorf("Could not find bultin connector identity provider")
+		return connectorIP, fmt.Errorf("Could not find builtin connector identity provider")
 	}
 	return connectorIP, nil
 }

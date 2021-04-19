@@ -79,7 +79,7 @@ func getBuiltinLocalDatabaseProviderUUID(ctx context.Context, api openapi.LocalD
 		}
 	}
 	if localDatabase == nil {
-		return localDatabase, fmt.Errorf("Could not find bultin local database identity provider")
+		return localDatabase, fmt.Errorf("Could not find builtin local database identity provider")
 	}
 	return localDatabase, nil
 }

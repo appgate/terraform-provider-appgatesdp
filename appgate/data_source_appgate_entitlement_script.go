@@ -73,5 +73,5 @@ func findEntitlementScriptByName(api *openapi.EntitlementScriptsApiService, name
 	for _, c := range entitlementScript.GetData() {
 		return &c, nil
 	}
-	return nil, fmt.Errorf("Failed to find Critera script %s", name)
+	return nil, fmt.Errorf("Failed to find Criteria script %s", name)
 }

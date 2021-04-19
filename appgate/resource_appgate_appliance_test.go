@@ -1288,7 +1288,7 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 
 					resource.TestCheckResourceAttr(resourceName, "log_server.#", "0"),
-					// TOOD; get site ID
+					// TODO; get site ID
 					// resource.TestCheckResourceAttr(resourceName, "site", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),

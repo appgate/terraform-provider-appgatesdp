@@ -26,7 +26,7 @@ func TestAccConditionBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
 					resource.TestCheckResourceAttr(resourceName, "remedy_methods.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "remedy_methods.0.message", "This resoure requires you to enter your password again"),
+					resource.TestCheckResourceAttr(resourceName, "remedy_methods.0.message", "This resource requires you to enter your password again"),
 					resource.TestCheckResourceAttr(resourceName, "remedy_methods.0.type", "DisplayMessage"),
 
 					resource.TestCheckResourceAttr(resourceName, "repeat_schedules.#", "2"),
@@ -65,7 +65,7 @@ resource "appgate_condition" "test_condition" {
     ]
     remedy_methods {
         type        = "DisplayMessage"
-        message     = "This resoure requires you to enter your password again"
+        message     = "This resource requires you to enter your password again"
     }
 }
 `, rName)
