@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_entitlement_script"
+page_title: "APPGATE: appgatesdp_entitlement_script"
 sidebar_current: "docs-appgate-resource-entitlement_script"
 description: |-
    Create a new Entitlement Script.
 ---
 
-# appgate_entitlement_script
+# appgatesdp_entitlement_script
 
 Create a new Entitlement Script.
 
@@ -14,7 +14,7 @@ Create a new Entitlement Script.
 
 ```hcl
 
-resource "appgate_entitlement_script" "test_entitlement_script" {
+resource "appgatesdp_entitlement_script" "test_entitlement_script" {
   name       = "app_shortcut_script"
   type       = "appShortcut"
   expression = <<-EOF
@@ -62,5 +62,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_entitlement_script d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_entitlement_script d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_ldap_certificate_identity_provider"
+page_title: "APPGATE: appgatesdp_ldap_certificate_identity_provider"
 sidebar_current: "docs-appgate-resource-ldap_certificate_identity_provider"
 description: |-
    Create a new Ldap certificate Identity Provider.
 ---
 
-# appgate_ldap_certificate_identity_provider
+# appgatesdp_ldap_certificate_identity_provider
 
 Create a new Identity Provider.
 
@@ -14,17 +14,17 @@ Create a new Identity Provider.
 
 ```hcl
 
-data "appgate_ip_pool" "ip_four_pool" {
+data "appgatesdp_ip_pool" "ip_four_pool" {
   ip_pool_name = "default pool v4"
 }
 
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
-data "appgate_mfa_provider" "fido" {
+data "appgatesdp_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
-resource "appgate_ldap_certificate_identity_provider" "ldap_cert_test_resource" {
+resource "appgatesdp_ldap_certificate_identity_provider" "ldap_cert_test_resource" {
   name                     = "%s"
   port                     = 389
   admin_distinguished_name = "CN=admin,OU=Users,DC=company,DC=com"
@@ -37,8 +37,8 @@ resource "appgate_ldap_certificate_identity_provider" "ldap_cert_test_resource" 
   membership_base_dn       = "OU=Groups,DC=company,DC=com"
   default                    = false
   inactivity_timeout_minutes = 28
-  ip_pool_v4                 = data.appgate_ip_pool.ip_four_pool.id
-  ip_pool_v6                 = data.appgate_ip_pool.ip_v6_pool.id
+  ip_pool_v4                 = data.appgatesdp_ip_pool.ip_four_pool.id
+  ip_pool_v6                 = data.appgatesdp_ip_pool.ip_v6_pool.id
   admin_password             = "helloworld"
   dns_servers = [
     "172.17.18.19",
@@ -49,7 +49,7 @@ resource "appgate_ldap_certificate_identity_provider" "ldap_cert_test_resource" 
   ]
   block_local_dns_requests = true
   on_boarding_two_factor {
-    mfa_provider_id       = data.appgate_mfa_provider.fido.id
+    mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
     device_limit_per_user = 6
     message               = "welcome"
   }
@@ -122,5 +122,5 @@ CA certificates to verify the Client certificates. In PEM format.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_ldap_certificate_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_ldap_certificate_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

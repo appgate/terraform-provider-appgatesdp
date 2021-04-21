@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_radius_identity_provider"
+page_title: "APPGATE: appgatesdp_radius_identity_provider"
 sidebar_current: "docs-appgate-resource-radius_identity_provider"
 description: |-
    Create a new Radius Identity Provider.
 ---
 
-# appgate_radius_identity_provider
+# appgatesdp_radius_identity_provider
 
 Create a new Radius Identity Provider.
 
@@ -14,19 +14,19 @@ Create a new Radius Identity Provider.
 
 ```hcl
 
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_v4_pool" {
+data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
-data "appgate_mfa_provider" "fido" {
+data "appgatesdp_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
 
-resource "appgate_radius_identity_provider" "radius" {
+resource "appgatesdp_radius_identity_provider" "radius" {
   name = "the-radius"
   hostnames = [
     "radius.company.com"
@@ -34,8 +34,8 @@ resource "appgate_radius_identity_provider" "radius" {
   admin_provider = true
   port           = 1812
   shared_secret  = "hunter2"
-  ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
-  ip_pool_v6     = data.appgate_ip_pool.ip_v6_pool.id
+  ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6     = data.appgatesdp_ip_pool.ip_v6_pool.id
   dns_servers = [
     "172.17.18.19",
     "192.100.111.31"
@@ -45,7 +45,7 @@ resource "appgate_radius_identity_provider" "radius" {
   ]
   block_local_dns_requests = true
   on_boarding_two_factor {
-    mfa_provider_id       = data.appgate_mfa_provider.fido.id
+    mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
     device_limit_per_user = 6
     message               = "welcome"
   }
@@ -198,5 +198,5 @@ Password warning configuration for Active Directory. If enabled, the client will
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_radius_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_radius_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

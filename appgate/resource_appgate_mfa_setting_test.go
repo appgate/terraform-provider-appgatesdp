@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccAdminMfaSettingsBasic(t *testing.T) {
-	resourceName := "appgate_admin_mfa_settings.test_example_mfa_settings"
+	resourceName := "appgatesdp_admin_mfa_settings.test_example_mfa_settings"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -36,7 +36,7 @@ func TestAccAdminMfaSettingsBasic(t *testing.T) {
 
 func testAccCheckAdminMfaSettingsBasic() string {
 	return `
-resource "appgate_admin_mfa_settings" "test_example_mfa_settings" {
+resource "appgatesdp_admin_mfa_settings" "test_example_mfa_settings" {
     exempted_users = [
         "CN=JohnDoe,OU=local"
     ]

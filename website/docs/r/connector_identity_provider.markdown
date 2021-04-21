@@ -1,29 +1,29 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_connector_identity_provider"
+page_title: "APPGATE: appgatesdp_connector_identity_provider"
 sidebar_current: "docs-appgate-resource-connector_identity_provider"
 description: |-
    Connector Identity Provider.
 ---
 
-# appgate_connector_identity_provider
+# appgatesdp_connector_identity_provider
 
 
 ## Example Usage
 
 ```hcl
 
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_v4_pool" {
+data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
-resource "appgate_connector_identity_provider" "connector" {
-  ip_pool_v4 = data.appgate_ip_pool.ip_v4_pool.id
-  ip_pool_v6 = data.appgate_ip_pool.ip_v6_pool.id
+resource "appgatesdp_connector_identity_provider" "connector" {
+  ip_pool_v4 = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6 = data.appgatesdp_ip_pool.ip_v6_pool.id
 }
 
 
@@ -128,5 +128,5 @@ Connector Identity Provider is a builtin default singleton resource, that cannot
 But we can modify the existing one, import the default state from the collective with terraform import.
 
 ```bash
-$ terraform import 'appgate_connector_identity_provider.connector' connector
+$ terraform import 'appgatesdp_connector_identity_provider.connector' connector
 ```

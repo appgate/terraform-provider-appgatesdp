@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_appliance"
+page_title: "APPGATE: appgatesdp_appliance"
 sidebar_current: "docs-appgate-resource-appliance"
 description: |-
    Create a new inactive Appliance.
 ---
 
-# appgate_appliance
+# appgatesdp_appliance
 
 Create a new inactive Appliance.
 
@@ -15,11 +15,11 @@ Create a new inactive Appliance.
 ```hcl
 
 
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
   site_name = "Default site"
 }
 
-resource "appgate_appliance" "new_gateway" {
+resource "appgatesdp_appliance" "new_gateway" {
   name     = "gateway-asd"
   hostname = "envy-10-97-168-1337.devops"
 
@@ -66,7 +66,7 @@ resource "appgate_appliance" "new_gateway" {
     "api-created"
   ]
   notes = "hello world"
-  site  = data.appgate_site.default_site.id
+  site  = data.appgatesdp_site.default_site.id
 
   networking {
 
@@ -193,7 +193,7 @@ resource "appgate_appliance" "new_gateway" {
       use_tls = true
     }
     sites = [
-      data.appgate_site.default_site.id
+      data.appgatesdp_site.default_site.id
     ]
   }
 
@@ -549,5 +549,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_appliance d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_appliance d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

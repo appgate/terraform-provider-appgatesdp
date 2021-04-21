@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccEntitlementBasicPing(t *testing.T) {
-	resourceName := "appgate_entitlement.test_item"
+	resourceName := "appgatesdp_entitlement.test_item"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -72,7 +72,7 @@ func testAccEntitlementImportStateCheckFunc(expectedStates int) resource.ImportS
 
 func testAccCheckItemDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_entitlement" {
+		if rs.Type != "appgatesdp_entitlement" {
 			continue
 		}
 
@@ -89,17 +89,17 @@ func testAccCheckItemDestroy(s *terraform.State) error {
 
 func testAccCheckEntitlementBasicPing(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
 	   site_name = "Default Site"
 }
-data "appgate_condition" "always" {
+data "appgatesdp_condition" "always" {
   condition_name = "Always"
 }
-resource "appgate_entitlement" "test_item" {
+resource "appgatesdp_entitlement" "test_item" {
   name        = "%s"
-  site = data.appgate_site.default_site.id
+  site = data.appgatesdp_site.default_site.id
     conditions = [
-      data.appgate_condition.always.id
+      data.appgatesdp_condition.always.id
   ]
 
   tags = [
@@ -156,7 +156,7 @@ func testAccCheckEntitlementExists(resource string) resource.TestCheckFunc {
 }
 
 func TestAccEntitlementBasicWithMonitor(t *testing.T) {
-	resourceName := "appgate_entitlement.monitor_entitlement"
+	resourceName := "appgatesdp_entitlement.monitor_entitlement"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -203,17 +203,17 @@ func TestAccEntitlementBasicWithMonitor(t *testing.T) {
 
 func testAccCheckEntitlementWithMonitor(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
 	   site_name = "Default Site"
 }
-data "appgate_condition" "always" {
+data "appgatesdp_condition" "always" {
   condition_name = "Always"
 }
-resource "appgate_entitlement" "monitor_entitlement" {
+resource "appgatesdp_entitlement" "monitor_entitlement" {
 	name = "%s"
-	site = data.appgate_site.default_site.id
+	site = data.appgatesdp_site.default_site.id
 	conditions = [
-	  data.appgate_condition.always.id
+	  data.appgatesdp_condition.always.id
 	]
   
 	tags = [
@@ -241,17 +241,17 @@ resource "appgate_entitlement" "monitor_entitlement" {
 
 func testAccCheckEntitlementWithMonitorUpdated(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
 	   site_name = "Default Site"
 }
-data "appgate_condition" "always" {
+data "appgatesdp_condition" "always" {
   condition_name = "Always"
 }
-resource "appgate_entitlement" "monitor_entitlement" {
+resource "appgatesdp_entitlement" "monitor_entitlement" {
 	name = "%s"
-	site = data.appgate_site.default_site.id
+	site = data.appgatesdp_site.default_site.id
 	conditions = [
-	  data.appgate_condition.always.id
+	  data.appgatesdp_condition.always.id
 	]
   
 	tags = [

@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccRingfenceRuleBasicICMP(t *testing.T) {
-	resourceName := "appgate_ringfence_rule.test_ringfence_rule"
+	resourceName := "appgatesdp_ringfence_rule.test_ringfence_rule"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -50,7 +50,7 @@ func TestAccRingfenceRuleBasicICMP(t *testing.T) {
 
 func testAccCheckRingfenceRuleICMP(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_ringfence_rule" "test_ringfence_rule" {
+resource "appgatesdp_ringfence_rule" "test_ringfence_rule" {
     name = "%s"
     tags = [
         "terraform",
@@ -74,7 +74,7 @@ resource "appgate_ringfence_rule" "test_ringfence_rule" {
 }
 
 func TestAccRingfenceRuleBasicTCP(t *testing.T) {
-	resourceName := "appgate_ringfence_rule.test_ringfence_rule_tcp"
+	resourceName := "appgatesdp_ringfence_rule.test_ringfence_rule_tcp"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -116,7 +116,7 @@ func TestAccRingfenceRuleBasicTCP(t *testing.T) {
 }
 func testAccCheckRingfenceRuleTCP(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_ringfence_rule" "test_ringfence_rule_tcp" {
+resource "appgatesdp_ringfence_rule" "test_ringfence_rule_tcp" {
     name = "%s"
     tags = [
       "terraform",
@@ -165,7 +165,7 @@ func testAccCheckRingfenceRuleExists(resource string) resource.TestCheckFunc {
 
 func testAccCheckRingfenceRuleDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_ringfence_rule" {
+		if rs.Type != "appgatesdp_ringfence_rule" {
 			continue
 		}
 

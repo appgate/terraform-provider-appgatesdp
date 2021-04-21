@@ -9,15 +9,15 @@ import (
 
 func TestAccAppgateMfaProviderDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	dataSourceName := "data.appgate_mfa_provider.test_mfa_ds"
-	resourceName := "appgate_mfa_provider.test_mfa_provider"
+	dataSourceName := "data.appgatesdp_mfa_provider.test_mfa_ds"
+	resourceName := "appgatesdp_mfa_provider.test_mfa_provider"
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-					resource "appgate_mfa_provider" "test_mfa_provider" {
+					resource "appgatesdp_mfa_provider" "test_mfa_provider" {
 					  name                    = "%s"
 					  port                    = 1812
 					  type                    = "Radius"
@@ -32,8 +32,8 @@ func TestAccAppgateMfaProviderDataSource(t *testing.T) {
 					    "api-created"
 					  ]
 					}
-					data "appgate_mfa_provider" "test_mfa_ds" {
-					  mfa_provider_id = appgate_mfa_provider.test_mfa_provider.id
+					data "appgatesdp_mfa_provider" "test_mfa_ds" {
+					  mfa_provider_id = appgatesdp_mfa_provider.test_mfa_provider.id
 					}
                 `, rName),
 

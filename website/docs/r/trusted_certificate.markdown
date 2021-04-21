@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_trusted_certificate"
+page_title: "APPGATE: appgatesdp_trusted_certificate"
 sidebar_current: "docs-appgate-resource-trusted_certificate"
 description: |-
    Create a new Trusted Certificate.
 ---
 
-# appgate_trusted_certificate
+# appgatesdp_trusted_certificate
 
 Create a new Trusted Certificate.
 
@@ -14,7 +14,7 @@ Create a new Trusted Certificate.
 
 ```hcl
 
-resource "appgate_trusted_certificate" "cert" {
+resource "appgatesdp_trusted_certificate" "cert" {
   name = "cli"
   tags = [
     "terraform",
@@ -53,5 +53,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_trusted_certificate d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_trusted_certificate d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

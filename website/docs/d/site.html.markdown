@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_site"
+page_title: "APPGATE: appgatesdp_site"
 sidebar_current: "docs-appgate-datasource-site"
 description: |-
   The site data source provides details about a specific site.
 ---
 
-# appgate_site
+# appgatesdp_site
 
 The site data source provides details about a specific site.
 
@@ -17,7 +17,7 @@ The site data source provides details about a specific site.
 
 variable "site_id" {}
 
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
     site_id = "${var.site_id}"
 }
 

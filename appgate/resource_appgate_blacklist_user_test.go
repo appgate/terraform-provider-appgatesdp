@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccBlacklistUserBasic(t *testing.T) {
-	resourceName := "appgate_blacklist_user.test_blacklist_user"
+	resourceName := "appgatesdp_blacklist_user.test_blacklist_user"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -35,7 +35,7 @@ func TestAccBlacklistUserBasic(t *testing.T) {
 
 func testAccCheckBlacklistUserBasic() string {
 	return `
-    resource "appgate_blacklist_user" "test_blacklist_user" {
+    resource "appgatesdp_blacklist_user" "test_blacklist_user" {
         user_distinguished_name = "CN=TestUser,OU=ldap"
       }
 `

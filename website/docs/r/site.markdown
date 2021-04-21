@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_site"
+page_title: "APPGATE: appgatesdp_site"
 sidebar_current: "docs-appgate-resource-site"
 description: |-
    Create a new Site.
 ---
 
-# appgate_site
+# appgatesdp_site
 
 Create a new Site.
 
@@ -14,7 +14,7 @@ Create a new Site.
 
 ```hcl
 
-resource "appgate_site" "gbg_site" {
+resource "appgatesdp_site" "gbg_site" {
   name       = "Gothenburg site"
   short_name = "gbg"
   tags = [
@@ -155,5 +155,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_site d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_site d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

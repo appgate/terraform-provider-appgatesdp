@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccConnectorIdentityProviderBasic(t *testing.T) {
-	resourceName := "appgate_connector_identity_provider.connector_test_resource"
+	resourceName := "appgatesdp_connector_identity_provider.connector_test_resource"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -75,18 +75,18 @@ func TestAccConnectorIdentityProviderBasic(t *testing.T) {
 
 func testAccCheckConnectorIdentityProviderBasic() string {
 	return `
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_v4_pool" {
+data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
-resource "appgate_connector_identity_provider" "connector_test_resource" {
+resource "appgatesdp_connector_identity_provider" "connector_test_resource" {
   notes      = "Built-in Identity Provider on local database."
-  ip_pool_v4 = data.appgate_ip_pool.ip_v4_pool.id
-  ip_pool_v6 = data.appgate_ip_pool.ip_v6_pool.id
+  ip_pool_v4 = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6 = data.appgatesdp_ip_pool.ip_v6_pool.id
   tags = [
     "builtin",
   ]

@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_entitlement"
+page_title: "APPGATE: appgatesdp_entitlement"
 sidebar_current: "docs-appgate-resource-entitlement"
 description: |-
    Create a new Entitlement.
 ---
 
-# appgate_entitlement
+# appgatesdp_entitlement
 
 Create a new Entitlement.
 
@@ -14,11 +14,11 @@ Create a new Entitlement.
 
 ```hcl
 
-resource "appgate_entitlement" "ping_entitlement" {
+resource "appgatesdp_entitlement" "ping_entitlement" {
   name = "test entitlement"
-  site = data.appgate_site.default_site.id
+  site = data.appgatesdp_site.default_site.id
   conditions = [
-    data.appgate_condition.always.id
+    data.appgatesdp_condition.always.id
   ]
 
   tags = [
@@ -129,5 +129,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_entitlement d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_entitlement d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

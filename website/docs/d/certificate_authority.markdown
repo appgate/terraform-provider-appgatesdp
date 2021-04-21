@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_certificate_authority"
+page_title: "APPGATE: appgatesdp_certificate_authority"
 sidebar_current: "docs-appgate-datasource-certificate_authority"
 description: |-
   The certificate_authority data source provides details about a specific certificate_authority.
 ---
 
-# appgate_certificate_authority
+# appgatesdp_certificate_authority
 
 Get the current CA Certificate.
 
@@ -16,7 +16,7 @@ Get the current CA Certificate.
 
 ```hcl
 
-data "appgate_certificate_authority" "ca" {
+data "appgatesdp_certificate_authority" "ca" {
   pem = true
 }
 

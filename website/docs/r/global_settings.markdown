@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_global_settings"
+page_title: "APPGATE: appgatesdp_global_settings"
 sidebar_current: "docs-appgate-resource-global_settings"
 description: |-
    Update all Global Settings.
 ---
 
-# appgate_global_settings
+# appgatesdp_global_settings
 
 Global settings are a singleton resource to allow us to update global settings for the collective.
 
@@ -14,7 +14,7 @@ Global settings are a singleton resource to allow us to update global settings f
 
 ```hcl
 
-resource "appgate_global_settings" "test_global_settings" {
+resource "appgatesdp_global_settings" "test_global_settings" {
    login_banner_message = "Welcome"
 }
 

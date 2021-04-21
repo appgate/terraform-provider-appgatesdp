@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_ringfence_rule"
+page_title: "APPGATE: appgatesdp_ringfence_rule"
 sidebar_current: "docs-appgate-datasource-ringfence_rule"
 description: |-
   The ringfence-rule data source provides details about a specific ringfence-rule.
 ---
 
-# appgate_ringfence_rule
+# appgatesdp_ringfence_rule
 
 The ringfence-rule data source provides details about a specific ringfence-rule.
 
@@ -17,7 +17,7 @@ The ringfence-rule data source provides details about a specific ringfence-rule.
 
 variable "ringfence_rule_id" {}
 
-data "appgate_ringfence_rule" "default_ringfence_rule" {
+data "appgatesdp_ringfence_rule" "default_ringfence_rule" {
     ringfence-rule_id = "${var.ringfence_rule_id}"
 }
 

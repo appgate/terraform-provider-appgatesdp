@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_condition"
+page_title: "APPGATE: appgatesdp_condition"
 sidebar_current: "docs-appgate-datasource-condition"
 description: |-
   The condition data source provides details about a specific condition.
 ---
 
-# appgate_condition
+# appgatesdp_condition
 
 The condition data source provides details about a specific condition.
 
@@ -17,7 +17,7 @@ The condition data source provides details about a specific condition.
 
 variable "condition_id" {}
 
-data "appgate_condition" "default_condition" {
+data "appgatesdp_condition" "default_condition" {
     condition_id = "${var.condition_id}"
 }
 

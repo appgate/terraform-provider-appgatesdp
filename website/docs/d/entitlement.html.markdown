@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_entitlement"
+page_title: "APPGATE: appgatesdp_entitlement"
 sidebar_current: "docs-appgate-datasource-entitlement"
 description: |-
   The entitlement data source provides details about a specific entitlement.
 ---
 
-# appgate_entitlement
+# appgatesdp_entitlement
 
 The entitlement data source provides details about a specific entitlement.
 
@@ -17,7 +17,7 @@ The entitlement data source provides details about a specific entitlement.
 
 variable "entitlement_id" {}
 
-data "appgate_entitlement" "default_entitlement" {
+data "appgatesdp_entitlement" "default_entitlement" {
     entitlement_id = "${var.entitlement_id}"
 }
 

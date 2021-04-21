@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_appliance_customization"
+page_title: "APPGATE: appgatesdp_appliance_customization"
 sidebar_current: "docs-appgate-resource-appliance_customization"
 description: |-
    Create a new Appliance Customization.
 ---
 
-# appgate_appliance_customization
+# appgatesdp_appliance_customization
 
 Create a new Appliance Customization.
 
@@ -37,7 +37,7 @@ EOF
   }
 }
 
-resource "appgate_appliance_customization" "test_customization" {
+resource "appgatesdp_appliance_customization" "test_customization" {
   name = "test customization"
   file = data.archive_file.customization.output_path
 
@@ -74,5 +74,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_appliance_customization d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_appliance_customization d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

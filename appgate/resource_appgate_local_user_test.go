@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccLocalUserBasic(t *testing.T) {
-	resourceName := "appgate_local_user.test_local_user"
+	resourceName := "appgatesdp_local_user.test_local_user"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -46,7 +46,7 @@ func TestAccLocalUserBasic(t *testing.T) {
 
 func testAccCheckLocalUserBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_local_user" "test_local_user" {
+resource "appgatesdp_local_user" "test_local_user" {
     name                  = "%s"
     first_name            = "john"
     last_name             = "doe"
@@ -87,7 +87,7 @@ func testAccCheckLocalUserExists(resource string) resource.TestCheckFunc {
 
 func testAccCheckLocalUserDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_local_user" {
+		if rs.Type != "appgatesdp_local_user" {
 			continue
 		}
 

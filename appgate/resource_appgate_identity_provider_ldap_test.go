@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccLdapIdentityProviderBasic(t *testing.T) {
-	resourceName := "appgate_ldap_identity_provider.ldap_test_resource"
+	resourceName := "appgatesdp_ldap_identity_provider.ldap_test_resource"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -113,17 +113,17 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 
 func testAccCheckLdapIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_ip_pool" "ip_v4_pool" {
+data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
-data "appgate_mfa_provider" "fido" {
+data "appgatesdp_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
-resource "appgate_ldap_identity_provider" "ldap_test_resource" {
+resource "appgatesdp_ldap_identity_provider" "ldap_test_resource" {
   name                     = "%s"
   port                     = 389
   admin_distinguished_name = "CN=admin,OU=Users,DC=company,DC=com"
@@ -141,8 +141,8 @@ resource "appgate_ldap_identity_provider" "ldap_test_resource" {
   }
   default                    = false
   inactivity_timeout_minutes = 28
-  ip_pool_v4                 = data.appgate_ip_pool.ip_v4_pool.id
-  ip_pool_v6                 = data.appgate_ip_pool.ip_v6_pool.id
+  ip_pool_v4                 = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6                 = data.appgatesdp_ip_pool.ip_v6_pool.id
   admin_password             = "helloworld"
   dns_servers = [
     "172.17.18.19",
@@ -153,7 +153,7 @@ resource "appgate_ldap_identity_provider" "ldap_test_resource" {
   ]
   block_local_dns_requests = true
   on_boarding_two_factor {
-    mfa_provider_id       = data.appgate_mfa_provider.fido.id
+    mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
     device_limit_per_user = 6
     message               = "welcome"
   }
@@ -197,7 +197,7 @@ func testAccCheckLdapIdentityProviderExists(resource string) resource.TestCheckF
 
 func testAccCheckLdapIdentityProviderDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_ldap_identity_provider" {
+		if rs.Type != "appgatesdp_ldap_identity_provider" {
 			continue
 		}
 

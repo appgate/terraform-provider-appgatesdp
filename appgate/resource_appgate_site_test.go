@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccSiteBasic(t *testing.T) {
-	resourceName := "appgate_site.test_site"
+	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -144,7 +144,7 @@ func testAccSiteImportStateCheckFunc(expectedStates int) resource.ImportStateChe
 
 func testAccCheckSiteDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_site" {
+		if rs.Type != "appgatesdp_site" {
 			continue
 		}
 
@@ -161,7 +161,7 @@ func testAccCheckSiteDestroy(s *terraform.State) error {
 
 func testAccCheckSite(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_site" "test_site" {
+resource "appgatesdp_site" "test_site" {
     name       = "%s"
     short_name = "tst"
     tags = [
@@ -241,7 +241,7 @@ resource "appgate_site" "test_site" {
 
 func testAccCheckSiteUpdate() string {
 	return `
-resource "appgate_site" "test_site" {
+resource "appgatesdp_site" "test_site" {
     name       = "The test site"
     short_name = "tst"
     tags = [
@@ -321,7 +321,7 @@ resource "appgate_site" "test_site" {
 
 func testAccCheckSiteNetworkDelete() string {
 	return `
-resource "appgate_site" "test_site" {
+resource "appgatesdp_site" "test_site" {
     name       = "The test site"
     short_name = "tst"
     tags = [

@@ -9,15 +9,15 @@ import (
 
 func TestAccAppgateLocalUserDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	dataSourceName := "data.appgate_local_user.testdslu"
-	resourceName := "appgate_local_user.new_user_for_ds"
+	dataSourceName := "data.appgatesdp_local_user.testdslu"
+	resourceName := "appgatesdp_local_user.new_user_for_ds"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-                resource "appgate_local_user" "new_user_for_ds" {
+                resource "appgatesdp_local_user" "new_user_for_ds" {
                     name                  = "%s"
                     first_name            = "john"
                     last_name             = "doe"
@@ -31,8 +31,8 @@ func TestAccAppgateLocalUserDataSource(t *testing.T) {
                       "api-created"
                     ]
                 }
-                data "appgate_local_user" "testdslu" {
-                    local_user_id = appgate_local_user.new_user_for_ds.local_user_id
+                data "appgatesdp_local_user" "testdslu" {
+                    local_user_id = appgatesdp_local_user.new_user_for_ds.local_user_id
                 }
                 `, rName),
 

@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccCriteriaScriptBasic(t *testing.T) {
-	resourceName := "appgate_criteria_script.test_criteria_script"
+	resourceName := "appgatesdp_criteria_script.test_criteria_script"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -40,7 +40,7 @@ func TestAccCriteriaScriptBasic(t *testing.T) {
 
 func testAccCheckCriteriaScriptBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_criteria_script" "test_criteria_script" {
+resource "appgatesdp_criteria_script" "test_criteria_script" {
   name       = "%s"
   expression = "return claims.user.username === 'admin';"
   tags = [
@@ -75,7 +75,7 @@ func testAccCheckCriteriaScriptExists(resource string) resource.TestCheckFunc {
 
 func testAccCheckCriteriaScriptDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_criteria_script" {
+		if rs.Type != "appgatesdp_criteria_script" {
 			continue
 		}
 

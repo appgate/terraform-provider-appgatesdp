@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccRadiusIdentityProviderBasic(t *testing.T) {
-	resourceName := "appgate_radius_identity_provider.radius_test_resource"
+	resourceName := "appgatesdp_radius_identity_provider.radius_test_resource"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -103,17 +103,17 @@ func TestAccRadiusIdentityProviderBasic(t *testing.T) {
 
 func testAccCheckRadiusIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_v4_pool" {
+data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
-data "appgate_mfa_provider" "fido" {
+data "appgatesdp_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
-resource "appgate_radius_identity_provider" "radius_test_resource" {
+resource "appgatesdp_radius_identity_provider" "radius_test_resource" {
   name = "%s"
   hostnames = [
     "radius.company.com"
@@ -121,8 +121,8 @@ resource "appgate_radius_identity_provider" "radius_test_resource" {
   admin_provider = true
   port           = 1812
   shared_secret  = "hunter2"
-  ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
-  ip_pool_v6     = data.appgate_ip_pool.ip_v6_pool.id
+  ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6     = data.appgatesdp_ip_pool.ip_v6_pool.id
   dns_servers = [
     "172.17.18.19",
     "192.100.111.31"
@@ -132,7 +132,7 @@ resource "appgate_radius_identity_provider" "radius_test_resource" {
   ]
   block_local_dns_requests = true
   on_boarding_two_factor {
-    mfa_provider_id       = data.appgate_mfa_provider.fido.id
+    mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
     device_limit_per_user = 6
     message               = "welcome"
   }
@@ -213,7 +213,7 @@ func testAccCheckRadiusIdentityProviderExists(resource string) resource.TestChec
 
 func testAccCheckRadiusIdentityProviderDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_radius_identity_provider" {
+		if rs.Type != "appgatesdp_radius_identity_provider" {
 			continue
 		}
 

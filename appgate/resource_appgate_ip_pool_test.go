@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccIPPoolBasic(t *testing.T) {
-	resourceName := "appgate_ip_pool.test_ip_pool_v4"
+	resourceName := "appgatesdp_ip_pool.test_ip_pool_v4"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,7 +44,7 @@ func TestAccIPPoolBasic(t *testing.T) {
 
 func testAccCheckIPPoolBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_ip_pool" "test_ip_pool_v4" {
+resource "appgatesdp_ip_pool" "test_ip_pool_v4" {
     name            = "%s"
     lease_time_days = 5
     ranges {
@@ -84,7 +84,7 @@ func testAccCheckIPPoolExists(resource string) resource.TestCheckFunc {
 
 func testAccCheckIPPoolDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_ip_pool" {
+		if rs.Type != "appgatesdp_ip_pool" {
 			continue
 		}
 

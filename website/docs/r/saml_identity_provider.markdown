@@ -1,35 +1,35 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_saml_identity_provider"
+page_title: "APPGATE: appgatesdp_saml_identity_provider"
 sidebar_current: "docs-appgate-resource-saml_identity_provider"
 description: |-
    Create a new Saml Identity Provider.
 ---
 
-# appgate_saml_identity_provider
+# appgatesdp_saml_identity_provider
 
 Create a new Saml Identity Provider.
 
 ## Example Usage
 
 ```hcl
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_v4_pool" {
+data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
-data "appgate_mfa_provider" "fido" {
+data "appgatesdp_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
 
-resource "appgate_saml_identity_provider" "test_saml_identity_provider" {
+resource "appgatesdp_saml_identity_provider" "test_saml_identity_provider" {
   name = "saml"
 
   admin_provider = true
-  ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
-  ip_pool_v6     = data.appgate_ip_pool.ip_v6_pool.id
+  ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6     = data.appgatesdp_ip_pool.ip_v6_pool.id
   dns_servers = [
     "172.17.18.19",
     "192.100.111.31"
@@ -51,7 +51,7 @@ EOF
 
   block_local_dns_requests = true
   on_boarding_two_factor {
-    mfa_provider_id       = data.appgate_mfa_provider.fido.id
+    mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
     device_limit_per_user = 6
     message               = "welcome"
   }
@@ -203,5 +203,5 @@ Password warning configuration for Active Directory. If enabled, the client will
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_saml_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_saml_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

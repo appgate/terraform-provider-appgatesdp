@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccEntitlementScriptBasic(t *testing.T) {
-	resourceName := "appgate_entitlement_script.test_entitlement_script"
+	resourceName := "appgatesdp_entitlement_script.test_entitlement_script"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -41,7 +41,7 @@ func TestAccEntitlementScriptBasic(t *testing.T) {
 
 func testAccCheckEntitlementScriptBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_entitlement_script" "test_entitlement_script" {
+resource "appgatesdp_entitlement_script" "test_entitlement_script" {
   name       = "%s"
   type       = "appShortcut"
   expression = "return [];"
@@ -78,7 +78,7 @@ func testAccCheckEntitlementScriptExists(resource string) resource.TestCheckFunc
 
 func testAccCheckEntitlementScriptDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_entitlement_script" {
+		if rs.Type != "appgatesdp_entitlement_script" {
 			continue
 		}
 

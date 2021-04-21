@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_ip_pool"
+page_title: "APPGATE: appgatesdp_ip_pool"
 sidebar_current: "docs-appgate-datasource-ip_pool"
 description: |-
   The ip_pool data source provides details about a specific ip_pool.
 ---
 
-# appgate_ip_pool
+# appgatesdp_ip_pool
 
 The ip_pool data source provides details about a specific ip_pool.
 
@@ -17,7 +17,7 @@ The ip_pool data source provides details about a specific ip_pool.
 
 variable "ip_pool_id" {}
 
-data "appgate_ip_pool" "default_ip_pool" {
+data "appgatesdp_ip_pool" "default_ip_pool" {
     ip_pool_id = "${var.ip_pool_id}"
 }
 

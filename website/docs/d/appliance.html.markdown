@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_appliance"
+page_title: "APPGATE: appgatesdp_appliance"
 sidebar_current: "docs-appgate-datasource-appliance"
 description: |-
   The appliance data source provides details about a specific appliance.
 ---
 
-# appgate_appliance
+# appgatesdp_appliance
 
 The appliance data source provides details about a specific appliance.
 
@@ -17,7 +17,7 @@ The appliance data source provides details about a specific appliance.
 
 variable "appliance_id" {}
 
-data "appgate_appliance" "default_appliance" {
+data "appgatesdp_appliance" "default_appliance" {
     appliance_id = "${var.appliance_id}"
 }
 

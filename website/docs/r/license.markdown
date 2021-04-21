@@ -1,12 +1,12 @@
 ---
 layout: "appgate"
-page_title: "APPGATE: appgate_license"
+page_title: "APPGATE: appgatesdp_license"
 sidebar_current: "docs-appgate-resource-license"
 description: |-
    Upload a new License and override the existing one.
 ---
 
-# appgate_license
+# appgatesdp_license
 
 Upload a new License.
 
@@ -14,7 +14,7 @@ Upload a new License.
 
 ```hcl
 
-resource "appgate_license" "the_license" {
+resource "appgatesdp_license" "the_license" {
     license  = <<-EOF
 ....
 ....
@@ -39,5 +39,5 @@ The following arguments are supported:
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_license d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_license d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

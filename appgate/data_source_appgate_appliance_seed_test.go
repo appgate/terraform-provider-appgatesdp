@@ -9,8 +9,8 @@ import (
 
 func TestAccAppgateApplianceSeedDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	dataSourceName := "data.appgate_appliance_seed.test_gateway_seed_file"
-	resourceName := "appgate_appliance.new_test_gateway"
+	dataSourceName := "data.appgatesdp_appliance_seed.test_gateway_seed_file"
+	resourceName := "appgatesdp_appliance.new_test_gateway"
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -20,9 +20,9 @@ func TestAccAppgateApplianceSeedDataSource(t *testing.T) {
 
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "appliance_id", resourceName, "id"),
-					resource.TestCheckResourceAttrSet("data.appgate_appliance_seed.test_gateway_seed_file", "latest_version"),
-					resource.TestCheckResourceAttrSet("data.appgate_appliance_seed.test_gateway_seed_file", "password"),
-					resource.TestCheckResourceAttrSet("data.appgate_appliance_seed.test_gateway_seed_file", "seed_file"),
+					resource.TestCheckResourceAttrSet("data.appgatesdp_appliance_seed.test_gateway_seed_file", "latest_version"),
+					resource.TestCheckResourceAttrSet("data.appgatesdp_appliance_seed.test_gateway_seed_file", "password"),
+					resource.TestCheckResourceAttrSet("data.appgatesdp_appliance_seed.test_gateway_seed_file", "seed_file"),
 				),
 			},
 		},
@@ -31,11 +31,11 @@ func TestAccAppgateApplianceSeedDataSource(t *testing.T) {
 
 func testAccSeedTest(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
   site_name = "Default site"
 }
 
-resource "appgate_appliance" "new_test_gateway" {
+resource "appgatesdp_appliance" "new_test_gateway" {
   name     = "%s"
   hostname = "envy-10-97-168-1337.devops"
 
@@ -63,7 +63,7 @@ resource "appgate_appliance" "new_test_gateway" {
     }
   }
 
-  site = data.appgate_site.default_site.id
+  site = data.appgatesdp_site.default_site.id
   networking {
     nics {
       enabled = true
@@ -82,8 +82,8 @@ resource "appgate_appliance" "new_test_gateway" {
 }
 
 
-data "appgate_appliance_seed" "test_gateway_seed_file" {
-  appliance_id   = appgate_appliance.new_test_gateway.id
+data "appgatesdp_appliance_seed" "test_gateway_seed_file" {
+  appliance_id   = appgatesdp_appliance.new_test_gateway.id
   password       = "cz"
   latest_version = true
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccApplianceBasicController(t *testing.T) {
-	resourceName := "appgate_appliance.test_controller"
+	resourceName := "appgatesdp_appliance.test_controller"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -515,7 +515,7 @@ func testAccApplianceImportStateCheckFunc(expectedStates int) resource.ImportSta
 
 func testAccCheckApplianceDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_appliance" {
+		if rs.Type != "appgatesdp_appliance" {
 			continue
 		}
 
@@ -532,11 +532,11 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 
 func testAccCheckApplianceBasicController(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
   site_name = "Default Site"
 }
 
-resource "appgate_appliance" "test_controller" {
+resource "appgatesdp_appliance" "test_controller" {
   name     = "%s"
   hostname = "envy-10-97-168-1337.devops"
   connect_to_peers_using_client_port_with_spa = true
@@ -717,7 +717,7 @@ resource "appgate_appliance" "test_controller" {
       filter  = "log.client_ip=='10.0.23.523'"
     }
     sites = [
-      data.appgate_site.default_site.id
+      data.appgatesdp_site.default_site.id
     ]
   }
 }
@@ -726,11 +726,11 @@ resource "appgate_appliance" "test_controller" {
 
 func testAccCheckApplianceBasicControllerUpdate(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
   site_name = "Default Site"
 }
 
-resource "appgate_appliance" "test_controller" {
+resource "appgatesdp_appliance" "test_controller" {
   name     = "%s updated"
   hostname = "updated-envy-10-97-168-1337.devops"
 
@@ -951,7 +951,7 @@ resource "appgate_appliance" "test_controller" {
       filter  = "log.client_ip=='10.0.24.523'"
     }
     sites = [
-      data.appgate_site.default_site.id
+      data.appgatesdp_site.default_site.id
     ]
   }
 }
@@ -960,11 +960,11 @@ resource "appgate_appliance" "test_controller" {
 
 func testAccCheckApplianceBasicControllerDisableDelete(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
   site_name = "Default site"
 }
 
-resource "appgate_appliance" "test_controller" {
+resource "appgatesdp_appliance" "test_controller" {
   name     = "%s disable"
   hostname = "updated-envy-10-97-168-1337.devops"
 
@@ -1079,7 +1079,7 @@ resource "appgate_appliance" "test_controller" {
 }
 
 func TestAccApplianceConnector(t *testing.T) {
-	resourceName := "appgate_appliance.connector"
+	resourceName := "appgatesdp_appliance.connector"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -1165,13 +1165,13 @@ func TestAccApplianceConnector(t *testing.T) {
 
 func testAccCheckApplianceBasicConnector(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
     site_name = "Default site"
 }
-resource "appgate_appliance" "connector" {
+resource "appgatesdp_appliance" "connector" {
     name     = "%s"
     hostname = "envy-10-97-168-1234.devops"
-    site     = data.appgate_site.default_site.id
+    site     = data.appgatesdp_site.default_site.id
 
     client_interface {
       hostname       = "envy-10-97-168-1234.devops"
@@ -1261,7 +1261,7 @@ func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 }
 
 func TestAccApplianceBasicGateway(t *testing.T) {
-	resourceName := "appgate_appliance.test_gateway"
+	resourceName := "appgatesdp_appliance.test_gateway"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -1323,14 +1323,14 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 
 func testAccCheckApplianceBasicGateway(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
   site_name = "Default site"
 }
 
-resource "appgate_appliance" "test_gateway" {
+resource "appgatesdp_appliance" "test_gateway" {
   name     = "%s"
   hostname = "envy-10-97-168-1338.devops"
-  site     = data.appgate_site.default_site.id
+  site     = data.appgatesdp_site.default_site.id
   client_interface {
     hostname       = "envy-10-97-168-1338.devops"
     proxy_protocol = true
