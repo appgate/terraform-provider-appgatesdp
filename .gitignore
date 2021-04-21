@@ -1,4 +1,4 @@
-terraform-provider-appgate*
+terraform-provider-appgatesdp
 .terraform/*
 terraform.tfstate*
 .terraform.lock.hcl
