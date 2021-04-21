@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_mfa_provider"
 sidebar_current: "docs-appgate-resource-mfa_provider"
 description: |-

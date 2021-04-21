@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_global_settings"
 sidebar_current: "docs-appgate-datasource-global_settings"
 description: |-

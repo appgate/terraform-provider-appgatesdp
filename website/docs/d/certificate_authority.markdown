@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_certificate_authority"
 sidebar_current: "docs-appgate-datasource-certificate_authority"
 description: |-

@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_site"
 sidebar_current: "docs-appgate-datasource-site"
 description: |-

@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_local_user"
 sidebar_current: "docs-appgate-datasource-local_user"
 description: |-

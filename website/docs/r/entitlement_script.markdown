@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_entitlement_script"
 sidebar_current: "docs-appgate-resource-entitlement_script"
 description: |-

@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_administrative_role"
 sidebar_current: "docs-appgate-datasource-administrative_role"
 description: |-

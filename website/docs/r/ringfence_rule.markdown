@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_ringfence_rule"
 sidebar_current: "docs-appgate-resource-ringfence_rule"
 description: |-

@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_device_script"
 sidebar_current: "docs-appgate-datasource-device_script"
 description: |-

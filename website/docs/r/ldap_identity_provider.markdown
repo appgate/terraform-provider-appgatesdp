@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_ldap_identity_provider"
 sidebar_current: "docs-appgate-resource-ldap_identity_provider"
 description: |-

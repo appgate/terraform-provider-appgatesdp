@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_trusted_certificate"
 sidebar_current: "docs-appgate-resource-trusted_certificate"
 description: |-

@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_ip_pool"
 sidebar_current: "docs-appgate-datasource-ip_pool"
 description: |-

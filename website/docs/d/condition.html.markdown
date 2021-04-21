@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_condition"
 sidebar_current: "docs-appgate-datasource-condition"
 description: |-

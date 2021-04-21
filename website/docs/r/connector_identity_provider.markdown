@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_connector_identity_provider"
 sidebar_current: "docs-appgate-resource-connector_identity_provider"
 description: |-

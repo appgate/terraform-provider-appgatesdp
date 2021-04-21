@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_criteria_script"
 sidebar_current: "docs-appgate-resource-criteria_script"
 description: |-

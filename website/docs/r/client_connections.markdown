@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_client_connections"
 sidebar_current: "docs-appgate-resource-client_connections"
 description: |-

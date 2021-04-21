@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_admin_mfa_settings"
 sidebar_current: "docs-appgate-resource-admin_mfa_settings"
 description: |-

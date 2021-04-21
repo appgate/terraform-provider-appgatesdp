@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_radius_identity_provider"
 sidebar_current: "docs-appgate-resource-radius_identity_provider"
 description: |-

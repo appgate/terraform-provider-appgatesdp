@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_policy"
 sidebar_current: "docs-appgate-resource-policy"
 description: |-

@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_saml_identity_provider"
 sidebar_current: "docs-appgate-resource-saml_identity_provider"
 description: |-

@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_blacklist_user"
 sidebar_current: "docs-appgate-resource-blacklist_user"
 description: |-

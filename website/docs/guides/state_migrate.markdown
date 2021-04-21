@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "State migration"
 sidebar_current: "docs-appgate-guide-state_migrate"
 description: |-

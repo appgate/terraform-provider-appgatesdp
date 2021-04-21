@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_license"
 sidebar_current: "docs-appgate-resource-license"
 description: |-
