@@ -1,5 +1,5 @@
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
-BIN_NAME=terraform-provider-appgate-sdp
+BIN_NAME=terraform-provider-appgatesdp
 TEST?=./appgate
 GORELEASER_VERSION = 0.143.0
 ACCTEST_PARALLELISM?=20
@@ -8,8 +8,8 @@ GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
 HOSTNAME=appgate.com
 NAMESPACE=appgate
-NAME=appgate-sdp
-VERSION=0.3.5
+NAME=appgatesdp
+VERSION=0.5.0
 
 
 build:
