@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_ringfence_rule"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_ringfence_rule"
 sidebar_current: "docs-appgate-resource-ringfence_rule"
 description: |-
    Create a new Ringfence Rule.
 ---
 
-# appgate_ringfence_rule
+# appgatesdp_ringfence_rule
 
 Create a new Ringfence Rule.
 
@@ -14,7 +14,7 @@ Create a new Ringfence Rule.
 
 ```hcl
 
-resource "appgate_ringfence_rule" "basic_rule" {
+resource "appgatesdp_ringfence_rule" "basic_rule" {
   name = "basic"
   tags = [
     "terraform",
@@ -92,5 +92,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_ringfence_rule d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_ringfence_rule d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

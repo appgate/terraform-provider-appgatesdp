@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccPolicyBasic(t *testing.T) {
-	resourceName := "appgate_policy.test_policy"
+	resourceName := "appgatesdp_policy.test_policy"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,7 +44,7 @@ func TestAccPolicyBasic(t *testing.T) {
 
 func testAccCheckPolicyBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_policy" "test_policy" {
+resource "appgatesdp_policy" "test_policy" {
     name  = "%s"
     notes = "terraform policy notes"
     tags = [
@@ -101,7 +101,7 @@ func testAccCheckPolicyExists(resource string) resource.TestCheckFunc {
 
 func testAccCheckPolicyDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_policy" {
+		if rs.Type != "appgatesdp_policy" {
 			continue
 		}
 

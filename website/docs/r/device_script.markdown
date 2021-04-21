@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_device_script"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_device_script"
 sidebar_current: "docs-appgate-resource-device_script"
 description: |-
    Create a new Device Script.
 ---
 
-# appgate_device_script
+# appgatesdp_device_script
 
 Create a new Device Script.
 
@@ -16,7 +16,7 @@ Create a new Device Script.
 ### Inline content script
 ```hcl
 
-resource "appgate_device_script" "example_device_script" {
+resource "appgatesdp_device_script" "example_device_script" {
   name     = "device_script_name"
   filename = "script.sh"
   content  = <<-EOF
@@ -35,7 +35,7 @@ EOF
 
 ```hcl
 
-resource "appgate_device_script" "example_device_script" {
+resource "appgatesdp_device_script" "example_device_script" {
   name     = "device_script_name"
   filename = "script.sh"
   file     = "/path/to/file/script.sh"
@@ -69,5 +69,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_device_script d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_device_script d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccClientConnectionsBasic(t *testing.T) {
-	resourceName := "appgate_client_connections.test_example_client_connections"
+	resourceName := "appgatesdp_client_connections.test_example_client_connections"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -40,7 +40,7 @@ func TestAccClientConnectionsBasic(t *testing.T) {
 
 func testAccCheckClientConnectionsBasic() string {
 	return `
-    resource "appgate_client_connections" "test_example_client_connections" {
+    resource "appgatesdp_client_connections" "test_example_client_connections" {
         spa_mode = "TCP"
         profiles {
           name                   = "Company Test"

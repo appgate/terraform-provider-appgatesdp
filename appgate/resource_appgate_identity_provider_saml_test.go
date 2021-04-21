@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccSamlIdentityProviderBasic(t *testing.T) {
-	resourceName := "appgate_saml_identity_provider.saml_test_resource"
+	resourceName := "appgatesdp_saml_identity_provider.saml_test_resource"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -282,22 +282,22 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 
 func testAccCheckSamlIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
-	data "appgate_ip_pool" "ip_v6_pool" {
+	data "appgatesdp_ip_pool" "ip_v6_pool" {
 	ip_pool_name = "default pool v6"
 	}
 
-	data "appgate_ip_pool" "ip_v4_pool" {
+	data "appgatesdp_ip_pool" "ip_v4_pool" {
 	ip_pool_name = "default pool v4"
 	}
-	data "appgate_mfa_provider" "fido" {
+	data "appgatesdp_mfa_provider" "fido" {
 	mfa_provider_name = "Default FIDO2 Provider"
 	}
-	resource "appgate_saml_identity_provider" "saml_test_resource" {
+	resource "appgatesdp_saml_identity_provider" "saml_test_resource" {
 	name = "%s"
 
 	admin_provider = true
-	ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
-	ip_pool_v6     = data.appgate_ip_pool.ip_v6_pool.id
+	ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
+	ip_pool_v6     = data.appgatesdp_ip_pool.ip_v6_pool.id
 	dns_servers = [
 		"172.17.18.19",
 		"192.100.111.31",
@@ -331,7 +331,7 @@ func testAccCheckSamlIdentityProviderBasic(rName string) string {
 
 	block_local_dns_requests = true
 	on_boarding_two_factor {
-		mfa_provider_id       = data.appgate_mfa_provider.fido.id
+		mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
 		device_limit_per_user = 6
 		message               = "welcome"
 	}
@@ -390,21 +390,21 @@ func testAccCheckSamlIdentityProviderBasic(rName string) string {
 
 func testAccCheckSamlIdentityProviderUpdates(rName string) string {
 	return fmt.Sprintf(`
-	data "appgate_ip_pool" "ip_v6_pool" {
+	data "appgatesdp_ip_pool" "ip_v6_pool" {
 	ip_pool_name = "default pool v6"
 	}
 
-	data "appgate_ip_pool" "ip_v4_pool" {
+	data "appgatesdp_ip_pool" "ip_v4_pool" {
 	ip_pool_name = "default pool v4"
 	}
-	data "appgate_mfa_provider" "fido" {
+	data "appgatesdp_mfa_provider" "fido" {
 	mfa_provider_name = "Default FIDO2 Provider"
 	}
-	resource "appgate_saml_identity_provider" "saml_test_resource" {
+	resource "appgatesdp_saml_identity_provider" "saml_test_resource" {
 	name = "%s"
 	notes = "Test note change"
 	admin_provider = false
-	ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
+	ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
 	dns_servers = [
 		"172.17.18.21",
 		"192.100.111.31",
@@ -442,7 +442,7 @@ func testAccCheckSamlIdentityProviderUpdates(rName string) string {
 	inactivity_timeout_minutes = 5
 
 	on_boarding_two_factor {
-		mfa_provider_id       = data.appgate_mfa_provider.fido.id
+		mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
 		device_limit_per_user = 4
 		message               = "change"
 	}
@@ -522,21 +522,21 @@ func testAccCheckSamlIdentityProviderUpdates(rName string) string {
 
 func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
 	return fmt.Sprintf(`
-  data "appgate_ip_pool" "ip_v6_pool" {
+  data "appgatesdp_ip_pool" "ip_v6_pool" {
     ip_pool_name = "default pool v6"
   }
 
-  data "appgate_ip_pool" "ip_v4_pool" {
+  data "appgatesdp_ip_pool" "ip_v4_pool" {
     ip_pool_name = "default pool v4"
   }
-  data "appgate_mfa_provider" "fido" {
+  data "appgatesdp_mfa_provider" "fido" {
     mfa_provider_name = "Default FIDO2 Provider"
   }
-  resource "appgate_saml_identity_provider" "saml_test_resource" {
+  resource "appgatesdp_saml_identity_provider" "saml_test_resource" {
     name = "%s"
     notes = "Test note change"
     admin_provider = false
-    ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
+    ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
     dns_servers = [
       "192.100.111.32",
       "172.17.18.20"
@@ -570,7 +570,7 @@ func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
     block_local_dns_requests = false
     inactivity_timeout_minutes = 5
     on_boarding_two_factor {
-      mfa_provider_id       = data.appgate_mfa_provider.fido.id
+      mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
       device_limit_per_user = 4
       message               = "change"
     }
@@ -627,21 +627,21 @@ func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
 
 func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
 	return fmt.Sprintf(`
-  data "appgate_ip_pool" "ip_v6_pool" {
+  data "appgatesdp_ip_pool" "ip_v6_pool" {
     ip_pool_name = "default pool v6"
   }
 
-  data "appgate_ip_pool" "ip_v4_pool" {
+  data "appgatesdp_ip_pool" "ip_v4_pool" {
     ip_pool_name = "default pool v4"
   }
-  data "appgate_mfa_provider" "fido" {
+  data "appgatesdp_mfa_provider" "fido" {
     mfa_provider_name = "Default FIDO2 Provider"
   }
-  resource "appgate_saml_identity_provider" "saml_test_resource" {
+  resource "appgatesdp_saml_identity_provider" "saml_test_resource" {
     name = "%s"
     notes = "Test note change"
     admin_provider = false
-    ip_pool_v4     = data.appgate_ip_pool.ip_v4_pool.id
+    ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
     dns_servers = [
       "192.100.111.32",
       "172.17.18.20"
@@ -675,7 +675,7 @@ func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
     block_local_dns_requests = false
     inactivity_timeout_minutes = 5
     on_boarding_two_factor {
-      mfa_provider_id       = data.appgate_mfa_provider.fido.id
+      mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
       device_limit_per_user = 4
       message               = "change"
     }
@@ -753,7 +753,7 @@ func testAccCheckSamlIdentityProviderExists(resource string) resource.TestCheckF
 
 func testAccCheckSamlIdentityProviderDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_saml_identity_provider" {
+		if rs.Type != "appgatesdp_saml_identity_provider" {
 			continue
 		}
 

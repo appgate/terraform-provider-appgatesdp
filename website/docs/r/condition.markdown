@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_condition"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_condition"
 sidebar_current: "docs-appgate-resource-condition"
 description: |-
    Create a new Condition.
 ---
 
-# appgate_condition
+# appgatesdp_condition
 
 Create a new Condition.
 
@@ -14,7 +14,7 @@ Create a new Condition.
 
 ```hcl
 
-resource "appgate_condition" "test_condition" {
+resource "appgatesdp_condition" "test_condition" {
   name = "teraform-example-condition"
   tags = [
     "terraform",
@@ -89,5 +89,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_condition d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_condition d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

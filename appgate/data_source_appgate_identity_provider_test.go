@@ -13,13 +13,13 @@ func TestAccAppgateIdentityProviderDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
-					data "appgate_identity_provider" "test_identity_provider_ds" {
+					data "appgatesdp_identity_provider" "test_identity_provider_ds" {
                         identity_provider_name = "local"
 					}
                 `,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.appgate_identity_provider.test_identity_provider_ds", "identity_provider_name"),
-					resource.TestCheckResourceAttrSet("data.appgate_identity_provider.test_identity_provider_ds", "identity_provider_id"),
+					resource.TestCheckResourceAttrSet("data.appgatesdp_identity_provider.test_identity_provider_ds", "identity_provider_name"),
+					resource.TestCheckResourceAttrSet("data.appgatesdp_identity_provider.test_identity_provider_ds", "identity_provider_id"),
 				),
 			},
 		},

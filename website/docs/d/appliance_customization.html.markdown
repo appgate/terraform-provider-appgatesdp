@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_appliance_customization"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_appliance_customization"
 sidebar_current: "docs-appgate-datasource-appliance_customization"
 description: |-
   The appliance_customization data source provides details about a specific appliance_customization.
 ---
 
-# appgate_appliance_customization
+# appgatesdp_appliance_customization
 
 The appliance_customization data source provides details about a specific appliance_customization.
 
@@ -17,7 +17,7 @@ The appliance_customization data source provides details about a specific applia
 
 variable "appliance_customization_id" {}
 
-data "appgate_appliance_customization" "default_appliance_customization" {
+data "appgatesdp_appliance_customization" "default_appliance_customization" {
     appliance_customization_id = "${var.appliance_customization_id}"
 }
 

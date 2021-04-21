@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 
-	"github.com/appgate/terraform-provider-appgate-sdp/appgate"
+	"github.com/appgate/terraform-provider-appgatesdp/appgate"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 	flag.Parse()
 
 	if debugMode {
-		err := plugin.Debug(context.Background(), "registry.terraform.io/appgate/provider",
+		err := plugin.Debug(context.Background(), "registry.terraform.io/appgate/appgatesdp",
 			&plugin.ServeOpts{
 				ProviderFunc: appgate.Provider,
 			})

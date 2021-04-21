@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_criteria_script"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_criteria_script"
 sidebar_current: "docs-appgate-resource-criteria_script"
 description: |-
    Create a new Criteria Script.
 ---
 
-# appgate_criteria_script
+# appgatesdp_criteria_script
 
 Create a new Criteria Script.
 
@@ -14,7 +14,7 @@ Create a new Criteria Script.
 
 ```hcl
 
-resource "appgate_criteria_script" "test_criteria_script" {
+resource "appgatesdp_criteria_script" "test_criteria_script" {
   name       = "Test"
   expression = "return claims.user.username === 'admin';"
 }
@@ -44,5 +44,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_criteria_script d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_criteria_script d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

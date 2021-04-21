@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_trusted_certificate"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_trusted_certificate"
 sidebar_current: "docs-appgate-datasource-trusted_certificate"
 description: |-
   The trusted_certificate data source provides details about a specific trusted_certificate.
 ---
 
-# appgate_trusted_certificate
+# appgatesdp_trusted_certificate
 
 The trusted_certificate data source provides details about a specific trusted_certificate.
 
@@ -17,7 +17,7 @@ The trusted_certificate data source provides details about a specific trusted_ce
 
 variable "trusted_certificate_id" {}
 
-data "appgate_trusted_certificate" "default_trusted_certificate" {
+data "appgatesdp_trusted_certificate" "default_trusted_certificate" {
     trusted_certificate_id = "${var.trusted_certificate_id}"
 }
 

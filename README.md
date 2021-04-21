@@ -63,5 +63,5 @@ TF_ACC=1 \
 APPGATE_ADDRESS="https://ec2-54-80-224-21.compute-1.amazonaws.com:444/admin" \
 APPGATE_USERNAME="admin" \
 APPGATE_PASSWORD="admin" \
-go test -v -timeout 120m github.com/appgate/terraform-provider-appgate-sdp/appgate -run '^(TestAccApplianceBasicController)$'
+go test -v -timeout 120m github.com/appgate/terraform-provider-appgatesdp/appgate -run '^(TestAccApplianceBasicController)$'
 ```

@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_ip_pool"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_ip_pool"
 sidebar_current: "docs-appgate-resource-ip_pool"
 description: |-
    Create a new IP Pool.
 ---
 
-# appgate_ip_pool
+# appgatesdp_ip_pool
 
 Create a new IP Pool.
 
@@ -14,7 +14,7 @@ Create a new IP Pool.
 
 ```hcl
 
-resource "appgate_ip_pool" "example_ip_pool" {
+resource "appgatesdp_ip_pool" "example_ip_pool" {
   name            = "ip range example"
   lease_time_days = 5
   ranges {
@@ -59,5 +59,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_ip_pool d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_ip_pool d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

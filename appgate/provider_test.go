@@ -32,13 +32,13 @@ var testAccProviderFactories map[string]func() (*schema.Provider, error)
 func init() {
 	testAccProvider = Provider()
 	testAccProviders = map[string]*schema.Provider{
-		"appgate": testAccProvider,
+		"appgatesdp": testAccProvider,
 	}
 
 	// Always allocate a new provider instance each invocation, otherwise gRPC
 	// ProviderConfigure() can overwrite configuration during concurrent testing.
 	testAccProviderFactories = map[string]func() (*schema.Provider, error){
-		"appgate": func() (*schema.Provider, error) {
+		"appgatesdp": func() (*schema.Provider, error) {
 			return Provider(), nil
 		},
 	}

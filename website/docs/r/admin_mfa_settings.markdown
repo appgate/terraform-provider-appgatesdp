@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_admin_mfa_settings"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_admin_mfa_settings"
 sidebar_current: "docs-appgate-resource-admin_mfa_settings"
 description: |-
    Update Admin MFA settings.
 ---
 
-# appgate_admin_mfa_settings
+# appgatesdp_admin_mfa_settings
 
 Update Admin MFA settings.
 
@@ -14,7 +14,7 @@ Update Admin MFA settings.
 
 ```hcl
 
-resource "appgate_admin_mfa_settings" "mfa_settings" {
+resource "appgatesdp_admin_mfa_settings" "mfa_settings" {
   exempted_users = [
     "CN=Dan,OU=local",
   ]
@@ -26,18 +26,18 @@ resource "appgate_admin_mfa_settings" "mfa_settings" {
 
 ```hcl
 
-data "appgate_mfa_provider" "fido" {
+data "appgatesdp_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
-data "appgate_identity_provider" "local" {
+data "appgatesdp_identity_provider" "local" {
   identity_provider_name = "local"
 }
 
-resource "appgate_admin_mfa_settings" "mfa_settings" {
-  provider_id = data.appgate_mfa_provider.fido.mfa_provider_id
+resource "appgatesdp_admin_mfa_settings" "mfa_settings" {
+  provider_id = data.appgatesdp_mfa_provider.fido.mfa_provider_id
   exempted_users = [
     "CN=Jane,OU=local",
-    format("CN=Joe,OU=%s", data.appgate_identity_provider.local.identity_provider_name),
+    format("CN=Joe,OU=%s", data.appgatesdp_identity_provider.local.identity_provider_name),
   ]
 }
 
@@ -63,5 +63,5 @@ List of users to be excluded from MFA during admin login.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_admin_mfa_settings.mfa_settings admin_mfa_settings
+$ terraform import appgatesdp_admin_mfa_settings.mfa_settings admin_mfa_settings
 ```

@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccadministrativeRoleBasic(t *testing.T) {
-	resourceName := "appgate_administrative_role.test_administrative_role"
+	resourceName := "appgatesdp_administrative_role.test_administrative_role"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -61,7 +61,7 @@ func TestAccadministrativeRoleBasic(t *testing.T) {
 
 func testAccCheckadministrativeRoleBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_administrative_role" "test_administrative_role" {
+resource "appgatesdp_administrative_role" "test_administrative_role" {
     name  = "%s"
     notes = "hello world"
     tags = [
@@ -85,10 +85,10 @@ resource "appgate_administrative_role" "test_administrative_role" {
 
 func testAccCheckadministrativeRoleWithScope(rName string) string {
 	return fmt.Sprintf(`
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
   site_name = "Default site"
 }
-resource "appgate_administrative_role" "administrative_role_with_scope" {
+resource "appgatesdp_administrative_role" "administrative_role_with_scope" {
   name = "%s"
   tags = [
     "terraform"
@@ -97,7 +97,7 @@ resource "appgate_administrative_role" "administrative_role_with_scope" {
     type   = "View"
     target = "Site"
     scope {
-      ids  = [data.appgate_site.default_site.id]
+      ids  = [data.appgatesdp_site.default_site.id]
       tags = ["builtin"]
     }
   }
@@ -106,7 +106,7 @@ resource "appgate_administrative_role" "administrative_role_with_scope" {
 }
 
 func TestAccadministrativeRoleWithScope(t *testing.T) {
-	resourceName := "appgate_administrative_role.administrative_role_with_scope"
+	resourceName := "appgatesdp_administrative_role.administrative_role_with_scope"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -167,7 +167,7 @@ func testAccCheckadministrativeRoleExists(resource string) resource.TestCheckFun
 
 func testAccCheckadministrativeRoleDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_administrative_role" {
+		if rs.Type != "appgatesdp_administrative_role" {
 			continue
 		}
 

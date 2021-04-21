@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccGlobalSettingsBasic(t *testing.T) {
-	resourceName := "appgate_global_settings.test_global_settings"
+	resourceName := "appgatesdp_global_settings.test_global_settings"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -45,7 +45,7 @@ func TestAccGlobalSettingsBasic(t *testing.T) {
 
 func testAccCheckGlobalSettingsBasic() string {
 	return `
-resource "appgate_global_settings" "test_global_settings" {
+resource "appgatesdp_global_settings" "test_global_settings" {
   message_of_the_day           = "hello world"
   entitlement_token_expiration = 500
   login_banner_message         = "Welcome"

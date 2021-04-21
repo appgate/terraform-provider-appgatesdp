@@ -1,5 +1,5 @@
 ---
-layout: "appgate"
+layout: "appgatesdp"
 page_title: "Provider: Appgate"
 description: |-
 
@@ -11,7 +11,7 @@ description: |-
 
 ```hcl
 # Configure the Appgate Provider
-provider "appgate" {
+provider "appgatesdp" {
   username = "admin"
   password = "admin"
   url      = "https://controller.devops:444/admin"
@@ -43,7 +43,7 @@ in-line in the Appgate provider block:
 Usage:
 
 ```hcl
-provider "appgate" {
+provider "appgatesdp" {
   username = "admin"
   password = "admin"
   provider = "local"
@@ -54,7 +54,7 @@ provider "appgate" {
 
 
 ```hcl
-provider "appgate" {}
+provider "appgatesdp" {}
 ```
 
 Usage:

@@ -9,15 +9,15 @@ import (
 
 func TestAccAppgateTrustedCertificateDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	dataSourceName := "data.appgate_trusted_certificate.testdd"
-	resourceName := "appgate_trusted_certificate.test_data_trusted_certificate"
+	dataSourceName := "data.appgatesdp_trusted_certificate.testdd"
+	resourceName := "appgatesdp_trusted_certificate.test_data_trusted_certificate"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-				resource "appgate_trusted_certificate" "test_data_trusted_certificate" {
+				resource "appgatesdp_trusted_certificate" "test_data_trusted_certificate" {
 				  name = "%s"
 				  pem = <<-EOF
 				-----BEGIN CERTIFICATE-----
@@ -37,8 +37,8 @@ func TestAccAppgateTrustedCertificateDataSource(t *testing.T) {
 				-----END CERTIFICATE-----
 				EOF
 				}
-				data "appgate_trusted_certificate" "testdd" {
-                    trusted_certificate_id = appgate_trusted_certificate.test_data_trusted_certificate.id
+				data "appgatesdp_trusted_certificate" "testdd" {
+                    trusted_certificate_id = appgatesdp_trusted_certificate.test_data_trusted_certificate.id
                 }
                 `, rName),
 				Check: resource.ComposeAggregateTestCheckFunc(

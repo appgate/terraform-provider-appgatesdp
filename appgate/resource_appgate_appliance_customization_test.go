@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccApplianceCustomizationBasic(t *testing.T) {
-	resourceName := "appgate_appliance_customization.test_acc_appliance_customization"
+	resourceName := "appgatesdp_appliance_customization.test_acc_appliance_customization"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -42,7 +42,7 @@ func TestAccApplianceCustomizationBasic(t *testing.T) {
 
 func testAccCheckApplianceCustomizationBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_appliance_customization" "test_acc_appliance_customization" {
+resource "appgatesdp_appliance_customization" "test_acc_appliance_customization" {
     name = "%s"
     file = "test-fixtures/appliance_customization_file.zip"
 
@@ -78,7 +78,7 @@ func testAccCheckApplianceCustomizationExists(resource string) resource.TestChec
 
 func testAccCheckApplianceCustomizationDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_appliance_customization" {
+		if rs.Type != "appgatesdp_appliance_customization" {
 			continue
 		}
 

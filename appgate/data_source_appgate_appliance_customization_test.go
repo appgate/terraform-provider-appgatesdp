@@ -9,15 +9,15 @@ import (
 
 func TestAccAppgateApplianceCustomizationDataSource(t *testing.T) {
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	dataSourceName := "data.appgate_appliance_customization.test"
-	resourceName := "appgate_appliance_customization.test_appliance_customization"
+	dataSourceName := "data.appgatesdp_appliance_customization.test"
+	resourceName := "appgatesdp_appliance_customization.test_appliance_customization"
 	resource.ParallelTest(t, resource.TestCase{
 		Providers: testAccProviders,
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-                resource "appgate_appliance_customization" "test_appliance_customization" {
+                resource "appgatesdp_appliance_customization" "test_appliance_customization" {
                     name = "%s"
                     file = "test-fixtures/appliance_customization_file.zip"
 
@@ -26,8 +26,8 @@ func TestAccAppgateApplianceCustomizationDataSource(t *testing.T) {
                       "api-created"
                     ]
                 }
-                data "appgate_appliance_customization" "test" {
-                    appliance_customization_id = appgate_appliance_customization.test_appliance_customization.id
+                data "appgatesdp_appliance_customization" "test" {
+                    appliance_customization_id = appgatesdp_appliance_customization.test_appliance_customization.id
                 }
                 `, rName),
 				Check: resource.ComposeAggregateTestCheckFunc(

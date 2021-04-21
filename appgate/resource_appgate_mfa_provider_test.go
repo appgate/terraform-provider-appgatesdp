@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccMfaProviderBasic(t *testing.T) {
-	resourceName := "appgate_mfa_provider.test_mfa_provider"
+	resourceName := "appgatesdp_mfa_provider.test_mfa_provider"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -48,7 +48,7 @@ func TestAccMfaProviderBasic(t *testing.T) {
 
 func testAccCheckMfaProviderBasic() string {
 	return `
-resource "appgate_mfa_provider" "test_mfa_provider" {
+resource "appgatesdp_mfa_provider" "test_mfa_provider" {
   name = "themfaprovider"
   port = 1812
   type = "Radius"
@@ -90,7 +90,7 @@ func testAccCheckMfaProviderExists(resource string) resource.TestCheckFunc {
 
 func testAccCheckMfaProviderDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_mfa_provider" {
+		if rs.Type != "appgatesdp_mfa_provider" {
 			continue
 		}
 

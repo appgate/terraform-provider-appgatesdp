@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_criteria_script"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_criteria_script"
 sidebar_current: "docs-appgate-datasource-criteria_script"
 description: |-
   The criteria_script data source provides details about a specific criteria_script.
 ---
 
-# appgate_criteria_script
+# appgatesdp_criteria_script
 
 The criteria_script data source provides details about a specific criteria_script.
 
@@ -17,7 +17,7 @@ The criteria_script data source provides details about a specific criteria_scrip
 
 variable "criteria_script_id" {}
 
-data "appgate_criteria_script" "default_criteria_script" {
+data "appgatesdp_criteria_script" "default_criteria_script" {
     criteria_script_id = "${var.criteria_script_id}"
 }
 

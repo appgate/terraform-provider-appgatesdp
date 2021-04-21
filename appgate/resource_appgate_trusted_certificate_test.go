@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccTrustedCertificateBasic(t *testing.T) {
-	resourceName := "appgate_trusted_certificate.test_trusted_certificate"
+	resourceName := "appgatesdp_trusted_certificate.test_trusted_certificate"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -41,7 +41,7 @@ func TestAccTrustedCertificateBasic(t *testing.T) {
 
 func testAccCheckTrustedCertificateBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_trusted_certificate" "test_trusted_certificate" {
+resource "appgatesdp_trusted_certificate" "test_trusted_certificate" {
   name = "%s"
   tags = [
     "terraform",
@@ -92,7 +92,7 @@ func testAccCheckTrustedCertificateExists(resource string) resource.TestCheckFun
 
 func testAccCheckTrustedCertificateDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_trusted_certificate" {
+		if rs.Type != "appgatesdp_trusted_certificate" {
 			continue
 		}
 

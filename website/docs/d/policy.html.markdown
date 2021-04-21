@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_policy"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_policy"
 sidebar_current: "docs-appgate-datasource-policy"
 description: |-
   The policy data source provides details about a specific policy.
 ---
 
-# appgate_policy
+# appgatesdp_policy
 
 The policy data source provides details about a specific policy.
 
@@ -17,7 +17,7 @@ The policy data source provides details about a specific policy.
 
 variable "policy_id" {}
 
-data "appgate_policy" "default_policy" {
+data "appgatesdp_policy" "default_policy" {
     policy_id = "${var.policy_id}"
 }
 

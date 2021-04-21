@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_local_user"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_local_user"
 sidebar_current: "docs-appgate-resource-local_user"
 description: |-
    Create a new Local User.
 ---
 
-# appgate_local_user
+# appgatesdp_local_user
 
 Create a new Local User.
 
@@ -14,7 +14,7 @@ Create a new Local User.
 
 ```hcl
 
-resource "appgate_local_user" "api_user" {
+resource "appgatesdp_local_user" "api_user" {
   name                  = "apiuser"
   first_name            = "john"
   last_name             = "doe"
@@ -60,5 +60,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_local_user d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_local_user d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

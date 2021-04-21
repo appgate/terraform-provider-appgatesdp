@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_blacklist_user"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_blacklist_user"
 sidebar_current: "docs-appgate-resource-blacklist_user"
 description: |-
    Blacklists a User.
 ---
 
-# appgate_blacklist_user
+# appgatesdp_blacklist_user
 
 Blacklists a User.
 
@@ -14,7 +14,7 @@ Blacklists a User.
 
 ```hcl
 
-resource "appgate_blacklist_user" "user" {
+resource "appgatesdp_blacklist_user" "user" {
   user_distinguished_name = "CN=JohnDoe,OU=ldap"
 }
 
@@ -40,5 +40,5 @@ The following arguments are supported:
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_blacklist_user d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_blacklist_user d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

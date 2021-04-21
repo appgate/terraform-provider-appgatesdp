@@ -1,18 +1,18 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_local_database_identity_provider"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_local_database_identity_provider"
 sidebar_current: "docs-appgate-resource-local_database_identity_provider"
 description: |-
    Local database Identity Provider.
 ---
 
-# appgate_local_database_identity_provider
+# appgatesdp_local_database_identity_provider
 
 Local database Identity Provider is a builtin default singleton resource, that cannot be deleted.
 But we can modify the existing one, import the default state from the collective with terraform import.
 
 ```bash
-$ terraform import 'appgate_local_database_identity_provider.local' local
+$ terraform import 'appgatesdp_local_database_identity_provider.local' local
 ```
 
 
@@ -20,18 +20,18 @@ $ terraform import 'appgate_local_database_identity_provider.local' local
 
 ```hcl
 
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_v4_pool" {
+data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
-resource "appgate_local_database_identity_provider" "local" {
+resource "appgatesdp_local_database_identity_provider" "local" {
   notes      = "Built-in Identity Provider on local database."
-  ip_pool_v4 = data.appgate_ip_pool.ip_v4_pool.id
-  ip_pool_v6 = data.appgate_ip_pool.ip_v6_pool.id
+  ip_pool_v4 = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6 = data.appgatesdp_ip_pool.ip_v6_pool.id
 
   user_lockout_threshold = 7
 	min_password_length = 9
@@ -141,5 +141,5 @@ Password warning configuration for Active Directory. If enabled, the client will
 
 
 ```
-$ terraform import 'appgate_local_database_identity_provider.local' local
+$ terraform import 'appgatesdp_local_database_identity_provider.local' local
 ```

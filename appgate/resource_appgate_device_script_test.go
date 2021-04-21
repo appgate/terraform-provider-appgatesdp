@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccDeviceScriptBasic(t *testing.T) {
-	resourceName := "appgate_device_script.test_device_script"
+	resourceName := "appgatesdp_device_script.test_device_script"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,7 +44,7 @@ func TestAccDeviceScriptBasic(t *testing.T) {
 
 func testAccCheckDeviceScriptBasic(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_device_script" "test_device_script" {
+resource "appgatesdp_device_script" "test_device_script" {
   name     = "%s"
   filename = "acceptance_script.sh"
   content  = <<-EOF
@@ -83,7 +83,7 @@ func testAccCheckDeviceScriptExists(resource string) resource.TestCheckFunc {
 
 func testAccCheckDeviceScriptDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_device_script" {
+		if rs.Type != "appgatesdp_device_script" {
 			continue
 		}
 

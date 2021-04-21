@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_client_connections"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_client_connections"
 sidebar_current: "docs-appgate-resource-client_connections"
 description: |-
    Update Client Connection settings. With API version 12, this API has changed significantly in order to manage client profiles. It is still possible to use the older APIs using older Accept headers.
 ---
 
-# appgate_client_connections
+# appgatesdp_client_connections
 
 Update Client Connection settings.
 
@@ -14,7 +14,7 @@ Update Client Connection settings.
 
 ```hcl
 
-resource "appgate_client_connections" "cc" {
+resource "appgatesdp_client_connections" "cc" {
   spa_mode = "TCP"
   profiles {
     name                   = "Company Employee"
@@ -50,5 +50,5 @@ Client Profiles.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_client_connections d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_client_connections d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

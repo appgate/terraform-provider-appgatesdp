@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_administrative_role"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_administrative_role"
 sidebar_current: "docs-appgate-resource-administrative_role"
 description: |-
    Create a new Administrative Role.
 ---
 
-# appgate_administrative_role
+# appgatesdp_administrative_role
 
 Create a new Administrative Role.
 
@@ -15,7 +15,7 @@ Create a new Administrative Role.
 ```hcl
 
 
-resource "appgate_administrative_role" "test_administrative_role" {
+resource "appgatesdp_administrative_role" "test_administrative_role" {
   name  = "tf-admin"
   notes = "hello world"
   tags = [
@@ -35,10 +35,10 @@ resource "appgate_administrative_role" "test_administrative_role" {
 
 ```hcl
 
-data "appgate_site" "default_site" {
+data "appgatesdp_site" "default_site" {
   site_name = "Default site"
 }
-resource "appgate_administrative_role" "administrative_role_with_scope" {
+resource "appgatesdp_administrative_role" "administrative_role_with_scope" {
   name = "tf-admin-with-scope"
   tags = [
     "terraform"
@@ -47,7 +47,7 @@ resource "appgate_administrative_role" "administrative_role_with_scope" {
     type   = "View"
     target = "Site"
     scope {
-      ids  = [data.appgate_site.default_site.id]
+      ids  = [data.appgatesdp_site.default_site.id]
       tags = ["builtin"]
     }
   }
@@ -85,5 +85,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_administrative_role d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_administrative_role d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

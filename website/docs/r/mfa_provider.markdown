@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_mfa_provider"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_mfa_provider"
 sidebar_current: "docs-appgate-resource-mfa_provider"
 description: |-
    Create a new MFA Provider.
 ---
 
-# appgate_mfa_provider
+# appgatesdp_mfa_provider
 
 Create a new MFA Provider.
 
@@ -14,7 +14,7 @@ Create a new MFA Provider.
 
 ```hcl
 
-resource "appgate_mfa_provider" "mfa" {
+resource "appgatesdp_mfa_provider" "mfa" {
    name = "hello world"
    port = 1812
    type = "Radius"
@@ -79,5 +79,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_mfa_provider d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_mfa_provider d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

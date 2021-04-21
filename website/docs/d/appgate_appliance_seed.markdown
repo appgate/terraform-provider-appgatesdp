@@ -1,14 +1,14 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_appliance_seed"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_appliance_seed"
 sidebar_current: "docs-appgate-datasource-administrative_role"
 description: |-
   The administrative_role data source provides details about a specific administrative_role.
 ---
 
-# appgate_appliance_seed
+# appgatesdp_appliance_seed
 
-The `appgate_appliance_seed` data source provides means to get the seed file for an appliance.
+The `appgatesdp_appliance_seed` data source provides means to get the seed file for an appliance.
 
 
 ## Example Usage
@@ -16,11 +16,11 @@ The `appgate_appliance_seed` data source provides means to get the seed file for
 ```hcl
 
 
-data "appgate_appliance_seed" "gateway_seed_file" {
+data "appgatesdp_appliance_seed" "gateway_seed_file" {
   depends_on = [
-    appgate_appliance.new_gateway,
+    appgatesdp_appliance.new_gateway,
   ]
-  appliance_id   = appgate_appliance.new_gateway.id
+  appliance_id   = appgatesdp_appliance.new_gateway.id
   password       = "cz"
   latest_version = true
 }
@@ -31,13 +31,13 @@ data "appgate_appliance_seed" "gateway_seed_file" {
 
 ```hcl
 
-resource "appgate_appliance" "new_gateway" {}
+resource "appgatesdp_appliance" "new_gateway" {}
 
-data "appgate_appliance_seed" "gateway_seed_file" {
+data "appgatesdp_appliance_seed" "gateway_seed_file" {
   depends_on = [
-    appgate_appliance.new_gateway,
+    appgatesdp_appliance.new_gateway,
   ]
-  appliance_id   = appgate_appliance.new_gateway.id
+  appliance_id   = appgatesdp_appliance.new_gateway.id
   password       = "cz"
   latest_version = true
 }
@@ -45,7 +45,7 @@ data "appgate_appliance_seed" "gateway_seed_file" {
 resource "null_resource" "seed_gateway" {
 
   depends_on = [
-    data.appgate_appliance_seed.gateway_seed_file,
+    data.appgatesdp_appliance_seed.gateway_seed_file,
   ]
 
   connection {
@@ -58,11 +58,11 @@ resource "null_resource" "seed_gateway" {
 
 
   provisioner "local-exec" {
-    command = "echo ${data.appgate_appliance_seed.gateway_seed_file.seed_file} > seed.b64"
+    command = "echo ${data.appgatesdp_appliance_seed.gateway_seed_file.seed_file} > seed.b64"
   }
   provisioner "remote-exec" {
     inline = [
-      "echo ${data.appgate_appliance_seed.gateway_seed_file.seed_file}  > raw.b64",
+      "echo ${data.appgatesdp_appliance_seed.gateway_seed_file.seed_file}  > raw.b64",
       "cat raw.b64 | base64 -d  | jq .  >> seed.json",
     ]
   }

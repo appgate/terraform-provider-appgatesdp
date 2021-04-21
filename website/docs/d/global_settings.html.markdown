@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_global_settings"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_global_settings"
 sidebar_current: "docs-appgate-datasource-global_settings"
 description: |-
   The global_settings data source provides details about a specific global_settings.
 ---
 
-# appgate_global_settings
+# appgatesdp_global_settings
 
 The global_settings data source provides details about a specific global_settings.
 
@@ -14,7 +14,7 @@ The global_settings data source provides details about a specific global_setting
 ## Example Usage
 
 ```hcl
-data "appgate_global_settings" "default_global_settings" {}
+data "appgatesdp_global_settings" "default_global_settings" {}
 ```
 
 ## Attributes Reference

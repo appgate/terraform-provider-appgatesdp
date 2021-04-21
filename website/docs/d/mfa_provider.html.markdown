@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_mfa_provider"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_mfa_provider"
 sidebar_current: "docs-appgate-datasource-mfa_provider"
 description: |-
   The mfa_provider data source provides details about a specific mfa_provider.
 ---
 
-# appgate_mfa_provider
+# appgatesdp_mfa_provider
 
 The mfa_provider data source provides details about a specific mfa_provider.
 
@@ -17,7 +17,7 @@ The mfa_provider data source provides details about a specific mfa_provider.
 
 variable "mfa_provider_id" {}
 
-data "appgate_mfa_provider" "default_mfa_provider" {
+data "appgatesdp_mfa_provider" "default_mfa_provider" {
     mfa_provider_id = "${var.mfa_provider_id}"
 }
 

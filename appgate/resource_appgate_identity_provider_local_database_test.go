@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccLocalDatabaseIdentityProviderBasic(t *testing.T) {
-	resourceName := "appgate_local_database_identity_provider.local_database_test_resource"
+	resourceName := "appgatesdp_local_database_identity_provider.local_database_test_resource"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -83,18 +83,18 @@ func TestAccLocalDatabaseIdentityProviderBasic(t *testing.T) {
 
 func testAccCheckLocalDatabaseIdentityProviderBasic() string {
 	return `
-data "appgate_ip_pool" "ip_v6_pool" {
+data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
 }
 
-data "appgate_ip_pool" "ip_v4_pool" {
+data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
-resource "appgate_local_database_identity_provider" "local_database_test_resource" {
+resource "appgatesdp_local_database_identity_provider" "local_database_test_resource" {
   notes      = "Built-in Identity Provider on local database."
-  ip_pool_v4 = data.appgate_ip_pool.ip_v4_pool.id
-  ip_pool_v6 = data.appgate_ip_pool.ip_v6_pool.id
+  ip_pool_v4 = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6 = data.appgatesdp_ip_pool.ip_v6_pool.id
 
   user_lockout_threshold = 10
   min_password_length = 16

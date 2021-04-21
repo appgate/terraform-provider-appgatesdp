@@ -1,12 +1,12 @@
 ---
-layout: "appgate"
-page_title: "APPGATE: appgate_policy"
+layout: "appgatesdp"
+page_title: "APPGATE: appgatesdp_policy"
 sidebar_current: "docs-appgate-resource-policy"
 description: |-
    Create a new Policy.
 ---
 
-# appgate_policy
+# appgatesdp_policy
 
 Create a new Policy.
 
@@ -14,7 +14,7 @@ Create a new Policy.
 
 ```hcl
 
-resource "appgate_policy" "basic_policy" {
+resource "appgatesdp_policy" "basic_policy" {
   name  = "terraform policy"
   notes = "terraform policy notes"
   tags = [
@@ -100,5 +100,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgate_policy d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_policy d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

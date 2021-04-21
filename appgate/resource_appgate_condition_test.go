@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccConditionBasic(t *testing.T) {
-	resourceName := "appgate_condition.test_condition"
+	resourceName := "appgatesdp_condition.test_condition"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -50,7 +50,7 @@ func TestAccConditionBasic(t *testing.T) {
 
 func testAccCheckCondition(rName string) string {
 	return fmt.Sprintf(`
-resource "appgate_condition" "test_condition" {
+resource "appgatesdp_condition" "test_condition" {
     name = "%s"
     tags = [
       "terraform",
@@ -95,7 +95,7 @@ func testAccCheckConditionExists(resource string) resource.TestCheckFunc {
 
 func testAccCheckConditionDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgate_condition" {
+		if rs.Type != "appgatesdp_condition" {
 			continue
 		}
 
