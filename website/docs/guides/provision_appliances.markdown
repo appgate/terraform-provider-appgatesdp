@@ -16,6 +16,11 @@ Appliances are provisioned with the [seed file](https://sdphelp.appgate.com/admi
 This is a non interactive version of [cz-setup](https://sdphelp.appgate.com/adminguide/v5.3/controller-cz-setup.html). 
 
 
+`cz-seed` has two main cases:
+- Initial seeding of the first controller, setup initial network configuration.
+- Initial configuration for appliances to setup network configuration before retrieving the seed file.
+
+`cz-seed` can be used with all major cloud providers, such as aws, azure, gcp, openstack, where cloud-init usually is used.
 
 
 
@@ -90,6 +95,11 @@ These options can be specified multiple times:
 
 ```
 
+### seed file
+
+The seed file is used on a appliance to join the collective. We need to send the seed file to the appliance after we have created an inactive appliance.
+- https://sdphelp.appgate.com/adminguide/v5.3/new-appliance.html?anchor=manual-seeding
+
 
 ### Examples
 
@@ -150,7 +160,7 @@ resource "null_resource" "seed_gateway" {
 
 #### Provision with cz-seed
 
-Depending on your environment, you could use userdata to provision the instance on startup, for example in aws:
+Depending on your environment, you could use userdata to provision the instance on startup, for example in aws we want to setup an initial controller with `cz-seed`
 
 
 ```hcl
