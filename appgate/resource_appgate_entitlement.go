@@ -1,13 +1,15 @@
 package appgate
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
+	"sort"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
-
+	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 	"github.com/google/uuid"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -93,8 +95,13 @@ func resourceAppgateEntitlement() *schema.Resource {
 			},
 
 			"actions": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
+				Set:      resourceAppgateEntitlementActionHash,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					log.Printf("[DEBUG] DiffSuppressFunc ACTION: k %s old %s new %s", k, old, new)
+					return old == "1" && new == "0"
+				},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -126,18 +133,41 @@ func resourceAppgateEntitlement() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
-						"monitor": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
+						"monitor_enabled": {
+							Type:     schema.TypeBool,
 							Optional: true,
-							DefaultFunc: func() (interface{}, error) {
-								var out = make([]map[string]interface{}, 0, 0)
-								m := make(map[string]interface{})
-								m["enabled"] = false
-								m["timeout"] = 30
-								out = append(out, m)
-								return out, nil
+							Computed: true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								if old == "" && new == "" {
+									return true
+								}
+								if old == "" && new == "true" {
+									return true
+								}
+								return old == "" && new == "false"
 							},
+						},
+
+						"monitor_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								if old == "" && new == "" {
+									return true
+								}
+								if old == "" && len(new) > 0 {
+									return true
+								}
+								return false
+							},
+						},
+
+						"monitor": {
+							Type:             schema.TypeList,
+							MaxItems:         1,
+							Optional:         true,
+							Deprecated:       "monitor {} has been replaced by actions.monitor_enabled and actions.monitor_timeout",
 							DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -192,6 +222,60 @@ func resourceAppgateEntitlement() *schema.Resource {
 	}
 }
 
+func resourceAppgateEntitlementActionHash(v interface{}) int {
+	m := v.(map[string]interface{})
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("%s-", m["subtype"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", m["action"].(string)))
+	if v, ok := m["hosts"]; ok {
+		vs := v.([]interface{})
+		s := make([]string, len(vs))
+		for i, raw := range vs {
+			s[i] = raw.(string)
+		}
+		sort.Strings(s)
+
+		for _, v := range s {
+			buf.WriteString(fmt.Sprintf("%s-", v))
+		}
+	}
+	if v, ok := m["ports"]; ok {
+		vs := v.([]interface{})
+		s := make([]string, len(vs))
+		for i, raw := range vs {
+			s[i] = raw.(string)
+		}
+		sort.Strings(s)
+
+		for _, v := range s {
+			buf.WriteString(fmt.Sprintf("%s-", v))
+		}
+	}
+	if v, ok := m["types"]; ok {
+		vs := v.([]interface{})
+		s := make([]string, len(vs))
+		for i, raw := range vs {
+			s[i] = raw.(string)
+		}
+		sort.Strings(s)
+
+		for _, v := range s {
+			buf.WriteString(fmt.Sprintf("%s-", v))
+		}
+	}
+	if _, ok := m["monitor_enabled"]; ok {
+		buf.WriteString(fmt.Sprintf("%t-", m["monitor_enabled"].(bool)))
+	}
+	if _, ok := m["monitor_timeout"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", m["monitor_timeout"].(int)))
+	}
+
+	r := hashcode.String(buf.String())
+
+	log.Printf("[DEBUG] action SET HASH: %d", r)
+	return r
+}
+
 func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
@@ -212,8 +296,8 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 		args.SetConditionLogic(v.(string))
 	}
 
-	if c, ok := d.GetOk("conditions"); ok {
-		conditions, err := readArrayOfStringsFromConfig(c.(*schema.Set).List())
+	if v, ok := d.GetOk("conditions"); ok {
+		conditions, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -221,7 +305,7 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 	}
 
 	if v, ok := d.GetOk("actions"); ok {
-		actions, err := readConditionActionsFromConfig(v.([]interface{}))
+		actions, err := readConditionActionsFromConfig(v.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -289,7 +373,8 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 		}
 	}
 	if entitlement.Actions != nil {
-		if err = d.Set("actions", flattenEntitlementActions(entitlement.Actions)); err != nil {
+		actions := flattenEntitlementActions(entitlement.Actions, d)
+		if err = d.Set("actions", actions); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -315,19 +400,24 @@ func flattenEntitlementAppShortcut(in []openapi.AppShortcut) []map[string]interf
 	return out
 }
 
-func flattenEntitlementActions(in []openapi.EntitlementAllOfActions) []map[string]interface{} {
-	var out = make([]map[string]interface{}, len(in), len(in))
-	for i, v := range in {
-		m := make(map[string]interface{})
-		m["subtype"] = v.Subtype
-		m["action"] = v.Action
-		m["hosts"] = v.Hosts
-		m["ports"] = v.Ports
-		m["types"] = v.Types
-		if v.Monitor != nil {
-			m["monitor"] = flattenEntitlementActionMonitor(v.Monitor)
+func flattenEntitlementActions(in []openapi.EntitlementAllOfActions, d *schema.ResourceData) []interface{} {
+	// var out = make([]map[string]interface{}, len(in), len(in))
+	var out = make([]interface{}, 0)
+	for _, v := range in {
+		action := make(map[string]interface{})
+		action["subtype"] = v.Subtype
+		action["action"] = v.Action
+		action["hosts"] = convertStringArrToInterface(v.GetHosts())
+		action["ports"] = convertStringArrToInterface(v.GetPorts())
+		action["types"] = convertStringArrToInterface(v.GetTypes())
+		if v.Monitor != nil && action["sybtype"] == "tcp_up" {
+			action["monitor_enabled"] = v.Monitor.GetEnabled()
+			action["monitor_timeout"] = int(v.Monitor.GetTimeout())
+			// Deprecated
+			action["monitor"] = flattenEntitlementActionMonitor(v.Monitor)
 		}
-		out[i] = m
+
+		out = append(out, action)
 	}
 	return out
 }
@@ -335,8 +425,8 @@ func flattenEntitlementActions(in []openapi.EntitlementAllOfActions) []map[strin
 func flattenEntitlementActionMonitor(in *openapi.EntitlementAllOfMonitor) []interface{} {
 	log.Printf("[DEBUG] flattenEntitlementActionMonitor %+v", in)
 	m := make(map[string]interface{})
-	m["enabled"] = in.Enabled
-	m["timeout"] = in.Timeout
+	m["enabled"] = in.GetEnabled()
+	m["timeout"] = int(in.GetTimeout())
 
 	return []interface{}{m}
 }
@@ -388,7 +478,7 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 
 	if d.HasChange("actions") {
 		_, v := d.GetChange("actions")
-		actions, err := readConditionActionsFromConfig(v.([]interface{}))
+		actions, err := readConditionActionsFromConfig(v.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -449,6 +539,7 @@ func readConditionActionsFromConfig(actions []interface{}) ([]openapi.Entitlemen
 		}
 		a := openapi.NewEntitlementAllOfActionsWithDefaults()
 		raw := action.(map[string]interface{})
+		log.Printf("[DEBUG] readConditionActionsFromConfig RAWT: %+v", raw)
 		if v, ok := raw["subtype"]; ok {
 			a.SetSubtype(v.(string))
 		}
@@ -477,17 +568,25 @@ func readConditionActionsFromConfig(actions []interface{}) ([]openapi.Entitlemen
 			a.SetTypes(types)
 		}
 		monitor := openapi.NewEntitlementAllOfMonitorWithDefaults()
+
+		// Check monitor for backwards compatibility
 		if v, ok := raw["monitor"]; ok {
 			rawMonitors := v.([]interface{})
 			for _, v := range rawMonitors {
 				rawMonitor := v.(map[string]interface{})
 				if v, ok := rawMonitor["enabled"]; ok {
-					monitor.SetEnabled(v.(bool))
+					raw["monitor_enabled"] = v.(bool)
 				}
-				if v, ok := rawMonitor["timeout"]; ok {
-					monitor.SetTimeout(int32(v.(int)))
+				if v, ok := rawMonitor["timeout"].(int); ok {
+					raw["monitor_timeout"] = v
 				}
 			}
+		}
+		if v, ok := raw["monitor_enabled"].(bool); ok {
+			monitor.SetEnabled(v)
+		}
+		if v, ok := raw["monitor_timeout"].(int); ok && v > 0 {
+			monitor.SetTimeout(int32(v))
 		}
 		a.SetMonitor(*monitor)
 		result = append(result, *a)
