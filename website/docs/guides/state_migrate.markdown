@@ -19,3 +19,7 @@ We can still use the old .tf files and state files, but we need to update the na
 $ ./state-migrate migrate -dir /path/to/terraform-resources
 
 ```
+
+state-migrate is located in tools/state-migrate on github
+- https://github.com/appgate/terraform-provider-appgatesdp/tree/v0.5.0/tools/state-migrate
+- https://github.com/appgate/terraform-provider-appgatesdp/releases/tag/v0.5.0
