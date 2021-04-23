@@ -10,8 +10,8 @@ import (
 )
 
 func TestAccEntitlementBasicPing(t *testing.T) {
-	resourceName := "appgatesdp_entitlement.test_item"
-	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resourceName := "appgatesdp_entitlement.ping_item"
+	rName := RandStringFromCharSet(12, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -95,7 +95,7 @@ data "appgatesdp_site" "default_site" {
 data "appgatesdp_condition" "always" {
   condition_name = "Always"
 }
-resource "appgatesdp_entitlement" "test_item" {
+resource "appgatesdp_entitlement" "ping_item" {
   name        = "%s"
   site = data.appgatesdp_site.default_site.id
     conditions = [
@@ -157,7 +157,7 @@ func testAccCheckEntitlementExists(resource string) resource.TestCheckFunc {
 
 func TestAccEntitlementBasicWithMonitor(t *testing.T) {
 	resourceName := "appgatesdp_entitlement.monitor_entitlement"
-	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	rName := RandStringFromCharSet(13, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -169,10 +169,10 @@ func TestAccEntitlementBasicWithMonitor(t *testing.T) {
 					testAccCheckEntitlementExists(resourceName),
 					// default value, computed from the controller, even if we dont set it in the tf
 					// config file, we will get a computed value back.
-					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.%", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.timeout", "30"),
+
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor_timeout", "30"),
 				),
 			},
 			{
@@ -185,10 +185,9 @@ func TestAccEntitlementBasicWithMonitor(t *testing.T) {
 				Config: testAccCheckEntitlementWithMonitorUpdated(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.%", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.timeout", "22"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor_timeout", "22"),
 				),
 			},
 			{
@@ -266,10 +265,8 @@ resource "appgatesdp_entitlement" "monitor_entitlement" {
 	  subtype = "tcp_up"
 	  hosts   = ["192.168.2.255/32"]
 	  ports   = ["53"]
-	  monitor {
-		enabled = true
-		timeout = 22
-	  }
+	  monitor_enabled = true
+	  monitor_timeout = 22
 	}
   
 	app_shortcuts {
@@ -282,8 +279,8 @@ resource "appgatesdp_entitlement" "monitor_entitlement" {
 }
 
 func TestAccEntitlementUpdateActionOrder(t *testing.T) {
-	resourceName := "appgatesdp_entitlement.test_item"
-	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resourceName := "appgatesdp_entitlement.test_action_order"
+	rName := RandStringFromCharSet(15, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -294,7 +291,6 @@ func TestAccEntitlementUpdateActionOrder(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					testAccCheckExampleWidgetExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "8"),
@@ -304,7 +300,7 @@ func TestAccEntitlementUpdateActionOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.0", "53"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "udp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor_timeout", "0"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
@@ -315,18 +311,17 @@ func TestAccEntitlementUpdateActionOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.1.monitor.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.ports.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.ports.0", "53"),
-					resource.TestCheckResourceAttr(resourceName, "actions.1.subtype", "udp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.subtype", "tcp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.types.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.description", ""),
-					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", "gcwogskflp"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", rName),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "https://www.google.com"),
 					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "disabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "name", "gcwogskflp"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "site", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
@@ -364,7 +359,7 @@ data "appgatesdp_site" "default_site" {
 data "appgatesdp_condition" "always" {
 	condition_name = "Always"
 }
-resource "appgatesdp_entitlement" "test_item" {
+resource "appgatesdp_entitlement" "test_action_order" {
 	name = "%s"
 	site = data.appgatesdp_site.default_site.id
 	conditions = [
@@ -407,7 +402,7 @@ data "appgatesdp_site" "default_site" {
 data "appgatesdp_condition" "always" {
 	condition_name = "Always"
 }
-resource "appgatesdp_entitlement" "test_item" {
+resource "appgatesdp_entitlement" "test_action_order" {
 	name = "%s"
 	site = data.appgatesdp_site.default_site.id
 	conditions = [
