@@ -123,6 +123,7 @@ func resourceAppgateEntitlement() *schema.Resource {
 						"ports": {
 							Type:     schema.TypeSet,
 							Optional: true,
+							Set:      schema.HashString,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
@@ -208,16 +209,7 @@ func resourceAppgateEntitlementActionHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
 	}
 	if v, ok := copy["ports"]; ok {
-		vs := v.([]interface{})
-		s := make([]string, len(vs))
-		for i, raw := range vs {
-			s[i] = raw.(string)
-		}
-		sort.Strings(s)
-
-		for _, v := range s {
-			buf.WriteString(fmt.Sprintf("%s-", v))
-		}
+		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
 	}
 	if v, ok := copy["types"]; ok {
 		vs := v.([]interface{})
@@ -403,7 +395,7 @@ func flattenEntitlementActions(actions []openapi.EntitlementAllOfActions, d *sch
 		action["subtype"] = act.Subtype
 		action["action"] = act.Action
 		action["hosts"] = schema.NewSet(schema.HashString, convertStringArrToInterface(act.GetHosts()))
-		action["ports"] = convertStringArrToInterface(act.GetPorts())
+		action["ports"] = schema.NewSet(schema.HashString, convertStringArrToInterface(act.GetPorts()))
 		types := act.GetTypes()
 		if types != nil && inArray(act.Subtype, icmpTypes()) {
 			action["types"] = convertStringArrToInterface(act.GetTypes())
@@ -561,8 +553,8 @@ func readEntitlmentActionsFromConfig(actions []interface{}, diags diag.Diagnosti
 			}
 			a.SetHosts(hosts)
 		}
-		if v := raw["ports"]; len(v.([]interface{})) > 0 {
-			ports, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if v, ok := raw["ports"]; ok {
+			ports, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, diags, fmt.Errorf("Failed to resolve entitlement action ports: %+v", err)
 			}
