@@ -168,3 +168,11 @@ func getResourceFileContent(d *schema.ResourceData) ([]byte, error) {
 func suppressMissingOptionalConfigurationBlock(k, old, new string, d *schema.ResourceData) bool {
 	return old == "1" && new == "0"
 }
+
+func convertStringArrToInterface(strs []string) []interface{} {
+	arr := make([]interface{}, len(strs))
+	for i, str := range strs {
+		arr[i] = str
+	}
+	return arr
+}
