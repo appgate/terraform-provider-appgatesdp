@@ -21,16 +21,17 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 				Config: testAccCheckEntitlementBasicPing(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementExists(resourceName),
+					testAccCheckExampleWidgetExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "10.0.0.1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.1", "10.0.0.0/24"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.2", "hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "10.0.0.0/24"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.1", "10.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.2", "aws://security-group:accounting"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.3", "dns://hostname.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.4", "aws://security-group:accounting"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.4", "hostname.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "icmp_up"),
@@ -327,7 +328,7 @@ func TestAccEntitlementUpdateActionOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "disabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "site", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
+					resource.TestCheckResourceAttrPair(resourceName, "site", "data.appgatesdp_site.default_site", "id"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
@@ -436,6 +437,212 @@ resource "appgatesdp_entitlement" "test_action_order_item" {
 			enabled = true
 			timeout = 22
 		}
+	}
+	app_shortcuts {
+		name       = "%s"
+		url        = "https://www.google.com"
+		color_code = 5
+	}
+}
+	`, rName, rName)
+}
+
+func TestAccEntitlementUpdateActionHostOrder(t *testing.T) {
+	resourceName := "appgatesdp_entitlement.test_action_order_hosts"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckItemDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckEntitlementActionHostSets(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckEntitlementExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "103.15.3.254/32"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.1", "172.17.3.255/32"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.2", "192.168.2.255/32"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.timeout", "30"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.0", "53"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.ports.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.ports.0", "53"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.subtype", "udp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.description", ""),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "https://www.google.com"),
+					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
+					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttrPair(resourceName, "site", "data.appgatesdp_site.default_site", "id"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccEntitlementImportStateCheckFunc(1),
+			},
+			{
+				Config: testAccCheckEntitlementActionHostSetsUpdatedOrder(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckEntitlementExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "103.15.3.254/32"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.1", "172.17.3.255/32"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.2", "192.168.2.255/32"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.0.timeout", "30"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.0", "53"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.ports.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.ports.0", "53"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.subtype", "udp_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.1.types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcut_scripts.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.description", ""),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", rName),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "https://www.google.com"),
+					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
+					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "conditions.0", "data.appgatesdp_condition.always", "id"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttrPair(resourceName, "site", "data.appgatesdp_site.default_site", "id"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccEntitlementImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckEntitlementActionHostSets(rName string) string {
+	return fmt.Sprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+data "appgatesdp_condition" "always" {
+	condition_name = "Always"
+}
+resource "appgatesdp_entitlement" "test_action_order_hosts" {
+	name = "%s"
+	site = data.appgatesdp_site.default_site.id
+	conditions = [
+		data.appgatesdp_condition.always.id
+	]
+	tags = [
+		"terraform",
+		"api-created"
+	]
+	disabled = true
+	condition_logic = "and"
+	actions {
+		action  = "allow"
+		subtype = "tcp_up"
+		hosts = [
+			"103.15.3.254/32",
+			"172.17.3.255/32",
+			"192.168.2.255/32",
+		]
+		ports   = ["53"]
+	}
+	actions {
+		action  = "allow"
+		subtype = "udp_up"
+		hosts   = ["192.168.2.255/32"]
+		ports   = ["53"]
+	}
+	app_shortcuts {
+		name       = "%s"
+		url        = "https://www.google.com"
+		color_code = 5
+	}
+}
+	`, rName, rName)
+}
+
+func testAccCheckEntitlementActionHostSetsUpdatedOrder(rName string) string {
+	return fmt.Sprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+data "appgatesdp_condition" "always" {
+	condition_name = "Always"
+}
+resource "appgatesdp_entitlement" "test_action_order_hosts" {
+	name = "%s"
+	site = data.appgatesdp_site.default_site.id
+	conditions = [
+		data.appgatesdp_condition.always.id
+	]
+	tags = [
+		"terraform",
+		"api-created"
+	]
+	disabled = true
+	condition_logic = "and"
+	actions {
+		action  = "allow"
+		subtype = "tcp_up"
+		hosts = [
+			"192.168.2.255/32",
+			"103.15.3.254/32",
+			"172.17.3.255/32",
+		]
+		ports   = ["53"]
+	}
+	actions {
+		action  = "allow"
+		subtype = "udp_up"
+		hosts   = ["192.168.2.255/32"]
+		ports   = ["53"]
 	}
 	app_shortcuts {
 		name       = "%s"
