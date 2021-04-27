@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/hashicorp/go-version"
 
 	"github.com/google/uuid"
 )
@@ -32,9 +33,12 @@ type Config struct {
 
 // Client is the appgate API client.
 type Client struct {
-	Token string
-	UUID  string
-	API   *openapi.APIClient
+	Token                  string
+	UUID                   string
+	ApplianceVersion       *version.Version
+	LatestSupportedVersion *version.Version
+	ClientVersion          int
+	API                    *openapi.APIClient
 }
 
 // Client creates
@@ -69,21 +73,33 @@ func (c *Config) Client() (*Client, error) {
 	}
 	apiClient := openapi.NewAPIClient(clientCfg)
 
-	token, err := getToken(apiClient, c)
+	response, err := login(apiClient, c)
 	if err != nil {
 		return nil, err
 	}
 
-	client := &Client{
-		API:   apiClient,
-		Token: token,
+	latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
+	if err != nil {
+		return nil, err
 	}
+
+	currentVersion, err := version.NewVersion(*response.Version)
+	if err != nil {
+		return nil, err
+	}
+	client := &Client{
+		API:                    apiClient,
+		Token:                  fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token)),
+		ApplianceVersion:       currentVersion,
+		ClientVersion:          c.Version,
+		LatestSupportedVersion: latestSupportedVersion,
+	}
+
 	return client, nil
 }
 
-func getToken(apiClient *openapi.APIClient, cfg *Config) (string, error) {
+func login(apiClient *openapi.APIClient, cfg *Config) (*openapi.LoginResponse, error) {
 	ctx := context.Background()
-	// Login first, save token
 	loginOpts := openapi.LoginRequest{
 		ProviderName: cfg.Provider,
 		Username:     openapi.PtrString(cfg.Username),
@@ -93,7 +109,7 @@ func getToken(apiClient *openapi.APIClient, cfg *Config) (string, error) {
 
 	loginResponse, _, err := apiClient.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
 	if err != nil {
-		return "", prettyPrintAPIError(err)
+		return nil, prettyPrintAPIError(err)
 	}
-	return fmt.Sprintf("Bearer %s", *openapi.PtrString(*loginResponse.Token)), nil
+	return &loginResponse, nil
 }

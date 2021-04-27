@@ -3,10 +3,23 @@ package appgate
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
+// its not recommended to change this value.
+const DefaultClientVersion = 14
+
+// ApplianceVersionMap match appliance version to go client version.
+var ApplianceVersionMap = map[int]string{
+	12: "5.1.0",
+	13: "5.2.0",
+	14: "5.3.0",
+	15: "5.4.0",
+}
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
 func Provider() *schema.Provider {
@@ -45,7 +58,7 @@ func Provider() *schema.Provider {
 			"client_version": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", 14),
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", DefaultClientVersion),
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -124,13 +137,20 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Unable to create Appgate SDK client v%d", v),
-				Detail:   fmt.Sprintf("Unable to authenticate user for authenticated Appgate client %s", err),
+				Summary:  fmt.Sprintf("Unable to create Appgate SDP SDK client v%d", v),
+				Detail:   fmt.Sprintf("Unable to authenticate user for authenticated Appgate SDP client %s", err),
 			})
 
 			return nil, diags
 		}
-
+		if c.ApplianceVersion.LessThan(c.LatestSupportedVersion) {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("You are using old version of Appgate SDP SDK client v%d", v),
+				Detail:   "You are using an outdated version of appgate appliances, you should consider updating to the latest version.",
+			})
+		}
+		log.Printf("[INFO] Appgate SDP Appliance Version %q client version v%d", c.ApplianceVersion, c.ClientVersion)
 		return c, diags
 	}
 	diags = append(diags, diag.Diagnostic{
