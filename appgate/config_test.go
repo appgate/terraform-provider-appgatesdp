@@ -140,7 +140,6 @@ func TestConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Expected appgate client got %v", err)
 	}
-	t.Logf("appgate client %+v", appgateClient)
 
 	expectedVersion, err := version.NewVersion("4.3.0-20000")
 	if err != nil {
