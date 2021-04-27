@@ -5,21 +5,32 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
-// its not recommended to change this value.
-const DefaultClientVersion = 14
+const (
+	Version12 = 12
+	Version13 = 13
+	Version14 = 14
+	version15 = 15
+	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
+	// its not recommended to change this value.
+	DefaultClientVersion = Version14
+)
 
-// ApplianceVersionMap match appliance version to go client version.
-var ApplianceVersionMap = map[int]string{
-	12: "5.1.0",
-	13: "5.2.0",
-	14: "5.3.0",
-	15: "5.4.0",
-}
+var (
+	// ApplianceVersionMap match appliance version to go client version.
+	ApplianceVersionMap = map[int]string{
+		Version12: "5.1.0",
+		Version13: "5.2.0",
+		Version14: "5.3.0",
+		version15: "5.4.0",
+	}
+
+	Appliance53Version, _ = version.NewVersion(ApplianceVersionMap[Version14])
+)
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
 func Provider() *schema.Provider {

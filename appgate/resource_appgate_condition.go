@@ -11,6 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// errRemedyLogicUnsupportedVersion is used when trying to use remedy_logic on an older unsupported version.
+var errRemedyLogicUnsupportedVersion = fmt.Errorf("remedy_logic is only supported in %s or higher", ApplianceVersionMap[Version14])
+
 func resourceAppgateCondition() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAppgateConditionCreate,
@@ -133,6 +136,7 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 	ctx := context.Background()
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.ConditionsApi
+	currentVersion := meta.(*Client).ApplianceVersion
 
 	args := openapi.Condition{}
 	args.Id = uuid.New().String()
@@ -147,7 +151,11 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("expression"); ok {
 		args.SetExpression(v.(string))
 	}
+
 	if v, ok := d.GetOk("remedy_logic"); ok {
+		if currentVersion.LessThan(Appliance53Version) {
+			return fmt.Errorf("%s, you are using %q client v%d", errRemedyLogicUnsupportedVersion, currentVersion, meta.(*Client).ClientVersion)
+		}
 		args.SetRemedyLogic(v.(string))
 	}
 
@@ -225,6 +233,7 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 	ctx := context.Background()
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.ConditionsApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.ConditionsIdGet(ctx, d.Id())
 	orginalCondition, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -246,6 +255,9 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 		orginalCondition.SetExpression(d.Get("expression").(string))
 	}
 	if d.HasChange("remedy_logic") {
+		if currentVersion.LessThan(Appliance53Version) {
+			return fmt.Errorf("%s, you are using %q client v%d", errRemedyLogicUnsupportedVersion, currentVersion, meta.(*Client).ClientVersion)
+		}
 		orginalCondition.SetRemedyLogic(d.Get("remedy_logic").(string))
 	}
 
