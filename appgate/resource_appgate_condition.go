@@ -75,6 +75,7 @@ func resourceAppgateCondition() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Whether all the Remedy Methods must succeed to pass this Condition or just one.",
 				Optional:    true,
+				Computed:    true,
 				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 					s := v.(string)
 					list := []string{"and", "or"}
@@ -191,6 +192,7 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Reading Condition Name: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.ConditionsApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.Background()
 	request := api.ConditionsIdGet(ctx, d.Id())
 	remoteCondition, _, err := request.Authorization(token).Execute()
@@ -204,7 +206,11 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("notes", remoteCondition.Notes)
 	d.Set("tags", remoteCondition.Tags)
 	d.Set("expression", remoteCondition.Expression)
-	d.Set("remedy_logic", remoteCondition.GetRemedyLogic())
+
+	if currentVersion.GreaterThanOrEqual(Appliance53Version) {
+		d.Set("remedy_logic", remoteCondition.GetRemedyLogic())
+	}
+
 	d.Set("repeat_schedules", remoteCondition.RepeatSchedules)
 	if remoteCondition.RemedyMethods != nil {
 		if err = d.Set("remedy_methods", flattenConditionRemedyMethods(*remoteCondition.RemedyMethods)); err != nil {
