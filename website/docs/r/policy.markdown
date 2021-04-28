@@ -62,7 +62,7 @@ resource "appgatesdp_policy" "looping_policy" {
 var result = false;
 %{for group in local.groups~}
 if/*claims.user.groups*/(claims.user.groups && claims.user.groups.indexOf("${group}") >= 0)/*end claims.user.groups*/ { return true; }
-${endfor~}
+%{endfor~}
 return result;
 EOF
 }
