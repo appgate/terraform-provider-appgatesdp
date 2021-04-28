@@ -3,12 +3,14 @@ package appgate
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
 	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/hashicorp/go-version"
 
 	"github.com/google/uuid"
 )
@@ -24,10 +26,9 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func setup() (*openapi.APIClient, *openapi.Configuration, *http.ServeMux, *httptest.Server, func()) {
+func setup() (*openapi.APIClient, *openapi.Configuration, *http.ServeMux, *httptest.Server, int, func()) {
 	mux := http.NewServeMux()
 	server := httptest.NewServer(mux)
-
 	clientCfg := openapi.NewConfiguration()
 
 	clientCfg.Debug = false
@@ -40,7 +41,8 @@ func setup() (*openapi.APIClient, *openapi.Configuration, *http.ServeMux, *httpt
 
 	c := openapi.NewAPIClient(clientCfg)
 
-	return c, clientCfg, mux, server, server.Close
+	port := server.Listener.Addr().(*net.TCPAddr).Port
+	return c, clientCfg, mux, server, port, server.Close
 }
 
 func testMethod(t *testing.T, r *http.Request, want string) {
@@ -50,7 +52,7 @@ func testMethod(t *testing.T, r *http.Request, want string) {
 }
 
 func TestLoginInternalServerError(t *testing.T) {
-	client, _, mux, _, teardown := setup()
+	client, _, mux, _, _, teardown := setup()
 	defer teardown()
 	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -91,8 +93,8 @@ func TestLoginInternalServerError(t *testing.T) {
 	}
 }
 
-func TestGetToken200(t *testing.T) {
-	client, _, mux, _, teardown := setup()
+func TestConfig(t *testing.T) {
+	_, _, mux, _, port, teardown := setup()
 	defer teardown()
 	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -130,15 +132,31 @@ func TestGetToken200(t *testing.T) {
 
 	})
 	c := &Config{
-		URL:      "http://appgate.com/admin",
+		URL:      fmt.Sprintf("http://localhost:%d", port),
 		Username: "admin",
 		Password: "admin",
 	}
-	token, err := getToken(client, c)
+	appgateClient, err := c.Client()
 	if err != nil {
-		t.Fatalf("Unexpected error, got %+v", err)
+		t.Fatalf("Expected appgate client got %v", err)
 	}
-	if token != "Bearer very-long-string" {
-		t.Fatalf("Expected token very-long-string, got %s", token)
+
+	expectedVersion, err := version.NewVersion("4.3.0-20000")
+	if err != nil {
+		t.Fatalf("unable to parse expected version")
+	}
+	if !appgateClient.ApplianceVersion.Equal(expectedVersion) {
+		t.Fatalf("Expected %s, got %s", expectedVersion, appgateClient.ApplianceVersion)
+	}
+
+	latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
+	if err != nil {
+		t.Fatalf("unable to parse latest supported version")
+	}
+	if !appgateClient.LatestSupportedVersion.Equal(latestSupportedVersion) {
+		t.Fatalf("Expected Latest Version%s, got %s", expectedVersion, appgateClient.ApplianceVersion)
+	}
+	if appgateClient.Token != "Bearer very-long-string" {
+		t.Fatalf("Expected token Bearer very-long-string, got %s", appgateClient.Token)
 	}
 }
