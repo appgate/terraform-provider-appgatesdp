@@ -41,6 +41,34 @@ EOF
 
 ```
 
+Example of a looping policy for multiple claims of a single type
+
+```hcl
+
+locals {
+  groups = ["developers", "admins"]
+}
+
+resource "appgatesdp_policy" "looping_policy" {
+  name  = "terraform policy"
+  notes = "terraform policy notes"
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+  disabled = false
+
+  expression = <<-EOF
+var result = false;
+%{for group in local.groups~}
+if/*claims.user.groups*/(claims.user.groups && claims.user.groups.indexOf("${group}") >= 0)/*end claims.user.groups*/ { return true; }
+%{endfor~}
+return result;
+EOF
+}
+
+```
+
 ## Argument Reference
 
 The following arguments are supported:
