@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -65,7 +65,8 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.SamlIdentityProvidersApi
 	ctx := context.TODO()
-	provider := openapi.NewIdentityProvider(identityProviderSaml)
+	// provider := openapi.NewIdentityProvider(identityProviderSaml)
+	provider := &openapi.IdentityProvider{}
 	provider, err := readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderSaml, err)
@@ -78,12 +79,6 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	args.SetNotes(provider.GetNotes())
 	args.SetTags(provider.GetTags())
 
-	if provider.Default != nil {
-		args.SetDefault(provider.GetDefault())
-	}
-	if provider.ClientProvider != nil {
-		args.SetClientProvider(*provider.ClientProvider)
-	}
 	if provider.AdminProvider != nil {
 		args.SetAdminProvider(*provider.AdminProvider)
 	}
@@ -161,8 +156,6 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("tags", saml.Tags)
 
 	// identity provider attributes
-	d.Set("default", saml.GetDefault())
-	d.Set("client_provider", saml.GetClientProvider())
 	d.Set("admin_provider", saml.GetAdminProvider())
 	if v, ok := saml.GetOnBoarding2FAOk(); ok {
 		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
@@ -224,12 +217,6 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	// identity provider attributes
-	if d.HasChange("default") {
-		originalSamlProvider.SetDefault(d.Get("default").(bool))
-	}
-	if d.HasChange("client_provider") {
-		originalSamlProvider.SetClientProvider(d.Get("client_provider").(bool))
-	}
 	if d.HasChange("admin_provider") {
 		originalSamlProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}

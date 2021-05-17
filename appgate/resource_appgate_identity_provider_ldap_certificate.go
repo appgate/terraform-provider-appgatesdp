@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -54,7 +54,9 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
-	provider := openapi.NewIdentityProvider(identityProviderLdapCertificate)
+	// provider := openapi.NewIdentityProvider(identityProviderLdapCertificate)
+	// provider := openapi.NewLdapCertificateProviderWithDefaults()
+	provider := &openapi.IdentityProvider{}
 	provider, err := readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdapCertificate, err)
@@ -67,12 +69,6 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	args.SetNotes(provider.GetNotes())
 	args.SetTags(provider.GetTags())
 
-	if provider.Default != nil {
-		args.SetDefault(provider.GetDefault())
-	}
-	if provider.ClientProvider != nil {
-		args.SetClientProvider(*provider.ClientProvider)
-	}
 	if provider.AdminProvider != nil {
 		args.SetAdminProvider(*provider.AdminProvider)
 	}
@@ -187,9 +183,6 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 	d.Set("tags", ldap.Tags)
 
 	// identity provider attributes
-	d.Set("default", ldap.GetDefault())
-	// TODO: remove - deprecated in 5.1
-	d.Set("client_provider", ldap.GetClientProvider())
 	d.Set("admin_provider", ldap.GetAdminProvider())
 	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
 		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
@@ -276,13 +269,6 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 
 	// identity provider attributes
-	if d.HasChange("default") {
-		originalLdapCertificateProvider.SetDefault(d.Get("default").(bool))
-	}
-	// TODO: remove - deprecated in 5.1
-	if d.HasChange("client_provider") {
-		originalLdapCertificateProvider.SetClientProvider(d.Get("client_provider").(bool))
-	}
 	if d.HasChange("admin_provider") {
 		originalLdapCertificateProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}

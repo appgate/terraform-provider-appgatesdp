@@ -63,7 +63,6 @@ func TestAccLdapCertificateIdentityProvidervBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.claim_name", "lastName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypted", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.list", "false"),
-					resource.TestCheckResourceAttr(resourceName, "client_provider", "false"),
 					resource.TestCheckResourceAttr(resourceName, "default", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.0", "internal.company.com"),

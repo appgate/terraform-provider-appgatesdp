@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -41,7 +41,9 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.LdapIdentityProvidersApi
 	ctx := context.TODO()
-	provider := openapi.NewIdentityProvider(identityProviderLdap)
+	// provider := openapi.NewIdentityProvider(identityProviderLdap)
+	provider := &openapi.IdentityProvider{}
+	provider.Type = identityProviderLdap
 	provider, err := readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdap, err)
@@ -54,12 +56,6 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	args.SetNotes(provider.GetNotes())
 	args.SetTags(provider.GetTags())
 
-	if provider.Default != nil {
-		args.SetDefault(provider.GetDefault())
-	}
-	if provider.ClientProvider != nil {
-		args.SetClientProvider(*provider.ClientProvider)
-	}
 	if provider.AdminProvider != nil {
 		args.SetAdminProvider(*provider.AdminProvider)
 	}
@@ -157,9 +153,6 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("tags", ldap.Tags)
 
 	// identity provider attributes
-	d.Set("default", ldap.GetDefault())
-	d.Set("client_provider", ldap.GetClientProvider())
-	d.Set("admin_provider", ldap.GetAdminProvider())
 	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
 		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
 			return err
@@ -271,12 +264,6 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	// identity provider attributes
-	if d.HasChange("default") {
-		originalLdapProvider.SetDefault(d.Get("default").(bool))
-	}
-	if d.HasChange("client_provider") {
-		originalLdapProvider.SetClientProvider(d.Get("client_provider").(bool))
-	}
 	if d.HasChange("admin_provider") {
 		originalLdapProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}

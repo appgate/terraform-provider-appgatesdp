@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -72,7 +72,8 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
-	provider := openapi.NewIdentityProvider(identityProviderRadius)
+	// provider := openapi.NewIdentityProvider(identityProviderRadius)
+	provider := &openapi.IdentityProvider{}
 	provider, err := readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderRadius, err)
@@ -85,12 +86,7 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	args.SetNotes(provider.GetNotes())
 	args.SetTags(provider.GetTags())
 	// identity provider
-	if provider.Default != nil {
-		args.SetDefault(provider.GetDefault())
-	}
-	if provider.ClientProvider != nil {
-		args.SetClientProvider(*provider.ClientProvider)
-	}
+
 	if provider.AdminProvider != nil {
 		args.SetAdminProvider(*provider.AdminProvider)
 	}
@@ -167,8 +163,7 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 	d.Set("tags", radius.Tags)
 
 	// identity provider attributes
-	d.Set("default", radius.GetDefault())
-	d.Set("client_provider", radius.GetClientProvider())
+
 	d.Set("admin_provider", radius.GetAdminProvider())
 	if v, ok := radius.GetOnBoarding2FAOk(); ok {
 		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
@@ -239,12 +234,6 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	}
 
 	// identity provider attributes
-	if d.HasChange("default") {
-		originalRadiusProvider.SetDefault(d.Get("default").(bool))
-	}
-	if d.HasChange("client_provider") {
-		originalRadiusProvider.SetClientProvider(d.Get("client_provider").(bool))
-	}
 	if d.HasChange("admin_provider") {
 		originalRadiusProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}

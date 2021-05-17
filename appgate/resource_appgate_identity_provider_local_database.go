@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -75,13 +75,10 @@ func getBuiltinLocalDatabaseProviderUUID(ctx context.Context, api openapi.LocalD
 	}
 	for _, s := range provider.GetData() {
 		if s.GetName() == builtinProviderLocal {
-			localDatabase = &s
+			return &s, nil
 		}
 	}
-	if localDatabase == nil {
-		return localDatabase, fmt.Errorf("Could not find builtin local database identity provider")
-	}
-	return localDatabase, nil
+	return localDatabase, fmt.Errorf("Could not find builtin local database identity provider")
 }
 
 func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
@@ -104,8 +101,6 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 	d.Set("tags", localDatabase.Tags)
 
 	// identity provider attributes
-	d.Set("default", localDatabase.GetDefault())
-	d.Set("client_provider", localDatabase.GetClientProvider())
 	d.Set("admin_provider", localDatabase.GetAdminProvider())
 	if v, ok := localDatabase.GetOnBoarding2FAOk(); ok {
 		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
@@ -163,12 +158,7 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 	}
 
 	// identity provider attributes
-	if d.HasChange("default") {
-		originalLocalDatabaseProvider.SetDefault(d.Get("default").(bool))
-	}
-	if d.HasChange("client_provider") {
-		originalLocalDatabaseProvider.SetClientProvider(d.Get("client_provider").(bool))
-	}
+
 	if d.HasChange("admin_provider") {
 		originalLocalDatabaseProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}

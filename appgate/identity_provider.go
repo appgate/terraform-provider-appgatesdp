@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -58,13 +58,7 @@ func identityProviderSchema() map[string]*schema.Schema {
 				Optional: true,
 				Computed: true,
 			},
-			//TODO: Remove - deprecated in 5.1
-			"client_provider": {
-				Type:       schema.TypeBool,
-				Deprecated: "Whether the provider will be listed in the Client UI or not. Deprecated as of 5.1 since the Client does not have the option to choose Identity Provider anymore.",
-				Optional:   true,
-				Computed:   true,
-			},
+
 			"on_boarding_two_factor": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -350,15 +344,7 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	if _, o := base.GetNotesOk(); o {
 		provider.SetNotes(base.GetNotes())
 	}
-	if v, ok := d.GetOk("display_name"); ok {
-		provider.SetDisplayName(v.(string))
-	}
-	if v, ok := d.GetOk("default"); ok {
-		provider.SetDefault(v.(bool))
-	}
-	if v, ok := d.GetOk("client_provider"); ok {
-		provider.SetClientProvider(v.(bool))
-	}
+
 	if v, ok := d.GetOk("admin_provider"); ok {
 		provider.SetAdminProvider(v.(bool))
 	}

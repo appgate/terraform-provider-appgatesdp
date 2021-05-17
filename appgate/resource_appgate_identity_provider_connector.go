@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -70,13 +70,10 @@ func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorI
 	}
 	for _, s := range provider.GetData() {
 		if s.GetName() == builtinProviderConnector {
-			connectorIP = &s
+			return &s, nil
 		}
 	}
-	if connectorIP == nil {
-		return connectorIP, fmt.Errorf("Could not find builtin connector identity provider")
-	}
-	return connectorIP, nil
+	return connectorIP, fmt.Errorf("Could not find builtin connector identity provider")
 }
 
 func resourceAppgateConnectorProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
