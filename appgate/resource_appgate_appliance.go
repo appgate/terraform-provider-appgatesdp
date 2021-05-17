@@ -293,8 +293,9 @@ func resourceAppgateAppliance() *schema.Resource {
 																Required: true,
 															},
 															"hostname": {
-																Type:     schema.TypeString,
-																Optional: true,
+																Type:       schema.TypeString,
+																Deprecated: "Removed in >= 5.4",
+																Optional:   true,
 															},
 															"snat": {
 																Type:     schema.TypeBool,
@@ -356,8 +357,9 @@ func resourceAppgateAppliance() *schema.Resource {
 																Required: true,
 															},
 															"hostname": {
-																Type:     schema.TypeString,
-																Required: true,
+																Type:       schema.TypeString,
+																Deprecated: "Removed in >= 5.4",
+																Required:   true,
 															},
 															"snat": {
 																Type:     schema.TypeBool,
@@ -1198,9 +1200,7 @@ func readNetworkIpv4StaticFromConfig(ipv4staticraw []interface{}) []openapi.Appl
 		if v, ok := raw["netmask"]; ok {
 			row.SetNetmask(int32(v.(int)))
 		}
-		if v, ok := raw["hostname"]; ok {
-			row.SetHostname(v.(string))
-		}
+
 		if v, ok := raw["snat"]; ok {
 			row.SetSnat(v.(bool))
 		}
@@ -1250,9 +1250,6 @@ func readNetworkIpv6StaticFromConfig(ipv6staticraw []interface{}) []openapi.Appl
 		}
 		if v, ok := raw["netmask"]; ok {
 			row.SetNetmask(int32(v.(int)))
-		}
-		if v, ok := raw["hostname"]; ok {
-			row.SetHostname(v.(string))
 		}
 		if v, ok := raw["snat"]; ok {
 			row.SetSnat(v.(bool))
@@ -1829,9 +1826,6 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 					if v, o := s.GetNetmaskOk(); o {
 						static["netmask"] = *v
 					}
-					if v, o := s.GetHostnameOk(); o {
-						static["hostname"] = *v
-					}
 					if v, o := s.GetSnatOk(); o {
 						static["snat"] = *v
 					}
@@ -1866,9 +1860,6 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 					}
 					if v, o := s.GetNetmaskOk(); o {
 						static["netmask"] = *v
-					}
-					if v, o := s.GetHostnameOk(); o {
-						static["hostname"] = *v
 					}
 					if v, o := s.GetSnatOk(); o {
 						static["snat"] = *v

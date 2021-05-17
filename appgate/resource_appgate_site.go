@@ -191,19 +191,21 @@ func resourceAppgateSite() *schema.Resource {
 						"web_proxy_enabled": {
 							Type:        schema.TypeBool,
 							Description: "Flag for manipulating web proxy p12 file. Setting this false will delete the existing p12 file from database.",
+							Deprecated:  "Deprecated in 5.4",
 							Optional:    true,
 							Computed:    true,
 						},
 						"web_proxy_key_store": {
 							Type:        schema.TypeString,
 							Description: "The PKCS12 package to be used for web proxy. The file must be with no password and must include the full certificate chain and a private key. In Base64 format.",
+							Deprecated:  "Deprecated in 5.4",
 							Optional:    true,
 						},
 						"web_proxy_verify_upstream_certificate": {
 							Type:        schema.TypeBool,
 							Description: "Gateway will verify the certificate of the endpoints.",
 							Optional:    true,
-							Default:     true,
+							Deprecated:  "Deprecated in 5.4",
 						},
 						"ip_access_log_interval_seconds": {
 							Type:     schema.TypeInt,

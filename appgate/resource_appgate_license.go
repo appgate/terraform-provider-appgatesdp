@@ -47,23 +47,15 @@ func resourceAppgateLicenseCreate(d *schema.ResourceData, meta interface{}) erro
 	args := openapi.NewLicenseImportWithDefaults()
 	args.SetLicense(d.Get("license").(string))
 	request := api.LicensePost(context.TODO())
-	license, _, err := request.LicenseImport(*args).Authorization(token).Execute()
+	_, _, err := request.LicenseImport(*args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create license %+v", prettyPrintAPIError(err))
 	}
-	d.SetId(getLicenseIdentifier(license))
 	return resourceAppgateLicenseRead(d, meta)
 }
 
-func getLicenseIdentifier(license openapi.License) string {
-	return fmt.Sprintf(
-		"%d-%s-%s-%d-%d",
-		int(license.GetType()),
-		license.GetRequest(),
-		license.GetExpiration().Format("2006-01-02T15:04:05Z0700"),
-		int(license.GetMaxSites()),
-		int(license.GetMaxUsers()),
-	)
+func getLicenseIdentifier(license openapi.LicenseDetails) string {
+	return fmt.Sprintf("%s", license.GetRequestCode())
 }
 
 func resourceAppgateLicenseRead(d *schema.ResourceData, meta interface{}) error {
@@ -77,7 +69,7 @@ func resourceAppgateLicenseRead(d *schema.ResourceData, meta interface{}) error 
 		d.SetId("")
 		return fmt.Errorf("Failed to read license, %+v", err)
 	}
-	d.SetId(getLicenseIdentifier(license.GetEntitled()))
+	d.SetId(getLicenseIdentifier(license))
 
 	return nil
 }
