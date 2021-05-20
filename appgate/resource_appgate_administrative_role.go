@@ -123,7 +123,7 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 									"TokenRecord",
 									"Blacklist",
 									"UserLicense",
-									"OnBoardedDevice",
+									"RegisteredDevice",
 									"AllocatedIp",
 									"SessionInfo",
 									"AuditLog",
