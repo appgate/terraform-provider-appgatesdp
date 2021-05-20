@@ -46,7 +46,7 @@ resource "appgatesdp_appliance" "new_test_gateway" {
     dtls_port      = 445
     allow_sources {
       address = "1.3.3.8"
-      netmask = 0
+      netmask = 32
       nic     = "eth0"
     }
     override_spa_mode = "UDP-TCP"
@@ -58,7 +58,7 @@ resource "appgatesdp_appliance" "new_test_gateway" {
 
     allow_sources {
       address = "1.3.3.8"
-      netmask = 0
+      netmask = 32
       nic     = "eth0"
     }
   }
