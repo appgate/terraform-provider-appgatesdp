@@ -80,6 +80,7 @@ func resourceAppgateAppliance() *schema.Resource {
 
 			"hostname": {
 				Type:        schema.TypeString,
+				Deprecated:  "Generic hostname of the appliance. Used as linux hostname and to identify within logs. If peerInterface.hostname is changed, this field's value is cleared. When empty, peerInterface.hostname will be used to generate it.",
 				Description: "Name of the object.",
 				Required:    true,
 			},
@@ -98,6 +99,7 @@ func resourceAppgateAppliance() *schema.Resource {
 
 			"connect_to_peers_using_client_port_with_spa": {
 				Type:        schema.TypeBool,
+				Deprecated:  "This field is deprecated as of 5.4. It will always be enabled when the support for peerInterface is removed.",
 				Description: "Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect.",
 				Optional:    true,
 				Computed:    true,
@@ -158,9 +160,10 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"peer_interface": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Type:       schema.TypeList,
+				Required:   true,
+				Deprecated: "The details of peer connection interface. Used by other appliances and administrative UI. This interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.",
+				MaxItems:   1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hostname": {
