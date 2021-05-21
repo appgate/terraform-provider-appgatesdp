@@ -300,7 +300,7 @@ The details of the Client connection interface.
 * `https_port`:  (Optional)  default value `443` Port to connect for the Client specific services.
 * `dtls_port`:  (Optional)  default value `443` Port to connect for the Clients that connects to vpnd on DTLS if enabled.
 * `allow_sources`:  (Optional) Source configuration to allow via iptables.
-* `override_spa_mode`:  (Optional)  Enum values: `Disabled,TCP,UDP-TCP`Override SPA mode for this appliance.
+* `override_spa_mode`:  (Optional)  Enum values: `TCP,UDP-TCP`Override SPA mode for this appliance.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.

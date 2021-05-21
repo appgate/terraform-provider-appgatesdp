@@ -145,7 +145,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 							ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 								s := v.(string)
-								list := []string{"Disabled", "TCP", "UDP-TCP"}
+								list := []string{"TCP", "UDP-TCP"}
 								for _, x := range list {
 									if s == x {
 										return
