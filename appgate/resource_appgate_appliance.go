@@ -161,7 +161,7 @@ func resourceAppgateAppliance() *schema.Resource {
 
 			"peer_interface": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -172,6 +172,7 @@ func resourceAppgateAppliance() *schema.Resource {
 						"https_port": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Default:  444,
 						},
 						"allow_sources": reUsableSchemas["allow_sources"],
 					},
@@ -2175,8 +2176,8 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 			}
 			cinterface.SetAllowSources(allowSources)
 		}
-		if v, ok := raw["override_spa_mode"]; ok {
-			cinterface.SetOverrideSpaMode(v.(string))
+		if v, ok := raw["override_spa_mode"].(string); ok && len(v) > 0 {
+			cinterface.SetOverrideSpaMode(v)
 		}
 	}
 	return cinterface, nil
@@ -2186,8 +2187,8 @@ func readPeerInterfaceFromConfig(pinterfaces []interface{}) (openapi.ApplianceAl
 	pinterf := openapi.ApplianceAllOfPeerInterface{}
 	for _, r := range pinterfaces {
 		raw := r.(map[string]interface{})
-		if v, ok := raw["hostname"]; ok {
-			pinterf.SetHostname(v.(string))
+		if v, ok := raw["hostname"].(string); ok && len(v) > 0 {
+			pinterf.SetHostname(v)
 		}
 		if v, ok := raw["https_port"]; ok {
 			pinterf.SetHttpsPort(int32(v.(int)))
