@@ -23,7 +23,7 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 					testAccCheckLdapIdentityProviderExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "admin_distinguished_name", "CN=admin,OU=Users,DC=company,DC=com"),
 					resource.TestCheckResourceAttr(resourceName, "admin_password", "helloworld"),
-					resource.TestCheckResourceAttr(resourceName, "admin_provider", "false"),
+					// resource.TestCheckResourceAttr(resourceName, "admin_provider", "false"),
 					resource.TestCheckResourceAttr(resourceName, "base_dn", "OU=Users,DC=company,DC=com"),
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.#", "6"),
@@ -57,7 +57,6 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.claim_name", "lastName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypted", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.list", "false"),
-					resource.TestCheckResourceAttr(resourceName, "default", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.0", "internal.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "dns_servers.#", "2"),
@@ -139,7 +138,6 @@ resource "appgatesdp_ldap_identity_provider" "ldap_test_resource" {
     threshold_days = 13
     message        = "Your password is about to expire, Please change it"
   }
-  default                    = false
   inactivity_timeout_minutes = 28
   ip_pool_v4                 = data.appgatesdp_ip_pool.ip_v4_pool.id
   ip_pool_v6                 = data.appgatesdp_ip_pool.ip_v6_pool.id

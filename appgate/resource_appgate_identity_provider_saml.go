@@ -65,8 +65,8 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.SamlIdentityProvidersApi
 	ctx := context.TODO()
-	// provider := openapi.NewIdentityProvider(identityProviderSaml)
 	provider := &openapi.IdentityProvider{}
+	provider.Type = identityProviderSaml
 	provider, err := readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderSaml, err)

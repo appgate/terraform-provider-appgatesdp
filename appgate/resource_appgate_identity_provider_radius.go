@@ -72,8 +72,8 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
-	// provider := openapi.NewIdentityProvider(identityProviderRadius)
 	provider := &openapi.IdentityProvider{}
+	provider.Type = identityProviderRadius
 	provider, err := readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderRadius, err)

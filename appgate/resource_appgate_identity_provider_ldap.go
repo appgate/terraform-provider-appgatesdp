@@ -41,7 +41,6 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.LdapIdentityProvidersApi
 	ctx := context.TODO()
-	// provider := openapi.NewIdentityProvider(identityProviderLdap)
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderLdap
 	provider, err := readProviderFromConfig(d, *provider)

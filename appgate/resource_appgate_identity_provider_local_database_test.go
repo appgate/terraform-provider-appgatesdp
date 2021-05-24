@@ -60,7 +60,6 @@ func TestAccLocalDatabaseIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.claim_name", "username"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.encrypted", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.list", "false"),
-					resource.TestCheckResourceAttrSet(resourceName, "default"),
 					resource.TestCheckResourceAttrSet(resourceName, "inactivity_timeout_minutes"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip_pool_v4"),
 					resource.TestCheckResourceAttrSet(resourceName, "ip_pool_v6"),

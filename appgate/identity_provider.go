@@ -47,12 +47,6 @@ func identityProviderSchema() map[string]*schema.Schema {
 				},
 			},
 
-			"default": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-			},
-
 			"admin_provider": {
 				Type:     schema.TypeBool,
 				Optional: true,

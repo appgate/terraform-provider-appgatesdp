@@ -63,7 +63,6 @@ func TestAccLdapCertificateIdentityProvidervBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.claim_name", "lastName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypted", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.list", "false"),
-					resource.TestCheckResourceAttr(resourceName, "default", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.0", "internal.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "dns_servers.#", "2"),
@@ -137,7 +136,6 @@ resource "appgatesdp_ldap_certificate_identity_provider" "ldap_cert_test_resourc
   username_attribute       = "sAMAccountName"
   membership_filter        = "(objectCategory=group)"
   membership_base_dn       = "OU=Groups,DC=company,DC=com"
-  default                    = false
   inactivity_timeout_minutes = 28
   ip_pool_v4                 = data.appgatesdp_ip_pool.ip_four_pool.id
   ip_pool_v6                 = data.appgatesdp_ip_pool.ip_v6_pool.id

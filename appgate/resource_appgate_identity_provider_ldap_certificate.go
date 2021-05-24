@@ -54,9 +54,8 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
-	// provider := openapi.NewIdentityProvider(identityProviderLdapCertificate)
-	// provider := openapi.NewLdapCertificateProviderWithDefaults()
 	provider := &openapi.IdentityProvider{}
+	provider.Type = identityProviderLdapCertificate
 	provider, err := readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdapCertificate, err)
