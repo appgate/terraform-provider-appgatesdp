@@ -87,11 +87,9 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.address", "10.10.10.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.hostname", "appgate.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.netmask", "24"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.snat", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.address", "20.20.20.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.hostname", "test.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
@@ -249,11 +247,9 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.address", "10.10.10.10"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.hostname", "appgate-updated.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.address", "20.20.20.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.hostname", "test.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
@@ -604,14 +600,12 @@ resource "appgatesdp_appliance" "test_controller" {
         static {
           address  = "10.10.10.1"
           netmask  = 24
-          hostname = "appgate.company.com"
           snat     = true
         }
 
         static {
           address  = "20.20.20.1"
           netmask  = 32
-          hostname = "test.company.com"
           snat     = false
         }
       }
@@ -801,14 +795,12 @@ resource "appgatesdp_appliance" "test_controller" {
         static {
           address  = "10.10.10.10"
           netmask  = 32
-          hostname = "appgate-updated.company.com"
           snat     = false
         }
 
         static {
           address  = "20.20.20.1"
           netmask  = 32
-          hostname = "test.company.com"
           snat     = false
         }
       }
