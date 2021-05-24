@@ -12,6 +12,14 @@ import (
 func TestAccApplianceBasicController(t *testing.T) {
 	resourceName := "appgatesdp_appliance.test_controller"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	hostname := fmt.Sprintf("%s.devops", rName)
+	context := map[string]interface{}{
+		"name":             rName,
+		"hostname":         hostname,
+		"updated_hostname": fmt.Sprintf("updated-%s", hostname),
+		"updated_name":     fmt.Sprintf("updated-%s", rName),
+		"disabled_name":    fmt.Sprintf("disabled-%s", rName),
+	}
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -19,12 +27,12 @@ func TestAccApplianceBasicController(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceBasicController(rName),
+				Config: testAccCheckApplianceBasicController(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
@@ -33,7 +41,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", "envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "444"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
@@ -130,7 +138,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", "envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1337"),
 
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
@@ -184,12 +192,12 @@ func TestAccApplianceBasicController(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"site", "seed_file"},
 			},
 			{
-				Config: testAccCheckApplianceBasicControllerUpdate(rName),
+				Config: testAccCheckApplianceBasicControllerUpdate(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+" updated"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["updated_name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "updated-envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["updated_hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
@@ -198,13 +206,13 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "4454"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", "updated-envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "4444"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "UDP-TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", "updated-envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "13371"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
@@ -373,12 +381,12 @@ func TestAccApplianceBasicController(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"site", "seed_file"},
 			},
 			{
-				Config: testAccCheckApplianceBasicControllerDisableDelete(rName),
+				Config: testAccCheckApplianceBasicControllerDisableDelete(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name", rName+" disable"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["disabled_name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "updated-envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["updated_hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
@@ -387,13 +395,13 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "4454"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", "updated-envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "4444"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "UDP-TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", "updated-envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "13371"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
@@ -530,18 +538,18 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckApplianceBasicController(rName string) string {
-	return fmt.Sprintf(`
+func testAccCheckApplianceBasicController(context map[string]interface{}) string {
+	return Nprintf(`
 data "appgatesdp_site" "default_site" {
   site_name = "Default Site"
 }
 
 resource "appgatesdp_appliance" "test_controller" {
-  name     = "%s"
-  hostname = "envy-10-97-168-1337.devops"
+  name     = "%{name}"
+  hostname = "%{hostname}"
   connect_to_peers_using_client_port_with_spa = true
   client_interface {
-    hostname       = "envy-10-97-168-1337.devops"
+    hostname       = "%{hostname}"
     proxy_protocol = true
     https_port     = 444
     dtls_port      = 445
@@ -553,7 +561,7 @@ resource "appgatesdp_appliance" "test_controller" {
     override_spa_mode = "TCP"
   }
   peer_interface {
-    hostname   = "envy-10-97-168-1337.devops"
+    hostname   = "%{hostname}"
     https_port = "1337"
   }
   tags = [
@@ -721,21 +729,21 @@ resource "appgatesdp_appliance" "test_controller" {
     ]
   }
 }
-`, rName)
+`, context)
 }
 
-func testAccCheckApplianceBasicControllerUpdate(rName string) string {
-	return fmt.Sprintf(`
+func testAccCheckApplianceBasicControllerUpdate(context map[string]interface{}) string {
+	return Nprintf(`
 data "appgatesdp_site" "default_site" {
   site_name = "Default Site"
 }
 
 resource "appgatesdp_appliance" "test_controller" {
-  name     = "%s updated"
-  hostname = "updated-envy-10-97-168-1337.devops"
+  name     = "%{updated_name}"
+  hostname = "%{updated_hostname}"
 
   client_interface {
-    hostname       = "updated-envy-10-97-168-1337.devops"
+    hostname       = "%{hostname}"
     proxy_protocol = true
     https_port     = 4444
     dtls_port      = 4454
@@ -748,7 +756,7 @@ resource "appgatesdp_appliance" "test_controller" {
   }
 
   peer_interface {
-    hostname   = "updated-envy-10-97-168-1337.devops"
+    hostname   = "%{hostname}"
     https_port = "13371"
   }
   tags = [
@@ -955,21 +963,21 @@ resource "appgatesdp_appliance" "test_controller" {
     ]
   }
 }
-`, rName)
+`, context)
 }
 
-func testAccCheckApplianceBasicControllerDisableDelete(rName string) string {
-	return fmt.Sprintf(`
+func testAccCheckApplianceBasicControllerDisableDelete(context map[string]interface{}) string {
+	return Nprintf(`
 data "appgatesdp_site" "default_site" {
   site_name = "Default site"
 }
 
 resource "appgatesdp_appliance" "test_controller" {
-  name     = "%s disable"
-  hostname = "updated-envy-10-97-168-1337.devops"
+  name     = "%{disabled_name}"
+  hostname =  "%{updated_hostname}"
 
   client_interface {
-    hostname       = "updated-envy-10-97-168-1337.devops"
+    hostname       = "%{hostname}"
     proxy_protocol = true
     https_port     = 4444
     dtls_port      = 4454
@@ -982,7 +990,7 @@ resource "appgatesdp_appliance" "test_controller" {
   }
 
   peer_interface {
-    hostname   = "updated-envy-10-97-168-1337.devops"
+    hostname   = "%{hostname}"
     https_port = "13371"
   }
 
@@ -1075,12 +1083,16 @@ resource "appgatesdp_appliance" "test_controller" {
     enabled = false
   }
 }
-`, rName)
+`, context)
 }
 
 func TestAccApplianceConnector(t *testing.T) {
 	resourceName := "appgatesdp_appliance.connector"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -1088,7 +1100,7 @@ func TestAccApplianceConnector(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceBasicConnector(rName),
+				Config: testAccCheckApplianceBasicConnector(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
@@ -1097,12 +1109,12 @@ func TestAccApplianceConnector(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", "envy-10-97-168-1234.devops"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "444"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
 
-					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1234.devops"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 
 					resource.TestCheckResourceAttr(resourceName, "connector.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.enabled", "true"),
@@ -1141,7 +1153,7 @@ func TestAccApplianceConnector(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", "envy-10-97-168-1234.devops"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1337"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
@@ -1163,18 +1175,18 @@ func TestAccApplianceConnector(t *testing.T) {
 	})
 }
 
-func testAccCheckApplianceBasicConnector(rName string) string {
-	return fmt.Sprintf(`
+func testAccCheckApplianceBasicConnector(context map[string]interface{}) string {
+	return Nprintf(`
 data "appgatesdp_site" "default_site" {
     site_name = "Default site"
 }
 resource "appgatesdp_appliance" "connector" {
-    name     = "%s"
-    hostname = "envy-10-97-168-1234.devops"
+    name     = "%{name}"
+    hostname = "%{hostname}"
     site     = data.appgatesdp_site.default_site.id
 
     client_interface {
-      hostname       = "envy-10-97-168-1234.devops"
+      hostname       = "%{hostname}"
       proxy_protocol = true
       https_port     = 444
       dtls_port      = 445
@@ -1187,7 +1199,7 @@ resource "appgatesdp_appliance" "connector" {
     }
 
     peer_interface {
-      hostname   = "envy-10-97-168-1234.devops"
+      hostname   = "%{hostname}"
       https_port = "1337"
     }
     tags = [
@@ -1235,7 +1247,7 @@ resource "appgatesdp_appliance" "connector" {
       }
     }
 }
-`, rName)
+`, context)
 }
 
 func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
@@ -1263,18 +1275,22 @@ func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 func TestAccApplianceBasicGateway(t *testing.T) {
 	resourceName := "appgatesdp_appliance.test_gateway"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApplianceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceBasicGateway(rName),
+				Config: testAccCheckApplianceBasicGateway(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1338.devops"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
 					resource.TestCheckResourceAttr(resourceName, "controller.#", "0"),
@@ -1321,18 +1337,18 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 	})
 }
 
-func testAccCheckApplianceBasicGateway(rName string) string {
-	return fmt.Sprintf(`
+func testAccCheckApplianceBasicGateway(context map[string]interface{}) string {
+	return Nprintf(`
 data "appgatesdp_site" "default_site" {
   site_name = "Default site"
 }
 
 resource "appgatesdp_appliance" "test_gateway" {
-  name     = "%s"
-  hostname = "envy-10-97-168-1338.devops"
+  name     = "%{name}"
+  hostname =  "%{hostname}"
   site     = data.appgatesdp_site.default_site.id
   client_interface {
-    hostname       = "envy-10-97-168-1338.devops"
+    hostname       =  "%{hostname}"
     proxy_protocol = true
     https_port     = 444
     dtls_port      = 445
@@ -1345,7 +1361,7 @@ resource "appgatesdp_appliance" "test_gateway" {
   }
 
   peer_interface {
-    hostname   = "envy-10-97-168-1338.devops"
+    hostname   =  "%{hostname}"
     https_port = "1337"
   }
   tags = [
@@ -1390,12 +1406,16 @@ resource "appgatesdp_appliance" "test_gateway" {
     }
   }
 }
-`, rName)
+`, context)
 }
 
 func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 	resourceName := "appgatesdp_appliance.test_controller"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -1403,12 +1423,12 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceBasicControllerWithoutOverrideSPA(rName),
+				Config: testAccCheckApplianceBasicControllerWithoutOverrideSPA(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
@@ -1417,7 +1437,7 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", "envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "444"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
 
@@ -1513,7 +1533,7 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", "envy-10-97-168-1337.devops"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1337"),
 
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
@@ -1570,18 +1590,18 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 	})
 }
 
-func testAccCheckApplianceBasicControllerWithoutOverrideSPA(rName string) string {
-	return fmt.Sprintf(`
+func testAccCheckApplianceBasicControllerWithoutOverrideSPA(context map[string]interface{}) string {
+	return Nprintf(`
 data "appgatesdp_site" "default_site" {
   site_name = "Default Site"
 }
 
 resource "appgatesdp_appliance" "test_controller" {
-  name     = "%s"
-  hostname = "envy-10-97-168-1337.devops"
+  name     = "%{name}"
+  hostname     = "%{hostname}"
   connect_to_peers_using_client_port_with_spa = true
   client_interface {
-    hostname       = "envy-10-97-168-1337.devops"
+    hostname       = "%{hostname}"
     proxy_protocol = true
     https_port     = 444
     dtls_port      = 445
@@ -1592,7 +1612,7 @@ resource "appgatesdp_appliance" "test_controller" {
     }
   }
   peer_interface {
-    hostname   = "envy-10-97-168-1337.devops"
+    hostname   = "%{hostname}"
     https_port = "1337"
   }
   tags = [
@@ -1760,5 +1780,381 @@ resource "appgatesdp_appliance" "test_controller" {
     ]
   }
 }
-`, rName)
+`, context)
+}
+
+func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
+	resourceName := "appgatesdp_appliance.test_controller"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckApplianceDestroy,
+
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckApplianceBasicControllerWithOverrideSPA(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "Disabled"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "444"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "controller.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.port", "5555"),
+
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.#", "1"),
+
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.sites.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.0.format", "json"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.0.host", "siem.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.0.name", "Company SIEM"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.0.port", "8888"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.0.use_tls", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa.com"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "8.8.8.8"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.0.hostname", "bla"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.address", "10.10.10.1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.hostname", "appgate.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.netmask", "24"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.snat", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.address", "20.20.20.1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.hostname", "test.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.dns", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.dhcp.0.routers", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv4.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.name", "eth1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.0.gateway", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.0.netmask", "24"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.#", "4"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.0.hostname", "0.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.0.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.0.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.1.hostname", "1.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.1.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.1.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.2.hostname", "2.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.2.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.2.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.hostname", "3.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key_type", ""),
+
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1337"),
+
+					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.nic", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "1234"),
+
+					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.snmpd_conf", "foo"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.tcp_port", "161"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.udp_port", "161"),
+
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.address", "1.3.3.7"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.nic", "eth1"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.password_authentication", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.port", "2222"),
+
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-test-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateCheck:        testAccApplianceImportStateCheckFunc(1),
+				ImportStateVerifyIgnore: []string{"site", "seed_file"},
+			},
+		},
+	})
+}
+
+func testAccCheckApplianceBasicControllerWithOverrideSPA(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+  site_name = "Default Site"
+}
+
+resource "appgatesdp_appliance" "test_controller" {
+  name     = "%{name}"
+  hostname = "%{hostname}"
+  connect_to_peers_using_client_port_with_spa = true
+  client_interface {
+    hostname       = "%{hostname}"
+    proxy_protocol = true
+    https_port     = 444
+    dtls_port      = 445
+	override_spa_mode = "Disabled"
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+  peer_interface {
+    hostname   = "%{hostname}"
+    https_port = "1337"
+  }
+  tags = [
+    "terraform",
+    "api-test-created"
+  ]
+  ntp {
+    servers {
+      hostname = "0.ubuntu.pool.ntp.org"
+    }
+    servers {
+      hostname = "1.ubuntu.pool.ntp.org"
+    }
+    servers {
+      hostname = "2.ubuntu.pool.ntp.org"
+    }
+    servers {
+      hostname = "3.ubuntu.pool.ntp.org"
+    }
+  }
+  networking {
+
+    hosts {
+      hostname = "bla"
+      address  = "0.0.0.0"
+    }
+
+    nics {
+      enabled = true
+      name    = "eth0"
+
+      ipv4 {
+        dhcp {
+          enabled = false
+          dns     = true
+          routers = true
+          ntp     = true
+        }
+
+        static {
+          address  = "10.10.10.1"
+          netmask  = 24
+          hostname = "appgate.company.com"
+          snat     = true
+        }
+
+        static {
+          address  = "20.20.20.1"
+          netmask  = 32
+          hostname = "test.company.com"
+          snat     = false
+        }
+      }
+      ipv6 {
+        dhcp {
+          enabled = false
+          dns     = true
+          ntp     = false
+        }
+      }
+
+    }
+
+    nics {
+      enabled = true
+      name    = "eth1"
+      ipv4 {
+        dhcp {
+          enabled = true
+          dns     = false
+          routers = false
+          ntp     = false
+        }
+      }
+      ipv6 {
+        dhcp {
+          enabled = false
+          dns     = true
+          ntp     = false
+        }
+      }
+    }
+
+    dns_servers = [
+      "8.8.8.8",
+      "1.1.1.1",
+    ]
+    dns_domains = [
+      "aa.com"
+    ]
+    routes {
+      address = "0.0.0.0"
+      netmask = 24
+      gateway = "1.2.3.4"
+      nic     = "eth0"
+    }
+  }
+  controller {
+    enabled = true
+  }
+  snmp_server {
+    enabled    = true
+    tcp_port   = 161
+    udp_port   = 161
+    snmpd_conf = "foo"
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+  ssh_server {
+    enabled                 = true
+    port                    = 2222
+    password_authentication = true
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+    allow_sources {
+      address = "0.0.0.0"
+      netmask = 0
+      nic     = "eth1"
+    }
+  }
+  prometheus_exporter {
+    enabled = true
+    port    = 1234
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+  healthcheck_server {
+    enabled = true
+    port    = 5555
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+
+  ping {
+    allow_sources {
+      address = "1.3.3.7"
+      netmask = 0
+      nic     = "eth0"
+    }
+  }
+  log_forwarder {
+    enabled = true
+     tcp_clients {
+      name    = "Company SIEM"
+      host    = "siem.company.com"
+      port    = 8888
+      format  = "json"
+      use_tls = true
+      filter  = "log.client_ip=='10.0.23.523'"
+    }
+    sites = [
+      data.appgatesdp_site.default_site.id
+    ]
+  }
+}
+`, context)
 }
