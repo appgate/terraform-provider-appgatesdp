@@ -143,9 +143,12 @@ func resourceAppgateAppliance() *schema.Resource {
 						"override_spa_mode": {
 							Type:     schema.TypeString,
 							Optional: true,
+							// We will have a default value here instead of omiting the attribute when its disabled.
+							// https://github.com/appgate/terraform-provider-appgatesdp/issues/117#issuecomment-846381509
+							Default: "Disabled",
 							ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 								s := v.(string)
-								list := []string{"TCP", "UDP-TCP"}
+								list := []string{"Disabled", "TCP", "UDP-TCP"}
 								for _, x := range list {
 									if s == x {
 										return
@@ -1720,8 +1723,14 @@ func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) (
 		}
 		m["allow_sources"] = allowSources
 	}
+
 	if v, o := in.GetOverrideSpaModeOk(); o != false {
 		m["override_spa_mode"] = v
+	} else {
+		// If we dont get any from the response body, we will manually set it to Disabled to
+		// make it explicit in the the tf plan.
+		// https://github.com/appgate/terraform-provider-appgatesdp/issues/117#issuecomment-846381509
+		m["override_spa_mode"] = "Disabled"
 	}
 
 	return []interface{}{m}, nil
@@ -2177,7 +2186,9 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 			cinterface.SetAllowSources(allowSources)
 		}
 		if v, ok := raw["override_spa_mode"].(string); ok && len(v) > 0 {
-			cinterface.SetOverrideSpaMode(v)
+			if v != "Disabled" {
+				cinterface.SetOverrideSpaMode(v)
+			}
 		}
 	}
 	return cinterface, nil
