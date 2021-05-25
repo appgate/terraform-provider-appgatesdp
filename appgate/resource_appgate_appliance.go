@@ -892,6 +892,10 @@ func resourceAppgateAppliance() *schema.Resource {
 										Type:     schema.TypeBool,
 										Optional: true,
 									},
+									"dnat_to_resource": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -1671,6 +1675,7 @@ func flatttenApplianceConnector(in openapi.ApplianceAllOfConnector) ([]map[strin
 			}
 			c["allow_resources"] = alloweResources
 			c["snat_to_resources"] = client.GetSnatToResources()
+			c["dnat_to_resource"] = client.GetDnatToResource()
 
 			clients = append(clients, c)
 		}
@@ -2688,6 +2693,9 @@ func readApplianceConnectorFromConfig(connectors []interface{}) (openapi.Applian
 				}
 				if v, ok := r["snat_to_resources"]; ok {
 					client.SetSnatToResources(v.(bool))
+				}
+				if v, ok := r["dnat_to_resource"]; ok {
+					client.SetDnatToResource(v.(bool))
 				}
 				clients = append(clients, client)
 			}
