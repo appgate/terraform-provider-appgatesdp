@@ -217,14 +217,15 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	if c, ok := d.GetOk("override_site"); ok {
 		args.SetOverrideSite(c.(string))
 	}
-	if currentVersion.GreaterThanOrEqual(Appliance53Version) {
-		// proxy_auto_config, trusted_network_check new attributes from >= 5.3
-		if v, ok := d.GetOk("proxy_auto_config"); ok {
-			args.SetProxyAutoConfig(readProxyAutoConfigFromConfig(v.([]interface{})))
+	if v, ok := d.GetOk("proxy_auto_config"); ok {
+		if currentVersion.LessThan(Appliance53Version) {
+			return fmt.Errorf("proxy_auto_config not supported on %q client v%d", currentVersion, meta.(*Client).ClientVersion)
 		}
-		if v, ok := d.GetOk("trusted_network_check"); ok {
-			args.SetTrustedNetworkCheck(readTrustedNetworkCheckFromConfig(v.([]interface{})))
-		}
+		args.SetProxyAutoConfig(readProxyAutoConfigFromConfig(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("trusted_network_check"); ok {
+		args.SetTrustedNetworkCheck(readTrustedNetworkCheckFromConfig(v.([]interface{})))
 	}
 
 	if c, ok := d.GetOk("administrative_roles"); ok {
@@ -288,7 +289,7 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	ctx := context.Background()
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.PoliciesApi
-
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.PoliciesIdGet(ctx, d.Id())
 	policy, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -313,7 +314,9 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return err
 		}
-		d.Set("proxy_auto_config", pac)
+		if currentVersion.GreaterThanOrEqual(Appliance53Version) {
+			d.Set("proxy_auto_config", pac)
+		}
 	}
 	if v, o := policy.GetTrustedNetworkCheckOk(); o != false {
 		t, err := flattenTrustedNetworkCheck(*v)
