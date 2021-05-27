@@ -9,6 +9,7 @@ import (
 	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -444,7 +445,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Site: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.SitesApi
-
+	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewSiteWithDefaults()
 	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
@@ -482,7 +483,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if v, ok := d.GetOk("vpn"); ok {
-		vpn, err := readSiteVPNFromConfig(v.(*schema.Set).List())
+		vpn, err := readSiteVPNFromConfig(currentVersion, v.(*schema.Set).List())
 		if err != nil {
 			return err
 		}
@@ -775,6 +776,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Site: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.SitesApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.SitesIdGet(context.Background(), d.Id())
 
 	orginalSite, _, err := request.Authorization(token).Execute()
@@ -833,7 +835,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("vpn") {
 		_, n := d.GetChange("vpn")
-		vpn, err := readSiteVPNFromConfig(n.(*schema.Set).List())
+		vpn, err := readSiteVPNFromConfig(currentVersion, n.(*schema.Set).List())
 		if err != nil {
 			return err
 		}
@@ -916,7 +918,7 @@ func readSiteDefaultGatewayFromConfig(defaultGateways []interface{}) (openapi.Si
 	return result, nil
 }
 
-func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
+func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 	result := openapi.SiteAllOfVpn{}
 	for _, vpn := range vpns {
 		if vpn == nil {
@@ -970,9 +972,13 @@ func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 		if v, ok := raw["web_proxy_key_store"]; ok && len(v.(string)) > 0 {
 			result.SetWebProxyKeyStore(v.(string))
 		}
-		if v, ok := raw["web_proxy_verify_upstream_certificate"]; ok {
-			result.SetWebProxyVerifyUpstreamCertificate(v.(bool))
+		// webProxyVerifyUpstreamCertificate is only present in 5.3
+		if currentVersion.Equal(Appliance53Version) {
+			if v, ok := raw["web_proxy_verify_upstream_certificate"]; ok {
+				result.SetWebProxyVerifyUpstreamCertificate(v.(bool))
+			}
 		}
+
 		if v, ok := raw["ip_access_log_interval_seconds"]; ok {
 			result.SetIpAccessLogIntervalSeconds(float32(v.(int)))
 		}
