@@ -1,9 +1,13 @@
 package appgate
 
 import (
+	"bufio"
 	"context"
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -926,6 +930,104 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 
+			"portal": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+
+						"https_p12": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"subject_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"content": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"password": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+
+						"proxy_p12s": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"subject_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"content": {
+										Type:        schema.TypeString,
+										Description: "path to file with p12",
+										Optional:    true,
+									},
+									"password": {
+										Type:      schema.TypeString,
+										Sensitive: true,
+										Optional:  true,
+									},
+									"verify_upstream": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+						},
+
+						"profiles": {
+							Type:        schema.TypeList,
+							Description: "Names of the profiles in this Collective to use in the Portal.",
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+
+						"external_profiles": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"url": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"rsyslog_destinations": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -964,7 +1066,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	ctx := context.Background()
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.AppliancesApi
-
+	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewApplianceWithDefaults()
 	args.Id = uuid.New().String()
 	args.SetName(d.Get("name").(string))
@@ -1114,6 +1216,17 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		args.SetRsyslogDestinations(rsyslog)
+	}
+
+	if v, ok := d.GetOk("portal"); ok {
+		if !currentVersion.GreaterThanOrEqual(Appliance54Version) {
+			return fmt.Errorf("appliance.portal requires %s, you are using %q client v%d", Appliance54Version, currentVersion, meta.(*Client).ClientVersion)
+		}
+		portal, err := readAppliancePortalFromConfig(v.([]interface{}))
+		if err != nil {
+			return err
+		}
+		args.SetPortal(portal)
 	}
 
 	if v, ok := d.GetOk("hostname_aliases"); ok {
@@ -1549,13 +1662,77 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	if v, o := appliance.GetHostnameAliasesOk(); o != false {
+	if v, ok := appliance.GetPortalOk(); ok {
+		portals := make([]map[string]interface{}, 0)
+		portal := make(map[string]interface{})
+		portal["enabled"] = v.GetEnabled()
+		// get local state from the portal attribute, for values that are not included
+		// in the response body
+		var localPortal map[string]interface{}
+		localPortalList := d.Get("portal").([]interface{})
+		for _, l := range localPortalList {
+			localPortal = l.(map[string]interface{})
+		}
+		proxyp12s, err := flattenAppliancePortalProxyp12s(localPortal, v.GetProxyP12s())
+		if err != nil {
+			return err
+		}
+		portal["proxy_p12s"] = proxyp12s
 
+		https_p12, err := flattenApplianceProxyp12s(localPortal, v.GetHttpsP12())
+		if err != nil {
+			return err
+		}
+		portal["https_p12"] = https_p12
+
+		portal["profiles"] = v.GetProfiles()
+		portal["external_profiles"] = v.GetExternalProfiles()
+		portals = append(portals, portal)
+		if err := d.Set("portal", portals); err != nil {
+			return err
+		}
+	}
+
+	if v, o := appliance.GetHostnameAliasesOk(); o != false {
 		if err := d.Set("hostname_aliases", v); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func flattenAppliancePortalProxyp12s(local map[string]interface{}, p12s []openapi.Portal12) ([]map[string]interface{}, error) {
+	state := local["proxy_p12s"].([]interface{})
+	var result []map[string]interface{}
+	for k, p12 := range p12s {
+		stateRow := state[k].(map[string]interface{})
+		raw := make(map[string]interface{})
+		raw["id"] = p12.GetId()
+		raw["verify_upstream"] = p12.GetVerifyUpstream()
+		raw["subject_name"] = p12.GetSubjectName()
+		raw["password"] = p12.GetSubjectName()
+		raw["content"] = stateRow["content"].(string)
+		raw["password"] = stateRow["password"].(string)
+		result = append(result, raw)
+	}
+
+	return result, nil
+}
+
+func flattenApplianceProxyp12s(local map[string]interface{}, p12 openapi.P12) ([]map[string]interface{}, error) {
+	state := local["https_p12"].([]interface{})
+	var result []map[string]interface{}
+
+	stateRow := state[0].(map[string]interface{})
+	raw := make(map[string]interface{})
+	raw["id"] = p12.GetId()
+	raw["subject_name"] = p12.GetSubjectName()
+	raw["password"] = p12.GetSubjectName()
+	raw["content"] = stateRow["content"].(string)
+	raw["password"] = stateRow["password"].(string)
+	result = append(result, raw)
+
+	return result, nil
 }
 
 func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]interface{}, error) {
@@ -2091,6 +2268,15 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 		originalAppliance.SetConnector(iot)
+	}
+
+	if d.HasChange("portal") {
+		_, v := d.GetChange("portal")
+		portal, err := readAppliancePortalFromConfig(v.([]interface{}))
+		if err != nil {
+			return err
+		}
+		originalAppliance.SetPortal(portal)
 	}
 
 	if d.HasChange("rsyslog_destinations") {
@@ -2754,6 +2940,90 @@ func readRsyslogDestinationFromConfig(rsyslogs []interface{}) ([]openapi.Applian
 		result = append(result, r)
 	}
 	return result, nil
+}
+
+func readAppliancePortalFromConfig(portals []interface{}) (openapi.Portal, error) {
+	p := openapi.Portal{}
+	for _, portal := range portals {
+		if portal == nil {
+			continue
+		}
+
+		raw := portal.(map[string]interface{})
+		if v, ok := raw["enabled"]; ok {
+			p.SetEnabled(v.(bool))
+		}
+		if v, ok := raw["profiles"]; ok {
+			profiles, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return p, err
+			}
+			p.SetProfiles(profiles)
+		}
+
+		if v, ok := raw["https_p12"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+			p12 := openapi.P12{}
+			raw := v[0].(map[string]interface{})
+			p12.SetId(uuid.New().String())
+			if v, ok := raw["content"]; ok {
+				content, err := appliancePortalReadp12Content(v.(string))
+				if err != nil {
+					return p, fmt.Errorf("unable to read https_p12 file content %w", err)
+				}
+				p12.SetContent(content)
+			}
+			if v, ok := raw["password"]; ok {
+				p12.SetPassword(v.(string))
+			}
+			p.SetHttpsP12(p12)
+		}
+
+		if v, ok := raw["proxy_p12s"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+			p12s := make([]openapi.Portal12, 0)
+			for _, k := range v {
+				raw := k.(map[string]interface{})
+				proxyp12 := openapi.Portal12{}
+				id := uuid.New().String()
+				proxyp12.SetId(id)
+				proxyp12.Id = &id
+				if v, ok := raw["content"]; ok {
+					content, err := appliancePortalReadp12Content(v.(string))
+					if err != nil {
+						return p, fmt.Errorf("unable to read p12 file content %w", err)
+					}
+					proxyp12.SetContent(content)
+				}
+				if v, ok := raw["password"]; ok {
+					proxyp12.SetPassword(v.(string))
+				}
+				p12s = append(p12s, proxyp12)
+			}
+
+			p.SetProxyP12s(p12s)
+		}
+	}
+	log.Printf("[DEBUG] readAppliancePortalFromConfig %+v", p)
+	return p, nil
+}
+
+func appliancePortalReadp12Content(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", fmt.Errorf("Error opening p12 file (%s): %s", path, err)
+	}
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Printf("[WARN] Error closing p12 file (%s): %s", path, err)
+		}
+	}()
+	reader := bufio.NewReader(file)
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", fmt.Errorf("Error reading file (%s): %s", path, err)
+	}
+	encoded := base64.StdEncoding.EncodeToString(content)
+	return encoded, nil
 }
 
 func readHostnameAliasesFromConfig(hostnameAliases []interface{}) ([]string, error) {
