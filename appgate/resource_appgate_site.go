@@ -1115,11 +1115,11 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v, ok := raw["use_iam_role"]; ok && v.(bool) {
 			row.SetUseIAMRole(v.(bool))
 		}
-		if v, ok := raw["access_key_id"]; ok {
-			row.SetAccessKeyId(v.(string))
+		if v, ok := raw["access_key_id"].(string); ok && len(v) > 0 {
+			row.SetAccessKeyId(v)
 		}
-		if v, ok := raw["secret_access_key"]; ok {
-			row.SetSecretAccessKey(v.(string))
+		if v, ok := raw["secret_access_key"].(string); ok && len(v) > 0 {
+			row.SetSecretAccessKey(v)
 		}
 		if v, ok := raw["https_proxy"]; ok && len(v.(string)) > 0 {
 			row.SetHttpsProxy(v.(string))
@@ -1136,7 +1136,6 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 				row.SetAssumedRoles(assumedRoles)
 			}
 		}
-
 		result = append(result, row)
 	}
 	return result, nil
