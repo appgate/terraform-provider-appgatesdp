@@ -50,12 +50,7 @@ func resourceAppgateDeviceScript() *schema.Resource {
 				Optional:    true,
 			},
 
-			"tags": {
-				Type:        schema.TypeSet,
-				Description: "Array of tags.",
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": tagsSchema(),
 
 			"filename": {
 				Type:        schema.TypeString,

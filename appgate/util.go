@@ -2,6 +2,7 @@ package appgate
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,7 +29,7 @@ func mergeSchemaMaps(maps ...map[string]*schema.Schema) map[string]*schema.Schem
 }
 
 func baseEntitySchema() map[string]*schema.Schema {
-	return map[string]*schema.Schema{
+	s := map[string]*schema.Schema{
 		"name": {
 			Type:        schema.TypeString,
 			Description: "Name of the object.",
@@ -39,11 +41,30 @@ func baseEntitySchema() map[string]*schema.Schema {
 			Default:     DefaultDescription,
 			Optional:    true,
 		},
-		"tags": {
-			Type:        schema.TypeSet,
-			Description: "Array of tags.",
-			Optional:    true,
-			Elem:        &schema.Schema{Type: schema.TypeString},
+	}
+	return mergeSchemaMaps(s, baseTagsSchema())
+}
+
+func baseTagsSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"tags": tagsSchema(),
+	}
+}
+
+func tagsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeSet,
+		Description: "Array of tags.",
+		Optional:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		StateFunc: func(val interface{}) string {
+			return strings.ToLower(val.(string))
+		},
+		Set: func(v interface{}) int {
+			var buf bytes.Buffer
+			str := v.(string)
+			buf.WriteString(fmt.Sprintf("%s-", strings.ToLower(str)))
+			return hashcode.String(buf.String())
 		},
 	}
 }
@@ -91,7 +112,7 @@ func schemaExtractTags(d *schema.ResourceData) []string {
 	rawtags := d.Get("tags").(*schema.Set).List()
 	tags := make([]string, 0)
 	for _, raw := range rawtags {
-		tags = append(tags, raw.(string))
+		tags = append(tags, strings.ToLower(raw.(string)))
 	}
 	return tags
 }

@@ -54,12 +54,7 @@ func resourceAppgateApplianceCustomizations() *schema.Resource {
 				Optional:    true,
 			},
 
-			"tags": {
-				Type:        schema.TypeSet,
-				Description: "Array of tags.",
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": tagsSchema(),
 
 			"file": {
 				Type:        schema.TypeString,
