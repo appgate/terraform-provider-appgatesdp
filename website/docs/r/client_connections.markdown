@@ -10,6 +10,9 @@ description: |-
 
 Update Client Connection settings.
 
+~> **NOTE:** This resource has been replaced by [appgatesdp_client_profile](../r/client_profile.markdown) 
+
+
 ## Example Usage
 
 ```hcl
