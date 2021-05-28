@@ -62,6 +62,8 @@ github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
 github.com/appgate/sdp-api-client-go v1.0.0 h1:olRXcwVlzxOsphjqJI+ldej5ag6o5yrRyjbTedTH1+w=
 github.com/appgate/sdp-api-client-go v1.0.0/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.2-0.20210528124258-7e50abafde3e h1:W7j6fMyIV8/Iat0ri+9HHpWYamBaogbwcz29Ym/Kiws=
+github.com/appgate/sdp-api-client-go v1.0.2-0.20210528124258-7e50abafde3e/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
