@@ -3,9 +3,10 @@ package appgate
 import (
 	"bufio"
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -68,11 +69,41 @@ func resourceAppgateApplianceCustomizations() *schema.Resource {
 				Optional: true,
 			},
 
+			"detect_sha256": {
+				Type: schema.TypeString,
+				// This field is not Computed because it needs to trigger a diff.
+				Optional: true,
+				// Makes the diff message nicer:
+				// detect_sha256:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "different hash"
+				// Instead of the more confusing:
+				// detect_sha256:       "1XcnP/iFw/hNrbhXi7QTmQ==" => ""
+				Default: "different hash",
+				// 1. Compute the sha256 hash of the local file
+				// 2. Compare the computed sha256 hash with the hash stored in the Controller
+				// 3. Don't suppress the diff iff they don't match
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if source, ok := d.GetOkExists("file"); ok {
+						localHash, err := getFileSha256Hash(source.(string))
+						if err != nil {
+							log.Printf("[WARN] Failed to compute sha256 hash for content: %v", err)
+							return false
+						}
+						if localHash == "" {
+							return false
+						}
+						// `old` is the checksum_sha256 we retrieved from the server in the ReadFunc
+						if old != localHash {
+							return false
+						}
+					}
+					return true
+				},
+			},
+
 			"size": {
 				Type:        schema.TypeInt,
 				Description: "Binary file's size in bytes.",
 				Computed:    true,
-				Optional:    true,
 			},
 		},
 	}
@@ -125,11 +156,24 @@ func resourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta inte
 	}
 	d.SetId(customization.Id)
 	d.Set("appliance_customization_id", customization.Id)
-	d.Set("name", customization.GetName())
-	d.Set("notes", customization.GetNotes())
-	d.Set("tags", customization.GetTags())
-	d.Set("size", customization.GetSize())
-	d.Set("checksum_sha256", customization.GetChecksum())
+	if err := d.Set("name", customization.GetName()); err != nil {
+		return fmt.Errorf("Error setting name %s", err)
+	}
+	if err := d.Set("notes", customization.GetNotes()); err != nil {
+		return fmt.Errorf("Error setting notes %s", err)
+	}
+	if err := d.Set("tags", customization.GetTags()); err != nil {
+		return fmt.Errorf("Error setting tags %s", err)
+	}
+	if err := d.Set("size", customization.GetSize()); err != nil {
+		return fmt.Errorf("Error setting size %s", err)
+	}
+	if err := d.Set("checksum_sha256", customization.GetChecksum()); err != nil {
+		return fmt.Errorf("Error setting checksum_sha256 %s", err)
+	}
+	if err := d.Set("detect_sha256", customization.GetChecksum()); err != nil {
+		return fmt.Errorf("Error setting detect_sha256: %s", err)
+	}
 
 	return nil
 }
@@ -157,7 +201,7 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 		originalApplianceCustomization.SetTags(schemaExtractTags(d))
 	}
 
-	if v := d.Get("file").(string); len(v) > 0 && d.HasChange("file") {
+	if v := d.Get("file").(string); len(v) > 0 && d.HasChange("detect_sha256") {
 		var content []byte
 		file, err := os.Open(v)
 		if err != nil {
@@ -170,7 +214,7 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 			}
 		}()
 		reader := bufio.NewReader(file)
-		content, err = ioutil.ReadAll(reader)
+		content, err = io.ReadAll(reader)
 		if err != nil {
 			return fmt.Errorf("Error reading file (%s): %s", v, err)
 		}
@@ -200,4 +244,23 @@ func resourceAppgateApplianceCustomizationDelete(d *schema.ResourceData, meta in
 	}
 	d.SetId("")
 	return nil
+}
+
+func getFileSha256Hash(filename string) (string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Printf("[WARN] Error closing file (%s): %s", filename, err)
+		}
+	}()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, file); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
