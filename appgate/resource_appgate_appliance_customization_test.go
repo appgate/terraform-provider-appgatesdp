@@ -3,26 +3,68 @@ package appgate
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func copy(src, dst string) (int64, error) {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return 0, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	return nBytes, err
+}
+
 func TestAccApplianceCustomizationBasic(t *testing.T) {
 	resourceName := "appgatesdp_appliance_customization.test_acc_appliance_customization"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	testFilename := "test-fixtures/appliance_customization_file.zip"
+	testUpdatedFilename := "test-fixtures/appliance_customization_file_updated.zip"
+	testFileTarget := "test-fixtures/appliance_customization_file_test.zip"
+
+	context := map[string]interface{}{
+		"name":     rName,
+		"filepath": testFileTarget,
+	}
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApplianceCustomizationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckApplianceCustomizationBasic(rName),
+				PreConfig: func() {
+					_, err := copy(testFilename, testFileTarget)
+					if err != nil {
+						t.Errorf("Failed to copy %s to %s", testFilename, testFileTarget)
+					}
+				},
+				Config: testAccCheckApplianceCustomizationBasic(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceCustomizationExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "checksum_sha256", "e3a9fb24832dff49ea59ff79cff9b1f24cbc0974ec62ec700165a0631fee779e"),
-					resource.TestCheckResourceAttr(resourceName, "file", "test-fixtures/appliance_customization_file.zip"),
+					resource.TestCheckResourceAttr(resourceName, "file", testFileTarget),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "size", "574"),
@@ -36,22 +78,37 @@ func TestAccApplianceCustomizationBasic(t *testing.T) {
 				ImportState:      true,
 				ImportStateCheck: testAccApplianceCustomizationImportStateCheckFunc(1),
 			},
+			// Test another apply with the same filename, and filepath, and make sure the sha256 checksum gets updated.
+			{
+				PreConfig: func() {
+					_, err := copy(testUpdatedFilename, testFileTarget)
+					if err != nil {
+						t.Errorf("Failed to copy %s to %s", testUpdatedFilename, testUpdatedFilename)
+					}
+				},
+				Config: testAccCheckApplianceCustomizationBasic(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceCustomizationExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "checksum_sha256", "a99ea44bff77668fea199e3d2dabe7921afb10c329453e25bf0dbc964a44606f"),
+					resource.TestCheckResourceAttr(resourceName, "file", testFileTarget),
+				),
+			},
 		},
 	})
 }
 
-func testAccCheckApplianceCustomizationBasic(rName string) string {
-	return fmt.Sprintf(`
+func testAccCheckApplianceCustomizationBasic(context map[string]interface{}) string {
+	return Nprintf(`
 resource "appgatesdp_appliance_customization" "test_acc_appliance_customization" {
-    name = "%s"
-    file = "test-fixtures/appliance_customization_file.zip"
+    name = "%{name}"
+    file = "%{filepath}"
 
     tags = [
       "terraform",
       "api-created"
     ]
 }
-`, rName)
+`, context)
 }
 
 func testAccCheckApplianceCustomizationExists(resource string) resource.TestCheckFunc {
