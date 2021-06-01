@@ -7,3 +7,4 @@ terraform.tfstate*
 /build/
 /dist/
 state-migrate
+appgate/test-fixtures/appliance_customization_file_test.zip
