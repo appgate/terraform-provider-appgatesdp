@@ -158,7 +158,7 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	ctx := context.Background()
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.PoliciesApi
-
+	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewPolicyWithDefaults()
 	args.Id = uuid.New().String()
 
@@ -217,12 +217,14 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	if c, ok := d.GetOk("override_site"); ok {
 		args.SetOverrideSite(c.(string))
 	}
-	if v, ok := d.GetOk("proxy_auto_config"); ok {
-		args.SetProxyAutoConfig(readProxyAutoConfigFromConfig(v.([]interface{})))
-	}
-
-	if v, ok := d.GetOk("trusted_network_check"); ok {
-		args.SetTrustedNetworkCheck(readTrustedNetworkCheckFromConfig(v.([]interface{})))
+	if currentVersion.GreaterThanOrEqual(Appliance53Version) {
+		// proxy_auto_config, trusted_network_check new attributes from >= 5.3
+		if v, ok := d.GetOk("proxy_auto_config"); ok {
+			args.SetProxyAutoConfig(readProxyAutoConfigFromConfig(v.([]interface{})))
+		}
+		if v, ok := d.GetOk("trusted_network_check"); ok {
+			args.SetTrustedNetworkCheck(readTrustedNetworkCheckFromConfig(v.([]interface{})))
+		}
 	}
 
 	if c, ok := d.GetOk("administrative_roles"); ok {
