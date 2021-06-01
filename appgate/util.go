@@ -3,6 +3,7 @@ package appgate
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -15,6 +16,7 @@ import (
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -208,4 +210,20 @@ func Nprintf(format string, params map[string]interface{}) string {
 		format = strings.Replace(format, "%{"+key+"}", fmt.Sprintf("%v", val), -1)
 	}
 	return format
+}
+
+func applianceStatsRetryable(ctx context.Context, meta interface{}) *resource.RetryError {
+	statsAPI := meta.(*Client).API.ApplianceStatsApi
+	token := meta.(*Client).Token
+	stats, _, err := statsAPI.StatsAppliancesGet(ctx).Authorization(token).Execute()
+	if err != nil {
+		return resource.RetryableError(err)
+	}
+	for _, data := range stats.Data {
+		// If any controller is marked as busy, we will treat this as a retryable error.
+		if data.Status == "busy" && data.Controller.Status != "n/a" {
+			return resource.RetryableError(fmt.Errorf("appliance is %s, waiting", data.Status))
+		}
+	}
+	return nil
 }

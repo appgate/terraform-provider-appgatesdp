@@ -12,6 +12,9 @@ import (
 
 func resourceClientConnections() *schema.Resource {
 	return &schema.Resource{
+
+		DeprecationMessage: "Deprecated resource, replaced by appgatesdp_client_profile",
+
 		Create: resourceClientConnectionsCreate,
 		Read:   resourceClientConnectionsRead,
 		Update: resourceClientConnectionsUpdate,

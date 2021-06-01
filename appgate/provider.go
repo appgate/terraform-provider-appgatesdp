@@ -120,6 +120,7 @@ func Provider() *schema.Provider {
 			"appgatesdp_local_database_identity_provider":   resourceAppgateLocalDatabaseProvider(),
 			"appgatesdp_ldap_certificate_identity_provider": resourceAppgateLdapCertificateProvider(),
 			"appgatesdp_connector_identity_provider":        resourceAppgateConnectorProvider(),
+			"appgatesdp_client_profile":                     resourceAppgateClientProfile(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
