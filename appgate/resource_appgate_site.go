@@ -127,9 +127,7 @@ func resourceAppgateSite() *schema.Resource {
 			},
 
 			"vpn": {
-				// Due to the limitation of tf-11115 it is not possible to nest maps.
-				// https://github.com/hashicorp/terraform/issues/11115
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
@@ -149,6 +147,7 @@ func resourceAppgateSite() *schema.Resource {
 						"tls": {
 							Type:     schema.TypeSet,
 							Optional: true,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -162,6 +161,7 @@ func resourceAppgateSite() *schema.Resource {
 						"dtls": {
 							Type:     schema.TypeSet,
 							Optional: true,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -192,6 +192,7 @@ func resourceAppgateSite() *schema.Resource {
 							Type:        schema.TypeBool,
 							Description: "Flag for manipulating web proxy p12 file. Setting this false will delete the existing p12 file from database.",
 							Optional:    true,
+							Computed:    true,
 						},
 						"web_proxy_key_store": {
 							Type:        schema.TypeString,
@@ -207,13 +208,14 @@ func resourceAppgateSite() *schema.Resource {
 						"ip_access_log_interval_seconds": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Computed: true,
 						},
 					},
 				},
 			},
 
 			"name_resolution": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
@@ -224,7 +226,7 @@ func resourceAppgateSite() *schema.Resource {
 						"use_hosts_file": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  false,
+							Computed: true,
 						},
 
 						"dns_resolvers": {
@@ -478,7 +480,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if v, ok := d.GetOk("vpn"); ok {
-		vpn, err := readSiteVPNFromConfig(currentVersion, v.(*schema.Set).List())
+		vpn, err := readSiteVPNFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -486,7 +488,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if v, ok := d.GetOk("name_resolution"); ok {
-		nameResolution, err := readSiteNameResolutionFromConfig(v.(*schema.Set).List())
+		nameResolution, err := readSiteNameResolutionFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -545,7 +547,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 
 	if site.NameResolution != nil {
 		var localNameResolution map[string]interface{}
-		localNameResolutionList := d.Get("name_resolution").(*schema.Set).List()
+		localNameResolutionList := d.Get("name_resolution").([]interface{})
 		for _, l := range localNameResolutionList {
 			localNameResolution = l.(map[string]interface{})
 		}
@@ -583,17 +585,16 @@ func flattenSiteDefaultGateway(in openapi.SiteAllOfDefaultGateway) []interface{}
 
 func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 	m := make(map[string]interface{})
-
-	if v, o := in.GetStateSharingOk(); o != false {
-		m["state_sharing"] = v
+	if v, ok := in.GetStateSharingOk(); ok {
+		m["state_sharing"] = *v
 	}
-	if v, o := in.GetSnatOk(); o != false {
-		m["snat"] = v
+	if v, ok := in.GetSnatOk(); ok {
+		m["snat"] = *v
 	}
 
 	if in.HasDtls() {
 		dtls := make(map[string]interface{})
-		if _, o := in.Dtls.GetEnabledOk(); o != false {
+		if _, ok := in.Dtls.GetEnabledOk(); ok {
 			dtls["enabled"] = in.Dtls.GetEnabled()
 		}
 		m["dtls"] = []interface{}{dtls}
@@ -601,7 +602,7 @@ func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 
 	if in.HasTls() {
 		tls := make(map[string]interface{})
-		if _, o := in.Tls.GetEnabledOk(); o != false {
+		if _, ok := in.Tls.GetEnabledOk(); ok {
 			tls["enabled"] = in.Tls.GetEnabled()
 		}
 		m["tls"] = []interface{}{tls}
@@ -614,41 +615,42 @@ func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 		m["route_via"] = routeVia
 	}
 
-	if v, o := in.GetWebProxyEnabledOk(); o != false {
-		m["web_proxy_enabled"] = v
+	if v, ok := in.GetWebProxyEnabledOk(); ok {
+		m["web_proxy_enabled"] = *v
 	}
-	if v, o := in.GetWebProxyKeyStoreOk(); o != false {
-		m["web_proxy_key_store"] = v
+	if v, ok := in.GetWebProxyKeyStoreOk(); ok {
+		m["web_proxy_key_store"] = *v
 	}
-	if v, o := in.GetWebProxyVerifyUpstreamCertificateOk(); o != false {
-		m["web_proxy_verify_upstream_certificate"] = v
+	if v, ok := in.GetWebProxyVerifyUpstreamCertificateOk(); ok {
+		m["web_proxy_verify_upstream_certificate"] = *v
 	}
 	m["ip_access_log_interval_seconds"] = in.IpAccessLogIntervalSeconds
+
 	return []interface{}{m}
 }
 
 func flattenNameResolution(local map[string]interface{}, in openapi.SiteAllOfNameResolution) []interface{} {
 	m := make(map[string]interface{})
-	if v, o := in.GetUseHostsFileOk(); o != false {
-		m["use_hosts_file"] = v
+	if v, ok := in.GetUseHostsFileOk(); ok {
+		m["use_hosts_file"] = *v
 	}
 
-	if v, o := in.GetDnsResolversOk(); o != false {
+	if v, ok := in.GetDnsResolversOk(); ok {
 		m["dns_resolvers"] = flattenSiteDNSResolver(*v)
 	}
-	if v, o := in.GetAwsResolversOk(); o != false {
+	if v, ok := in.GetAwsResolversOk(); ok {
 		l := getNSLocalChanges(local, "aws_resolvers")
 		m["aws_resolvers"] = flattenSiteAWSResolver(*v, l)
 	}
-	if v, o := in.GetAzureResolversOk(); o != false {
+	if v, ok := in.GetAzureResolversOk(); ok {
 		l := getNSLocalChanges(local, "azure_resolvers")
 		m["azure_resolvers"] = flattenSiteAzureResolver(*v, l)
 	}
-	if v, o := in.GetEsxResolversOk(); o != false {
+	if v, ok := in.GetEsxResolversOk(); ok {
 		l := getNSLocalChanges(local, "esx_resolvers")
 		m["esx_resolvers"] = flattenSiteESXResolvers(*v, l)
 	}
-	if v, o := in.GetGcpResolversOk(); o != false {
+	if v, ok := in.GetGcpResolversOk(); ok {
 		m["gcp_resolvers"] = flattenSiteGCPResolvers(*v)
 	}
 	return []interface{}{m}
@@ -829,8 +831,8 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("vpn") {
-		_, n := d.GetChange("vpn")
-		vpn, err := readSiteVPNFromConfig(currentVersion, n.(*schema.Set).List())
+		_, v := d.GetChange("vpn")
+		vpn, err := readSiteVPNFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -838,8 +840,8 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("name_resolution") {
-		_, n := d.GetChange("name_resolution")
-		nameResolution, err := readSiteNameResolutionFromConfig(n.(*schema.Set).List())
+		_, v := d.GetChange("name_resolution")
+		nameResolution, err := readSiteNameResolutionFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
