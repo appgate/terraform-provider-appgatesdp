@@ -62,80 +62,11 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
-								s := v.(string)
-								list := []string{
-									"All",
-									"View",
-									"Create",
-									"Edit",
-									"Tag",
-									"Delete",
-									"Revoke",
-									"Export",
-									"Upgrade",
-									"RenewCertificate",
-									"DownloadLogs",
-									"Test",
-									"GetUserAttributes",
-									"Backup",
-									"CheckStatus",
-									"Reevaluate",
-								}
-								for _, x := range list {
-									if s == x {
-										return
-									}
-								}
-								errs = append(errs, fmt.Errorf("type must be on of %v, got %s", list, s))
-								return
-							},
 						},
 
 						"target": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
-								s := v.(string)
-								list := []string{
-									"All",
-									"Appliance",
-									"Condition",
-									"CriteriaScript",
-									"Entitlement",
-									"AdministrativeRole",
-									"IdentityProvider",
-									"MfaProvider",
-									"IpPool",
-									"LocalUser",
-									"Policy",
-									"Site",
-									"DeviceScript",
-									"EntitlementScript",
-									"RingfenceRule",
-									"ApplianceCustomization",
-									"OtpSeed",
-									"TokenRecord",
-									"Blacklist",
-									"UserLicense",
-									"RegisteredDevice",
-									"AllocatedIp",
-									"SessionInfo",
-									"AuditLog",
-									"AdminMessage",
-									"GlobalSetting",
-									"CaCertificate",
-									"File",
-									"FailedAuthentication",
-								}
-								for _, x := range list {
-									if s == x {
-										return
-									}
-								}
-								errs = append(errs, fmt.Errorf("type must be on of %v, got %s", list, s))
-								return
-							},
 						},
 
 						"scope": {
