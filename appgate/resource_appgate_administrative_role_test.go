@@ -190,3 +190,137 @@ func testAccadministrativeRoleImportStateCheckFunc(expectedStates int) resource.
 		return nil
 	}
 }
+
+func TestAccadministrativeMultiplePrivilegesValidation(t *testing.T) {
+	resourceName := "appgatesdp_administrative_role.test_administrative_role_129"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":   rName,
+		"target": "RegisteredDevice", // from >= 5.3 its called RegisteredDevice, prior to 5.3 it was called OnBoardedDevice
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckadministrativeRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					if currentVersion.LessThan(Appliance53Version) {
+						t.Skip("Test only for 5.3 and above, privileges.target RegisteredDevice not supported prior to 5.3")
+					}
+				},
+				Config: testAccCheckadministrativeRoleMultiplePrivlegesConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckadministrativeRoleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.all", "true"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", context["target"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "View"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.all", "true"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.target", context["target"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.type", "Delete"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "aa"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "bb"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2", "cc"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccadministrativeRoleImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+// TestAccadministrativeMultiplePrivilegesValidation52 make sure it still works on 5.2
+// https://github.com/appgate/terraform-provider-appgatesdp/issues/129
+func TestAccadministrativeMultiplePrivilegesValidation52(t *testing.T) {
+	resourceName := "appgatesdp_administrative_role.test_administrative_role_129"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":   rName,
+		"target": "OnBoardedDevice", // in < 5.3 its called OnBoardedDevice
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckadministrativeRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					if currentVersion.GreaterThanOrEqual(Appliance53Version) {
+						t.Skip("Test is only for 5.2, privileges.target OnBoardedDevice")
+					}
+				},
+				Config: testAccCheckadministrativeRoleMultiplePrivlegesConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckadministrativeRoleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.all", "true"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", context["target"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "View"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.all", "true"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.target", context["target"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.type", "Delete"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "aa"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "bb"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2", "cc"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccadministrativeRoleImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckadministrativeRoleMultiplePrivlegesConfig(context map[string]interface{}) string {
+	// Test based on https://github.com/appgate/terraform-provider-appgatesdp/issues/129#issuecomment-852211335
+	return Nprintf(`
+resource "appgatesdp_administrative_role" "test_administrative_role_129" {
+	name  = "%{name}"
+	tags  = ["aa", "bb", "cc"]
+	
+	privileges {
+		type   = "View"
+		target = "%{target}"
+	
+		scope {
+		all = true
+		}
+	}
+	
+	privileges {
+		type   = "Delete"
+		target = "%{target}"
+	
+		scope {
+		all = true
+		}
+	}
+}
+`, context)
+}
