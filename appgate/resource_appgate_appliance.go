@@ -13,6 +13,7 @@ import (
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -1203,7 +1204,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("connector"); ok {
-		connector, err := readApplianceConnectorFromConfig(v.([]interface{}))
+		connector, err := readApplianceConnectorFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1459,6 +1460,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Reading Appliance Name: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.AppliancesApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.Background()
 	request := api.AppliancesIdGet(ctx, d.Id())
 	appliance, _, err := request.Authorization(token).Execute()
@@ -1638,7 +1640,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if _, o := d.GetOkExists("connector"); o {
-		iot, err := flatttenApplianceConnector(appliance.GetConnector())
+		iot, err := flatttenApplianceConnector(currentVersion, appliance.GetConnector())
 		if err != nil {
 			return err
 		}
@@ -1834,7 +1836,7 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map
 	return logforwarders, nil
 }
 
-func flatttenApplianceConnector(in openapi.ApplianceAllOfConnector) ([]map[string]interface{}, error) {
+func flatttenApplianceConnector(currentVersion *version.Version, in openapi.ApplianceAllOfConnector) ([]map[string]interface{}, error) {
 	var connectors []map[string]interface{}
 	connector := make(map[string]interface{})
 	if v, o := in.GetEnabledOk(); o != false {
@@ -1855,7 +1857,9 @@ func flatttenApplianceConnector(in openapi.ApplianceAllOfConnector) ([]map[strin
 			}
 			c["allow_resources"] = alloweResources
 			c["snat_to_resources"] = client.GetSnatToResources()
-			c["dnat_to_resource"] = client.GetDnatToResource()
+			if currentVersion.GreaterThanOrEqual(Appliance54Version) {
+				c["dnat_to_resource"] = client.GetDnatToResource()
+			}
 
 			clients = append(clients, c)
 		}
@@ -2104,6 +2108,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 	ctx := context.Background()
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.AppliancesApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.AppliancesIdGet(ctx, d.Id())
 	originalAppliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -2266,7 +2271,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("connector") {
 		_, n := d.GetChange("connector")
-		iot, err := readApplianceConnectorFromConfig(n.([]interface{}))
+		iot, err := readApplianceConnectorFromConfig(currentVersion, n.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -2833,7 +2838,7 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 	return val, nil
 }
 
-func readApplianceConnectorFromConfig(connectors []interface{}) (openapi.ApplianceAllOfConnector, error) {
+func readApplianceConnectorFromConfig(currentVersion *version.Version, connectors []interface{}) (openapi.ApplianceAllOfConnector, error) {
 	val := openapi.ApplianceAllOfConnector{}
 	for _, connector := range connectors {
 		if connector == nil {
@@ -2883,9 +2888,12 @@ func readApplianceConnectorFromConfig(connectors []interface{}) (openapi.Applian
 				if v, ok := r["snat_to_resources"]; ok {
 					client.SetSnatToResources(v.(bool))
 				}
-				if v, ok := r["dnat_to_resource"]; ok {
-					client.SetDnatToResource(v.(bool))
+				if currentVersion.GreaterThanOrEqual(Appliance54Version) {
+					if v, ok := r["dnat_to_resource"]; ok {
+						client.SetDnatToResource(v.(bool))
+					}
 				}
+
 				clients = append(clients, client)
 			}
 			val.SetExpressClients(clients)
@@ -3005,7 +3013,6 @@ func readAppliancePortalFromConfig(portals []interface{}) (openapi.Portal, error
 			p.SetProxyP12s(p12s)
 		}
 	}
-	log.Printf("[DEBUG] readAppliancePortalFromConfig %+v", p)
 	return p, nil
 }
 
