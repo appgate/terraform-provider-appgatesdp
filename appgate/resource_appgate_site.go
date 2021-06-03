@@ -513,6 +513,8 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Site Name: %s", d.Get("name").(string))
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.SitesApi
+	currentVersion := meta.(*Client).ApplianceVersion
+
 	request := api.SitesIdGet(context.Background(), d.Id())
 	site, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -542,7 +544,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("entitlement_based_routing", site.EntitlementBasedRouting)
 
 	if site.Vpn != nil {
-		if err = d.Set("vpn", flattenSiteVPN(*site.Vpn)); err != nil {
+		if err = d.Set("vpn", flattenSiteVPN(currentVersion, *site.Vpn)); err != nil {
 			return err
 		}
 	}
@@ -585,7 +587,7 @@ func flattenSiteDefaultGateway(in openapi.SiteAllOfDefaultGateway) []interface{}
 	return []interface{}{m}
 }
 
-func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
+func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []interface{} {
 	m := make(map[string]interface{})
 	if v, ok := in.GetStateSharingOk(); ok {
 		m["state_sharing"] = *v
@@ -617,9 +619,12 @@ func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 		m["route_via"] = routeVia
 	}
 
-	if v, ok := in.GetWebProxyEnabledOk(); ok {
-		m["web_proxy_enabled"] = *v
+	if currentVersion.Equal(Appliance53Version) {
+		if v, ok := in.GetWebProxyEnabledOk(); ok {
+			m["web_proxy_enabled"] = *v
+		}
 	}
+
 	if v, ok := in.GetWebProxyKeyStoreOk(); ok {
 		m["web_proxy_key_store"] = *v
 	}
@@ -965,14 +970,14 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 			result.SetRouteVia(routeVia)
 		}
 
-		if v, ok := raw["web_proxy_enabled"]; ok {
-			result.SetWebProxyEnabled(v.(bool))
-		}
 		if v, ok := raw["web_proxy_key_store"]; ok && len(v.(string)) > 0 {
 			result.SetWebProxyKeyStore(v.(string))
 		}
 		// webProxyVerifyUpstreamCertificate is only present in 5.3
 		if currentVersion.Equal(Appliance53Version) {
+			if v, ok := raw["web_proxy_enabled"]; ok {
+				result.SetWebProxyEnabled(v.(bool))
+			}
 			if v, ok := raw["web_proxy_verify_upstream_certificate"]; ok {
 				result.SetWebProxyVerifyUpstreamCertificate(v.(bool))
 			}
