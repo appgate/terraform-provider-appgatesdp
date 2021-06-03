@@ -1673,12 +1673,13 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		for _, l := range localPortalList {
 			localPortal = l.(map[string]interface{})
 		}
-		proxyp12s, err := flattenAppliancePortalProxyp12s(localPortal, v.GetProxyP12s())
-		if err != nil {
-			return err
+		if len(v.GetProxyP12s()) > 0 {
+			proxyp12s, err := flattenAppliancePortalProxyp12s(localPortal, v.GetProxyP12s())
+			if err != nil {
+				return err
+			}
+			portal["proxy_p12s"] = proxyp12s
 		}
-		portal["proxy_p12s"] = proxyp12s
-
 		https_p12, err := flattenApplianceProxyp12s(localPortal, v.GetHttpsP12())
 		if err != nil {
 			return err
@@ -1702,35 +1703,37 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func flattenAppliancePortalProxyp12s(local map[string]interface{}, p12s []openapi.Portal12) ([]map[string]interface{}, error) {
-	state := local["proxy_p12s"].([]interface{})
 	var result []map[string]interface{}
-	for k, p12 := range p12s {
-		stateRow := state[k].(map[string]interface{})
-		raw := make(map[string]interface{})
-		raw["id"] = p12.GetId()
-		raw["verify_upstream"] = p12.GetVerifyUpstream()
-		raw["subject_name"] = p12.GetSubjectName()
-		raw["password"] = p12.GetSubjectName()
-		raw["content"] = stateRow["content"].(string)
-		raw["password"] = stateRow["password"].(string)
-		result = append(result, raw)
+	if v, ok := local["proxy_p12s"].([]interface{}); ok {
+		state := v
+		for k, p12 := range p12s {
+			stateRow := state[k].(map[string]interface{})
+			raw := make(map[string]interface{})
+			raw["id"] = p12.GetId()
+			raw["verify_upstream"] = p12.GetVerifyUpstream()
+			raw["subject_name"] = p12.GetSubjectName()
+			raw["password"] = p12.GetSubjectName()
+			raw["content"] = stateRow["content"].(string)
+			raw["password"] = stateRow["password"].(string)
+			result = append(result, raw)
+		}
 	}
 
 	return result, nil
 }
 
 func flattenApplianceProxyp12s(local map[string]interface{}, p12 openapi.P12) ([]map[string]interface{}, error) {
-	state := local["https_p12"].([]interface{})
 	var result []map[string]interface{}
-
-	stateRow := state[0].(map[string]interface{})
-	raw := make(map[string]interface{})
-	raw["id"] = p12.GetId()
-	raw["subject_name"] = p12.GetSubjectName()
-	raw["password"] = p12.GetSubjectName()
-	raw["content"] = stateRow["content"].(string)
-	raw["password"] = stateRow["password"].(string)
-	result = append(result, raw)
+	if v, ok := local["https_p12"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+		stateRow := v[0].(map[string]interface{})
+		raw := make(map[string]interface{})
+		raw["id"] = p12.GetId()
+		raw["subject_name"] = p12.GetSubjectName()
+		raw["password"] = p12.GetSubjectName()
+		raw["content"] = stateRow["content"].(string)
+		raw["password"] = stateRow["password"].(string)
+		result = append(result, raw)
+	}
 
 	return result, nil
 }
