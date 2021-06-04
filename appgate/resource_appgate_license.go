@@ -55,7 +55,7 @@ func resourceAppgateLicenseCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func getLicenseIdentifier(license openapi.LicenseDetails) string {
-	return fmt.Sprintf("%s", license.GetRequestCode())
+	return license.GetRequestCode()
 }
 
 func resourceAppgateLicenseRead(d *schema.ResourceData, meta interface{}) error {
