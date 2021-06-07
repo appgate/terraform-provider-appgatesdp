@@ -529,6 +529,36 @@ A list of Clients to run on the appliance with the given configuration. Requires
 * `device_id`: (Optional) The device ID to assign to this Client. It will be used to generate device distinguished name. Example: 12699e27-b584-464a-81ee-5b4784b6d425.
 * `allow_resources`: (Optional) Source configuration to allow via iptables.
 * `snat_to_tunnel`: (Optional) Use Source NAT for the Client tunnel.
+
+### portal
+Portal settings.
+
+* `enabled`:  (Optional)  default value `false` Whether the Portal is enabled on this appliance or not.
+* `https_p12`:  (Optional) PKCS12 object with X.509 certificate and private key.
+* `proxy_p12s`:  (Optional) P12 files for proxying traffic to HTTPS endpoints.
+* `profiles`:  (Optional) Names of the profiles in this Collective to use in the Portal.
+* `external_profiles`:  (Optional) Profiles from other Collectives to use in the Portal.
+#### https_p12
+PKCS12 object with X.509 certificate and private key.
+* `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
+* `content`: (Optional) Contents of the P12 file.
+* `password`: (Optional) Password for the P12 file.
+* `subject_name`: (Computed) Subject name of the certificate in the file.
+#### proxy_p12s
+P12 files for proxying traffic to HTTPS endpoints.
+* `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
+* `content`: (Optional) Contents of the P12 file.
+* `password`: (Optional) Password for the P12 file.
+* `subject_name`: (Computed) Subject name of the certificate in the file.
+* `verify_upstream`: (Optional) Portal will verify upstream certificate of the endpoints.
+#### profiles
+Names of the profiles in this Collective to use in the Portal.
+#### external_profiles
+Profiles from other Collectives to use in the Portal.
+* `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
+* `url`: (Computed) Appgate URL from Client Connections. Example: appgate://appgate.company.com/eyJjYUZpbmdlcnByaW50IjoiMmM4ZTBiNTM5YTM4NjRkYmVkYzhiOWRkMTcwYzM0NGFhMjZjZTVhNjA4MmY3YTI0YzRkZTU4ZGQ3NWRjNWZhMCIsImlkZW50aXR5UHJvdmlkZXJOYW1lIjoibG9jYWwifQ==.
+
+
 ### rsyslog_destinations
 Rsyslog destination settings to forward appliance logs.
 
