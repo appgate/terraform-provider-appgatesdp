@@ -2165,7 +2165,6 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					testAccCheckExampleWidgetExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
