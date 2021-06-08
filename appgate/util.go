@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/google/uuid"
@@ -219,10 +219,15 @@ func applianceStatsRetryable(ctx context.Context, meta interface{}) *resource.Re
 	if err != nil {
 		return resource.RetryableError(err)
 	}
-	for _, data := range stats.Data {
+	for _, data := range stats.GetData() {
 		// If any controller is marked as busy, we will treat this as a retryable error.
-		if data.Status == "busy" && data.Controller.Status != "n/a" {
-			return resource.RetryableError(fmt.Errorf("appliance is %s, waiting", data.Status))
+		status := data.GetStatus()
+		if status == "busy" {
+			ctrl := data.GetController()
+			if ctrl.GetStatus() != "n/a" {
+				return resource.RetryableError(fmt.Errorf("appliance is %s, waiting", status))
+			}
+
 		}
 	}
 	return nil

@@ -37,8 +37,8 @@ func TestAccApplianceBasicController(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
@@ -47,12 +47,12 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "controller.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.port", "5555"),
@@ -87,11 +87,9 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.address", "10.10.10.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.hostname", "appgate.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.netmask", "24"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.snat", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.address", "20.20.20.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.hostname", "test.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
@@ -143,14 +141,14 @@ func TestAccApplianceBasicController(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.nic", "eth0"),
 
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "1234"),
@@ -159,8 +157,8 @@ func TestAccApplianceBasicController(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.snmpd_conf", "foo"),
@@ -169,11 +167,11 @@ func TestAccApplianceBasicController(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.address", "0.0.0.0"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.nic", "eth1"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.password_authentication", "true"),
@@ -249,11 +247,9 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.address", "10.10.10.10"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.hostname", "appgate-updated.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.address", "20.20.20.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.hostname", "test.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
@@ -313,15 +309,15 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.1.nic", "eth0"),
 
 					resource.TestCheckResourceAttr(resourceName, "controller.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "1.3.3.3"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "24"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.nic", "eth0"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.1.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.1.netmask", "24"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.1.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.1.nic", "eth1"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.snmpd_conf", "bar"),
@@ -331,7 +327,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.address", "1.3.3.8"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.nic", "eth1"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.address", "10.0.0.0"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.netmask", "32"),
@@ -343,7 +339,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "1.3.3.8"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "1235"),
@@ -351,7 +347,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.address", "1.3.3.8"),
-					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.port", "5556"),
@@ -359,7 +355,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "1.3.3.8"),
-					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.nic", "eth0"),
 
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.#", "1"),
@@ -554,8 +550,8 @@ resource "appgatesdp_appliance" "test_controller" {
     https_port     = 444
     dtls_port      = 445
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
     override_spa_mode = "TCP"
@@ -604,14 +600,12 @@ resource "appgatesdp_appliance" "test_controller" {
         static {
           address  = "10.10.10.1"
           netmask  = 24
-          hostname = "appgate.company.com"
           snat     = true
         }
 
         static {
           address  = "20.20.20.1"
           netmask  = 32
-          hostname = "test.company.com"
           snat     = false
         }
       }
@@ -660,7 +654,7 @@ resource "appgatesdp_appliance" "test_controller" {
     }
   }
   controller {
-    enabled = true
+    enabled = false
   }
   snmp_server {
     enabled    = true
@@ -668,8 +662,8 @@ resource "appgatesdp_appliance" "test_controller" {
     udp_port   = 161
     snmpd_conf = "foo"
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -678,13 +672,13 @@ resource "appgatesdp_appliance" "test_controller" {
     port                    = 2222
     password_authentication = true
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
     allow_sources {
       address = "0.0.0.0"
-      netmask = 0
+      netmask = 32
       nic     = "eth1"
     }
   }
@@ -692,8 +686,8 @@ resource "appgatesdp_appliance" "test_controller" {
     enabled = true
     port    = 1234
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -701,16 +695,16 @@ resource "appgatesdp_appliance" "test_controller" {
     enabled = true
     port    = 5555
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
 
   ping {
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -801,14 +795,12 @@ resource "appgatesdp_appliance" "test_controller" {
         static {
           address  = "10.10.10.10"
           netmask  = 32
-          hostname = "appgate-updated.company.com"
           snat     = false
         }
 
         static {
           address  = "20.20.20.1"
           netmask  = 32
-          hostname = "test.company.com"
           snat     = false
         }
       }
@@ -886,7 +878,7 @@ resource "appgatesdp_appliance" "test_controller" {
     }
   }
   controller {
-    enabled = true
+    enabled = false
   }
 
   snmp_server {
@@ -895,13 +887,13 @@ resource "appgatesdp_appliance" "test_controller" {
     udp_port   = 160
     snmpd_conf = "bar"
     allow_sources {
-      address = "1.3.3.3"
-      netmask = 24
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 24
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth1"
     }
   }
@@ -912,7 +904,7 @@ resource "appgatesdp_appliance" "test_controller" {
     password_authentication = false
     allow_sources {
       address = "1.3.3.8"
-      netmask = 0
+      netmask = 32
       nic     = "eth1"
     }
     allow_sources {
@@ -926,7 +918,7 @@ resource "appgatesdp_appliance" "test_controller" {
     port    = 1235
     allow_sources {
       address = "1.3.3.8"
-      netmask = 0
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -935,7 +927,7 @@ resource "appgatesdp_appliance" "test_controller" {
     port    = 5556
     allow_sources {
       address = "1.3.3.8"
-      netmask = 0
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -943,7 +935,7 @@ resource "appgatesdp_appliance" "test_controller" {
   ping {
     allow_sources {
       address = "1.3.3.8"
-      netmask = 0
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -1105,8 +1097,8 @@ func TestAccApplianceConnector(t *testing.T) {
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
@@ -1191,8 +1183,8 @@ resource "appgatesdp_appliance" "connector" {
       https_port     = 444
       dtls_port      = 445
       allow_sources {
-        address = "1.3.3.7"
-        netmask = 0
+        address = "127.0.0.1"
+        netmask = 32
         nic     = "eth0"
       }
       override_spa_mode = "TCP"
@@ -1298,15 +1290,12 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", "0.0.0.0"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 
 					resource.TestCheckResourceAttr(resourceName, "log_server.#", "0"),
-					// TODO; get site ID
-					// resource.TestCheckResourceAttr(resourceName, "site", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
-
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
@@ -1353,8 +1342,8 @@ resource "appgatesdp_appliance" "test_gateway" {
     https_port     = 444
     dtls_port      = 445
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
     override_spa_mode = "TCP"
@@ -1400,7 +1389,8 @@ resource "appgatesdp_appliance" "test_gateway" {
     vpn {
       weight = 100
       allow_destinations {
-        address = "0.0.0.0"
+        address = "127.0.0.1"
+        netmask = 32
         nic     = "eth0"
       }
     }
@@ -1433,8 +1423,8 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
@@ -1442,12 +1432,12 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "controller.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.port", "5555"),
@@ -1482,11 +1472,9 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.address", "10.10.10.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.hostname", "appgate.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.netmask", "24"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.snat", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.address", "20.20.20.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.hostname", "test.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
@@ -1538,14 +1526,14 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.nic", "eth0"),
 
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "1234"),
@@ -1554,8 +1542,8 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.snmpd_conf", "foo"),
@@ -1564,11 +1552,11 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.address", "0.0.0.0"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.nic", "eth1"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.password_authentication", "true"),
@@ -1606,8 +1594,8 @@ resource "appgatesdp_appliance" "test_controller" {
     https_port     = 444
     dtls_port      = 445
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -1655,14 +1643,12 @@ resource "appgatesdp_appliance" "test_controller" {
         static {
           address  = "10.10.10.1"
           netmask  = 24
-          hostname = "appgate.company.com"
           snat     = true
         }
 
         static {
           address  = "20.20.20.1"
           netmask  = 32
-          hostname = "test.company.com"
           snat     = false
         }
       }
@@ -1711,7 +1697,7 @@ resource "appgatesdp_appliance" "test_controller" {
     }
   }
   controller {
-    enabled = true
+    enabled = false
   }
   snmp_server {
     enabled    = true
@@ -1719,8 +1705,8 @@ resource "appgatesdp_appliance" "test_controller" {
     udp_port   = 161
     snmpd_conf = "foo"
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -1729,13 +1715,13 @@ resource "appgatesdp_appliance" "test_controller" {
     port                    = 2222
     password_authentication = true
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
     allow_sources {
       address = "0.0.0.0"
-      netmask = 0
+      netmask = 32
       nic     = "eth1"
     }
   }
@@ -1743,8 +1729,8 @@ resource "appgatesdp_appliance" "test_controller" {
     enabled = true
     port    = 1234
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -1752,16 +1738,16 @@ resource "appgatesdp_appliance" "test_controller" {
     enabled = true
     port    = 5555
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
 
   ping {
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -1808,8 +1794,8 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "Disabled"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
@@ -1817,12 +1803,12 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "controller.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.port", "5555"),
@@ -1857,11 +1843,9 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.address", "10.10.10.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.hostname", "appgate.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.netmask", "24"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.0.snat", "true"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.address", "20.20.20.1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.hostname", "test.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.1.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
@@ -1913,14 +1897,14 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.nic", "eth0"),
 
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "1234"),
@@ -1929,8 +1913,8 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.snmpd_conf", "foo"),
@@ -1939,11 +1923,11 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.address", "1.3.3.7"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.address", "0.0.0.0"),
-					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.1.nic", "eth1"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.password_authentication", "true"),
@@ -1982,8 +1966,8 @@ resource "appgatesdp_appliance" "test_controller" {
     dtls_port      = 445
 	override_spa_mode = "Disabled"
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -2031,14 +2015,12 @@ resource "appgatesdp_appliance" "test_controller" {
         static {
           address  = "10.10.10.1"
           netmask  = 24
-          hostname = "appgate.company.com"
           snat     = true
         }
 
         static {
           address  = "20.20.20.1"
           netmask  = 32
-          hostname = "test.company.com"
           snat     = false
         }
       }
@@ -2087,7 +2069,7 @@ resource "appgatesdp_appliance" "test_controller" {
     }
   }
   controller {
-    enabled = true
+    enabled = false
   }
   snmp_server {
     enabled    = true
@@ -2095,8 +2077,8 @@ resource "appgatesdp_appliance" "test_controller" {
     udp_port   = 161
     snmpd_conf = "foo"
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -2105,13 +2087,13 @@ resource "appgatesdp_appliance" "test_controller" {
     port                    = 2222
     password_authentication = true
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
     allow_sources {
       address = "0.0.0.0"
-      netmask = 0
+      netmask = 32
       nic     = "eth1"
     }
   }
@@ -2119,8 +2101,8 @@ resource "appgatesdp_appliance" "test_controller" {
     enabled = true
     port    = 1234
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
@@ -2128,16 +2110,16 @@ resource "appgatesdp_appliance" "test_controller" {
     enabled = true
     port    = 5555
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }
 
   ping {
     allow_sources {
-      address = "1.3.3.7"
-      netmask = 0
+      address = "127.0.0.1"
+      netmask = 32
       nic     = "eth0"
     }
   }

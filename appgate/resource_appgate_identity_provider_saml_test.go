@@ -38,7 +38,6 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "provider_certificate"),
 					resource.TestCheckResourceAttr(resourceName, "decryption_key", ""),
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "true"),
-					resource.TestCheckResourceAttr(resourceName, "default", "false"), //depreciated feature
 					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "0"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "6"),
@@ -117,7 +116,6 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "provider_certificate"), //Write custom function to check for content of certificate?
 					resource.TestCheckResourceAttr(resourceName, "decryption_key", ""),
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "false"),
-					resource.TestCheckResourceAttr(resourceName, "default", "false"), //depreciated feature
 					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "5"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "4"),
@@ -212,7 +210,6 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "provider_certificate"), //Write custom function to check for content of certificate?
 					resource.TestCheckResourceAttr(resourceName, "decryption_key", ""),
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "false"),
-					resource.TestCheckResourceAttr(resourceName, "default", "false"), //depreciated feature
 					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "5"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "4"),

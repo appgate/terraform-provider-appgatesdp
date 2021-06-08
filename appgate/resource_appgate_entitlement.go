@@ -8,7 +8,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/google/uuid"

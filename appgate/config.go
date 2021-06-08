@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v14/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 	"github.com/hashicorp/go-version"
 
 	"github.com/google/uuid"
@@ -83,7 +83,7 @@ func (c *Config) Client() (*Client, error) {
 		return nil, err
 	}
 
-	currentVersion, err := version.NewVersion(*response.Version)
+	currentVersion, err := guessVersion(response, c.Version)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +96,24 @@ func (c *Config) Client() (*Client, error) {
 	}
 
 	return client, nil
+}
+
+func guessVersion(response *openapi.LoginResponse, clientVersion int) (*version.Version, error) {
+	if response.HasVersion() {
+		currentVersion, err := version.NewVersion(*response.Version)
+		if err != nil {
+			return nil, err
+		}
+		return currentVersion, nil
+	}
+	switch clientVersion {
+	case Version15:
+		return version.NewVersion("5.4.0+estimated")
+	case Version16:
+		return version.NewVersion("5.5.0+estimated")
+
+	}
+	return nil, fmt.Errorf("could not determine appliance version with client version %d", clientVersion)
 }
 
 func login(apiClient *openapi.APIClient, cfg *Config) (*openapi.LoginResponse, error) {
