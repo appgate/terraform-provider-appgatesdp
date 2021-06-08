@@ -102,7 +102,7 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 		_, response, err := api.ClientConnectionsPut(ctx).ClientConnections(clientConnections).Authorization(token).Execute()
 		if err != nil {
 			if response.StatusCode == http.StatusConflict {
-				return resource.RetryableError(fmt.Errorf("Expected client profile to be created but was in state %s", response.Status))
+				return resource.RetryableError(fmt.Errorf("Expected client profile %q to be created but was in state %s", d.Get("name").(string), response.Status))
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error updating client connection profiles: %s", err))
 		}

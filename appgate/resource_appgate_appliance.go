@@ -1706,19 +1706,21 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 
 func flattenAppliancePortalProxyp12s(local map[string]interface{}, p12s []openapi.Portal12) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
-	if v, ok := local["proxy_p12s"].([]interface{}); ok {
-		state := v
-		for k, p12 := range p12s {
+	for k, p12 := range p12s {
+		raw := make(map[string]interface{})
+		if len(p12.GetId()) < 1 {
+			continue
+		}
+		raw["id"] = p12.GetId()
+		raw["verify_upstream"] = p12.GetVerifyUpstream()
+		raw["subject_name"] = p12.GetSubjectName()
+		// content, and password not always known, not included in the response body
+		if state, ok := local["proxy_p12s"].([]interface{}); ok {
 			stateRow := state[k].(map[string]interface{})
-			raw := make(map[string]interface{})
-			raw["id"] = p12.GetId()
-			raw["verify_upstream"] = p12.GetVerifyUpstream()
-			raw["subject_name"] = p12.GetSubjectName()
-			raw["password"] = p12.GetSubjectName()
 			raw["content"] = stateRow["content"].(string)
 			raw["password"] = stateRow["password"].(string)
-			result = append(result, raw)
 		}
+		result = append(result, raw)
 	}
 
 	return result, nil
@@ -1726,17 +1728,20 @@ func flattenAppliancePortalProxyp12s(local map[string]interface{}, p12s []openap
 
 func flattenApplianceProxyp12s(local map[string]interface{}, p12 openapi.P12) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	if len(p12.GetId()) < 1 {
+		return result, nil
+	}
+	raw := make(map[string]interface{})
+	raw["id"] = p12.GetId()
+	raw["subject_name"] = p12.GetSubjectName()
+	// content, and password not always known, not included in the response body
 	if v, ok := local["https_p12"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
 		stateRow := v[0].(map[string]interface{})
-		raw := make(map[string]interface{})
-		raw["id"] = p12.GetId()
-		raw["subject_name"] = p12.GetSubjectName()
-		raw["password"] = p12.GetSubjectName()
 		raw["content"] = stateRow["content"].(string)
 		raw["password"] = stateRow["password"].(string)
-		result = append(result, raw)
-	}
 
+	}
+	result = append(result, raw)
 	return result, nil
 }
 

@@ -2140,3 +2140,186 @@ resource "appgatesdp_appliance" "test_controller" {
 }
 `, context)
 }
+
+func TestAccAppliancePortalSetup(t *testing.T) {
+	resourceName := "appgatesdp_appliance.test_portal"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckApplianceDestroy,
+
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					if currentVersion.LessThan(Appliance54Version) {
+						t.Skip("Test only for 5.4 and above, appliance.portal is only supported in 5.4 and above.")
+					}
+				},
+				Config: testAccCheckAppliancePortalConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					testAccCheckExampleWidgetExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.8"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "447"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "UDP-TCP"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
+					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.virtual_ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.virtual_ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.mtu", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.address", "1.3.3.8"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1338"),
+					resource.TestCheckResourceAttr(resourceName, "portal.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.external_profiles.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.0.content", "test-fixtures/test_devops.crt"),
+
+					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.0.password", ""),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.0.subject_name", "CN=test.devops"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.0", "portal"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.content", "test-fixtures/test_devops.crt"),
+
+					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.password", ""),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.subject_name", "CN=test.devops"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.verify_upstream", "true"),
+					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.#", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccApplianceImportStateCheckFunc(1),
+				ImportStateVerifyIgnore: []string{"site", "seed_file",
+					// we cant import verify local file path
+					"portal.0.proxy_p12s.0.content", "portal.0.https_p12.0.content",
+				},
+			},
+		},
+	})
+}
+
+func testAccCheckAppliancePortalConfig(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default site"
+}
+resource "appgatesdp_client_profile" "portal" {
+	name                   = "portal"
+	spa_key_name           = "development-portal"
+	identity_provider_name = "local"
+}
+resource "appgatesdp_appliance" "test_portal" {
+	name     = "%{name}"
+	hostname = "%{hostname}"
+	client_interface {
+			hostname       = "%{hostname}"
+			proxy_protocol = true
+			https_port     = 447
+			dtls_port      = 445
+			allow_sources {
+			address = "1.3.3.8"
+			netmask = 32
+			nic     = "eth0"
+		}
+		override_spa_mode = "UDP-TCP"
+	}
+	peer_interface {
+		hostname   = "%{hostname}"
+		https_port = "1338"
+
+		allow_sources {
+			address = "1.3.3.8"
+			netmask = 32
+			nic     = "eth0"
+		}
+	}
+	site = data.appgatesdp_site.default_site.id
+	networking {
+		nics {
+		enabled = true
+		name    = "eth0"
+		ipv4 {
+				dhcp {
+					enabled = true
+					dns     = true
+					routers = true
+					ntp     = true
+				}
+			}
+		}
+	}
+	portal {
+		enabled = true
+		profiles = [
+			appgatesdp_client_profile.portal.name
+		]
+		proxy_p12s {
+			content  = "test-fixtures/test_devops.crt"
+			password = ""
+		}
+		https_p12 {
+			content  = "test-fixtures/test_devops.crt"
+			password = ""
+		}
+	}
+}
+`, context)
+}
