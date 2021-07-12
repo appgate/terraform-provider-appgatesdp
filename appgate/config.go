@@ -3,6 +3,7 @@ package appgate
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -72,6 +73,9 @@ func (c *Config) Client() (*Client, error) {
 		HTTPClient: httpclient,
 	}
 	apiClient := openapi.NewAPIClient(clientCfg)
+	if apiClient == nil {
+		return nil, errors.New("failed to initialize api client")
+	}
 
 	response, err := login(apiClient, c)
 	if err != nil {

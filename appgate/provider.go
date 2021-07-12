@@ -129,50 +129,71 @@ func Provider() *schema.Provider {
 	}
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	username := d.Get("username").(string)
-	password := d.Get("password").(string)
+func requiredParameters(d *schema.ResourceData) bool {
+	required := []string{
+		"username",
+		"password",
+		"url",
+	}
+	for _, r := range required {
+		if _, ok := d.GetOk(r); !ok {
+			return false
+		}
+	}
+	return true
+}
 
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	if (username != "") && (password != "") {
-		v := d.Get("client_version").(int)
-		config := Config{
-			URL:      d.Get("url").(string),
-			Username: d.Get("username").(string),
-			Password: d.Get("password").(string),
-			Provider: d.Get("provider").(string),
-			Insecure: d.Get("insecure").(bool),
-			Timeout:  20,
-			Debug:    d.Get("debug").(bool),
-			Version:  v,
-		}
-		c, err := config.Client()
-		if err != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Unable to create Appgate SDP SDK client v%d", v),
-				Detail:   fmt.Sprintf("Unable to authenticate user for authenticated Appgate SDP client %s", err),
-			})
-
-			return nil, diags
-		}
-		if c.ApplianceVersion.LessThan(c.LatestSupportedVersion) {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  fmt.Sprintf("You are using old version of Appgate SDP SDK client v%d", v),
-				Detail:   "You are using an outdated version of appgate appliances, you should consider updating to the latest version.",
-			})
-		}
-		log.Printf("[INFO] Appgate SDP Appliance Version %q client version v%d", c.ApplianceVersion, c.ClientVersion)
-		return c, diags
+	if !requiredParameters(d) {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Missing appgate SDP credentials",
+			Detail:   "Appgate client is unauthenticated. Provide user credentials and URL to access restricted resources.",
+		})
+		return nil, diags
 	}
-	diags = append(diags, diag.Diagnostic{
-		Severity: diag.Warning,
-		Summary:  "Using unauthenticated Appgate client",
-		Detail:   "Appgate client is unauthenticated. Provide user credentials to access restricted resources.",
-	})
+	username := d.Get("username").(string)
+	password := d.Get("password").(string)
+	url := d.Get("url").(string)
+	v := d.Get("client_version").(int)
+	config := Config{
+		URL:      url,
+		Username: username,
+		Password: password,
+		Provider: d.Get("provider").(string),
+		Insecure: d.Get("insecure").(bool),
+		Timeout:  20,
+		Debug:    d.Get("debug").(bool),
+		Version:  v,
+	}
+	c, err := config.Client()
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("Unable to create Appgate SDP SDK client v%d", v),
+			Detail:   fmt.Sprintf("Unable to authenticate user for authenticated Appgate SDP client %s", err),
+		})
 
-	return nil, diags
+		return nil, diags
+	}
+	if c == nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("Unable to create Appgate SDP SDK client v%d", v),
+			Detail:   "Appgate sdp client is nil, internal error",
+		})
+		return nil, diags
+	}
+	if c.ApplianceVersion.LessThan(c.LatestSupportedVersion) {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  fmt.Sprintf("You are using old version of Appgate SDP SDK client v%d", v),
+			Detail:   "You are using an outdated version of appgate appliances, you should consider updating to the latest version.",
+		})
+	}
+	log.Printf("[INFO] Appgate SDP Appliance Version %q client version v%d", c.ApplianceVersion, c.ClientVersion)
+	return c, diags
 }
