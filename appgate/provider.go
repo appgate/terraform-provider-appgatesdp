@@ -150,7 +150,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if !requiredParameters(d) {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Missing appgate SDP credentials",
+			Summary:  "Missing Appgate SDP credentials",
 			Detail:   "Appgate client is unauthenticated. Provide user credentials and URL to access restricted resources.",
 		})
 		return nil, diags
