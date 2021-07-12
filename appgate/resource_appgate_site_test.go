@@ -74,7 +74,7 @@ func TestAccSiteBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "tst"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
@@ -101,6 +101,7 @@ func TestAccSiteBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", "The test site"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "ts1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.1", "10.20.0.0/24"),
@@ -163,7 +164,7 @@ func testAccCheckSite(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "test_site" {
     name       = "%s"
-    short_name = "tst"
+    short_name = "ts0"
     tags = [
         "developer",
         "api-created"
@@ -243,7 +244,7 @@ func testAccCheckSiteUpdate() string {
 	return `
 resource "appgatesdp_site" "test_site" {
     name       = "The test site"
-    short_name = "tst"
+    short_name = "ts1"
     tags = [
         "developer",
         "api-created",
