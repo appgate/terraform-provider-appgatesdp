@@ -6,12 +6,13 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceAppgateEntitlement() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAppgateEntitlementRead,
+		ReadContext: dataSourceAppgateEntitlementRead,
 		Schema: map[string]*schema.Schema{
 			"entitlement_id": {
 				Type:          schema.TypeString,
@@ -27,7 +28,9 @@ func dataSourceAppgateEntitlement() *schema.Resource {
 	}
 }
 
-func dataSourceAppgateEntitlementRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAppgateEntitlementRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
 	token := meta.(*Client).Token
 	api := meta.(*Client).API.EntitlementsApi
 
@@ -35,43 +38,45 @@ func dataSourceAppgateEntitlementRead(d *schema.ResourceData, meta interface{}) 
 	entitlementName, nok := d.GetOk("entitlement_name")
 
 	if !iok && !nok {
-		return fmt.Errorf("please provide one of entitlement_id or entitlement_name attributes")
+		return diag.FromErr(fmt.Errorf("please provide one of entitlement_id or entitlement_name attributes"))
 	}
 	var reqErr error
 	var entitlement *openapi.Entitlement
 	if iok {
-		entitlement, reqErr = findEntitlementByUUID(api, entitlementID.(string), token)
+		entitlement, reqErr = findEntitlementByUUID(ctx, api, entitlementID.(string), token)
 	} else {
-		entitlement, reqErr = findEntitlementByName(api, entitlementName.(string), token)
+		entitlement, reqErr = findEntitlementByName(ctx, api, entitlementName.(string), token)
 	}
 	if reqErr != nil {
-		return reqErr
+		return diag.FromErr(reqErr)
 	}
-
 	d.SetId(entitlement.Id)
-	d.Set("name", entitlement.Name)
+	d.Set("entitlement_name", entitlement.Name)
+	d.Set("entitlement_id", entitlement.Id)
 
-	return nil
+	return diags
 }
 
-func findEntitlementByUUID(api *openapi.EntitlementsApiService, id string, token string) (*openapi.Entitlement, error) {
-	entitlement, _, err := api.EntitlementsIdGet(context.Background(), id).Authorization(token).Execute()
+func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiService, id, token string) (*openapi.Entitlement, error) {
+	entitlement, _, err := api.EntitlementsIdGet(ctx, id).Authorization(token).Execute()
 	if err != nil {
 		return nil, err
 	}
 	return &entitlement, nil
 }
 
-func findEntitlementByName(api *openapi.EntitlementsApiService, name string, token string) (*openapi.Entitlement, error) {
-	request := api.EntitlementsGet(context.Background())
+func findEntitlementByName(ctx context.Context, api *openapi.EntitlementsApiService, name, token string) (*openapi.Entitlement, error) {
+	request := api.EntitlementsGet(ctx).Query(name).Range_("0-50").OrderBy("name").Authorization(token)
 
-	entitlement, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
+	entitlements, _, err := request.Execute()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, c := range entitlement.GetData() {
-		return &c, nil
+	for _, entitlement := range entitlements.GetData() {
+		if entitlement.GetName() == name {
+			return &entitlement, nil
+		}
 	}
-	return nil, fmt.Errorf("Failed to find entitlement %s", name)
+	return nil, fmt.Errorf("Failed to find entitlement by name %q", name)
 }
