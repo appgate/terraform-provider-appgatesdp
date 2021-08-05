@@ -83,3 +83,50 @@ func testAccGlobalSettingsImportStateCheckFunc(expectedStates int) resource.Impo
 		return nil
 	}
 }
+
+func TestAccGlobalSettings54ProfileHostname(t *testing.T) {
+	resourceName := "appgatesdp_global_settings.test_global_settings_profile_hostname"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					if currentVersion.LessThan(Appliance54Version) {
+						t.Skipf("Test only for 5.4 and above, client_connections profile_hostname is not supported prior to 5.4, you are using %s", currentVersion.String())
+					}
+				},
+				Config: testAccGlobalSettingsProfileHostname(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGlobalSettingsExists(resourceName),
+					resource.TestCheckResourceAttrSet(resourceName, "administration_token_expiration"),
+					resource.TestCheckResourceAttrSet(resourceName, "app_discovery_domains.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "audit_log_persistence_mode"),
+					resource.TestCheckResourceAttrSet(resourceName, "backup_api_enabled"),
+					resource.TestCheckResourceAttrSet(resourceName, "claims_token_expiration"),
+					resource.TestCheckResourceAttrSet(resourceName, "collective_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "entitlement_token_expiration"),
+					resource.TestCheckResourceAttrSet(resourceName, "fips"),
+					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpn_certificate_expiration"),
+					resource.TestCheckResourceAttr(resourceName, "profile_hostname", "xyz.appgate-sdp.com"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccGlobalSettingsImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccGlobalSettingsProfileHostname() string {
+	return `
+resource "appgatesdp_global_settings" "test_global_settings_profile_hostname" {
+	profile_hostname = "xyz.appgate-sdp.com"
+}
+`
+}

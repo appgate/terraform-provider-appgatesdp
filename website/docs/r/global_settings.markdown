@@ -38,6 +38,7 @@ The following arguments are supported:
 * `audit_log_persistence_mode`: (Optional) Audit Log persistence mode.
 * `app_discovery_domains`: (Optional) Domains to monitor for for App Discovery feature.
 * `collective_id`: (Optional) A randomly generated ID during first installation to identify the Collective.
+* `profile_hostname`: (Optional) Client Connections, The hostname to use for generating profile URLs.
 
 
 ### app_discovery_domains
