@@ -13,7 +13,7 @@ description: |-
 ### cz-seed
 
 Appliances are provisioned with the [seed file](https://sdphelp.appgate.com/adminguide/v5.3/new-appliance.html?anchor=manual-seeding), we use `cz-seed` to the provision the appliances. `cz-seed` is a built-in program included on every appliance.
-This is a non interactive version of [cz-setup](https://sdphelp.appgate.com/adminguide/v5.3/controller-cz-setup.html). 
+This is a non interactive version of [cz-setup](https://sdphelp.appgate.com/adminguide/v5.3/controller-cz-setup.html).
 
 
 `cz-seed` has two main cases:
@@ -106,7 +106,7 @@ The seed file is used on a appliance to join the collective. We need to send the
 
 #### Provision with seed file
 
-First we need to create an inactive [appliance configuration](../r/appliance.markdown) 
+First we need to create an inactive [appliance configuration](../r/appliance.markdown)
 ```hcl
 resource "appgatesdp_appliance" "new_gateway" {
   // ...
@@ -174,7 +174,6 @@ cz-seed \
     --password cz cz \
     --dhcp-ipv4 eth0 \
     --enable-logserver \
-    --no-registration \
     --hostname "$PUBLIC_HOSTNAME" \
     --admin-password ${var.admin_login_password} \
     | jq '.remote.adminInterface.hostname = .remote.peerInterface.hostname | .remote.adminInterface.allowSources = .remote.peerInterface.allowSources' >> /home/cz/seed.json
@@ -189,6 +188,6 @@ resource "aws_instance" "appgatesdp_controller" {
 
 ### Documentation
 
-For more documentation how to configure Appgate, please see 
+For more documentation how to configure Appgate, please see
 - https://sdphelp.appgate.com/ - the official manual
 - https://github.com/appgate/sdp-tf-reference-architecture - reference project
