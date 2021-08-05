@@ -1285,7 +1285,8 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
-					resource.TestCheckResourceAttr(resourceName, "controller.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "controller.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
@@ -1295,7 +1296,10 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 
-					resource.TestCheckResourceAttr(resourceName, "log_server.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "log_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_server.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "log_server.0.retention_days", "30"),
+
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "445"),
