@@ -100,6 +100,7 @@ func resourceAppgateAppliance() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Customization assigned to this Appliance.",
 				Optional:    true,
+				Computed:    true,
 			},
 
 			"connect_to_peers_using_client_port_with_spa": {
