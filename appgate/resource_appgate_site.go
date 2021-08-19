@@ -797,7 +797,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 		orginalSite.SetShortName(d.Get("short_name").(string))
 	}
 	if d.HasChange("notes") {
-		orginalSite.SetShortName(d.Get("notes").(string))
+		orginalSite.SetNotes(d.Get("notes").(string))
 	}
 	if d.HasChange("tags") {
 		orginalSite.SetTags(schemaExtractTags(d))

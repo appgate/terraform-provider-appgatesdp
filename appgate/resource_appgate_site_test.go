@@ -109,6 +109,7 @@ func TestAccSiteBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "updated-tag"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "note updated"),
 				),
 			},
 			{
@@ -250,7 +251,7 @@ resource "appgatesdp_site" "test_site" {
         "api-created",
 	    "updated-tag"
     ]
-    notes = "This object has been created for test purposes."
+    notes = "note updated"
     entitlement_based_routing = false
 	network_subnets = [
         "10.0.0.0/16",
