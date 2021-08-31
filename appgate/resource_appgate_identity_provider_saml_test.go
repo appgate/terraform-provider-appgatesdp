@@ -728,7 +728,10 @@ func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
 func testAccCheckSamlIdentityProviderExists(resource string) resource.TestCheckFunc {
 
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.SamlIdentityProvidersApi
 		rs, ok := state.RootModule().Resources[resource]
 
@@ -740,8 +743,7 @@ func testAccCheckSamlIdentityProviderExists(resource string) resource.TestCheckF
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching saml identity provider with resource %s. %s", resource, err)
 		}
 		return nil
@@ -754,11 +756,13 @@ func testAccCheckSamlIdentityProviderDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.SamlIdentityProvidersApi
 
-		_, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("saml identity provider still exists, %+v", err)
 		}
 	}

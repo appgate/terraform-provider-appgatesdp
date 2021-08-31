@@ -76,11 +76,13 @@ func testAccCheckItemDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.EntitlementsApi
 
-		_, _, err := api.EntitlementsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.EntitlementsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("Entitlement still exists, %+v", err)
 		}
 	}
@@ -135,7 +137,10 @@ resource "appgatesdp_entitlement" "test_ping_item" {
 
 func testAccCheckEntitlementExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.EntitlementsApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -147,8 +152,7 @@ func testAccCheckEntitlementExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.EntitlementsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.EntitlementsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching item with resource %s. %s", resource, err)
 		}
 		return nil
@@ -215,13 +219,13 @@ resource "appgatesdp_entitlement" "monitor_entitlement" {
 	conditions = [
 	  data.appgatesdp_condition.always.id
 	]
-  
+
 	tags = [
 	  "terraform",
 	  "api-created"
 	]
 	disabled = true
-  
+
 	condition_logic = "and"
 	actions {
 	  action  = "allow"
@@ -229,7 +233,7 @@ resource "appgatesdp_entitlement" "monitor_entitlement" {
 	  hosts   = ["192.168.2.255/32"]
 	  ports   = ["53"]
 	}
-  
+
 	app_shortcuts {
 	  name       = "%s"
 	  url        = "https://www.google.com"
@@ -253,13 +257,13 @@ resource "appgatesdp_entitlement" "monitor_entitlement" {
 	conditions = [
 	  data.appgatesdp_condition.always.id
 	]
-  
+
 	tags = [
 	  "terraform",
 	  "api-created"
 	]
 	disabled = true
-  
+
 	condition_logic = "and"
 	actions {
 	  action  = "allow"
@@ -271,7 +275,7 @@ resource "appgatesdp_entitlement" "monitor_entitlement" {
 		timeout = 22
 	  }
 	}
-  
+
 	app_shortcuts {
 	  name       = "%s"
 	  url        = "https://www.google.com"

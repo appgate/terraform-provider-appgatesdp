@@ -523,11 +523,13 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 
-		_, _, err := api.AppliancesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.AppliancesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("Appliance still exists, %+v", err)
 		}
 	}
@@ -1244,7 +1246,10 @@ resource "appgatesdp_appliance" "connector" {
 
 func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -1256,8 +1261,7 @@ func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.AppliancesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.AppliancesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching appliance with resource %s. %s", resource, err)
 		}
 		return nil

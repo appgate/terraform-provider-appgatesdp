@@ -70,7 +70,10 @@ EOF
 
 func testAccCheckTrustedCertificateExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.TrustedCertificatesApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -82,8 +85,7 @@ func testAccCheckTrustedCertificateExists(resource string) resource.TestCheckFun
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.TrustedCertificatesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.TrustedCertificatesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching trusted certificate with resource %s. %s", resource, err)
 		}
 		return nil
@@ -96,11 +98,13 @@ func testAccCheckTrustedCertificateDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.TrustedCertificatesApi
 
-		_, _, err := api.TrustedCertificatesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.TrustedCertificatesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("trusted certificate still exists, %+v", err)
 		}
 	}

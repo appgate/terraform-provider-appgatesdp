@@ -145,7 +145,10 @@ func TestAccadministrativeRoleWithScope(t *testing.T) {
 
 func testAccCheckadministrativeRoleExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.AdministrativeRolesApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -157,8 +160,7 @@ func testAccCheckadministrativeRoleExists(resource string) resource.TestCheckFun
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching Administrative Role with resource %s. %s", resource, err)
 		}
 		return nil
@@ -171,11 +173,13 @@ func testAccCheckadministrativeRoleDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.AdministrativeRolesApi
 
-		_, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("Administrative Role still exists, %+v", err)
 		}
 	}

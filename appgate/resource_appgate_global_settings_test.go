@@ -55,7 +55,10 @@ resource "appgatesdp_global_settings" "test_global_settings" {
 
 func testAccCheckGlobalSettingsExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.GlobalSettingsApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -67,8 +70,7 @@ func testAccCheckGlobalSettingsExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.GlobalSettingsGet(context.Background()).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.GlobalSettingsGet(context.Background()).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching global settings with resource %s. %s", resource, err)
 		}
 		return nil

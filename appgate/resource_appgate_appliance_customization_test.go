@@ -113,7 +113,10 @@ resource "appgatesdp_appliance_customization" "test_acc_appliance_customization"
 
 func testAccCheckApplianceCustomizationExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.ApplianceCustomizationsApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -125,8 +128,7 @@ func testAccCheckApplianceCustomizationExists(resource string) resource.TestChec
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.ApplianceCustomizationsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.ApplianceCustomizationsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching appliance customization with resource %s. %s", resource, err)
 		}
 		return nil
@@ -139,11 +141,13 @@ func testAccCheckApplianceCustomizationDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.ApplianceCustomizationsApi
 
-		_, _, err := api.ApplianceCustomizationsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.ApplianceCustomizationsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("Appliance customization still exists, %+v", err)
 		}
 	}
