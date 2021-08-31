@@ -205,7 +205,9 @@ func TestAccadministrativeMultiplePrivilegesValidation(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					c := testAccProvider.Meta().(*Client)
+					c.GetToken()
+					currentVersion := c.ApplianceVersion
 					if currentVersion.LessThan(Appliance53Version) {
 						t.Skip("Test only for 5.3 and above, privileges.target RegisteredDevice not supported prior to 5.3")
 					}
@@ -259,7 +261,9 @@ func TestAccadministrativeMultiplePrivilegesValidation52(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					c := testAccProvider.Meta().(*Client)
+					c.GetToken()
+					currentVersion := c.ApplianceVersion
 					if currentVersion.GreaterThanOrEqual(Appliance53Version) {
 						t.Skip("Test is only for 5.2, privileges.target OnBoardedDevice")
 					}
@@ -303,20 +307,20 @@ func testAccCheckadministrativeRoleMultiplePrivlegesConfig(context map[string]in
 resource "appgatesdp_administrative_role" "test_administrative_role_129" {
 	name  = "%{name}"
 	tags  = ["aa", "bb", "cc"]
-	
+
 	privileges {
 		type   = "View"
 		target = "%{target}"
-	
+
 		scope {
 		all = true
 		}
 	}
-	
+
 	privileges {
 		type   = "Delete"
 		target = "%{target}"
-	
+
 		scope {
 		all = true
 		}

@@ -82,7 +82,7 @@ func testAccCheckMfaProviderExists(resource string) resource.TestCheckFunc {
 
 		_, _, err := api.MfaProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
 		if err != nil {
-			return fmt.Errorf("error fetching device script with resource %s. %s", resource, err)
+			return fmt.Errorf("error fetching mfa_provider with resource %s. %s", resource, err)
 		}
 		return nil
 	}
@@ -99,7 +99,7 @@ func testAccCheckMfaProviderDestroy(s *terraform.State) error {
 
 		_, _, err := api.MfaProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
 		if err == nil {
-			return fmt.Errorf("Device script still exists, %+v", err)
+			return fmt.Errorf("mfa_provider still exists, %+v", err)
 		}
 	}
 	return nil

@@ -2160,7 +2160,9 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					c := testAccProvider.Meta().(*Client)
+					c.GetToken()
+					currentVersion := c.ApplianceVersion
 					if currentVersion.LessThan(Appliance54Version) {
 						t.Skip("Test only for 5.4 and above, appliance.portal is only supported in 5.4 and above.")
 					}
