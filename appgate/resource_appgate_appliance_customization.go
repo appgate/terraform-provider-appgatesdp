@@ -111,7 +111,10 @@ func resourceAppgateApplianceCustomizations() *schema.Resource {
 
 func resourceAppgateApplianceCustomizationCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Appliance customization: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ApplianceCustomizationsApi
 	args := openapi.NewApplianceCustomizationWithDefaults()
 	args.Id = uuid.New().String()
@@ -145,7 +148,10 @@ func resourceAppgateApplianceCustomizationCreate(d *schema.ResourceData, meta in
 
 func resourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Appliance customization id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ApplianceCustomizationsApi
 	ctx := context.TODO()
 	request := api.ApplianceCustomizationsIdGet(ctx, d.Id())
@@ -180,7 +186,10 @@ func resourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta inte
 
 func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Appliance customization: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ApplianceCustomizationsApi
 	ctx := context.TODO()
 	request := api.ApplianceCustomizationsIdGet(ctx, d.Id())
@@ -233,13 +242,13 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 
 func resourceAppgateApplianceCustomizationDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Appliance customization id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ApplianceCustomizationsApi
 
-	request := api.ApplianceCustomizationsIdDelete(context.TODO(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.ApplianceCustomizationsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Appliance customization %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

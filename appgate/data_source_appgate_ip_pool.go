@@ -28,7 +28,10 @@ func dataSourceAppgateIPPool() *schema.Resource {
 }
 
 func dataSourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.IPPoolsApi
 
 	ippoolID, iok := d.GetOk("ip_pool_id")

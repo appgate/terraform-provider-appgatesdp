@@ -69,12 +69,15 @@ func resourceAppgateRadiusProvider() *schema.Resource {
 
 func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating RadiusProvider: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderRadius
-	provider, err := readProviderFromConfig(d, *provider)
+	provider, err = readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderRadius, err)
 	}
@@ -147,7 +150,10 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading radius identity provider id: %+v", d.Id())
 
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
@@ -212,7 +218,10 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 
 func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating radius identity provider id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())

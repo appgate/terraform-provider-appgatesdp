@@ -29,7 +29,10 @@ func dataSourceAppgateAppliance() *schema.Resource {
 
 func dataSourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source Appliance")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.AppliancesApi
 
 	applianceID, iok := d.GetOk("appliance_id")

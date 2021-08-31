@@ -42,13 +42,15 @@ func resourceAppgateLicense() *schema.Resource {
 
 func resourceAppgateLicenseCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating license")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LicenseApi
 	args := openapi.NewLicenseImportWithDefaults()
 	args.SetLicense(d.Get("license").(string))
-	request := api.LicensePost(context.TODO())
-	_, _, err := request.LicenseImport(*args).Authorization(token).Execute()
-	if err != nil {
+
+	if _, _, err := api.LicensePost(context.TODO()).LicenseImport(*args).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not create license %+v", prettyPrintAPIError(err))
 	}
 	return resourceAppgateLicenseRead(d, meta)
@@ -60,7 +62,10 @@ func getLicenseIdentifier(license openapi.LicenseDetails) string {
 
 func resourceAppgateLicenseRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading license")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LicenseApi
 	ctx := context.TODO()
 	request := api.LicenseGet(ctx)
@@ -76,13 +81,13 @@ func resourceAppgateLicenseRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceAppgateLicenseDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete license")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LicenseApi
 
-	request := api.LicenseDelete(context.TODO())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.LicenseDelete(context.TODO()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete license %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

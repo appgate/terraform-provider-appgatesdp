@@ -28,7 +28,10 @@ func dataSourceCriteriaScript() *schema.Resource {
 }
 
 func dataSourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{}) error {
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.CriteriaScriptsApi
 
 	criteraScriptID, iok := d.GetOk("criteria_script_id")

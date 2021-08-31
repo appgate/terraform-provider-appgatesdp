@@ -62,12 +62,15 @@ func resourceAppgateSamlProvider() *schema.Resource {
 
 func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating SamlProvider: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.SamlIdentityProvidersApi
 	ctx := context.TODO()
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderSaml
-	provider, err := readProviderFromConfig(d, *provider)
+	provider, err = readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderSaml, err)
 	}
@@ -140,7 +143,10 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading saml identity provider id: %+v", d.Id())
 
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.SamlIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
@@ -195,7 +201,10 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 
 func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating saml identity provider id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.SamlIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())

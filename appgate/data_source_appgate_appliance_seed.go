@@ -49,7 +49,10 @@ func dataSourceAppgateApplianceSeed() *schema.Resource {
 }
 
 func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}) error {
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.AppliancesApi
 	ctx := context.TODO()
 	applianceID, iok := d.GetOk("appliance_id")

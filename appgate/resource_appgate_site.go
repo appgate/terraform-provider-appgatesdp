@@ -442,7 +442,10 @@ func resourceAppgateSite() *schema.Resource {
 
 func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Site: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewSiteWithDefaults()
@@ -511,7 +514,10 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Site Name: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 
@@ -778,7 +784,10 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 
 func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Site: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.SitesIdGet(context.Background(), d.Id())
@@ -870,11 +879,13 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAppgateSiteDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete Site: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
-	api := meta.(*Client).API.SitesApi
-	request := api.SitesIdDelete(context.Background(), d.Id())
-	_, err := request.Authorization(token).Execute()
+	token, err := meta.(*Client).GetToken()
 	if err != nil {
+		return err
+	}
+	api := meta.(*Client).API.SitesApi
+
+	if _, err := api.SitesIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Failed to delete Site, %+v", err)
 	}
 	d.SetId("")

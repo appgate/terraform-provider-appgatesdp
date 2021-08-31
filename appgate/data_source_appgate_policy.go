@@ -38,7 +38,10 @@ func dataSourceAppgatePolicy() *schema.Resource {
 
 func dataSourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source policy")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.PoliciesApi
 	ctx := context.Background()
 

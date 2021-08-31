@@ -30,7 +30,10 @@ func dataSourceAppgateIdentityProvider() *schema.Resource {
 
 func dataSourceAppgateIdentityProviderRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source identity provider")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.IdentityProvidersApi
 
 	providerID, iok := d.GetOk("identity_provider_id")

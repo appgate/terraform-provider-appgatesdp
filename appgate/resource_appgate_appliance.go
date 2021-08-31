@@ -1068,7 +1068,10 @@ func resourceAppgateAppliance() *schema.Resource {
 func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Appliance with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewApplianceWithDefaults()
@@ -1459,7 +1462,10 @@ func readNetworkHostFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 
 func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Appliance Name: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.Background()
@@ -2101,7 +2107,10 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Appliance: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.AppliancesIdGet(ctx, d.Id())
@@ -2311,7 +2320,10 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete Appliance: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.AppliancesApi
 	ctx := context.Background()
 

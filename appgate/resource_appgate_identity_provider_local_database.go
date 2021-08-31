@@ -52,7 +52,10 @@ func resourceAppgateLocalDatabaseProviderRuleDelete(d *schema.ResourceData, meta
 func resourceAppgateLocalDatabaseProviderRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	// we aren'ẗ allowed to create new additional local identity providers, but we can update existing
 	// with terraform import.
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LocalDatabaseIdentityProvidersApi
 	ctx := context.TODO()
 	localDatabase, err := getBuiltinLocalDatabaseProviderUUID(ctx, *api, token)
@@ -84,7 +87,10 @@ func getBuiltinLocalDatabaseProviderUUID(ctx context.Context, api openapi.LocalD
 func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading localDatabase identity provider")
 
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LocalDatabaseIdentityProvidersApi
 	ctx := context.TODO()
 	localDatabase, err := getBuiltinLocalDatabaseProviderUUID(ctx, *api, token)
@@ -136,7 +142,10 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 
 func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating localDatabase identity provider id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LocalDatabaseIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())

@@ -138,7 +138,10 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Reading Global settings id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.GlobalSettingsApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.GlobalSettingsGet(ctx)
@@ -182,7 +185,10 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 
 func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Updating Global settings")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.GlobalSettingsApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.GlobalSettingsGet(ctx)
@@ -263,12 +269,13 @@ func resourceGlobalSettingsDelete(ctx context.Context, d *schema.ResourceData, m
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Delete Global settings")
-	token := meta.(*Client).Token
-	api := meta.(*Client).API.GlobalSettingsApi
-	request := api.GlobalSettingsDelete(context.TODO())
-
-	_, err := request.Authorization(token).Execute()
+	token, err := meta.(*Client).GetToken()
 	if err != nil {
+		return diag.FromErr(err)
+	}
+	api := meta.(*Client).API.GlobalSettingsApi
+
+	if _, err := api.GlobalSettingsDelete(context.Background()).Authorization(token).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not reset Global settings %+v", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

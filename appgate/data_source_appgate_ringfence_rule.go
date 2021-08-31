@@ -38,7 +38,10 @@ func dataSourceAppgateRingfenceRule() *schema.Resource {
 
 func dataSourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source Ringfence Rules")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.RingfenceRulesApi
 	ctx := context.Background()
 	ringfenceID, iok := d.GetOk("ringfence_rule_id")

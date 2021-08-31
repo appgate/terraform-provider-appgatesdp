@@ -63,7 +63,10 @@ func resourceAppgateCriteriaScript() *schema.Resource {
 
 func resourceAppgateCriteriaScriptCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Criteria script: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.CriteriaScriptsApi
 	args := openapi.NewCriteriaScriptWithDefaults()
 	args.Id = uuid.New().String()
@@ -90,7 +93,10 @@ func resourceAppgateCriteriaScriptCreate(d *schema.ResourceData, meta interface{
 
 func resourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Criteria script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.CriteriaScriptsApi
 	ctx := context.TODO()
 	request := api.CriteriaScriptsIdGet(ctx, d.Id())
@@ -113,7 +119,10 @@ func resourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{})
 func resourceAppgateCriteriaScriptUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Criteria script: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Updating Criteria script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.CriteriaScriptsApi
 	ctx := context.TODO()
 	request := api.CriteriaScriptsIdGet(ctx, d.Id())
@@ -150,13 +159,13 @@ func resourceAppgateCriteriaScriptUpdate(d *schema.ResourceData, meta interface{
 func resourceAppgateCriteriaScriptDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete Criteria script: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Reading Criteria script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.CriteriaScriptsApi
 
-	request := api.CriteriaScriptsIdDelete(context.TODO(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.CriteriaScriptsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Criteria script %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

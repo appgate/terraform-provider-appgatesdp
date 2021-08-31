@@ -156,7 +156,10 @@ func resourceAppgatePolicy() *schema.Resource {
 func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Policy with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.PoliciesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewPolicyWithDefaults()
@@ -287,7 +290,10 @@ func readProxyAutoConfigFromConfig(proxyAutoConfigs []interface{}) openapi.Polic
 func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Policy with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.PoliciesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.PoliciesIdGet(ctx, d.Id())
@@ -358,7 +364,10 @@ func flattenTrustedNetworkCheck(in openapi.PolicyAllOfTrustedNetworkCheck) ([]in
 func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating policy: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.PoliciesApi
 	request := api.PoliciesIdGet(ctx, d.Id())
 	orginalPolicy, _, err := request.Authorization(token).Execute()
@@ -462,7 +471,10 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 func resourceAppgatePolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete Policy with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.PoliciesApi
 
 	// Get policy

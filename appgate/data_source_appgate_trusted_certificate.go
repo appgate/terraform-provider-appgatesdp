@@ -30,7 +30,10 @@ func dataSourceAppgateTrustedCertificate() *schema.Resource {
 
 func dataSourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source trusted certificate")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.TrustedCertificatesApi
 
 	trustedCertID, iok := d.GetOk("trusted_certificate_id")

@@ -30,7 +30,10 @@ func dataSourceAppgateMfaProvider() *schema.Resource {
 
 func dataSourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source MFA provider")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.MFAProvidersApi
 
 	providerID, iok := d.GetOk("mfa_provider_id")

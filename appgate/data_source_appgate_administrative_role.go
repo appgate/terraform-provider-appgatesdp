@@ -31,7 +31,10 @@ func dataSourceAppgateAdministrativeRole() *schema.Resource {
 
 func dataSourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Data source Administrative role")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.AdministrativeRolesApi
 
 	adminID, iok := d.GetOk("administrative_role_id")

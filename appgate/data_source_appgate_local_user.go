@@ -30,7 +30,10 @@ func dataSourceAppgateLocalUser() *schema.Resource {
 
 func dataSourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source local user")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LocalUsersApi
 
 	userID, iok := d.GetOk("local_user_id")

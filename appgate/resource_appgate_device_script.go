@@ -82,7 +82,10 @@ func resourceAppgateDeviceScript() *schema.Resource {
 
 func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Device script: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 	args := openapi.NewDeviceScriptWithDefaults()
 	args.Id = uuid.New().String()
@@ -115,7 +118,10 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 
 func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Device script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 	ctx := context.TODO()
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
@@ -138,7 +144,10 @@ func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) e
 func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Device script: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Updating Device script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 	ctx := context.TODO()
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
@@ -181,13 +190,13 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 func resourceAppgateDeviceScriptDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete Device script: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Reading Device script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 
-	request := api.DeviceScriptsIdDelete(context.TODO(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.DeviceScriptsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Device script %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

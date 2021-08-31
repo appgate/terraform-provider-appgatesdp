@@ -38,12 +38,15 @@ func resourceAppgateLdapProvider() *schema.Resource {
 
 func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating LdapProvider: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LdapIdentityProvidersApi
 	ctx := context.TODO()
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderLdap
-	provider, err := readProviderFromConfig(d, *provider)
+	provider, err = readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdap, err)
 	}
@@ -136,7 +139,10 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading ldap identity provider id: %+v", d.Id())
 
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LdapIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
@@ -241,7 +247,10 @@ func readLdapPasswordWarningFromConfig(input []interface{}) openapi.LdapProvider
 
 func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating ldap identity provider id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LdapIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
