@@ -45,12 +45,12 @@ type Client struct {
 
 // AppgateConfigFile used with  "config_path"
 type AppgateConfigFile struct {
-	URL           string `json:"appgate_url"`
-	Username      string `json:"appgate_username"`
-	Password      string `json:"appgate_password"`
-	Provider      string `json:"appgate_provider"`
-	ClientVersion int    `json:"appgate_client_version"`
-	Insecure      bool   `json:"appgate_insecure"`
+	URL           string `json:"appgate_url,omitempty"`
+	Username      string `json:"appgate_username,omitempty"`
+	Password      string `json:"appgate_password,omitempty"`
+	Provider      string `json:"appgate_provider,omitempty"`
+	ClientVersion int    `json:"appgate_client_version,omitempty"`
+	Insecure      bool   `json:"appgate_insecure,omitempty"`
 }
 
 // Client creates
@@ -118,11 +118,15 @@ func guessVersion(response *openapi.LoginResponse, clientVersion int) (*version.
 // GetToken makes first login and initiate the client towards the controller.
 // this is always the first made
 func (c *Client) GetToken() (string, error) {
+	if len(c.Token) > 0 {
+		return c.Token, nil
+	}
 	cfg := c.Config
 	response, err := c.login()
 	if err != nil {
 		return "", err
 	}
+
 	latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
 	if err != nil {
 		return "", err
@@ -134,9 +138,9 @@ func (c *Client) GetToken() (string, error) {
 	}
 	c.ApplianceVersion = currentVersion
 	c.LatestSupportedVersion = latestSupportedVersion
-	token := fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
+	c.Token = fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
 
-	return token, nil
+	return c.Token, nil
 }
 
 func (c *Client) login() (*openapi.LoginResponse, error) {

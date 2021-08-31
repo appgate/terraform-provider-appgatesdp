@@ -186,12 +186,23 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			})
 			return nil, diags
 		}
-		config.URL = configFile.URL
-		config.Username = configFile.Username
-		config.Password = configFile.Password
-		config.Provider = configFile.Provider
-		config.Version = configFile.ClientVersion
+		if len(configFile.URL) > 0 {
+			config.URL = configFile.URL
+		}
+		if len(config.Username) > 0 {
+			config.Username = configFile.Username
+		}
+		if len(config.Password) > 0 {
+			config.Password = configFile.Password
+		}
+		if len(config.Provider) > 0 {
+			config.Provider = configFile.Provider
+		}
+		if config.Version > 0 {
+			config.Version = configFile.ClientVersion
+		}
 		config.Insecure = configFile.Insecure
+
 	} else if !requiredParameters(d) {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -213,7 +224,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if v, ok := d.GetOk("provider"); ok {
 		config.Provider = v.(string)
 	}
-	if v, ok := d.GetOk("Insecure"); ok {
+	if v, ok := d.GetOk("insecure"); ok {
 		config.Insecure = v.(bool)
 	}
 	if v, ok := d.GetOk("provider"); ok {
@@ -225,6 +236,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if v, ok := d.GetOk("client_version"); ok {
 		config.Version = v.(int)
 	}
+
 	c, err := config.Client()
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
