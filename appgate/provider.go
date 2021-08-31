@@ -81,7 +81,6 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CONFIG_PATH", nil),
 				Description: "Path to the appgate config file. Can be set with APPGATE_CONFIG_PATH.",
-				// ConflictsWith: []string{"url"},
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -177,7 +176,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			return nil, diags
 		}
 		defer file.Close()
-		configFile := AppgateConfigFile{}
+		configFile := Config{}
 		if err := json.NewDecoder(file).Decode(&configFile); err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
@@ -186,23 +185,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			})
 			return nil, diags
 		}
-		if len(configFile.URL) > 0 {
-			config.URL = configFile.URL
-		}
-		if len(config.Username) > 0 {
-			config.Username = configFile.Username
-		}
-		if len(config.Password) > 0 {
-			config.Password = configFile.Password
-		}
-		if len(config.Provider) > 0 {
-			config.Provider = configFile.Provider
-		}
-		if config.Version > 0 {
-			config.Version = configFile.ClientVersion
-		}
-		config.Insecure = configFile.Insecure
-
+		config = configFile
 	} else if !requiredParameters(d) {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -236,7 +219,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if v, ok := d.GetOk("client_version"); ok {
 		config.Version = v.(int)
 	}
-
 	c, err := config.Client()
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{

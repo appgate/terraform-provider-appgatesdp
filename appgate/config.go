@@ -22,14 +22,14 @@ const (
 
 // Config for appgate provider.
 type Config struct {
-	URL      string
-	Username string
-	Password string
-	Provider string
-	Insecure bool
-	Timeout  int
-	Debug    bool
-	Version  int
+	URL      string `json:"appgate_url,omitempty"`
+	Username string `json:"appgate_username,omitempty"`
+	Password string `json:"appgate_password,omitempty"`
+	Provider string `json:"appgate_provider,omitempty"`
+	Insecure bool   `json:"appgate_insecure,omitempty"`
+	Timeout  int    `json:"appgate_timeout,omitempty"`
+	Debug    bool   `json:"appgate_http_debug,omitempty"`
+	Version  int    `json:"appgate_client_version,omitempty"`
 }
 
 // Client is the appgate API client.
@@ -41,16 +41,6 @@ type Client struct {
 	ClientVersion          int
 	API                    *openapi.APIClient
 	Config                 *Config
-}
-
-// AppgateConfigFile used with  "config_path"
-type AppgateConfigFile struct {
-	URL           string `json:"appgate_url,omitempty"`
-	Username      string `json:"appgate_username,omitempty"`
-	Password      string `json:"appgate_password,omitempty"`
-	Provider      string `json:"appgate_provider,omitempty"`
-	ClientVersion int    `json:"appgate_client_version,omitempty"`
-	Insecure      bool   `json:"appgate_insecure,omitempty"`
 }
 
 // Client creates
