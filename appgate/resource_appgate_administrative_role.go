@@ -136,7 +136,10 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	var diags diag.Diagnostics
 
 	log.Printf("[DEBUG] Creating Administrative role: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.AdministrativeRolesApi
 	args := openapi.NewAdministrativeRoleWithDefaults()
 	args.Id = uuid.New().String()
@@ -235,7 +238,10 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Reading Administrative role id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.AdministrativeRolesApi
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
 	administrativeRole, _, err := request.Authorization(token).Execute()
@@ -304,7 +310,10 @@ func flattenAdministrativeRolePrivilegesScope(scope openapi.AdministrativePrivil
 
 func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Updating Administrative role: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.AdministrativeRolesApi
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
 	originalAdministrativeRole, _, err := request.Authorization(token).Execute()
@@ -345,13 +354,12 @@ func resourceAppgateAdministrativeRoleDelete(ctx context.Context, d *schema.Reso
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Delete Administrative role: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
-	api := meta.(*Client).API.AdministrativeRolesApi
-
-	request := api.AdministrativeRolesIdDelete(ctx, d.Id())
-
-	_, err := request.Authorization(token).Execute()
+	token, err := meta.(*Client).GetToken()
 	if err != nil {
+		return diag.FromErr(err)
+	}
+	api := meta.(*Client).API.AdministrativeRolesApi
+	if _, err := api.AdministrativeRolesIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete Administrative role %+v", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

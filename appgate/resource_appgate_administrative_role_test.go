@@ -145,7 +145,10 @@ func TestAccadministrativeRoleWithScope(t *testing.T) {
 
 func testAccCheckadministrativeRoleExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.AdministrativeRolesApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -157,8 +160,7 @@ func testAccCheckadministrativeRoleExists(resource string) resource.TestCheckFun
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching Administrative Role with resource %s. %s", resource, err)
 		}
 		return nil
@@ -171,11 +173,13 @@ func testAccCheckadministrativeRoleDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.AdministrativeRolesApi
 
-		_, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("Administrative Role still exists, %+v", err)
 		}
 	}
@@ -205,7 +209,9 @@ func TestAccadministrativeMultiplePrivilegesValidation(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					c := testAccProvider.Meta().(*Client)
+					c.GetToken()
+					currentVersion := c.ApplianceVersion
 					if currentVersion.LessThan(Appliance53Version) {
 						t.Skip("Test only for 5.3 and above, privileges.target RegisteredDevice not supported prior to 5.3")
 					}
@@ -259,7 +265,9 @@ func TestAccadministrativeMultiplePrivilegesValidation52(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					c := testAccProvider.Meta().(*Client)
+					c.GetToken()
+					currentVersion := c.ApplianceVersion
 					if currentVersion.GreaterThanOrEqual(Appliance53Version) {
 						t.Skip("Test is only for 5.2, privileges.target OnBoardedDevice")
 					}
@@ -303,20 +311,20 @@ func testAccCheckadministrativeRoleMultiplePrivlegesConfig(context map[string]in
 resource "appgatesdp_administrative_role" "test_administrative_role_129" {
 	name  = "%{name}"
 	tags  = ["aa", "bb", "cc"]
-	
+
 	privileges {
 		type   = "View"
 		target = "%{target}"
-	
+
 		scope {
 		all = true
 		}
 	}
-	
+
 	privileges {
 		type   = "Delete"
 		target = "%{target}"
-	
+
 		scope {
 		all = true
 		}

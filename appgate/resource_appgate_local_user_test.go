@@ -65,7 +65,10 @@ resource "appgatesdp_local_user" "test_local_user" {
 
 func testAccCheckLocalUserExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.LocalUsersApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -77,8 +80,7 @@ func testAccCheckLocalUserExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.LocalUsersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.LocalUsersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching local user with resource %s. %s", resource, err)
 		}
 		return nil
@@ -91,11 +93,13 @@ func testAccCheckLocalUserDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.LocalUsersApi
 
-		_, _, err := api.LocalUsersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.LocalUsersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("local user still exists, %+v", err)
 		}
 	}

@@ -28,7 +28,10 @@ func dataSourceDeviceScript() *schema.Resource {
 }
 
 func dataSourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) error {
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 
 	deviceScriptID, iok := d.GetOk("device_script_id")

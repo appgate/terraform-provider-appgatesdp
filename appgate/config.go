@@ -22,14 +22,14 @@ const (
 
 // Config for appgate provider.
 type Config struct {
-	URL      string
-	Username string
-	Password string
-	Provider string
-	Insecure bool
-	Timeout  int
-	Debug    bool
-	Version  int
+	URL      string `json:"appgate_url,omitempty"`
+	Username string `json:"appgate_username,omitempty"`
+	Password string `json:"appgate_password,omitempty"`
+	Provider string `json:"appgate_provider,omitempty"`
+	Insecure bool   `json:"appgate_insecure,omitempty"`
+	Timeout  int    `json:"appgate_timeout,omitempty"`
+	Debug    bool   `json:"appgate_http_debug,omitempty"`
+	Version  int    `json:"appgate_client_version,omitempty"`
 }
 
 // Client is the appgate API client.
@@ -40,6 +40,7 @@ type Client struct {
 	LatestSupportedVersion *version.Version
 	ClientVersion          int
 	API                    *openapi.APIClient
+	Config                 *Config
 }
 
 // Client creates
@@ -77,26 +78,10 @@ func (c *Config) Client() (*Client, error) {
 		return nil, errors.New("failed to initialize api client")
 	}
 
-	response, err := login(apiClient, c)
-	if err != nil {
-		return nil, err
-	}
-
-	latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
-	if err != nil {
-		return nil, err
-	}
-
-	currentVersion, err := guessVersion(response, c.Version)
-	if err != nil {
-		return nil, err
-	}
 	client := &Client{
-		API:                    apiClient,
-		Token:                  fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token)),
-		ApplianceVersion:       currentVersion,
-		ClientVersion:          c.Version,
-		LatestSupportedVersion: latestSupportedVersion,
+		API:           apiClient,
+		ClientVersion: c.Version,
+		Config:        c,
 	}
 
 	return client, nil
@@ -120,16 +105,44 @@ func guessVersion(response *openapi.LoginResponse, clientVersion int) (*version.
 	return nil, fmt.Errorf("could not determine appliance version with client version %d", clientVersion)
 }
 
-func login(apiClient *openapi.APIClient, cfg *Config) (*openapi.LoginResponse, error) {
+// GetToken makes first login and initiate the client towards the controller.
+// this is always the first made
+func (c *Client) GetToken() (string, error) {
+	if len(c.Token) > 0 {
+		return c.Token, nil
+	}
+	cfg := c.Config
+	response, err := c.login()
+	if err != nil {
+		return "", err
+	}
+
+	latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
+	if err != nil {
+		return "", err
+	}
+
+	currentVersion, err := guessVersion(response, cfg.Version)
+	if err != nil {
+		return "", err
+	}
+	c.ApplianceVersion = currentVersion
+	c.LatestSupportedVersion = latestSupportedVersion
+	c.Token = fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
+
+	return c.Token, nil
+}
+
+func (c *Client) login() (*openapi.LoginResponse, error) {
 	ctx := context.Background()
 	loginOpts := openapi.LoginRequest{
-		ProviderName: cfg.Provider,
-		Username:     openapi.PtrString(cfg.Username),
-		Password:     openapi.PtrString(cfg.Password),
+		ProviderName: c.Config.Provider,
+		Username:     openapi.PtrString(c.Config.Username),
+		Password:     openapi.PtrString(c.Config.Password),
 		DeviceId:     uuid.New().String(),
 	}
 
-	loginResponse, _, err := apiClient.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
+	loginResponse, _, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
 	if err != nil {
 		return nil, prettyPrintAPIError(err)
 	}

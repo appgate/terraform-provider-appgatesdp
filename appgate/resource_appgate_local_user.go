@@ -78,7 +78,10 @@ func resourceAppgateLocalUser() *schema.Resource {
 
 func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Local user: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LocalUsersApi
 	args := openapi.NewLocalUserWithDefaults()
 	args.Id = uuid.New().String()
@@ -137,7 +140,10 @@ func parseDateTimeString(input string) (*time.Time, error) {
 
 func resourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Local user id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LocalUsersApi
 	ctx := context.TODO()
 	request := api.LocalUsersIdGet(ctx, d.Id())
@@ -167,7 +173,10 @@ func resourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceAppgateLocalUserUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Local user: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LocalUsersApi
 	ctx := context.TODO()
 	request := api.LocalUsersIdGet(ctx, d.Id())
@@ -242,13 +251,13 @@ func resourceAppgateLocalUserUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAppgateLocalUserDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Local user id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LocalUsersApi
 
-	request := api.LocalUsersIdDelete(context.TODO(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.LocalUsersIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Local user %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

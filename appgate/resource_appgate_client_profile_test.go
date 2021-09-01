@@ -47,7 +47,10 @@ resource "appgatesdp_client_profile" "test_client_profile" {
 
 func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.ClientConnectionsApi
 
 		rs, ok := state.RootModule().Resources[resource]

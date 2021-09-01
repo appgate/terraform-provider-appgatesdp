@@ -51,12 +51,15 @@ func resourceAppgateLdapCertificateProvider() *schema.Resource {
 
 func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating LdapCertificateProvider: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderLdapCertificate
-	provider, err := readProviderFromConfig(d, *provider)
+	provider, err = readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdapCertificate, err)
 	}
@@ -166,7 +169,10 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading ldap identity provider id: %+v", d.Id())
 
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
@@ -246,7 +252,10 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 
 func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating ldap identity provider id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())

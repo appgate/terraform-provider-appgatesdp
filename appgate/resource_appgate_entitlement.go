@@ -260,7 +260,10 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 	var diags diag.Diagnostics
 
 	log.Printf("[DEBUG] Creating Entitlement: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.EntitlementsApi
 
 	args := openapi.NewEntitlementWithDefaults()
@@ -327,7 +330,10 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 
 	log.Printf("[DEBUG] Reading Entitlement Name: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Reading Entitlement id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.EntitlementsApi
 
 	request := api.EntitlementsIdGet(ctx, d.Id())
@@ -430,7 +436,10 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 	log.Printf("[DEBUG] Updating Entitlement: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Updating Entitlement id: %+v", d.Id())
 	var diags diag.Diagnostics
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.EntitlementsApi
 
 	request := api.EntitlementsIdGet(ctx, d.Id())
@@ -514,13 +523,13 @@ func resourceAppgateEntitlementRuleDelete(ctx context.Context, d *schema.Resourc
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Delete Entitlement: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Reading Entitlement id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.EntitlementsApi
 
-	request := api.EntitlementsIdDelete(context.Background(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.EntitlementsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete Entitlement %+v", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

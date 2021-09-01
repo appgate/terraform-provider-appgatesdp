@@ -50,7 +50,10 @@ func resourceAppgateBlacklistUser() *schema.Resource {
 
 func resourceAppgateBlacklistUserCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating blacklisted user")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.BlacklistedUsersApi
 	args := openapi.NewBlacklistEntryWithDefaults()
 
@@ -96,7 +99,10 @@ func queryEntry(ctx context.Context, api *openapi.BlacklistedUsersApiService, to
 
 func resourceAppgateBlacklistUserRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading blacklisted user id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.BlacklistedUsersApi
 	entry, err := queryEntry(context.TODO(), api, token, d.Id())
 	if err != nil {
@@ -112,13 +118,13 @@ func resourceAppgateBlacklistUserRead(d *schema.ResourceData, meta interface{}) 
 
 func resourceAppgateBlacklistUserDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading blacklisted user id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.BlacklistedUsersApi
 
-	request := api.BlacklistDistinguishedNameDelete(context.TODO(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.BlacklistDistinguishedNameDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete blacklisted user %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

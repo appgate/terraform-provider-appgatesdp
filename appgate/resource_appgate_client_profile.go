@@ -67,7 +67,7 @@ func getIdFromProfile(profile openapi.ClientConnectionsProfiles) string {
 func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create Client Profile %s", d.Get("name"))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+
 	api := meta.(*Client).API.ClientConnectionsApi
 
 	err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
@@ -77,6 +77,10 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 		time.Sleep(time.Duration(duration) * time.Second)
 		if err := applianceStatsRetryable(ctx, meta); err != nil {
 			return err
+		}
+		token, err := meta.(*Client).GetToken()
+		if err != nil {
+			return resource.RetryableError(err)
 		}
 		clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 		if err != nil {
@@ -116,7 +120,10 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 
 func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Client Profile id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ClientConnectionsApi
 	ctx := context.Background()
 	clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
@@ -144,7 +151,10 @@ func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) 
 func resourceAppgateClientProfileUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Client Profile %+v", d.Id())
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ClientConnectionsApi
 	clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 	if err != nil {
@@ -181,7 +191,6 @@ func resourceAppgateClientProfileUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete client profile %+v", d.Id())
-	token := meta.(*Client).Token
 	ctx := context.Background()
 	api := meta.(*Client).API.ClientConnectionsApi
 
@@ -192,6 +201,10 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 		time.Sleep(time.Duration(duration) * time.Second)
 		if err := applianceStatsRetryable(ctx, meta); err != nil {
 			return err
+		}
+		token, err := meta.(*Client).GetToken()
+		if err != nil {
+			return resource.RetryableError(err)
 		}
 		clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 		if err != nil {

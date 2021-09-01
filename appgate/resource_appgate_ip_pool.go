@@ -86,7 +86,10 @@ func resourceAppgateIPPool() *schema.Resource {
 
 func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Ip pool: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.IPPoolsApi
 	args := openapi.NewIpPoolWithDefaults()
 	args.Id = uuid.New().String()
@@ -146,7 +149,10 @@ func readIPPoolRangesFromConfig(ranges []interface{}) ([]openapi.IpPoolAllOfRang
 
 func resourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Ip pool id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.IPPoolsApi
 	ctx := context.TODO()
 	request := api.IpPoolsIdGet(ctx, d.Id())
@@ -191,7 +197,10 @@ func flattenIPPoolRanges(in []openapi.IpPoolAllOfRanges) []map[string]interface{
 
 func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Ip pool: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.IPPoolsApi
 	ctx := context.TODO()
 	request := api.IpPoolsIdGet(ctx, d.Id())
@@ -240,13 +249,13 @@ func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error
 
 func resourceAppgateIPPoolDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete Ip pool: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.IPPoolsApi
 
-	request := api.IpPoolsIdDelete(context.TODO(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.IpPoolsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Ip pool %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

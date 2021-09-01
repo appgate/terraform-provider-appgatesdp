@@ -133,7 +133,10 @@ func resourceAppgateRingfenceRule() *schema.Resource {
 func resourceAppgateRingfenceRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Ringfence rule with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.RingfenceRulesApi
 
 	args := openapi.NewRingfenceRuleWithDefaults()
@@ -167,7 +170,10 @@ func resourceAppgateRingfenceRuleCreate(d *schema.ResourceData, meta interface{}
 func resourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read Ringfence rule with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.RingfenceRulesApi
 	request := api.RingfenceRulesIdGet(ctx, d.Id())
 	ringfenceRule, _, err := request.Authorization(token).Execute()
@@ -216,7 +222,10 @@ func flattenRingfenceActions(in []openapi.RingfenceRuleAllOfActions) []map[strin
 func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Ringfence rule with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.RingfenceRulesApi
 	request := api.RingfenceRulesIdGet(ctx, d.Id())
 	originalRingfenceRule, _, err := request.Authorization(token).Execute()
@@ -255,7 +264,10 @@ func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceAppgateRingfenceRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete Ringfence rule: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.RingfenceRulesApi
 	ctx := context.Background()
 

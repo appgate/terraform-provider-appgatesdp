@@ -53,7 +53,10 @@ func testAccCheckClientConnectionsBasic() string {
 
 func testAccCheckClientConnectionsExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.ClientConnectionsApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -65,8 +68,7 @@ func testAccCheckClientConnectionsExists(resource string) resource.TestCheckFunc
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.ClientConnectionsGet(context.Background()).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.ClientConnectionsGet(context.Background()).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching ClientConnections with resource %s. %s", resource, err)
 		}
 		return nil

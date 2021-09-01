@@ -56,7 +56,10 @@ func dataSourceAppgateSite() *schema.Resource {
 
 func dataSourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source Site")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.SitesApi
 
 	siteID, iok := d.GetOk("site_id")

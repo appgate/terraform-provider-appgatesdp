@@ -47,7 +47,10 @@ func resourceAppgateTrustedCertificate() *schema.Resource {
 
 func resourceAppgateTrustedCertificateCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating trusted certificate: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.TrustedCertificatesApi
 	args := openapi.NewTrustedCertificateWithDefaults()
 	args.Id = uuid.New().String()
@@ -75,7 +78,10 @@ func resourceAppgateTrustedCertificateCreate(d *schema.ResourceData, meta interf
 
 func resourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading trusted certificate id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.TrustedCertificatesApi
 	ctx := context.TODO()
 	request := api.TrustedCertificatesIdGet(ctx, d.Id())
@@ -97,7 +103,10 @@ func resourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interfac
 
 func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating trusted certificate: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.TrustedCertificatesApi
 	ctx := context.TODO()
 	request := api.TrustedCertificatesIdGet(ctx, d.Id())
@@ -133,13 +142,13 @@ func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interf
 
 func resourceAppgateTrustedCertificateDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete trusted certificate: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.TrustedCertificatesApi
 
-	request := api.TrustedCertificatesIdDelete(context.TODO(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.TrustedCertificatesIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete trusted certificate %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

@@ -55,7 +55,10 @@ resource "appgatesdp_global_settings" "test_global_settings" {
 
 func testAccCheckGlobalSettingsExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.GlobalSettingsApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -67,8 +70,7 @@ func testAccCheckGlobalSettingsExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.GlobalSettingsGet(context.Background()).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.GlobalSettingsGet(context.Background()).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching global settings with resource %s. %s", resource, err)
 		}
 		return nil
@@ -93,7 +95,9 @@ func TestAccGlobalSettings54ProfileHostname(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
+					c := testAccProvider.Meta().(*Client)
+					c.GetToken()
+					currentVersion := c.ApplianceVersion
 					if currentVersion.LessThan(Appliance54Version) {
 						t.Skipf("Test only for 5.4 and above, client_connections profile_hostname is not supported prior to 5.4, you are using %s", currentVersion.String())
 					}

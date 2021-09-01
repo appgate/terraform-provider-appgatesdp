@@ -30,7 +30,10 @@ func dataSourceAppgateApplianceCustomization() *schema.Resource {
 
 func dataSourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Data source Appliance customization")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ApplianceCustomizationsApi
 
 	applianceID, iok := d.GetOk("appliance_customization_id")

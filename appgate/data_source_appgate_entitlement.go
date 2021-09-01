@@ -31,7 +31,10 @@ func dataSourceAppgateEntitlement() *schema.Resource {
 func dataSourceAppgateEntitlementRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.EntitlementsApi
 
 	entitlementID, iok := d.GetOk("entitlement_id")

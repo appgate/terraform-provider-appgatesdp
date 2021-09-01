@@ -61,7 +61,10 @@ EOF
 
 func testAccCheckDeviceScriptExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.DeviceClaimScriptsApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -73,8 +76,7 @@ func testAccCheckDeviceScriptExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.DeviceScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.DeviceScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching device script with resource %s. %s", resource, err)
 		}
 		return nil
@@ -87,11 +89,13 @@ func testAccCheckDeviceScriptDestroy(s *terraform.State) error {
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.DeviceClaimScriptsApi
 
-		_, _, err := api.DeviceScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.DeviceScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("Device script still exists, %+v", err)
 		}
 	}

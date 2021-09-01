@@ -152,7 +152,7 @@ var (
 `
 )
 
-func TestConfig(t *testing.T) {
+func TestConfigGetToken(t *testing.T) {
 
 	type fields struct {
 		ResponseBody string
@@ -210,11 +210,19 @@ func TestConfig(t *testing.T) {
 				Version:  tt.clientVersion,
 			}
 			appgateClient, err := c.Client()
+			if err != nil {
+				t.Errorf("Got err, expected None %s", err)
+				return
+			}
+			if appgateClient == nil {
+				return
+			}
+			token, err := appgateClient.GetToken()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Config.Client() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if appgateClient == nil && tt.wantErr {
+			if tt.wantErr && (err != nil) {
 				return
 			}
 
@@ -229,7 +237,7 @@ func TestConfig(t *testing.T) {
 			if !appgateClient.LatestSupportedVersion.Equal(latestSupportedVersion) {
 				t.Fatalf("Expected Latest Version%s, got %s", tt.expectedVersion, appgateClient.ApplianceVersion)
 			}
-			if appgateClient.Token != "Bearer very-long-string" {
+			if token != "Bearer very-long-string" {
 				t.Fatalf("Expected token Bearer very-long-string, got %s", appgateClient.Token)
 			}
 		})

@@ -40,7 +40,10 @@ func resourceAdminMfaSettingsCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAdminMfaSettingsRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading MFA admin settings id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.MFAForAdminsApi
 	ctx := context.TODO()
 	request := api.AdminMfaSettingsGet(ctx)
@@ -61,7 +64,10 @@ func resourceAdminMfaSettingsRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceAdminMfaSettingsUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating MFA admin settings")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.MFAForAdminsApi
 	ctx := context.TODO()
 	request := api.AdminMfaSettingsGet(ctx)
@@ -95,13 +101,13 @@ func resourceAdminMfaSettingsUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAdminMfaSettingsDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete/Resetting MFA admin settings")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.MFAForAdminsApi
 
-	request := api.AdminMfaSettingsDelete(context.TODO())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.AdminMfaSettingsDelete(context.TODO()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could reset MFA admin settings %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

@@ -77,7 +77,10 @@ func resourceClientConnectionsCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceClientConnectionsRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Client Connections id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ClientConnectionsApi
 	ctx := context.TODO()
 	request := api.ClientConnectionsGet(ctx)
@@ -115,7 +118,10 @@ func resourceClientConnectionsRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceClientConnectionsUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Client Connections")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ClientConnectionsApi
 	ctx := context.TODO()
 	request := api.ClientConnectionsGet(ctx)
@@ -171,13 +177,13 @@ func readClientConnectionProfilesFromConfig(input []interface{}) []openapi.Clien
 
 func resourceClientConnectionsDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete/Resetting Client Connections")
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ClientConnectionsApi
 
-	request := api.ClientConnectionsDelete(context.TODO())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.ClientConnectionsDelete(context.Background()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could reset Client Connections %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

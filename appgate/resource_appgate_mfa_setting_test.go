@@ -46,7 +46,10 @@ resource "appgatesdp_admin_mfa_settings" "test_example_mfa_settings" {
 
 func testAccCheckAdminMfaSettingsExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.MFAForAdminsApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -58,8 +61,7 @@ func testAccCheckAdminMfaSettingsExists(resource string) resource.TestCheckFunc 
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.AdminMfaSettingsGet(context.Background()).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.AdminMfaSettingsGet(context.Background()).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching AdminMfaSettings with resource %s. %s", resource, err)
 		}
 		return nil

@@ -47,7 +47,10 @@ func resourceAppgateConnectorProviderRuleDelete(d *schema.ResourceData, meta int
 func resourceAppgateConnectorProviderRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	// we aren'ẗ allowed to create new additional local identity providers, but we can update existing
 	// with terraform import.
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ConnectorIdentityProvidersApi
 	ctx := context.TODO()
 	connectorIP, err := getBuiltinConnectorProviderUUID(ctx, *api, token)
@@ -79,7 +82,10 @@ func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorI
 func resourceAppgateConnectorProviderRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading connectorIP identity provider")
 
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ConnectorIdentityProvidersApi
 	ctx := context.TODO()
 	connectorIP, err := getBuiltinConnectorProviderUUID(ctx, *api, token)
@@ -117,7 +123,10 @@ func resourceAppgateConnectorProviderRuleRead(d *schema.ResourceData, meta inter
 
 func resourceAppgateConnectorProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating connectorIP identity provider id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ConnectorIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())

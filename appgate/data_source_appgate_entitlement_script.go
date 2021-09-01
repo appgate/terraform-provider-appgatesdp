@@ -28,7 +28,10 @@ func dataSourceEntitlementScript() *schema.Resource {
 }
 
 func dataSourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface{}) error {
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.EntitlementScriptsApi
 
 	entitlementScriptID, iok := d.GetOk("entitlement_script_id")

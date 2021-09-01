@@ -68,7 +68,10 @@ func resourceAppgateEntitlementScript() *schema.Resource {
 
 func resourceAppgateEntitlementScriptCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Entitlement script: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.EntitlementScriptsApi
 	args := openapi.NewEntitlementScriptWithDefaults()
 	args.Id = uuid.New().String()
@@ -98,7 +101,10 @@ func resourceAppgateEntitlementScriptCreate(d *schema.ResourceData, meta interfa
 
 func resourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Entitlement script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.EntitlementScriptsApi
 	ctx := context.TODO()
 	request := api.EntitlementScriptsIdGet(ctx, d.Id())
@@ -122,7 +128,10 @@ func resourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface
 func resourceAppgateEntitlementScriptUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating Entitlement script: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Updating Entitlement script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.EntitlementScriptsApi
 	ctx := context.TODO()
 	request := api.EntitlementScriptsIdGet(ctx, d.Id())
@@ -163,13 +172,13 @@ func resourceAppgateEntitlementScriptUpdate(d *schema.ResourceData, meta interfa
 func resourceAppgateEntitlementScriptDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete Entitlement script: %s", d.Get("name").(string))
 	log.Printf("[DEBUG] Reading Entitlement script id: %+v", d.Id())
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.EntitlementScriptsApi
 
-	request := api.EntitlementScriptsIdDelete(context.TODO(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.EntitlementScriptsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Entitlement script %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

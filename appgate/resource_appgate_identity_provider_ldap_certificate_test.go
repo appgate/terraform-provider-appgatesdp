@@ -193,7 +193,10 @@ EOF
 
 func testAccCheckLdapCertificateIdentityProvidervExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.LdapCertificateIdentityProvidersApi
 
 		rs, ok := state.RootModule().Resources[resource]
@@ -205,8 +208,7 @@ func testAccCheckLdapCertificateIdentityProvidervExists(resource string) resourc
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		_, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err != nil {
+		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
 			return fmt.Errorf("error fetching ldap identity provider with resource %s. %s", resource, err)
 		}
 		return nil
@@ -219,11 +221,13 @@ func testAccCheckLdapCertificateIdentityProvidervDestroy(s *terraform.State) err
 			continue
 		}
 
-		token := testAccProvider.Meta().(*Client).Token
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
 		api := testAccProvider.Meta().(*Client).API.LdapCertificateIdentityProvidersApi
 
-		_, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute()
-		if err == nil {
+		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("ldap identity provider still exists, %+v", err)
 		}
 	}

@@ -130,7 +130,10 @@ func resourceAppgateCondition() *schema.Resource {
 func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Condition with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ConditionsApi
 	currentVersion := meta.(*Client).ApplianceVersion
 
@@ -185,7 +188,10 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Reading Condition Name: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ConditionsApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.Background()
@@ -232,7 +238,10 @@ func flattenConditionRemedyMethods(in []openapi.ConditionAllOfRemedyMethods) []m
 func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating condition: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ConditionsApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.ConditionsIdGet(ctx, d.Id())
@@ -293,7 +302,10 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 func resourceAppgateConditionDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete condition with name: %s", d.Get("name").(string))
 	ctx := context.Background()
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.ConditionsApi
 
 	// Get condition

@@ -471,13 +471,13 @@ func readIdentityProviderOnDemandClaimMappingFromConfig(input []interface{}) []m
 
 func identityProviderDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete LdapProvider: %s", d.Get("name").(string))
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return err
+	}
 	api := meta.(*Client).API.IdentityProvidersApi
 
-	request := api.IdentityProvidersIdDelete(context.Background(), d.Id())
-
-	_, err := request.Authorization(token).Execute()
-	if err != nil {
+	if _, err := api.IdentityProvidersIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could not delete LdapProvider %+v", prettyPrintAPIError(err))
 	}
 	d.SetId("")

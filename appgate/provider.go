@@ -2,8 +2,10 @@ package appgate
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
+	"os"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -73,6 +75,12 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", DefaultClientVersion),
+			},
+			"config_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CONFIG_PATH", nil),
+				Description: "Path to the appgate config file. Can be set with APPGATE_CONFIG_PATH.",
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -146,8 +154,39 @@ func requiredParameters(d *schema.ResourceData) bool {
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
+	config := Config{}
+	config.Timeout = 20
 
-	if !requiredParameters(d) {
+	if path, ok := d.GetOkExists("config_path"); ok {
+		p := path.(string)
+		file, err := os.OpenFile(p, os.O_RDWR, 0644)
+		if errors.Is(err, os.ErrNotExist) {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Missing Appgate SDP credentials",
+				Detail:   fmt.Sprintf("appgate config_path file not found %s", err),
+			})
+			return nil, diags
+		} else if err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Missing Appgate SDP credentials",
+				Detail:   err.Error(),
+			})
+			return nil, diags
+		}
+		defer file.Close()
+		configFile := Config{}
+		if err := json.NewDecoder(file).Decode(&configFile); err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Missing Appgate SDP credentials",
+				Detail:   fmt.Sprintf("appgate config_path invalid json format %s", err),
+			})
+			return nil, diags
+		}
+		config = configFile
+	} else if !requiredParameters(d) {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Missing Appgate SDP credentials",
@@ -155,25 +194,36 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		})
 		return nil, diags
 	}
-	username := d.Get("username").(string)
-	password := d.Get("password").(string)
-	url := d.Get("url").(string)
-	v := d.Get("client_version").(int)
-	config := Config{
-		URL:      url,
-		Username: username,
-		Password: password,
-		Provider: d.Get("provider").(string),
-		Insecure: d.Get("insecure").(bool),
-		Timeout:  20,
-		Debug:    d.Get("debug").(bool),
-		Version:  v,
+	// overwrite config file value with ENV Variables or set attributes in the provider block
+	if v, ok := d.GetOk("username"); ok {
+		config.Username = v.(string)
+	}
+	if v, ok := d.GetOk("password"); ok {
+		config.Password = v.(string)
+	}
+	if v, ok := d.GetOk("url"); ok {
+		config.URL = v.(string)
+	}
+	if v, ok := d.GetOk("provider"); ok {
+		config.Provider = v.(string)
+	}
+	if v, ok := d.GetOk("insecure"); ok {
+		config.Insecure = v.(bool)
+	}
+	if v, ok := d.GetOk("provider"); ok {
+		config.Provider = v.(string)
+	}
+	if v, ok := d.GetOk("debug"); ok {
+		config.Debug = v.(bool)
+	}
+	if v, ok := d.GetOk("client_version"); ok {
+		config.Version = v.(int)
 	}
 	c, err := config.Client()
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to create Appgate SDP SDK client v%d", v),
+			Summary:  fmt.Sprintf("Unable to create Appgate SDP SDK client v%d", config.Version),
 			Detail:   fmt.Sprintf("Unable to authenticate user for authenticated Appgate SDP client %s", err),
 		})
 
@@ -182,18 +232,11 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if c == nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to create Appgate SDP SDK client v%d", v),
+			Summary:  fmt.Sprintf("Unable to create Appgate SDP SDK client v%d", config.Version),
 			Detail:   "Appgate sdp client is nil, internal error",
 		})
 		return nil, diags
 	}
-	if c.ApplianceVersion.LessThan(c.LatestSupportedVersion) {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  fmt.Sprintf("You are using old version of Appgate SDP SDK client v%d", v),
-			Detail:   "You are using an outdated version of appgate appliances, you should consider updating to the latest version.",
-		})
-	}
-	log.Printf("[INFO] Appgate SDP Appliance Version %q client version v%d", c.ApplianceVersion, c.ClientVersion)
+
 	return c, diags
 }

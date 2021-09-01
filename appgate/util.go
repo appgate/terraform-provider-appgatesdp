@@ -214,7 +214,10 @@ func Nprintf(format string, params map[string]interface{}) string {
 
 func applianceStatsRetryable(ctx context.Context, meta interface{}) *resource.RetryError {
 	statsAPI := meta.(*Client).API.ApplianceStatsApi
-	token := meta.(*Client).Token
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return resource.RetryableError(err)
+	}
 	stats, _, err := statsAPI.StatsAppliancesGet(ctx).Authorization(token).Execute()
 	if err != nil {
 		return resource.RetryableError(err)
