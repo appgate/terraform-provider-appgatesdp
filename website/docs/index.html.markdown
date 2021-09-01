@@ -68,12 +68,36 @@ $ export APPGATE_INSECURE="true"
 $ terraform plan
 ```
 
+### Config file
+
+Configure appgatesdp with a config file, can be combined with environment variables, if an `APPGATE_` environment variable is set, they take precedence over the config file.
+
+```hcl
+provider "appgatesdp" {
+  config_path = var.appgate_config_file
+}
+```
+
+example config file format
+```json
+{
+    "appgate_url": "https://controller.appgate/admin",
+    "appgate_username": "admin",
+    "appgate_password": "admin",
+    "appgate_provider": "local",
+    "appgate_client_version": 15,
+    "appgate_insecure": true
+}
+
+```
 
 ## Argument Reference
 
 In addition to [generic `provider` arguments](https://www.terraform.io/docs/configuration/providers.html)
 (e.g. `alias` and `version`), the following arguments are supported in the Appgate
  `provider` block:
+
+* `config_path` - (Optional) Configure appgatesdp with a config file, if any environment variables is set, they take precedence.
 
 * `username` - (Optional) This is the Appgate username. It must be provided, but
   it can also be sourced from the `APPGATE_USERNAME` environment variable.
