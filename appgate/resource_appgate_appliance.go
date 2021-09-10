@@ -2168,7 +2168,16 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return err
 		}
-		originalAppliance.SetAdminInterface(ainterface)
+		// since admin_interface is Optional, but admin_interface.hostname is required
+		// if it set, we will make sure that hostname is not None before we send the request
+		// to avoid sending empty fields in the request body.
+		// otherwise, admin_interface has been removed, and we can set admin_interface to nil
+		// and it will be omitted from the PUT request.
+		if v, ok := ainterface.GetHostnameOk(); ok && v != nil && len(*v) > 0 {
+			originalAppliance.SetAdminInterface(ainterface)
+		} else {
+			originalAppliance.AdminInterface = nil
+		}
 	}
 
 	if d.HasChange("networking") {
@@ -2418,8 +2427,8 @@ func readAdminInterfaceFromConfig(adminInterfaces []interface{}) (openapi.Applia
 		}
 
 		raw := admin.(map[string]interface{})
-		if v, ok := raw["hostname"]; ok {
-			aInterface.SetHostname(v.(string))
+		if v, ok := raw["hostname"].(string); ok && len(v) > 0 {
+			aInterface.SetHostname(v)
 		}
 		if v, ok := raw["https_port"]; ok {
 			aInterface.SetHttpsPort(int32(v.(int)))
