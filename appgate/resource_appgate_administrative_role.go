@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
@@ -244,10 +245,12 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 	}
 	api := meta.(*Client).API.AdministrativeRolesApi
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
-	administrativeRole, _, err := request.Authorization(token).Execute()
+	administrativeRole, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return diag.FromErr(fmt.Errorf("Failed to read Administrative role, %+v", err))
 	}
 	d.SetId(administrativeRole.Id)

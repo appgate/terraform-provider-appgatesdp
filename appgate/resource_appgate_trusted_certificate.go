@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -85,10 +86,12 @@ func resourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interfac
 	api := meta.(*Client).API.TrustedCertificatesApi
 	ctx := context.TODO()
 	request := api.TrustedCertificatesIdGet(ctx, d.Id())
-	trustedCertificate, _, err := request.Authorization(token).Execute()
+	trustedCertificate, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read trusted certificate, %+v", err)
 	}
 	d.SetId(trustedCertificate.Id)

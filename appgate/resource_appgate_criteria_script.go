@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -100,10 +101,12 @@ func resourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{})
 	api := meta.(*Client).API.CriteriaScriptsApi
 	ctx := context.TODO()
 	request := api.CriteriaScriptsIdGet(ctx, d.Id())
-	criteraScript, _, err := request.Authorization(token).Execute()
+	criteraScript, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Criteria script, %+v", err)
 	}
 	d.SetId(criteraScript.Id)

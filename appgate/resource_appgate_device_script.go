@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -125,10 +126,12 @@ func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) e
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 	ctx := context.TODO()
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
-	deviceScript, _, err := request.Authorization(token).Execute()
+	deviceScript, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Device script, %+v", err)
 	}
 	d.SetId(deviceScript.Id)

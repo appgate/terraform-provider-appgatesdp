@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -1470,9 +1471,12 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.Background()
 	request := api.AppliancesIdGet(ctx, d.Id())
-	appliance, _, err := request.Authorization(token).Execute()
+	appliance, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Appliance, %+v", err)
 	}
 	d.Set("appliance_id", appliance.Id)

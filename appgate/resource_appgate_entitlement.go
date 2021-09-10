@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"sort"
 	"time"
 
@@ -337,10 +338,12 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 	api := meta.(*Client).API.EntitlementsApi
 
 	request := api.EntitlementsIdGet(ctx, d.Id())
-	entitlement, _, err := request.Authorization(token).Execute()
+	entitlement, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return diag.FromErr(fmt.Errorf("Failed to read Entitlement, %+v", err))
 	}
 	d.SetId(entitlement.Id)

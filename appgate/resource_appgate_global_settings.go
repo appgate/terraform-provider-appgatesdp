@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -145,9 +146,12 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	api := meta.(*Client).API.GlobalSettingsApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.GlobalSettingsGet(ctx)
-	settings, _, err := request.Authorization(token).Execute()
+	settings, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return diag.FromErr(fmt.Errorf("Failed to read Global settings, %+v", err))
 	}
 	d.SetId(settings.GetCollectiveId())

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -108,10 +109,12 @@ func resourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface
 	api := meta.(*Client).API.EntitlementScriptsApi
 	ctx := context.TODO()
 	request := api.EntitlementScriptsIdGet(ctx, d.Id())
-	EntitlementScript, _, err := request.Authorization(token).Execute()
+	EntitlementScript, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Entitlement script, %+v", err)
 	}
 	d.SetId(EntitlementScript.Id)
