@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -155,9 +156,12 @@ func resourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta inte
 	api := meta.(*Client).API.ApplianceCustomizationsApi
 	ctx := context.TODO()
 	request := api.ApplianceCustomizationsIdGet(ctx, d.Id())
-	customization, _, err := request.Authorization(token).Execute()
+	customization, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Appliance customization, %+v", err)
 	}
 	d.SetId(customization.Id)

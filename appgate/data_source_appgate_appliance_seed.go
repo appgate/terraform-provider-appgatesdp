@@ -5,6 +5,7 @@ import (
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
@@ -62,9 +63,12 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 	}
 
 	request := api.AppliancesIdGet(ctx, applianceID.(string))
-	appliance, _, err := request.Authorization(token).Execute()
+	appliance, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Appliance, %+v", err)
 	}
 	if ok, _ := appliance.GetActivatedOk(); *ok {

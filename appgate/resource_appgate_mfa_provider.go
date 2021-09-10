@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -217,10 +218,12 @@ func resourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) er
 	api := meta.(*Client).API.MFAProvidersApi
 	ctx := context.TODO()
 	request := api.MfaProvidersIdGet(ctx, d.Id())
-	mfaProvider, _, err := request.Authorization(token).Execute()
+	mfaProvider, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read MFA provider, %+v", err)
 	}
 	d.SetId(mfaProvider.Id)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -146,9 +147,12 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 	api := meta.(*Client).API.LdapIdentityProvidersApi
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	ldap, _, err := request.Authorization(token).Execute()
+	ldap, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
 	}
 	d.Set("type", identityProviderLdap)

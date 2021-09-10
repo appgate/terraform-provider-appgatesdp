@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -522,10 +523,12 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	currentVersion := meta.(*Client).ApplianceVersion
 
 	request := api.SitesIdGet(context.Background(), d.Id())
-	site, _, err := request.Authorization(token).Execute()
+	site, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Site, %+v", err)
 	}
 
@@ -792,10 +795,12 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.SitesIdGet(context.Background(), d.Id())
 
-	orginalSite, _, err := request.Authorization(token).Execute()
+	orginalSite, res, err := request.Authorization(token).Execute()
 	if err != nil {
-		// TODO check if 404
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Site, %+v", err)
 	}
 

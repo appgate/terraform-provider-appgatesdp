@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -196,9 +197,12 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.Background()
 	request := api.ConditionsIdGet(ctx, d.Id())
-	remoteCondition, _, err := request.Authorization(token).Execute()
+	remoteCondition, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
+		if res.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read Condition, %+v", err)
 	}
 	d.SetId(remoteCondition.Id)
