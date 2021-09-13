@@ -11,7 +11,8 @@ import (
 
 func TestAccCriteriaScriptBasic(t *testing.T) {
 	resourceName := "appgatesdp_criteria_script.test_criteria_script"
-	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	// Must always start with a letter.
+	rName := "aa" + RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
