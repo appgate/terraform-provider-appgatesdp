@@ -2332,3 +2332,245 @@ resource "appgatesdp_appliance" "test_portal" {
 }
 `, context)
 }
+
+// Test with admin_interface, then removed.
+// https://github.com/appgate/terraform-provider-appgatesdp/issues/153
+func TestAccApplianceAdminInterfaceAddRemove(t *testing.T) {
+	resourceName := "appgatesdp_appliance.appliance_one"
+	rName := RandStringFromCharSet(15, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckApplianceDestroy,
+
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApplianceWithAdminInterface(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "8443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "TCP"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "444"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_ciphers.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_ciphers.0", "ECDHE-RSA-AES256-GCM-SHA384"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_ciphers.1", "ECDHE-RSA-AES128-GCM-SHA256"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_port", "443"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccApplianceImportStateCheckFunc(1),
+				ImportStateVerifyIgnore: []string{
+					"site",
+					"seed_file",
+				},
+			},
+			{
+				Config: testAccApplianceWithoutAdminInterface(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "8443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "TCP"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
+
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "444"),
+
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func testAccApplianceWithAdminInterface(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+  site_name = "Default site"
+}
+resource "appgatesdp_appliance" "appliance_one" {
+	depends_on = [
+      data.appgatesdp_site.default_site
+	]
+	name     = "%{name}"
+	hostname = "%{hostname}"
+
+	client_interface {
+		hostname       = "%{hostname}"
+		proxy_protocol = true
+		https_port     = 8443
+		dtls_port      = 443
+		allow_sources {
+		  address = "0.0.0.0"
+		  netmask = 0
+		}
+		override_spa_mode = "TCP"
+	}
+
+	peer_interface {
+		hostname   = "%{hostname}"
+		https_port = "444"
+
+		allow_sources {
+		  address = "0.0.0.0"
+		  netmask = 0
+		}
+	}
+
+	admin_interface {
+		hostname = "%{hostname}"
+		https_ciphers = [
+		  "ECDHE-RSA-AES256-GCM-SHA384",
+		  "ECDHE-RSA-AES128-GCM-SHA256"
+		]
+	}
+
+	site = data.appgatesdp_site.default_site.id
+	networking {
+		nics {
+		enabled = true
+		name    = "eth0"
+		ipv4 {
+			dhcp {
+			enabled = true
+			dns     = true
+			routers = true
+			ntp     = true
+			}
+		}
+		}
+	}
+	}
+`, context)
+}
+
+func testAccApplianceWithoutAdminInterface(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+  site_name = "Default site"
+}
+resource "appgatesdp_appliance" "appliance_one" {
+	depends_on = [
+		data.appgatesdp_site.default_site
+	]
+	name     = "%{name}"
+	hostname = "%{hostname}"
+
+	client_interface {
+		hostname       = "%{hostname}"
+		proxy_protocol = true
+		https_port     = 8443
+		dtls_port      = 443
+		allow_sources {
+		  address = "0.0.0.0"
+		  netmask = 0
+		}
+		override_spa_mode = "TCP"
+	}
+
+	peer_interface {
+		hostname   = "%{hostname}"
+		https_port = "444"
+
+		allow_sources {
+		  address = "0.0.0.0"
+		  netmask = 0
+		}
+	}
+	site = data.appgatesdp_site.default_site.id
+	networking {
+		nics {
+		enabled = true
+		name    = "eth0"
+		ipv4 {
+			dhcp {
+			enabled = true
+			dns     = true
+			routers = true
+			ntp     = true
+			}
+		  }
+		}
+	}
+	}
+`, context)
+}
