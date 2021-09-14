@@ -597,18 +597,20 @@ func resourceAppgateAppliance() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				Computed: true,
+
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Type:             schema.TypeBool,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
 						},
 						"retention_days": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  30,
+							Type:             schema.TypeInt,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
 						},
 					},
 				},
@@ -1176,7 +1178,11 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return err
 		}
-		args.SetLogServer(logSrv)
+		if logSrv.GetEnabled() {
+			args.SetLogServer(logSrv)
+		} else {
+			args.LogServer = nil
+		}
 	}
 
 	if v, ok := d.GetOk("controller"); ok {
@@ -1597,11 +1603,15 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 
 	if v, ok := appliance.GetLogServerOk(); ok {
 		logsrv := make(map[string]interface{})
-		logsrv["enabled"] = v.GetEnabled()
-		logsrv["retention_days"] = v.GetRetentionDays()
-
-		if err := d.Set("log_server", []interface{}{logsrv}); err != nil {
-			return err
+		enabledLogServer := v.GetEnabled()
+		// we will only save log_server to the state ifs enabled,
+		// since all appliances include default log_server enabled: false in every response.
+		if enabledLogServer {
+			logsrv["enabled"] = enabledLogServer
+			logsrv["retention_days"] = v.GetRetentionDays()
+			if err := d.Set("log_server", []interface{}{logsrv}); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -2249,7 +2259,14 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return err
 		}
-		originalAppliance.SetLogServer(logSrv)
+		// we will only include log server in the request body if its enabled,
+		// otherwise we will omit it in the request body and let the controller compute the rest.
+		if logSrv.Enabled != nil && *logSrv.Enabled {
+			originalAppliance.SetLogServer(logSrv)
+		} else {
+			originalAppliance.LogServer = nil
+		}
+
 	}
 
 	if d.HasChange("controller") {
@@ -2624,14 +2641,13 @@ func readNTPFromConfig(ntps []interface{}) (openapi.ApplianceAllOfNtp, error) {
 
 func readLogServerFromConfig(logServers []interface{}) (openapi.ApplianceAllOfLogServer, error) {
 	srv := openapi.ApplianceAllOfLogServer{}
-	for _, ctrl := range logServers {
-		r := ctrl.(map[string]interface{})
-		val := openapi.ApplianceAllOfLogServer{}
-		if v, ok := r["enabled"]; ok {
-			val.SetEnabled(v.(bool))
+	for _, raw := range logServers {
+		r := raw.(map[string]interface{})
+		if v, ok := r["enabled"].(bool); ok {
+			srv.SetEnabled(v)
 		}
 		if v, ok := r["retention_days"]; ok {
-			val.SetRetentionDays(int32(v.(int)))
+			srv.SetRetentionDays(int32(v.(int)))
 		}
 	}
 	return srv, nil
