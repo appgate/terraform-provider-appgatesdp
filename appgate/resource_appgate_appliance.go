@@ -385,6 +385,7 @@ func resourceAppgateAppliance() *schema.Resource {
 						"dns_servers": {
 							Type:        schema.TypeSet,
 							Description: "DNS Server addresses.",
+							Set:         schema.HashString,
 							Optional:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -392,6 +393,7 @@ func resourceAppgateAppliance() *schema.Resource {
 						"dns_domains": {
 							Type:        schema.TypeSet,
 							Description: "DNS Search domains.",
+							Set:         schema.HashString,
 							Optional:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -2082,8 +2084,12 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 		networking["nics"] = nics
 	}
 
-	networking["dns_servers"] = in.GetDnsServers()
-	networking["dns_domains"] = in.GetDnsDomains()
+	if v, ok := in.GetDnsServersOk(); ok {
+		networking["dns_servers"] = schema.NewSet(schema.HashString, convertStringArrToInterface(*v))
+	}
+	if _, ok := in.GetDnsDomainsOk(); ok {
+		networking["dns_domains"] = schema.NewSet(schema.HashString, convertStringArrToInterface(in.GetDnsDomains()))
+	}
 
 	if v, ok := in.GetRoutesOk(); ok {
 		routes := make([]map[string]interface{}, 0)
@@ -2503,7 +2509,9 @@ func readNetworkingFromConfig(networks []interface{}) (openapi.ApplianceAllOfNet
 				dnsServers = append(dnsServers, dns.(string))
 			}
 		}
-		network.SetDnsServers(dnsServers)
+		if len(dnsServers) > 0 {
+			network.SetDnsServers(dnsServers)
+		}
 
 		dnsDomains := make([]string, 0)
 		if v, ok := rawNetwork["dns_domains"]; ok {
@@ -2512,7 +2520,9 @@ func readNetworkingFromConfig(networks []interface{}) (openapi.ApplianceAllOfNet
 				dnsDomains = append(dnsDomains, dns.(string))
 			}
 		}
-		network.SetDnsDomains(dnsDomains)
+		if len(dnsDomains) > 0 {
+			network.SetDnsDomains(dnsDomains)
+		}
 
 		if v := rawNetwork["routes"]; len(v.([]interface{})) > 0 {
 			routes, err := readNetworkRoutesFromConfig(v.([]interface{}))
