@@ -1722,7 +1722,7 @@ func flattenAppliancePortalProxyp12s(local map[string]interface{}, p12s []openap
 		raw["verify_upstream"] = p12.GetVerifyUpstream()
 		raw["subject_name"] = p12.GetSubjectName()
 		// content, and password not always known, not included in the response body
-		if state, ok := local["proxy_p12s"].([]interface{}); ok {
+		if state, ok := local["proxy_p12s"].([]interface{}); ok && state[k] != nil {
 			stateRow := state[k].(map[string]interface{})
 			raw["content"] = stateRow["content"].(string)
 			raw["password"] = stateRow["password"].(string)
