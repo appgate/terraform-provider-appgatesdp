@@ -12,7 +12,7 @@ import (
 func TestAccGlobalSettingsBasic(t *testing.T) {
 	resourceName := "appgatesdp_global_settings.test_global_settings"
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
