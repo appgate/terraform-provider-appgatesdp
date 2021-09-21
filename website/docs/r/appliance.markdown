@@ -541,13 +541,13 @@ Portal settings.
 #### https_p12
 PKCS12 object with X.509 certificate and private key.
 * `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
-* `content`: (Optional) Contents of the P12 file.
+* `content`: (Optional) Contents expects the filepath of the P12 file
 * `password`: (Optional) Password for the P12 file.
 * `subject_name`: (Computed) Subject name of the certificate in the file.
 #### proxy_p12s
 P12 files for proxying traffic to HTTPS endpoints.
 * `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
-* `content`: (Optional) Contents of the P12 file.
+* `content`: (Optional) Contents expects the filepath of the P12 file, Required if portal is enabled.
 * `password`: (Optional) Password for the P12 file.
 * `subject_name`: (Computed) Subject name of the certificate in the file.
 * `verify_upstream`: (Optional) Portal will verify upstream certificate of the endpoints.
