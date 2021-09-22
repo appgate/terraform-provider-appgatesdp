@@ -163,6 +163,7 @@ func TestConfigGetToken(t *testing.T) {
 		wantErr         bool
 		expectedVersion *version.Version
 		clientVersion   int
+		statusCode      int
 	}{
 		{
 			name: "test before 5.4",
@@ -172,6 +173,7 @@ func TestConfigGetToken(t *testing.T) {
 			wantErr:         false,
 			expectedVersion: version43Test,
 			clientVersion:   13,
+			statusCode:      http.StatusOK,
 		},
 		{
 			name: "test 5.4 login",
@@ -181,6 +183,7 @@ func TestConfigGetToken(t *testing.T) {
 			wantErr:         false,
 			expectedVersion: computed54TestVersion,
 			clientVersion:   15,
+			statusCode:      http.StatusOK,
 		},
 		{
 			name: "invalid client version",
@@ -190,6 +193,37 @@ func TestConfigGetToken(t *testing.T) {
 			wantErr:         true,
 			expectedVersion: computed54TestVersion,
 			clientVersion:   2222,
+			statusCode:      http.StatusOK,
+		},
+		{
+			name: "500 login response",
+			fields: fields{
+				ResponseBody: loginResponse54,
+			},
+			wantErr:         true,
+			expectedVersion: computed54TestVersion,
+			clientVersion:   15,
+			statusCode:      http.StatusInternalServerError,
+		},
+		{
+			name: "502 login response",
+			fields: fields{
+				ResponseBody: loginResponse54,
+			},
+			wantErr:         true,
+			expectedVersion: computed54TestVersion,
+			clientVersion:   15,
+			statusCode:      http.StatusBadGateway,
+		},
+		{
+			name: "503 login response",
+			fields: fields{
+				ResponseBody: loginResponse54,
+			},
+			wantErr:         true,
+			expectedVersion: computed54TestVersion,
+			clientVersion:   15,
+			statusCode:      http.StatusServiceUnavailable,
 		},
 	}
 	for _, tt := range tests {
@@ -198,16 +232,17 @@ func TestConfigGetToken(t *testing.T) {
 			defer teardown()
 			mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusOK)
+				w.WriteHeader(tt.statusCode)
 				fmt.Fprint(w, tt.fields.ResponseBody)
 				testMethod(t, r, http.MethodPost)
 
 			})
 			c := &Config{
-				URL:      fmt.Sprintf("http://localhost:%d", port),
-				Username: "admin",
-				Password: "admin",
-				Version:  tt.clientVersion,
+				URL:          fmt.Sprintf("http://localhost:%d", port),
+				Username:     "admin",
+				Password:     "admin",
+				Version:      tt.clientVersion,
+				LoginTimeout: 1,
 			}
 			appgateClient, err := c.Client()
 			if err != nil {

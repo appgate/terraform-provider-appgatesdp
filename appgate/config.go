@@ -24,14 +24,15 @@ const (
 
 // Config for appgate provider.
 type Config struct {
-	URL      string `json:"appgate_url,omitempty"`
-	Username string `json:"appgate_username,omitempty"`
-	Password string `json:"appgate_password,omitempty"`
-	Provider string `json:"appgate_provider,omitempty"`
-	Insecure bool   `json:"appgate_insecure,omitempty"`
-	Timeout  int    `json:"appgate_timeout,omitempty"`
-	Debug    bool   `json:"appgate_http_debug,omitempty"`
-	Version  int    `json:"appgate_client_version,omitempty"`
+	URL          string `json:"appgate_url,omitempty"`
+	Username     string `json:"appgate_username,omitempty"`
+	Password     string `json:"appgate_password,omitempty"`
+	Provider     string `json:"appgate_provider,omitempty"`
+	Insecure     bool   `json:"appgate_insecure,omitempty"`
+	Timeout      int    `json:"appgate_timeout,omitempty"`
+	LoginTimeout int    `json:"appgate_login_timeout,omitempty"`
+	Debug        bool   `json:"appgate_http_debug,omitempty"`
+	Version      int    `json:"appgate_client_version,omitempty"`
 }
 
 // Client is the appgate API client.
@@ -140,9 +141,16 @@ var exponentialBackOff = backoff.ExponentialBackOff{
 	RandomizationFactor: 0.5,
 	Multiplier:          1.5,
 	MaxInterval:         30 * time.Second,
-	MaxElapsedTime:      5 * time.Minute,
 	Stop:                backoff.Stop,
 	Clock:               backoff.SystemClock,
+}
+
+func (c *Client) loginTimoutDuration() time.Duration {
+	// This is just intend to be used within unit tests.
+	if c.Config.LoginTimeout > 0 {
+		return time.Duration(c.Config.LoginTimeout) * time.Second
+	}
+	return 5 * time.Minute
 }
 
 func (c *Client) login() (*openapi.LoginResponse, error) {
@@ -159,6 +167,7 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 	// it might take awhile for the controller to startup and be responsive, so until its up it can return 500, 502, 503
 	// these status code is treated as retryable errors, during exponentialBackOff.MaxElapsedTime window.
 	// we will use this exponential backoff to retry until we get a 200-400 HTTP response from /login
+	exponentialBackOff.MaxElapsedTime = c.loginTimoutDuration()
 	loginResponse := &openapi.LoginResponse{}
 	err := backoff.Retry(func() error {
 		login, response, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
