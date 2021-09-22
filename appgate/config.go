@@ -5,11 +5,13 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 
 	"github.com/google/uuid"
@@ -22,14 +24,15 @@ const (
 
 // Config for appgate provider.
 type Config struct {
-	URL      string `json:"appgate_url,omitempty"`
-	Username string `json:"appgate_username,omitempty"`
-	Password string `json:"appgate_password,omitempty"`
-	Provider string `json:"appgate_provider,omitempty"`
-	Insecure bool   `json:"appgate_insecure,omitempty"`
-	Timeout  int    `json:"appgate_timeout,omitempty"`
-	Debug    bool   `json:"appgate_http_debug,omitempty"`
-	Version  int    `json:"appgate_client_version,omitempty"`
+	URL          string `json:"appgate_url,omitempty"`
+	Username     string `json:"appgate_username,omitempty"`
+	Password     string `json:"appgate_password,omitempty"`
+	Provider     string `json:"appgate_provider,omitempty"`
+	Insecure     bool   `json:"appgate_insecure,omitempty"`
+	Timeout      int    `json:"appgate_timeout,omitempty"`
+	LoginTimeout int    `json:"appgate_login_timeout,omitempty"`
+	Debug        bool   `json:"appgate_http_debug,omitempty"`
+	Version      int    `json:"appgate_client_version,omitempty"`
 }
 
 // Client is the appgate API client.
@@ -133,6 +136,23 @@ func (c *Client) GetToken() (string, error) {
 	return c.Token, nil
 }
 
+var exponentialBackOff = backoff.ExponentialBackOff{
+	InitialInterval:     500 * time.Millisecond,
+	RandomizationFactor: 0.5,
+	Multiplier:          1.5,
+	MaxInterval:         30 * time.Second,
+	Stop:                backoff.Stop,
+	Clock:               backoff.SystemClock,
+}
+
+func (c *Client) loginTimoutDuration() time.Duration {
+	// This is just intend to be used within unit tests.
+	if c.Config.LoginTimeout > 0 {
+		return time.Duration(c.Config.LoginTimeout) * time.Second
+	}
+	return 5 * time.Minute
+}
+
 func (c *Client) login() (*openapi.LoginResponse, error) {
 	ctx := context.Background()
 	loginOpts := openapi.LoginRequest{
@@ -142,9 +162,33 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 		DeviceId:     uuid.New().String(),
 	}
 
-	loginResponse, _, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
+	// Since /login is the first request we do, it provide us the earliest check if a controller is up and running
+	// if the appgatesdp provider is combined with, for example  aws_instance where we create the inital controller
+	// it might take awhile for the controller to startup and be responsive, so until its up it can return 500, 502, 503
+	// these status code is treated as retryable errors, during exponentialBackOff.MaxElapsedTime window.
+	// we will use this exponential backoff to retry until we get a 200-400 HTTP response from /login
+	exponentialBackOff.MaxElapsedTime = c.loginTimoutDuration()
+	loginResponse := &openapi.LoginResponse{}
+	err := backoff.Retry(func() error {
+		login, response, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
+		if response == nil {
+			log.Printf("[DEBUG] Login failed, No response %s", err)
+			return fmt.Errorf("No response from controller %w", err)
+		}
+		if response.StatusCode >= 500 {
+			log.Printf("[DEBUG] Login failed, controller not responding, got HTTP %d", response.StatusCode)
+			return fmt.Errorf("Controller got %w", err)
+		}
+		if err != nil {
+			log.Printf("[DEBUG] Login failed permanently, got HTTP %d", response.StatusCode)
+			return &backoff.PermanentError{Err: err}
+		}
+		loginResponse = &login
+		return nil
+	}, &exponentialBackOff)
 	if err != nil {
 		return nil, prettyPrintAPIError(err)
 	}
-	return &loginResponse, nil
+	log.Printf("[DEBUG] Login OK")
+	return loginResponse, nil
 }
