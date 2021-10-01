@@ -5,6 +5,7 @@ import (
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
@@ -19,6 +20,10 @@ func dataSourceAppgateApplianceSeed() *schema.Resource {
 			"appliance_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"activated": {
+				Type:     schema.TypeBool,
+				Computed: true,
 			},
 			"provide_cloud_ssh_key": {
 				Type:          schema.TypeBool,
@@ -43,6 +48,7 @@ func dataSourceAppgateApplianceSeed() *schema.Resource {
 			"seed_file": {
 				Type:        schema.TypeString,
 				Description: "Seed file (json) generated from appliance used in remote-exec.",
+				Sensitive:   true,
 				Computed:    true,
 			},
 		},
@@ -71,9 +77,15 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 		}
 		return fmt.Errorf("Failed to read Appliance, %+v", err)
 	}
+
+	d.SetId(applianceID.(string))
+	d.Set("appliance_id", appliance.Id)
+	d.Set("activated", appliance.GetActivated())
+
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		d.Set("seed_file", "")
-		return fmt.Errorf("Appliance is already activated, %+v", err)
+		log.Printf("[DEBUG] Appliance is already seeded")
+		return nil
 	}
 
 	exportRequest := api.AppliancesIdExportPost(ctx, appliance.Id)
@@ -108,8 +120,6 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Could not parse json seed file: %+v", err)
 	}
 
-	d.SetId(applianceID.(string))
-	d.Set("appliance_id", appliance.Id)
 	d.Set("seed_file", b64.StdEncoding.EncodeToString([]byte(encodedSeed)))
 
 	return nil
