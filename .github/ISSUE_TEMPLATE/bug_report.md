@@ -40,7 +40,7 @@ appgate appliance version: X.X.X
 
 <!--- Please list the affected resources and data sources. --->
 
-* appgate_XXXXX
+* appgatesdp_XXXXX
 
 ### Terraform Configuration Files
 
