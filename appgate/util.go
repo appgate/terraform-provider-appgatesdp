@@ -62,7 +62,6 @@ func tagsSchema() *schema.Schema {
 		StateFunc: func(val interface{}) string {
 			return strings.ToLower(val.(string))
 		},
-		DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
 		Set: func(v interface{}) int {
 			var buf bytes.Buffer
 			str := v.(string)
