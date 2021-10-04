@@ -30,6 +30,8 @@ explained below:
 
 - Static credentials
 - Environment variables
+- Config file
+- Bearer Token
 
 ### Static credentials
 
@@ -44,6 +46,7 @@ Usage:
 
 ```hcl
 provider "appgatesdp" {
+  url      = "https://appgate.controller.com:444/admin"
   username = "admin"
   password = "admin"
   provider = "local"
@@ -65,6 +68,7 @@ $ export APPGATE_USERNAME="admin"
 $ export APPGATE_PASSWORD="admin"
 $ export APPGATE_PROVIDER="local"
 $ export APPGATE_INSECURE="true"
+$ export APPGATE_BEARER_TOKEN="" # optional, used instead of username and password.
 $ terraform plan
 ```
 
@@ -90,6 +94,35 @@ example config file format
 }
 
 ```
+
+### Bearer Token
+
+You can provide the Authorization Bearer token directly to the provider if you do not want to provide a username and password directly. The bearer token will subsequent be used in all resource. So its important to note that the user has the correct privileges. The bearer token can be combined with other environment variables, arguments and config file to complete the configuration of the provider. This method can be convient if you want to provision the user and authorization outside of terraform in an external program or script.
+
+
+Usage:
+
+In the example below, the token is saved to a file called `token` and exported as environment variable, you can ofcoure use it directly as environment variable.
+
+```bash
+$ cat token
+eyJjbGFpbXNUb2tlbiI6ImV5SmhiR2NpT2lKU1V6VXhNaUlzSW5wcGNDSTZJa1JGUmlJc0luUjVjQ0k2SWtwWFZDSjkuZUp5dGxkZVNvOGdTaHQ5RnQ3UldlRE1SRTNFUVRoZ2hoSlhZbUlzQ0NpT004RWhNOUxzZnVuZmpuSDJBdmF2SytwTE1yQ0wvL0wwYm55VnMxR1QzWXdkU2xrd0FCL1pVUk1aN01xR3BQVWV3M0o0aDhRUlBJZ0lGYkxMNzJCWERNTUV2SGtkeGJJK2hlNVIwTWVJSHp2d2cyVDl3Z21FNUx0d3crR3FMSGc3LzVLaC9jaGhMc1Y5Y1VneGowV1JUTWVRd01VRU5Ody9CL0psRU5NQUFFWEUweEVnUVkyeUVSaWtYa3hqR3hXZ2FFeDhiQTVLNmFENHUzcy9xR1lQcUsyWVQ5KzkyaElsUW....
+```
+
+```hcl
+provider "appgatesdp" {
+  # this block can be empty or omitted, either provider the URL as environment variable or in a config file.
+  url      = "https://appgate.controller.com:444/admin"
+}
+```
+
+
+```bash
+APPGATE_BEARER_TOKEN=`cat token` terraform apply -auto-approve
+```
+
+
+
 
 ## Argument Reference
 
