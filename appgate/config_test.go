@@ -278,3 +278,101 @@ func TestConfigGetToken(t *testing.T) {
 		})
 	}
 }
+
+func TestConfigValidate(t *testing.T) {
+	type fields struct {
+		URL          string
+		Username     string
+		Password     string
+		Provider     string
+		Insecure     bool
+		Timeout      int
+		LoginTimeout int
+		Debug        bool
+		Version      int
+		BearerToken  string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			name: "ok config minimum requried",
+			fields: fields{
+				URL:      "http://appgate.controller.com/admin",
+				Username: "admin",
+				Password: "admin",
+				Version:  DefaultClientVersion,
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid appgate URL",
+			fields: fields{
+				URL:      "appgate.controllercom/admin",
+				Username: "admin",
+				Password: "admin",
+				Version:  DefaultClientVersion,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid token",
+			fields: fields{
+				URL:         "http://appgate.controller.com/admin",
+				BearerToken: "not_b64_string",
+				Version:     DefaultClientVersion,
+			},
+			wantErr: true,
+		},
+		{
+			name: "base64 token",
+			fields: fields{
+				URL:         "http://appgate.controller.com/admin",
+				BearerToken: "aGVsbG93b3JsZC10aGlzLWlzLWEtcmVwbGFjZW1lbnQtdmFsdWUtZm9yLXRoZS1hdXRoLXRva2VuLXByb3ZpZGVkLWJ5LS9sb2dpbi1mcm9tLXRoZS1jb250cm9sbGVyCg==",
+				Version:     DefaultClientVersion,
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid client version",
+			fields: fields{
+				URL:      "http://appgate.controller.com/admin",
+				Username: "admin",
+				Password: "admin",
+				Version:  35,
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid username password",
+			fields: fields{
+				URL:      "http://appgate.controller.com/admin",
+				Username: "",
+				Password: "",
+				Version:  DefaultClientVersion,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &Config{
+				URL:          tt.fields.URL,
+				Username:     tt.fields.Username,
+				Password:     tt.fields.Password,
+				Provider:     tt.fields.Provider,
+				Insecure:     tt.fields.Insecure,
+				Timeout:      tt.fields.Timeout,
+				LoginTimeout: tt.fields.LoginTimeout,
+				Debug:        tt.fields.Debug,
+				Version:      tt.fields.Version,
+				BearerToken:  tt.fields.BearerToken,
+			}
+			if err := c.Validate(); (err != nil) != tt.wantErr {
+				t.Errorf("Config.Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

@@ -3,6 +3,7 @@ package appgate
 import (
 	"context"
 	"crypto/tls"
+	b64 "encoding/base64"
 	"errors"
 	"fmt"
 	"log"
@@ -33,6 +34,30 @@ type Config struct {
 	LoginTimeout int    `json:"appgate_login_timeout,omitempty"`
 	Debug        bool   `json:"appgate_http_debug,omitempty"`
 	Version      int    `json:"appgate_client_version,omitempty"`
+	BearerToken  string `json:"appgate_bearer_token,omitempty"`
+}
+
+// Validate makes sure we have minimum required configuration values to authenticate against the controller.
+func (c *Config) Validate() error {
+	if !isUrl(c.URL) {
+		return fmt.Errorf("Controller URL is mandatory, got %q", c.URL)
+	}
+	if len(c.BearerToken) > 0 {
+		_, err := b64.StdEncoding.DecodeString(c.BearerToken)
+		if err != nil {
+			return fmt.Errorf("appgate bearer_token set, but invalid format, expected base64 %s", err)
+		}
+	} else if len(c.Username) < 1 && len(c.Password) < 1 {
+		return fmt.Errorf("username and password required if appgate bearer token is empty")
+	}
+	keys := make([]int, 0, len(ApplianceVersionMap))
+	for k := range ApplianceVersionMap {
+		keys = append(keys, k)
+	}
+	if !contains(keys, c.Version) {
+		return fmt.Errorf("appgate client version invalid, got %d, default is %d", c.Version, DefaultClientVersion)
+	}
+	return nil
 }
 
 // Client is the appgate API client.
@@ -108,8 +133,12 @@ func guessVersion(response *openapi.LoginResponse, clientVersion int) (*version.
 }
 
 // GetToken makes first login and initiate the client towards the controller.
-// this is always the first made
+// this is always the first request made
 func (c *Client) GetToken() (string, error) {
+	if len(c.Config.BearerToken) > 0 {
+		log.Printf("[DEBUG] Authenticate with Bearer token provided as APPGATE_BEARER_TOKEN")
+		c.Token = fmt.Sprintf("Bearer %s", c.Config.BearerToken)
+	}
 	if len(c.Token) > 0 {
 		return c.Token, nil
 	}

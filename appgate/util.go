@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -155,6 +156,20 @@ func inArray(needle string, haystack []string) bool {
 		func(i int) bool { return haystack[i] >= needle })
 	if i < len(haystack) && haystack[i] == needle {
 		return true
+	}
+	return false
+}
+
+func isUrl(str string) bool {
+	u, err := url.Parse(str)
+	return err == nil && u.Scheme != "" && u.Host != ""
+}
+
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
 	}
 	return false
 }
