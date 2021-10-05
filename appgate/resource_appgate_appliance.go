@@ -160,10 +160,14 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"peer_interface": {
-				Type:       schema.TypeList,
-				Required:   true,
-				Deprecated: "peer_interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.",
-				MaxItems:   1,
+				Type:     schema.TypeList,
+				Required: true,
+				// TODO:
+				// Temporary removed this warning, since its not scheduled to be removed until the version after 5.5
+				// and since its still required for all existing supported versions, we will not show this error for the users.
+				//
+				// Deprecated: "peer_interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.",
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hostname": {
