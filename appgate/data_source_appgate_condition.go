@@ -52,6 +52,7 @@ func dataSourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.SetId(condition.Id)
+	d.Set("condition_id", condition.Id)
 	d.Set("condition_name", condition.Name)
 
 	return nil
