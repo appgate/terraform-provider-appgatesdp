@@ -309,6 +309,9 @@ Source configuration to allow via iptables.
 ### peer_interface
 The details of peer connection interface. Used by other appliances and administrative UI.
 
+!> **Warning:** peer_interface will be removed in future release. Estimated to be removed in the release after 5.5
+
+
 * `hostname`: (Required) Hostname to connect by the peers. It will be used to validate the appliance certificate. Example: appgate.company.com.
 * `https_port`:  (Optional)  default value `444` Port to connect for peer specific services.
 * `allow_sources`:  (Optional) Source configuration to allow via iptables.
