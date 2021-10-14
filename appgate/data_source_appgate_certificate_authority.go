@@ -82,7 +82,7 @@ func dataSourceAppgateCertificateAuthorityRead(ctx context.Context, d *schema.Re
 	return diags
 }
 
-func setCertificate(d *schema.ResourceData, cert openapi.CertificateDetails) {
+func setCertificate(d *schema.ResourceData, cert openapi.CaConfig) {
 	d.Set("version", int(cert.GetVersion()))
 	d.Set("serial", cert.GetSerial())
 	d.Set("issuer", cert.GetIssuer())
