@@ -91,14 +91,13 @@ func (c *Config) Client() (*Client, error) {
 }
 
 func guessVersion(response *openapi.LoginResponse, clientVersion int) (*version.Version, error) {
-	if response.HasVersion() {
-		currentVersion, err := version.NewVersion(*response.Version)
-		if err != nil {
-			return nil, err
-		}
-		return currentVersion, nil
-	}
+	// TODO query GET /appliance controller and check exact version.
+	// POST /login does not include version anymore.
 	switch clientVersion {
+	case Version13:
+		return version.NewVersion("5.2.0+estimated")
+	case Version14:
+		return version.NewVersion("5.3.0+estimated")
 	case Version15:
 		return version.NewVersion("5.4.0+estimated")
 	case Version16:

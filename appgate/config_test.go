@@ -93,7 +93,7 @@ func TestLoginInternalServerError(t *testing.T) {
 }
 
 var (
-	version43Test, _         = version.NewVersion("4.3.0-20000")
+	version52Test, _         = version.NewVersion("5.2.0+estimated")
 	computed54TestVersion, _ = version.NewVersion("5.4.0+estimated")
 
 	loginResponse54 = `
@@ -171,7 +171,7 @@ func TestConfigGetToken(t *testing.T) {
 				ResponseBody: loginResponsePrior53,
 			},
 			wantErr:         false,
-			expectedVersion: version43Test,
+			expectedVersion: version52Test,
 			clientVersion:   13,
 			statusCode:      http.StatusOK,
 		},
