@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
 )
