@@ -165,6 +165,12 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	args := openapi.NewPolicyWithDefaults()
 	args.Id = uuid.New().String()
 
+	// Type is only available in >= 5.5
+	if currentVersion.LessThan(Appliance55Version) {
+		args.Type = nil
+		// TODO: add Schema resource for Type
+	}
+
 	args.SetName(d.Get("name").(string))
 
 	if c, ok := d.GetOk("notes"); ok {
