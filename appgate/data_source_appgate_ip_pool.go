@@ -3,6 +3,7 @@ package appgate
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
 
@@ -21,6 +22,22 @@ func dataSourceAppgateIPPool() *schema.Resource {
 			"ip_pool_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"lease_time_days": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"total": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"currently_used": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"reserved": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -53,7 +70,10 @@ func dataSourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId(ippool.Id)
 	d.Set("ip_pool_name", ippool.Name)
-	d.Set("ip_pool_id", ippool.Id)
+	d.Set("lease_time_days", ippool.GetLeaseTimeDays())
+	d.Set("total", ippool.GetTotal().String())
+	d.Set("currently_used", strconv.FormatInt(ippool.GetCurrentlyUsed(), 10))
+	d.Set("reserved", strconv.FormatInt(ippool.GetReserved(), 10))
 
 	return nil
 }

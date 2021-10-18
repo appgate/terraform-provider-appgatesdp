@@ -60,6 +60,57 @@ resource "appgatesdp_ip_pool" "test_ip_pool_v4" {
 `, rName)
 }
 
+func TestAccIPPoolV6(t *testing.T) {
+	resourceName := "appgatesdp_ip_pool.test_ip_pool_v6"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIPPoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIPPoolV6(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIPPoolExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "ip_version6", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lease_time_days", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "ranges.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ranges.0.first", "2001:800:0:0:0:0:0:1"),
+					resource.TestCheckResourceAttr(resourceName, "ranges.0.last", "2001:fff:ffff:ffff:ffff:ffff:ffff:fffe"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccIPPoolImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckIPPoolV6(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_ip_pool" "test_ip_pool_v6" {
+	name            = "%s"
+	ip_version6     = true
+	lease_time_days = 5
+	ranges {
+	  first = "2001:800:0:0:0:0:0:1"
+	  last  = "2001:fff:ffff:ffff:ffff:ffff:ffff:fffe"
+	}
+
+	tags = [
+	  "terraform",
+	  "api-created"
+	]
+}
+`, rName)
+}
 func testAccCheckIPPoolExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		token, err := testAccProvider.Meta().(*Client).GetToken()
