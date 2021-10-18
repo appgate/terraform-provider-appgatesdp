@@ -107,7 +107,7 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 		d.Set("provide_cloud_ssh_key", true)
 	}
 	if _, lvOk := d.GetOk("latest_version"); lvOk {
-		exportRequest.LatestVersion(true)
+		exportRequest = exportRequest.LatestVersion(true)
 		d.Set("latest_version", true)
 	}
 	exportRequest = exportRequest.SSHConfig(*sshConfig)
