@@ -160,7 +160,7 @@ On-boarding two-factor authentication settings. Leave it empty keep it disabled.
 
 * `mfa_provider_id`: (Required) MFA provider ID to use for the authentication.
 * `message`:  (Optional) On-boarding MFA message to be displayed on the Client UI during the second-factor authentication. Example: Please use your multi factor authentication device to on-board..
-* `device_limit_per_user`:  (Optional)  default value `100` The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.
+* `device_limit_per_user`:  (Optional)  default value `100` [Deprecated] The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded. Deprecated. Use root level field instead.
 * `claim_suffix`:  (Optional)  default value `onBoarding` Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled.
 * `always_required`:  (Optional) If enabled, MFA will be required on every authentication.
 ### dns_servers
