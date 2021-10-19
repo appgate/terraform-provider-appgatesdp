@@ -7,6 +7,7 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -324,7 +325,7 @@ func ldapProviderSchema() map[string]*schema.Schema {
 }
 
 // readProviderFromConfig reads all the common attribudes for the IdentityProviders.
-func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityProvider) (*openapi.IdentityProvider, error) {
+func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityProvider, currentVersion *version.Version) (*openapi.IdentityProvider, error) {
 	base, err := readBaseEntityFromConfig(d)
 	if err != nil {
 		return &provider, err
@@ -343,7 +344,7 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 		provider.SetAdminProvider(v.(bool))
 	}
 	if v, ok := d.GetOk("on_boarding_two_factor"); ok {
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
+		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
 		provider.SetOnBoarding2FA(onboarding)
 	}
 
@@ -388,7 +389,7 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	return &provider, nil
 }
 
-func readOnBoardingTwoFactorFromConfig(input []interface{}) openapi.IdentityProviderAllOfOnBoarding2FA {
+func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *version.Version) openapi.IdentityProviderAllOfOnBoarding2FA {
 	onboarding := openapi.IdentityProviderAllOfOnBoarding2FA{}
 	for _, r := range input {
 		raw := r.(map[string]interface{})
@@ -398,8 +399,11 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}) openapi.IdentityProv
 		if v, ok := raw["message"]; ok {
 			onboarding.SetMessage(v.(string))
 		}
-		if v, ok := raw["device_limit_per_user"]; ok {
-			onboarding.SetDeviceLimitPerUser(int32(v.(int)))
+		if currentVersion.LessThan(Appliance55Version) {
+			log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user is only avaliable in less then 5.4")
+			if v, ok := raw["device_limit_per_user"]; ok {
+				onboarding.SetDeviceLimitPerUser(int32(v.(int)))
+			}
 		}
 		if v, ok := raw["claim_suffix"]; ok {
 			onboarding.SetClaimSuffix(v.(string))

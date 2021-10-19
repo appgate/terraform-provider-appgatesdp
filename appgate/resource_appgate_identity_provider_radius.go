@@ -75,9 +75,10 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderRadius
-	provider, err = readProviderFromConfig(d, *provider)
+	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderRadius, err)
 	}
@@ -224,6 +225,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalRadiusProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -248,7 +250,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
+		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
 		originalRadiusProvider.SetOnBoarding2FA(onboarding)
 	}
 

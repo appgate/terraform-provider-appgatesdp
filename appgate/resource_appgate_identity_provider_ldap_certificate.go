@@ -58,9 +58,10 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderLdapCertificate
-	provider, err = readProviderFromConfig(d, *provider)
+	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdapCertificate, err)
 	}
@@ -262,6 +263,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalLdapCertificateProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -286,7 +288,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
+		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
 		originalLdapCertificateProvider.SetOnBoarding2FA(onboarding)
 	}
 
