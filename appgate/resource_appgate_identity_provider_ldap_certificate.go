@@ -47,6 +47,14 @@ func resourceAppgateLdapCertificateProvider() *schema.Resource {
 
 			return s
 		}(),
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    identityProviderResourcev0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceIdentityProvidereUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
@@ -176,6 +184,7 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 		return err
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	ldap, res, err := request.Authorization(token).Execute()
@@ -195,7 +204,7 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 	// identity provider attributes
 	d.Set("admin_provider", ldap.GetAdminProvider())
 	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
 			return err
 		}
 	}
@@ -288,7 +297,10 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return err
+		}
 		originalLdapCertificateProvider.SetOnBoarding2FA(onboarding)
 	}
 

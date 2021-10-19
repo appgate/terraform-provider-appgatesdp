@@ -157,6 +157,7 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	radius, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -173,7 +174,7 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 
 	d.Set("admin_provider", radius.GetAdminProvider())
 	if v, ok := radius.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
 			return err
 		}
 	}
@@ -250,7 +251,10 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return err
+		}
 		originalRadiusProvider.SetOnBoarding2FA(onboarding)
 	}
 

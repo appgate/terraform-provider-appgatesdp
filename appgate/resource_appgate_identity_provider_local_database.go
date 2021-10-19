@@ -93,6 +93,7 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 	}
 	api := meta.(*Client).API.LocalDatabaseIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	localDatabase, err := getBuiltinLocalDatabaseProviderUUID(ctx, *api, token)
 	if err != nil {
 		d.SetId("")
@@ -109,7 +110,7 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 	// identity provider attributes
 	d.Set("admin_provider", localDatabase.GetAdminProvider())
 	if v, ok := localDatabase.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
 			return err
 		}
 	}
@@ -174,7 +175,10 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return err
+		}
 		originalLocalDatabaseProvider.SetOnBoarding2FA(onboarding)
 	}
 

@@ -54,6 +54,12 @@ func identityProviderSchema() map[string]*schema.Schema {
 				Computed: true,
 			},
 
+			"device_limit_per_user": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+			},
+
 			"on_boarding_two_factor": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -344,7 +350,10 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 		provider.SetAdminProvider(v.(bool))
 	}
 	if v, ok := d.GetOk("on_boarding_two_factor"); ok {
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return &provider, err
+		}
 		provider.SetOnBoarding2FA(onboarding)
 	}
 
@@ -389,7 +398,7 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	return &provider, nil
 }
 
-func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *version.Version) openapi.IdentityProviderAllOfOnBoarding2FA {
+func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *version.Version) (openapi.IdentityProviderAllOfOnBoarding2FA, error) {
 	onboarding := openapi.IdentityProviderAllOfOnBoarding2FA{}
 	for _, r := range input {
 		raw := r.(map[string]interface{})
@@ -399,12 +408,26 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *vers
 		if v, ok := raw["message"]; ok {
 			onboarding.SetMessage(v.(string))
 		}
-		if currentVersion.LessThan(Appliance55Version) {
+
+		if v, ok := raw["device_limit_per_user"]; ok {
 			log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user is only avaliable in less then 5.4")
-			if v, ok := raw["device_limit_per_user"]; ok {
-				onboarding.SetDeviceLimitPerUser(int32(v.(int)))
+			val := int32(v.(int))
+			if currentVersion.LessThan(Appliance55Version) {
+				onboarding.SetDeviceLimitPerUser(val)
+			} else if val > 0 {
+				// device_limit_per_user is not allowed in 5.5
+				return onboarding, fmt.Errorf(
+					"on_boarding_two_factor.device_limit_per_user is deprecated in %s. Use root level field instead. Got %q",
+					currentVersion.String(),
+					v,
+				)
+			} else {
+				// else omit devicelmit per user from the reqeust.
+				onboarding.DeviceLimitPerUser = nil
 			}
+
 		}
+
 		if v, ok := raw["claim_suffix"]; ok {
 			onboarding.SetClaimSuffix(v.(string))
 		}
@@ -412,7 +435,7 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *vers
 			onboarding.SetAlwaysRequired(v.(bool))
 		}
 	}
-	return onboarding
+	return onboarding, nil
 }
 
 func readIdentityProviderClaimMappingFromConfig(input []interface{}) []map[string]interface{} {
@@ -543,7 +566,7 @@ func flattenIdentityProviderOnDemandClaimsMappning(claims []map[string]interface
 	return out
 }
 
-func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnBoarding2FA) []interface{} {
+func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnBoarding2FA, currentVersion *version.Version) []interface{} {
 	o := make(map[string]interface{})
 	if v, ok := input.GetMfaProviderIdOk(); ok {
 		o["mfa_provider_id"] = v
@@ -551,8 +574,11 @@ func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnB
 	if v, ok := input.GetMessageOk(); ok {
 		o["message"] = v
 	}
-	if v, ok := input.GetDeviceLimitPerUserOk(); ok {
-		o["device_limit_per_user"] = int(*v)
+	// we will only save device_limit_per_user in the statefile if the currentversion still supports it.
+	if currentVersion.LessThan(Appliance55Version) {
+		if v, ok := input.GetDeviceLimitPerUserOk(); ok {
+			o["device_limit_per_user"] = int(*v)
+		}
 	}
 	if v, ok := input.GetClaimSuffixOk(); ok {
 		o["claim_suffix"] = v
