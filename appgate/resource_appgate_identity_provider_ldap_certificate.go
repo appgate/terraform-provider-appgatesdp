@@ -84,6 +84,9 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	if provider.AdminProvider != nil {
 		args.SetAdminProvider(*provider.AdminProvider)
 	}
+	if provider.DeviceLimitPerUser != nil {
+		args.SetDeviceLimitPerUser(*provider.DeviceLimitPerUser)
+	}
 	if provider.OnBoarding2FA != nil {
 		args.SetOnBoarding2FA(*provider.OnBoarding2FA)
 	}
@@ -203,6 +206,9 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 
 	// identity provider attributes
 	d.Set("admin_provider", ldap.GetAdminProvider())
+	if v, ok := ldap.GetDeviceLimitPerUserOk(); ok {
+		d.Set("device_limit_per_user", *v)
+	}
 	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
 		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
 			return err
@@ -294,6 +300,9 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	// identity provider attributes
 	if d.HasChange("admin_provider") {
 		originalLdapCertificateProvider.SetAdminProvider(d.Get("admin_provider").(bool))
+	}
+	if d.HasChange("device_limit_per_user") {
+		originalLdapCertificateProvider.SetDeviceLimitPerUser(int32(d.Get("device_limit_per_user").(int)))
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")

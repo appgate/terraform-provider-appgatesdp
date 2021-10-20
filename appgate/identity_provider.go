@@ -349,6 +349,19 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	if v, ok := d.GetOk("admin_provider"); ok {
 		provider.SetAdminProvider(v.(bool))
 	}
+
+	// device_limit_per_user is only available on 5.5 or higher on root level,
+	// previous version has this on on_boarding_two_factor.device_limit_per_user
+	if v, ok := d.GetOk("device_limit_per_user"); ok {
+		if currentVersion.LessThan(Appliance55Version) {
+			return &provider, fmt.Errorf(
+				"device_limit_per_user is only available on 5.5, your current version is %s, Use on_boarding_two_factor.device_limit_per_user for appliances less then 5.5",
+				currentVersion.String(),
+			)
+		}
+		provider.SetDeviceLimitPerUser(int32(v.(int)))
+	}
+
 	if v, ok := d.GetOk("on_boarding_two_factor"); ok {
 		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
 		if err != nil {
@@ -408,24 +421,23 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *vers
 		if v, ok := raw["message"]; ok {
 			onboarding.SetMessage(v.(string))
 		}
-
 		if v, ok := raw["device_limit_per_user"]; ok {
-			log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user is only avaliable in less then 5.4")
 			val := int32(v.(int))
-			if currentVersion.LessThan(Appliance55Version) {
+			log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user is only avaliable in less then 5.4 got %v - %v", val, currentVersion.LessThan(Appliance55Version))
+			if currentVersion.LessThan(Appliance55Version) && val > 0 {
 				onboarding.SetDeviceLimitPerUser(val)
 			} else if val > 0 {
 				// device_limit_per_user is not allowed in 5.5
 				return onboarding, fmt.Errorf(
-					"on_boarding_two_factor.device_limit_per_user is deprecated in %s. Use root level field instead. Got %q",
+					"on_boarding_two_factor.device_limit_per_user is deprecated in %s. Use root level field instead. Got %d",
 					currentVersion.String(),
-					v,
+					val,
 				)
 			} else {
 				// else omit devicelmit per user from the reqeust.
+				log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user is not allowed on %s, omitted it from request, use root level instead", currentVersion.String())
 				onboarding.DeviceLimitPerUser = nil
 			}
-
 		}
 
 		if v, ok := raw["claim_suffix"]; ok {
