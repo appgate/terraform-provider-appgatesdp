@@ -3074,6 +3074,21 @@ func readAppliancePortalFromConfig(portals []interface{}) (openapi.Portal, error
 
 			p.SetProxyP12s(p12s)
 		}
+		if v, ok := raw["external_profiles"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+			profiles := make([]openapi.PortalExternalProfiles, 0)
+			for _, k := range v {
+				raw := k.(map[string]interface{})
+				profile := openapi.PortalExternalProfiles{}
+				if v, ok := raw["id"]; ok {
+					profile.SetId(v.(string))
+				}
+				if v, ok := raw["url"]; ok {
+					profile.SetUrl(v.(string))
+				}
+				profiles = append(profiles, profile)
+			}
+			p.SetExternalProfiles(profiles)
+		}
 	}
 	return p, nil
 }
