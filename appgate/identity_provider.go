@@ -423,7 +423,7 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *vers
 		}
 		if v, ok := raw["device_limit_per_user"]; ok {
 			val := int32(v.(int))
-			log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user is only avaliable in less then 5.4 got %v - %v", val, currentVersion.LessThan(Appliance55Version))
+			log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user only available in version 5.4 or less got %v - %v", val, currentVersion.LessThan(Appliance55Version))
 			if currentVersion.LessThan(Appliance55Version) && val > 0 {
 				onboarding.SetDeviceLimitPerUser(val)
 			} else if val > 0 {
