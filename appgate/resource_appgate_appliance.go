@@ -1029,6 +1029,40 @@ func resourceAppgateAppliance() *schema.Resource {
 								},
 							},
 						},
+						"sign_in_customization": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"background_color": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Changes the background color on the sign-in page. In hexadecimal format.",
+									},
+									"background_image": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Changes the background image on the sign-in page. Must be in PNG, JPEG or GIF format.",
+									},
+									"logo": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Changes the logo on the sign-in page. Must be in PNG, JPEG or GIF format.",
+									},
+									"text": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Adds a text to the sign-in page.",
+									},
+									"text_color": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Changes the text color on the sign-in page. In hexadecimal format.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
