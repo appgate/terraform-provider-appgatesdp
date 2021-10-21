@@ -124,7 +124,7 @@ func resourceAppgateApplianceCustomizationCreate(d *schema.ResourceData, meta in
 
 	args.SetTags(schemaExtractTags(d))
 
-	content, err := getResourceFileContent(d)
+	content, err := getResourceFileContent(d, "file")
 	if err != nil {
 		return err
 	}
