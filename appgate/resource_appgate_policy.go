@@ -262,7 +262,6 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	// Type is only available in >= 5.5
 	if currentVersion.LessThan(Appliance55Version) {
 		args.Type = nil
-		// TODO: add Schema resource for Type
 	}
 
 	args.SetName(d.Get("name").(string))
@@ -279,6 +278,15 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 
 	if c, ok := d.GetOk("expression"); ok {
 		args.SetExpression(c.(string))
+	}
+
+	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+		if v, ok := d.GetOk("type"); ok {
+			args.SetType(v.(string))
+		}
+		if v, ok := d.GetOk("override_site_claim"); ok {
+			args.SetOverrideSiteClaim(v.(string))
+		}
 	}
 
 	if c, ok := d.GetOk("entitlements"); ok {
@@ -431,6 +439,10 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		d.Set("trusted_network_check", t)
 	}
+	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+		d.Set("type", policy.GetType())
+		d.Set("override_site_claim", policy.GetOverrideSiteClaim())
+	}
 	return nil
 }
 
@@ -469,6 +481,7 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	api := meta.(*Client).API.PoliciesApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.PoliciesIdGet(ctx, d.Id())
 	orginalPolicy, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -557,7 +570,14 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		orginalPolicy.SetAdministrativeRoles(entitlements)
 	}
-
+	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+		if d.HasChange("type") {
+			orginalPolicy.SetType(d.Get("type").(string))
+		}
+		if d.HasChange("override_site_claim") {
+			orginalPolicy.SetOverrideSiteClaim(d.Get("override_site_claim").(string))
+		}
+	}
 	req := api.PoliciesIdPut(ctx, d.Id())
 
 	_, _, err = req.Policy(orginalPolicy).Authorization(token).Execute()
