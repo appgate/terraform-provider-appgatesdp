@@ -735,6 +735,27 @@ func resourceAppgateAppliance() *schema.Resource {
 										Type:     schema.TypeInt,
 										Optional: true,
 									},
+									"compatibility_mode": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"authentication": {
+										Type:     schema.TypeList,
+										Optional: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"type": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"token": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
