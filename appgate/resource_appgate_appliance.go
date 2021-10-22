@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
@@ -1864,14 +1864,7 @@ func flatttenApplianceConnector(currentVersion *version.Version, in openapi.Appl
 			c := make(map[string]interface{})
 			c["name"] = client.GetName()
 			c["device_id"] = client.GetDeviceId()
-			alloweResources := make([]map[string]interface{}, 0)
-			for _, arRaw := range client.GetAllowResources() {
-				ar := make(map[string]interface{})
-				ar["address"] = arRaw.GetAddress()
-				ar["netmask"] = arRaw.GetNetmask()
-				alloweResources = append(alloweResources, ar)
-			}
-			c["allow_resources"] = alloweResources
+			c["allow_resources"] = client.GetAllowResources()
 			c["snat_to_resources"] = client.GetSnatToResources()
 			if currentVersion.GreaterThanOrEqual(Appliance54Version) {
 				c["dnat_to_resource"] = client.GetDnatToResource()
@@ -2918,19 +2911,7 @@ func readApplianceConnectorFromConfig(currentVersion *version.Version, connector
 					if err != nil {
 						return val, err
 					}
-					allowedResources := make([]openapi.ApplianceAllOfConnectorAllowResources, 0)
-					for _, s := range sources {
-						ar := openapi.ApplianceAllOfConnectorAllowResources{}
-						if v, ok := s["address"]; ok {
-							ar.SetAddress(v.(string))
-						}
-						if v, ok := s["netmask"]; ok {
-							ar.SetNetmask(int32(v.(int)))
-						}
-						allowedResources = append(allowedResources, ar)
-					}
-					// TODO loop source convert to openapi.ApplianceAllOfConnectorAllowResources
-					client.SetAllowResources(allowedResources)
+					client.SetAllowResources(sources)
 				}
 				if v, ok := r["snat_to_resources"]; ok {
 					client.SetSnatToResources(v.(bool))

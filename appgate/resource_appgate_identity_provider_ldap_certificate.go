@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -47,6 +47,14 @@ func resourceAppgateLdapCertificateProvider() *schema.Resource {
 
 			return s
 		}(),
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    identityProviderResourcev0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceIdentityProvidereUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
 }
 
@@ -58,9 +66,10 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderLdapCertificate
-	provider, err = readProviderFromConfig(d, *provider)
+	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdapCertificate, err)
 	}
@@ -74,6 +83,9 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 
 	if provider.AdminProvider != nil {
 		args.SetAdminProvider(*provider.AdminProvider)
+	}
+	if provider.DeviceLimitPerUser != nil {
+		args.SetDeviceLimitPerUser(*provider.DeviceLimitPerUser)
 	}
 	if provider.OnBoarding2FA != nil {
 		args.SetOnBoarding2FA(*provider.OnBoarding2FA)
@@ -175,6 +187,7 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 		return err
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	ldap, res, err := request.Authorization(token).Execute()
@@ -193,8 +206,11 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 
 	// identity provider attributes
 	d.Set("admin_provider", ldap.GetAdminProvider())
+	if v, ok := ldap.GetDeviceLimitPerUserOk(); ok {
+		d.Set("device_limit_per_user", *v)
+	}
 	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
 			return err
 		}
 	}
@@ -262,6 +278,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalLdapCertificateProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -284,9 +301,15 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	if d.HasChange("admin_provider") {
 		originalLdapCertificateProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}
+	if d.HasChange("device_limit_per_user") {
+		originalLdapCertificateProvider.SetDeviceLimitPerUser(int32(d.Get("device_limit_per_user").(int)))
+	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return err
+		}
 		originalLdapCertificateProvider.SetOnBoarding2FA(onboarding)
 	}
 

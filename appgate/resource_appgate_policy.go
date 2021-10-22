@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -164,6 +164,12 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewPolicyWithDefaults()
 	args.Id = uuid.New().String()
+
+	// Type is only available in >= 5.5
+	if currentVersion.LessThan(Appliance55Version) {
+		args.Type = nil
+		// TODO: add Schema resource for Type
+	}
 
 	args.SetName(d.Get("name").(string))
 

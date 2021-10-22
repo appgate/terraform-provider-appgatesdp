@@ -2593,7 +2593,14 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 				Config: testAccApplianceWithLogServer(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_ciphers.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_ciphers.0", "ECDHE-RSA-AES256-GCM-SHA384"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_ciphers.1", "ECDHE-RSA-AES128-GCM-SHA256"),
+					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_port", "443"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
@@ -2867,7 +2874,13 @@ resource "appgatesdp_appliance" "log_server" {
 		}
 		override_spa_mode = "UDP-TCP"
 	}
-
+	admin_interface {
+		hostname = "%{hostname}"
+		https_ciphers = [
+		  "ECDHE-RSA-AES256-GCM-SHA384",
+		  "ECDHE-RSA-AES128-GCM-SHA256"
+		]
+	}
 	peer_interface {
 		hostname   = "%{hostname}"
 		https_port = "1338"
@@ -2902,6 +2915,7 @@ resource "appgatesdp_appliance" "log_server" {
 }
 `, context)
 }
+
 func testAccApplianceWithOutLogServer(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {

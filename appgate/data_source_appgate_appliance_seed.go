@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -61,6 +61,7 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 	api := meta.(*Client).API.AppliancesApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.TODO()
 	applianceID, iok := d.GetOk("appliance_id")
 
@@ -94,6 +95,11 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 	cloudKey, cloudOk := d.GetOk("provide_cloud_ssh_key")
 
 	sshConfig := openapi.NewSSHConfig()
+	// AllowCustomization and ValidityDays is only available in >= 5.5
+	if currentVersion.LessThan(Appliance55Version) {
+		sshConfig.AllowCustomization = nil
+		sshConfig.ValidityDays = nil
+	}
 	if passwordOk {
 		sshConfig.Password = openapi.PtrString(password.(string))
 		d.Set("password", password.(string))

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -51,6 +52,12 @@ func identityProviderSchema() map[string]*schema.Schema {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
+			},
+
+			"device_limit_per_user": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
 			},
 
 			"on_boarding_two_factor": {
@@ -324,7 +331,7 @@ func ldapProviderSchema() map[string]*schema.Schema {
 }
 
 // readProviderFromConfig reads all the common attribudes for the IdentityProviders.
-func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityProvider) (*openapi.IdentityProvider, error) {
+func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityProvider, currentVersion *version.Version) (*openapi.IdentityProvider, error) {
 	base, err := readBaseEntityFromConfig(d)
 	if err != nil {
 		return &provider, err
@@ -342,8 +349,24 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	if v, ok := d.GetOk("admin_provider"); ok {
 		provider.SetAdminProvider(v.(bool))
 	}
+
+	// device_limit_per_user is only available on 5.5 or higher on root level,
+	// previous version has this on on_boarding_two_factor.device_limit_per_user
+	if v, ok := d.GetOk("device_limit_per_user"); ok {
+		if currentVersion.LessThan(Appliance55Version) {
+			return &provider, fmt.Errorf(
+				"device_limit_per_user is only available on 5.5, your current version is %s, Use on_boarding_two_factor.device_limit_per_user for appliances less then 5.5",
+				currentVersion.String(),
+			)
+		}
+		provider.SetDeviceLimitPerUser(int32(v.(int)))
+	}
+
 	if v, ok := d.GetOk("on_boarding_two_factor"); ok {
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return &provider, err
+		}
 		provider.SetOnBoarding2FA(onboarding)
 	}
 
@@ -388,7 +411,7 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	return &provider, nil
 }
 
-func readOnBoardingTwoFactorFromConfig(input []interface{}) openapi.IdentityProviderAllOfOnBoarding2FA {
+func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *version.Version) (openapi.IdentityProviderAllOfOnBoarding2FA, error) {
 	onboarding := openapi.IdentityProviderAllOfOnBoarding2FA{}
 	for _, r := range input {
 		raw := r.(map[string]interface{})
@@ -399,8 +422,24 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}) openapi.IdentityProv
 			onboarding.SetMessage(v.(string))
 		}
 		if v, ok := raw["device_limit_per_user"]; ok {
-			onboarding.SetDeviceLimitPerUser(int32(v.(int)))
+			val := int32(v.(int))
+			log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user only available in version 5.4 or less got %v - %v", val, currentVersion.LessThan(Appliance55Version))
+			if currentVersion.LessThan(Appliance55Version) && val > 0 {
+				onboarding.SetDeviceLimitPerUser(val)
+			} else if val > 0 {
+				// device_limit_per_user is not allowed in 5.5
+				return onboarding, fmt.Errorf(
+					"on_boarding_two_factor.device_limit_per_user is deprecated in %s. Use root level field instead. Got %d",
+					currentVersion.String(),
+					val,
+				)
+			} else {
+				// else omit devicelmit per user from the reqeust.
+				log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user is not allowed on %s, omitted it from request, use root level instead", currentVersion.String())
+				onboarding.DeviceLimitPerUser = nil
+			}
 		}
+
 		if v, ok := raw["claim_suffix"]; ok {
 			onboarding.SetClaimSuffix(v.(string))
 		}
@@ -408,7 +447,7 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}) openapi.IdentityProv
 			onboarding.SetAlwaysRequired(v.(bool))
 		}
 	}
-	return onboarding
+	return onboarding, nil
 }
 
 func readIdentityProviderClaimMappingFromConfig(input []interface{}) []map[string]interface{} {
@@ -539,7 +578,7 @@ func flattenIdentityProviderOnDemandClaimsMappning(claims []map[string]interface
 	return out
 }
 
-func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnBoarding2FA) []interface{} {
+func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnBoarding2FA, currentVersion *version.Version) []interface{} {
 	o := make(map[string]interface{})
 	if v, ok := input.GetMfaProviderIdOk(); ok {
 		o["mfa_provider_id"] = v
@@ -547,8 +586,11 @@ func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnB
 	if v, ok := input.GetMessageOk(); ok {
 		o["message"] = v
 	}
-	if v, ok := input.GetDeviceLimitPerUserOk(); ok {
-		o["device_limit_per_user"] = int(*v)
+	// we will only save device_limit_per_user in the statefile if the currentversion still supports it.
+	if currentVersion.LessThan(Appliance55Version) {
+		if v, ok := input.GetDeviceLimitPerUserOk(); ok {
+			o["device_limit_per_user"] = int(*v)
+		}
 	}
 	if v, ok := input.GetClaimSuffixOk(); ok {
 		o["claim_suffix"] = v

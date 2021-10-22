@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v15/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -75,9 +75,10 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.IdentityProvider{}
 	provider.Type = identityProviderRadius
-	provider, err = readProviderFromConfig(d, *provider)
+	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderRadius, err)
 	}
@@ -92,6 +93,9 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 
 	if provider.AdminProvider != nil {
 		args.SetAdminProvider(*provider.AdminProvider)
+	}
+	if provider.DeviceLimitPerUser != nil {
+		args.SetDeviceLimitPerUser(*provider.DeviceLimitPerUser)
 	}
 	if provider.OnBoarding2FA != nil {
 		args.SetOnBoarding2FA(*provider.OnBoarding2FA)
@@ -156,6 +160,7 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	radius, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -171,8 +176,11 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 	// identity provider attributes
 
 	d.Set("admin_provider", radius.GetAdminProvider())
+	if v, ok := radius.GetDeviceLimitPerUserOk(); ok {
+		d.Set("device_limit_per_user", *v)
+	}
 	if v, ok := radius.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
 			return err
 		}
 	}
@@ -224,6 +232,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalRadiusProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -246,9 +255,15 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	if d.HasChange("admin_provider") {
 		originalRadiusProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}
+	if d.HasChange("device_limit_per_user") {
+		originalRadiusProvider.SetDeviceLimitPerUser(int32(d.Get("device_limit_per_user").(int)))
+	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return err
+		}
 		originalRadiusProvider.SetOnBoarding2FA(onboarding)
 	}
 
