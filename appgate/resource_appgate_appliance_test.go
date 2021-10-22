@@ -2166,8 +2166,8 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 					c := testAccProvider.Meta().(*Client)
 					c.GetToken()
 					currentVersion := c.ApplianceVersion
-					if currentVersion.LessThan(Appliance54Version) {
-						t.Skip("Test only for 5.4 and above, appliance.portal is only supported in 5.4 and above.")
+					if currentVersion.LessThan(Appliance55Version) {
+						t.Skip("Test only for 5.5 and above, appliance.portal is only supported in 5.4 and above.")
 					}
 				},
 				Config: testAccCheckAppliancePortalConfig(context),
