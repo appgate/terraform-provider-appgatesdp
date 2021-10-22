@@ -62,6 +62,12 @@ func resourceAppgatePolicy() *schema.Resource {
 				Required: true,
 			},
 
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Type of the Policy. It is informational and not enforced.",
+			},
+
 			"entitlements": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -95,6 +101,11 @@ func resourceAppgatePolicy() *schema.Resource {
 			"override_site": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"override_site_claim": {
+				Type:        schema.TypeString,
+				Description: "The path of a claim that contains the UUID of an override site. It should be defined as 'claims.xxx.xxx' or 'claims.xxx.xxx.xxx'1.",
+				Optional:    true,
 			},
 
 			"proxy_auto_config": {
@@ -139,6 +150,89 @@ func resourceAppgatePolicy() *schema.Resource {
 						"dns_suffix": {
 							Type:     schema.TypeString,
 							Optional: true,
+						},
+					},
+				},
+			},
+
+			"dns_settings": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Description:      "List of domain names with DNS server IPs that the Client should be using.",
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"domain": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"servers": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+
+			"client_settings": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "Settings that admins can apply to the Client.",
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"entitlements_list": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"attention_level": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"auto_start": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"add_remove_profiles": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"keep_me_signed_in": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"saml_auto_sign_in": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"quit": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"sign_out": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"suspend": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
