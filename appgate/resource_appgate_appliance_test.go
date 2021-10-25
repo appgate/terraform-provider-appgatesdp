@@ -2166,8 +2166,8 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 					c := testAccProvider.Meta().(*Client)
 					c.GetToken()
 					currentVersion := c.ApplianceVersion
-					if currentVersion.LessThan(Appliance54Version) {
-						t.Skip("Test only for 5.4 and above, appliance.portal is only supported in 5.4 and above.")
+					if currentVersion.LessThan(Appliance55Version) {
+						t.Skip("Test only for 5.5 and above, appliance.portal is only supported in 5.4 and above.")
 					}
 				},
 				Config: testAccCheckAppliancePortalConfig(context),
@@ -2229,7 +2229,7 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1338"),
 					resource.TestCheckResourceAttr(resourceName, "portal.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "portal.0.%", "5"),
+
 					resource.TestCheckResourceAttr(resourceName, "portal.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.external_profiles.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.#", "1"),
@@ -2247,6 +2247,16 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.password", ""),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.subject_name", "CN=test.devops"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.verify_upstream", "true"),
+
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text", "hello"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text_color", "#808081"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.background_color", "#FF0001"),
+					// resource.TestCheckResourceAttrSet(resourceName, "portal.0.sign_in_customization.0.background_color_checksum"),
+					// resource.TestCheckResourceAttrSet(resourceName, "portal.0.sign_in_customization.0.logo_checksum"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.logo", "test-fixtures/black_logo.jpg"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.background_image", "test-fixtures/white_empty.jpg"),
 					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.#", "0"),
 				),
 			},
@@ -2258,6 +2268,8 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"site", "seed_file",
 					// we cant import verify local file path
 					"portal.0.proxy_p12s.0.content", "portal.0.https_p12.0.content",
+					"portal.0.sign_in_customization.0.background_image",
+					"portal.0.sign_in_customization.0.logo",
 				},
 			},
 		},
@@ -2326,6 +2338,13 @@ resource "appgatesdp_appliance" "test_portal" {
 		https_p12 {
 			content  = "test-fixtures/test_devops.crt"
 			password = ""
+		}
+		sign_in_customization {
+			text             = "hello"
+			background_image = "test-fixtures/white_empty.jpg"
+			logo             = "test-fixtures/black_logo.jpg"
+			text_color       = "#808081"
+			background_color = "#FF0001"
 		}
 	}
 }

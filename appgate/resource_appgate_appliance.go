@@ -1029,6 +1029,48 @@ func resourceAppgateAppliance() *schema.Resource {
 								},
 							},
 						},
+						"sign_in_customization": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"background_color": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Changes the background color on the sign-in page. In hexadecimal format.",
+									},
+									"background_image": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Changes the background image on the sign-in page. Must be in PNG, JPEG or GIF format.",
+									},
+									"background_image_checksum": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"logo": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Changes the logo on the sign-in page. Must be in PNG, JPEG or GIF format.",
+									},
+									"logo_checksum": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"text": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Adds a text to the sign-in page.",
+									},
+									"text_color": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Changes the text color on the sign-in page. In hexadecimal format.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1235,7 +1277,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		if !currentVersion.GreaterThanOrEqual(Appliance54Version) {
 			return fmt.Errorf("appliance.portal requires %s, you are using %q client v%d", Appliance54Version, currentVersion, meta.(*Client).ClientVersion)
 		}
-		portal, err := readAppliancePortalFromConfig(v.([]interface{}))
+		portal, err := readAppliancePortalFromConfig(d, v.([]interface{}), currentVersion)
 		if err != nil {
 			return err
 		}
@@ -1701,6 +1743,13 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 
 		portal["profiles"] = v.GetProfiles()
 		portal["external_profiles"] = v.GetExternalProfiles()
+		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+			signInCustomization, err := flattenAppliancePortalSignInCustomziation(d, localPortal, v.GetSignInCustomization())
+			if err != nil {
+				return err
+			}
+			portal["sign_in_customization"] = signInCustomization
+		}
 		portals = append(portals, portal)
 		if err := d.Set("portal", portals); err != nil {
 			return err
@@ -1752,6 +1801,21 @@ func flattenApplianceProxyp12s(local map[string]interface{}, p12 openapi.P12) ([
 		raw["password"] = stateRow["password"].(string)
 
 	}
+	result = append(result, raw)
+	return result, nil
+}
+
+func flattenAppliancePortalSignInCustomziation(d *schema.ResourceData, local map[string]interface{}, customization openapi.PortalSignInCustomization) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	raw := make(map[string]interface{})
+
+	raw["background_color"] = customization.GetBackgroundColor()
+	raw["background_image"] = d.Get("portal.0.sign_in_customization.0.background_image").(string)
+	raw["background_image_checksum"] = customization.GetBackgroundImage()
+	raw["logo"] = d.Get("portal.0.sign_in_customization.0.logo").(string)
+	raw["logo_checksum"] = customization.GetLogo()
+	raw["text"] = customization.GetText()
+	raw["text_color"] = customization.GetTextColor()
 	result = append(result, raw)
 	return result, nil
 }
@@ -2310,7 +2374,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("portal") {
 		_, v := d.GetChange("portal")
-		portal, err := readAppliancePortalFromConfig(v.([]interface{}))
+		portal, err := readAppliancePortalFromConfig(d, v.([]interface{}), currentVersion)
 		if err != nil {
 			return err
 		}
@@ -2981,7 +3045,7 @@ func readRsyslogDestinationFromConfig(rsyslogs []interface{}) ([]openapi.Applian
 	return result, nil
 }
 
-func readAppliancePortalFromConfig(portals []interface{}) (openapi.Portal, error) {
+func readAppliancePortalFromConfig(d *schema.ResourceData, portals []interface{}, currentVersion *version.Version) (openapi.Portal, error) {
 	p := openapi.Portal{}
 	for _, portal := range portals {
 		if portal == nil {
@@ -3040,6 +3104,53 @@ func readAppliancePortalFromConfig(portals []interface{}) (openapi.Portal, error
 
 			p.SetProxyP12s(p12s)
 		}
+		if v, ok := raw["external_profiles"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+			profiles := make([]openapi.PortalExternalProfiles, 0)
+			for _, k := range v {
+				raw := k.(map[string]interface{})
+				profile := openapi.PortalExternalProfiles{}
+				if v, ok := raw["id"]; ok {
+					profile.SetId(v.(string))
+				}
+				if v, ok := raw["url"]; ok {
+					profile.SetUrl(v.(string))
+				}
+				profiles = append(profiles, profile)
+			}
+			p.SetExternalProfiles(profiles)
+		}
+		if v, ok := raw["sign_in_customization"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+			customization := openapi.PortalSignInCustomization{}
+			raw := v[0].(map[string]interface{})
+
+			if v, ok := raw["background_color"].(string); ok && len(v) > 0 {
+				customization.SetBackgroundColor(v)
+			}
+			if _, ok := raw["background_image"]; ok {
+				k := "portal.0.sign_in_customization.0.background_image"
+				content, err := getResourceFileContent(d, k)
+				if err != nil {
+					return p, err
+				}
+				customization.SetBackgroundImage(base64.StdEncoding.EncodeToString(content))
+			}
+			if v, ok := raw["logo"].(string); ok && len(v) > 0 {
+				k := "portal.0.sign_in_customization.0.logo"
+				content, err := getResourceFileContent(d, k)
+				if err != nil {
+					return p, err
+				}
+				customization.SetLogo(base64.StdEncoding.EncodeToString(content))
+			}
+			if v, ok := raw["text"].(string); ok && len(v) > 0 {
+				customization.SetText(v)
+			}
+			if v, ok := raw["text_color"].(string); ok && len(v) > 0 {
+				customization.SetTextColor(v)
+			}
+			p.SetSignInCustomization(customization)
+		}
+
 	}
 	return p, nil
 }

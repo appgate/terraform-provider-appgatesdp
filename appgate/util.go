@@ -159,25 +159,25 @@ func inArray(needle string, haystack []string) bool {
 	return false
 }
 
-// getResourceFileContent gets content from "file" filepath schema.ResourceData or string payload "content".
-func getResourceFileContent(d *schema.ResourceData) ([]byte, error) {
+// getResourceFileContent gets content from key "file" filepath schema.ResourceData or string payload "content".
+func getResourceFileContent(d *schema.ResourceData, key string) ([]byte, error) {
 	var content []byte
-	if v, ok := d.GetOk("file"); ok {
+	if v, ok := d.GetOk(key); ok {
 		path := v.(string)
 		file, err := os.Open(path)
 		if err != nil {
-			return nil, fmt.Errorf("Error opening file (%s): %s", path, err)
+			return nil, fmt.Errorf("Error opening file %q (%s): %s", key, path, err)
 		}
 		defer func() {
 			err := file.Close()
 			if err != nil {
-				log.Printf("[WARN] Error closing file (%s): %s", path, err)
+				log.Printf("[WARN] Error closing file %q (%s): %s", key, path, err)
 			}
 		}()
 		reader := bufio.NewReader(file)
 		content, err = ioutil.ReadAll(reader)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading file (%s): %s", path, err)
+			return nil, fmt.Errorf("Error reading file %q (%s): %s", key, path, err)
 		}
 	} else if v, ok := d.GetOk("content"); ok {
 		content = []byte(v.(string))

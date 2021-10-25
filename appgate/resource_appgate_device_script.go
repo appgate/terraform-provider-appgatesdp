@@ -95,7 +95,7 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 	args.SetFilename(d.Get("filename").(string))
 	args.SetTags(schemaExtractTags(d))
 
-	content, err := getResourceFileContent(d)
+	content, err := getResourceFileContent(d, "file")
 	if err != nil {
 		return err
 	}
@@ -172,7 +172,7 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	if d.HasChange("file") || d.HasChange("content") {
-		content, err := getResourceFileContent(d)
+		content, err := getResourceFileContent(d, "file")
 		if err != nil {
 			return err
 		}
