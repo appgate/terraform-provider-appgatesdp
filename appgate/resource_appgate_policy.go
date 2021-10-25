@@ -63,27 +63,39 @@ func resourceAppgatePolicy() *schema.Resource {
 			},
 
 			"entitlements": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"entitlement_links": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"ringfence_rules": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"ringfence_rule_links": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Optional:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"tamper_proofing": {
@@ -233,9 +245,12 @@ func resourceAppgatePolicy() *schema.Resource {
 			},
 
 			"administrative_roles": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
