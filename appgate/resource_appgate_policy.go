@@ -457,10 +457,13 @@ func readPolicyDnsSettingsFromConfig(dnsSettings []interface{}) ([]openapi.Polic
 			if err != nil {
 				return list, fmt.Errorf("Failed to resolve dns_settings.servers: %+v", err)
 			}
-			result.SetServers(servers)
+			if len(servers) > 0 {
+				result.SetServers(servers)
+			}
 		}
 		list = append(list, result)
 	}
+	log.Printf("[DEBUG] readPolicyDnsSettingsFromConfig Result %+v", list)
 	return list, nil
 }
 
