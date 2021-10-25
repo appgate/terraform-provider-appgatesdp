@@ -58,6 +58,7 @@ func resourceAppgatePolicy() *schema.Resource {
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: "Type of the Policy. It is informational and not enforced.",
 			},
 
@@ -280,6 +281,13 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 		if v, ok := d.GetOk("override_site_claim"); ok {
 			args.SetOverrideSiteClaim(v.(string))
 		}
+		if v, ok := d.GetOk("dns_settings"); ok {
+			servers, err := readPolicyDnsSettingsFromConfig(v.([]interface{}))
+			if err != nil {
+				return err
+			}
+			args.SetDnsSettings(servers)
+		}
 	}
 
 	if c, ok := d.GetOk("entitlements"); ok {
@@ -368,6 +376,29 @@ func readTrustedNetworkCheckFromConfig(trustedNetworks []interface{}) openapi.Po
 	return result
 }
 
+func readPolicyDnsSettingsFromConfig(dnsSettings []interface{}) ([]openapi.PolicyAllOfDnsSettings, error) {
+	list := make([]openapi.PolicyAllOfDnsSettings, 0, len(dnsSettings))
+	for _, r := range dnsSettings {
+		if r == nil {
+			continue
+		}
+		result := openapi.PolicyAllOfDnsSettings{}
+		raw := r.(map[string]interface{})
+		if v, ok := raw["domain"].(string); ok && len(v) > 0 {
+			result.SetDomain(v)
+		}
+		if v, ok := raw["servers"]; ok {
+			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return list, fmt.Errorf("Failed to resolve dns_settings.servers: %+v", err)
+			}
+			result.SetServers(servers)
+		}
+		list = append(list, result)
+	}
+	return list, nil
+}
+
 func readProxyAutoConfigFromConfig(proxyAutoConfigs []interface{}) openapi.PolicyAllOfProxyAutoConfig {
 	pac := openapi.PolicyAllOfProxyAutoConfig{}
 	for _, r := range proxyAutoConfigs {
@@ -435,6 +466,11 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
 		d.Set("type", policy.GetType())
 		d.Set("override_site_claim", policy.GetOverrideSiteClaim())
+		dnsSettings, err := flattenPolicyDnsSettings(policy.GetDnsSettings())
+		if err != nil {
+			return err
+		}
+		d.Set("dns_settings", dnsSettings)
 	}
 	return nil
 }
@@ -464,6 +500,21 @@ func flattenTrustedNetworkCheck(in openapi.PolicyAllOfTrustedNetworkCheck) ([]in
 	}
 	log.Printf("[DEBUG] flattenTrustedNetworkCheck: %+v", m)
 	return []interface{}{m}, nil
+}
+
+func flattenPolicyDnsSettings(dnsSettings []openapi.PolicyAllOfDnsSettings) ([]interface{}, error) {
+	out := make([]interface{}, 0, len(dnsSettings))
+	for _, dnsSetting := range dnsSettings {
+		m := make(map[string]interface{})
+		if v, ok := dnsSetting.GetDomainOk(); ok {
+			m["domain"] = v
+		}
+		if v, ok := dnsSetting.GetServersOk(); ok {
+			m["servers"] = v
+		}
+		out = append(out, m)
+	}
+	return out, nil
 }
 
 func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -569,6 +620,15 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		if d.HasChange("override_site_claim") {
 			orginalPolicy.SetOverrideSiteClaim(d.Get("override_site_claim").(string))
+		}
+
+		if d.HasChange("dns_settings") {
+			_, v := d.GetChange("dns_settings")
+			dnsSettings, err := readPolicyDnsSettingsFromConfig(v.([]interface{}))
+			if err != nil {
+				return err
+			}
+			orginalPolicy.SetDnsSettings(dnsSettings)
 		}
 	}
 	req := api.PoliciesIdPut(ctx, d.Id())
