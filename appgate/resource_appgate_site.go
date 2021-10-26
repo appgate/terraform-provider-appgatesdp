@@ -758,6 +758,7 @@ func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers
 		m["name"] = v.GetName()
 		m["update_interval"] = v.GetUpdateInterval()
 		m["subscription_id"] = v.GetSubscriptionId()
+		m["use_managed_identities"] = v.GetUseManagedIdentities()
 		m["tenant_id"] = v.GetTenantId()
 		m["client_id"] = v.GetClientId()
 		if val, ok := local["secret"]; ok {
