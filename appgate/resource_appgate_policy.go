@@ -1,11 +1,13 @@
 package appgate
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -162,10 +164,11 @@ func resourceAppgatePolicy() *schema.Resource {
 			},
 
 			"dns_settings": {
-				Type:             schema.TypeList,
+				Type:             schema.TypeSet,
 				Optional:         true,
 				Description:      "List of domain names with DNS server IPs that the Client should be using.",
 				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              resourcePolicyDnsSettingsHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"domain": {
@@ -174,8 +177,9 @@ func resourceAppgatePolicy() *schema.Resource {
 							Computed: true,
 						},
 						"servers": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Required: true,
+							Set:      schema.HashString,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
@@ -256,6 +260,23 @@ func resourceAppgatePolicy() *schema.Resource {
 	}
 }
 
+func resourcePolicyDnsSettingsHash(v interface{}) int {
+	raw := v.(map[string]interface{})
+	// modifying raw actually modifies the values passed to the provider.
+	// Use a copy to avoid that.
+	copy := make((map[string]interface{}))
+	for key, value := range raw {
+		copy[key] = value
+	}
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("%s-", copy["domain"].(string)))
+	if v, ok := copy["servers"]; ok {
+		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
+	}
+
+	return hashcode.String(buf.String())
+}
+
 func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Policy with name: %s", d.Get("name").(string))
 	ctx := context.Background()
@@ -306,7 +327,7 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 			args.SetOverrideSiteClaim(v.(string))
 		}
 		if v, ok := d.GetOk("dns_settings"); ok {
-			servers, err := readPolicyDnsSettingsFromConfig(v.([]interface{}))
+			servers, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return err
 			}
@@ -453,7 +474,7 @@ func readPolicyDnsSettingsFromConfig(dnsSettings []interface{}) ([]openapi.Polic
 			result.SetDomain(v)
 		}
 		if v, ok := raw["servers"]; ok {
-			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			servers, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return list, fmt.Errorf("Failed to resolve dns_settings.servers: %+v", err)
 			}
@@ -611,19 +632,19 @@ func flattenPolicyClientSettings(clientSettings openapi.PolicyAllOfClientSetting
 	return []interface{}{m}, nil
 }
 
-func flattenPolicyDnsSettings(dnsSettings []openapi.PolicyAllOfDnsSettings) ([]interface{}, error) {
+func flattenPolicyDnsSettings(dnsSettings []openapi.PolicyAllOfDnsSettings) (*schema.Set, error) {
 	out := make([]interface{}, 0, 0)
 	for _, dnsSetting := range dnsSettings {
 		m := make(map[string]interface{})
 		if v, ok := dnsSetting.GetDomainOk(); ok {
-			m["domain"] = v
+			m["domain"] = *v
 		}
 		if v, ok := dnsSetting.GetServersOk(); ok {
-			m["servers"] = v
+			m["servers"] = schema.NewSet(schema.HashString, convertStringArrToInterface(*v))
 		}
 		out = append(out, m)
 	}
-	return out, nil
+	return schema.NewSet(resourcePolicyDnsSettingsHash, out), nil
 }
 
 func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -742,7 +763,7 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		if d.HasChange("dns_settings") {
 			_, v := d.GetChange("dns_settings")
-			dnsSettings, err := readPolicyDnsSettingsFromConfig(v.([]interface{}))
+			dnsSettings, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return err
 			}
