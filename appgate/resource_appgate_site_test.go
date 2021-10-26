@@ -732,7 +732,7 @@ func TestAccSite55Attributes(t *testing.T) {
                             client_id               = "test_client"
                             secret                  = "test_secret"
                             update_interval         = 60
-                            use_managed_identities  = false
+                            use_managed_identities  = true
                             subscription_id         = "AZ_test_subscription"
                             tenant_id               = "AZ_test_tentant"
                         }
