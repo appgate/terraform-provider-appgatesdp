@@ -700,3 +700,75 @@ func testAccSiteBasicAwsResolverConfig(context map[string]interface{}) string {
       }
     `, context)
 }
+
+func TestAccSite55Attributes(t *testing.T) {
+	resourceName := "appgatesdp_site.test_site"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSiteDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: Nprintf(`
+                resource "appgatesdp_site" "test_site" {
+                    name       = "%{name}"
+                    tags = [
+                        "developer",
+                        "api-created"
+                    ]
+                    entitlement_based_routing = false
+                    network_subnets = [
+                        "10.0.0.0/16"
+                    ]
+                    default_gateway {
+                        enabled_v4       = false
+                        enabled_v6       = false
+                        excluded_subnets = []
+                    }
+                    name_resolution {
+                        azure_resolvers = {
+                            name                    = "AZ resolver 99"
+                            update_interval         = 60
+                            use_managed_identites   = false
+                            subscription_id         = "AZ_test_subscription"
+                            tentant_id              = "AZ_test_tentant"
+                        }
+                    }
+                    dns_forwarding [
+                        {
+                            site_ipv4           = "1.2.3.4"
+                            site_ipv6           = ""
+                            dns_servers         = [
+                                "1.1.1.1"
+                            ]
+                            allow_destinations  = [
+                                {
+                                    address = "https://test.devops"
+                                    netmask = 32
+                                }
+                            ]
+                        }
+                    ]
+                }
+                `, map[string]interface{}{
+					"name": rName,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.azure_resolvers.use_managed_identities", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.site_ipv4", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.site_ipv6", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.allow_destinations.0.address", "https://test.devops"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.allow_destinations.0.netmask", "32"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+		},
+	})
+}
