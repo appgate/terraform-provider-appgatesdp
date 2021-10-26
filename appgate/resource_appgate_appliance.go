@@ -713,7 +713,7 @@ func resourceAppgateAppliance() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"url": {
 										Type:     schema.TypeString,
-										Optional: true,
+										Required: true,
 									},
 									"aws_id": {
 										Type:     schema.TypeString,
@@ -734,6 +734,28 @@ func resourceAppgateAppliance() *schema.Resource {
 									"retention_days": {
 										Type:     schema.TypeInt,
 										Optional: true,
+									},
+									"compatibility_mode": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"authentication": {
+										Type:     schema.TypeList,
+										Optional: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"type": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"token": {
+													Type:      schema.TypeString,
+													Required:  true,
+													Sensitive: true,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1250,7 +1272,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("log_forwarder"); ok {
-		lf, err := readLogForwardFromConfig(v.([]interface{}))
+		lf, err := readLogForwardFromConfig(v.([]interface{}), currentVersion)
 		if err != nil {
 			return err
 		}
@@ -1683,7 +1705,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if v, ok := appliance.GetLogForwarderOk(); ok {
-		logforward, err := flatttenApplianceLogForwarder(*v)
+		logforward, err := flatttenApplianceLogForwarder(*v, currentVersion, d)
 		if err != nil {
 			return err
 		}
@@ -1850,7 +1872,7 @@ func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]in
 	return gateways, nil
 }
 
-func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map[string]interface{}, error) {
+func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, currentVersion *version.Version, d *schema.ResourceData) ([]map[string]interface{}, error) {
 	var logforwarders []map[string]interface{}
 	logforward := make(map[string]interface{})
 	if v, ok := in.GetEnabledOk(); ok {
@@ -1876,6 +1898,29 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder) ([]map
 		}
 		if v, ok := v.GetRetentionDaysOk(); ok {
 			elasticsearch["retention_days"] = *v
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+			if v, ok := v.GetCompatibilityModeOk(); ok {
+				elasticsearch["compatibility_mode"] = *v
+			}
+			if authRaw, ok := v.GetAuthenticationOk(); ok {
+				auth := make(map[string]interface{})
+				if v, ok := authRaw.GetTypeOk(); ok {
+					auth["type"] = v
+				}
+
+				// token is sensitive, so we wont get it in the response body, but we can lookup it from the state
+				if state := d.Get("log_forwarder.0.elasticsearch.0.authentication").([]interface{}); len(state) > 0 && state[0] != nil {
+					s := state[0].(map[string]interface{})
+					if v, ok := s["token"]; ok {
+						auth["token"] = v.(string)
+					}
+				} else if v, ok := authRaw.GetTokenOk(); ok {
+					log.Printf("[DEBUG] Could not find log_forwarder.0.elasticsearch.0.authentication.token in state, fallback to API response")
+					auth["token"] = v
+				}
+				elasticsearch["authentication"] = []map[string]interface{}{auth}
+			}
 		}
 		logforward["elasticsearch"] = []map[string]interface{}{elasticsearch}
 	}
@@ -2356,7 +2401,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("log_forwarder") {
 		_, v := d.GetChange("log_forwarder")
-		lf, err := readLogForwardFromConfig(v.([]interface{}))
+		lf, err := readLogForwardFromConfig(v.([]interface{}), currentVersion)
 		if err != nil {
 			return err
 		}
@@ -2827,7 +2872,7 @@ func readPingFromConfig(pingers []interface{}) (openapi.ApplianceAllOfPing, erro
 	return val, nil
 }
 
-func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOfLogForwarder, error) {
+func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version.Version) (openapi.ApplianceAllOfLogForwarder, error) {
 	val := openapi.ApplianceAllOfLogForwarder{}
 	for _, logforward := range logforwards {
 		if logforward == nil {
@@ -2862,6 +2907,30 @@ func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOf
 				if v, ok := r["retention_days"]; ok {
 					elasticsearch.SetRetentionDays(int32(v.(int)))
 				}
+				if v, ok := r["compatibility_mode"]; ok {
+					if currentVersion.LessThan(Appliance55Version) {
+						return val, fmt.Errorf("elasticsearch.compatibility_mode is only available in 5.5 or greater, got %s", currentVersion)
+					}
+					elasticsearch.SetCompatibilityMode(int32(v.(int)))
+				}
+
+				if v, ok := r["authentication"].([]interface{}); ok {
+					if currentVersion.LessThan(Appliance55Version) {
+						return val, fmt.Errorf("elasticsearch.authentication is only available in 5.5 or greater, got %s", currentVersion)
+					}
+					val := v[0].(map[string]interface{})
+					a := openapi.ElasticsearchAllOfAuthentication{}
+					if v, ok := val["type"].(string); ok && len(v) > 0 {
+						a.SetType(v)
+					}
+					if v, ok := val["token"].(string); ok && len(v) > 0 {
+						a.SetToken(v)
+					}
+					if len(a.GetType()) > 0 {
+						elasticsearch.SetAuthentication(a)
+					}
+				}
+
 			}
 			val.SetElasticsearch(elasticsearch)
 		}
