@@ -358,7 +358,7 @@ func resourceAppgateSite() *schema.Resource {
 									"use_managed_identities": {
 										Type:     schema.TypeBool,
 										Default:  false,
-										Optional: false,
+										Required: true,
 									},
 									"subscription_id": {
 										Type:     schema.TypeString,
