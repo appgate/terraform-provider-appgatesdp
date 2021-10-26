@@ -1140,7 +1140,7 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v := raw["servers"]; len(v.([]interface{})) > 0 {
 			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve dns serers: %+v", err)
+				return result, fmt.Errorf("Failed to resolve dns servers: %+v", err)
 			}
 			if len(servers) > 0 {
 				row.SetServers(servers)
