@@ -727,29 +727,29 @@ func TestAccSite55Attributes(t *testing.T) {
                         excluded_subnets = []
                     }
                     name_resolution {
-                        azure_resolvers = {
+                        azure_resolvers {
                             name                    = "AZ resolver 99"
+                            client_id               = "test_client"
+                            secret                  = "test_secret"
                             update_interval         = 60
-                            use_managed_identites   = false
+                            use_managed_identities  = false
                             subscription_id         = "AZ_test_subscription"
-                            tentant_id              = "AZ_test_tentant"
+                            tenant_id               = "AZ_test_tentant"
                         }
                     }
-                    dns_forwarding [
-                        {
-                            site_ipv4           = "1.2.3.4"
-                            site_ipv6           = ""
-                            dns_servers         = [
-                                "1.1.1.1"
-                            ]
-                            allow_destinations  = [
-                                {
-                                    address = "https://test.devops"
-                                    netmask = 32
-                                }
-                            ]
-                        }
-                    ]
+                    dns_forwarding {
+                        site_ipv4           = "1.2.3.4"
+                        site_ipv6           = ""
+                        dns_servers         = [
+                            "1.1.1.1"
+                        ]
+                        allow_destinations  = [
+                            {
+                                address = "https://test.devops"
+                                netmask = 32
+                            }
+                        ]
+                    }
                 }
                 `, map[string]interface{}{
 					"name": rName,
@@ -757,11 +757,11 @@ func TestAccSite55Attributes(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.azure_resolvers.use_managed_identities", "false"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.site_ipv4", "1.2.3.4"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.site_ipv6", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.allow_destinations.0.address", "https://test.devops"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.0.allow_destinations.0.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.site_ipv4", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.site_ipv6", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.allow_destinations.0.address", "https://test.devops"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.allow_destinations.0.netmask", "32"),
 				),
 			},
 			{

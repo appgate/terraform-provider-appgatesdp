@@ -441,41 +441,33 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"dns_forwarding": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"site_ipv4": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"site_ipv6": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"dns_servers": {
-										Type:     schema.TypeSet,
-										Optional: false,
-										Required: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-									"allow_destinations": {
-										Type:     schema.TypeSet,
-										Optional: false,
-										Required: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"address": {
-													Type:     schema.TypeString,
-													Optional: false,
-													Required: true,
-												},
-												"netmask": {
-													Type:     schema.TypeInt,
-													Optional: false,
-													Required: true,
-												},
-											},
+							Elem: map[string]*schema.Schema{
+								"site_ipv4": {
+									Type:     schema.TypeString,
+									Optional: true,
+								},
+								"site_ipv6": {
+									Type:     schema.TypeString,
+									Optional: true,
+								},
+								"dns_servers": {
+									Type:     schema.TypeSet,
+									Required: true,
+									Elem:     &schema.Schema{Type: schema.TypeString},
+								},
+								"allow_destinations": {
+									Type:     schema.TypeSet,
+									Required: true,
+									Elem: map[string]*schema.Schema{
+										"address": {
+											Type:     schema.TypeString,
+											Required: true,
+										},
+										"netmask": {
+											Type:     schema.TypeInt,
+											Required: true,
 										},
 									},
 								},
@@ -1122,6 +1114,13 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 			}
 			result.SetGcpResolvers(gcpResolvers)
 		}
+		if v, ok := raw["dns_forwarding"]; ok {
+			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetDnsForwarding(dnsForwardingResolvers)
+		}
 	}
 	return result, nil
 }
@@ -1317,4 +1316,49 @@ func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNa
 		result = append(result, row)
 	}
 	return result, nil
+}
+
+func readDNSForwardingResolversFromConfig(dnsForwardingConfigs interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
+	raw := dnsForwardingConfigs.(map[string]interface{})
+	row := openapi.SiteAllOfNameResolutionDnsForwarding{}
+	if v, ok := raw["site_ipv4"]; ok {
+		row.SetSiteIpv4(v.(string))
+	}
+	if v, ok := raw["site_ipv6"]; ok {
+		row.SetSiteIpv6(v.(string))
+	}
+	if v, ok := raw["dns_servers"]; ok {
+		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return row, err
+		}
+		row.SetDnsServers(servers)
+	}
+	if v, ok := raw["allow_destinations"]; ok {
+		ds, err := listToMapList(v.([]interface{}))
+		if err != nil {
+			return row, err
+		}
+		destinations, err := readAllowDestinationsFromConfig(ds)
+		if err != nil {
+			return row, err
+		}
+		row.SetAllowDestinations(destinations)
+	}
+	return row, nil
+}
+
+func readAllowDestinationsFromConfig(input []map[string]interface{}) ([]map[string]interface{}, error) {
+	r := make([]map[string]interface{}, 0)
+	for _, raw := range input {
+		row := make(map[string]interface{}, 0)
+		if v, ok := raw["address"]; ok {
+			row["address"] = v.(string)
+		}
+		if v, ok := raw["netmask"]; ok {
+			row["netmask"] = v.(int32)
+		}
+		r = append(r, row)
+	}
+	return r, nil
 }
