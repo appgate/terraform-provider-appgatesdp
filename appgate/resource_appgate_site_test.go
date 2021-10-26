@@ -756,7 +756,7 @@ func TestAccSite55Attributes(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.azure_resolvers.use_managed_identities", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.azure_resolvers.use_managed_identities", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.site_ipv4", "1.2.3.4"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.site_ipv6", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.dns_servers.0", "1.1.1.1"),
