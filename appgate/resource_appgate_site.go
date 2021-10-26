@@ -456,6 +456,7 @@ func resourceAppgateSite() *schema.Resource {
 									"dns_servers": {
 										Type:     schema.TypeSet,
 										Optional: false,
+										Required: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"allow_destinations": {
