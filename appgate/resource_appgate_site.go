@@ -356,7 +356,7 @@ func resourceAppgateSite() *schema.Resource {
 										Optional: true,
 									},
 									"use_managed_identities": {
-										Type: schema.TypeBool,
+										Type:    schema.TypeBool,
 										Default: false,
 									},
 									"subscription_id": {
@@ -440,34 +440,34 @@ func resourceAppgateSite() *schema.Resource {
 						},
 
 						"dns_forwarding": {
-							Type: schema.TypeList,
+							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"site_ipv4": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Optional: true,
 									},
 									"site_ipv6": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Optional: true,
 									},
 									"dns_servers": {
-										Type: schema.TypeSet,
+										Type:     schema.TypeSet,
 										Optional: false,
-										Elem: &schema.Schema{Type: schema.TypeString},
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"allow_destinations": {
-										Type: schema.TypeList,
+										Type:     schema.TypeList,
 										Optional: false,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"address": {
-													Type: schema.TypeString,
+													Type:     schema.TypeString,
 													Optional: false,
 												},
 												"netmask": {
-													Type: schema.TypeInt,
+													Type:     schema.TypeInt,
 													Optional: false,
 												},
 											},
