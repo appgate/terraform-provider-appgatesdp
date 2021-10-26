@@ -462,15 +462,18 @@ func resourceAppgateSite() *schema.Resource {
 									"allow_destinations": {
 										Type:     schema.TypeSet,
 										Optional: false,
+										Required: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"address": {
 													Type:     schema.TypeString,
 													Optional: false,
+													Required: true,
 												},
 												"netmask": {
 													Type:     schema.TypeInt,
 													Optional: false,
+													Required: true,
 												},
 											},
 										},
