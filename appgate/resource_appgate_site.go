@@ -458,7 +458,7 @@ func resourceAppgateSite() *schema.Resource {
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"allow_destinations": {
-										Type:     schema.TypeList,
+										Type:     schema.TypeSet,
 										Optional: false,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
