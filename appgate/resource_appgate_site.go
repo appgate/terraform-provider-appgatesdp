@@ -443,31 +443,35 @@ func resourceAppgateSite() *schema.Resource {
 						"dns_forwarding": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							Elem: map[string]*schema.Schema{
-								"site_ipv4": {
-									Type:     schema.TypeString,
-									Optional: true,
-								},
-								"site_ipv6": {
-									Type:     schema.TypeString,
-									Optional: true,
-								},
-								"dns_servers": {
-									Type:     schema.TypeSet,
-									Required: true,
-									Elem:     &schema.Schema{Type: schema.TypeString},
-								},
-								"allow_destinations": {
-									Type:     schema.TypeSet,
-									Required: true,
-									Elem: map[string]*schema.Schema{
-										"address": {
-											Type:     schema.TypeString,
-											Required: true,
-										},
-										"netmask": {
-											Type:     schema.TypeInt,
-											Required: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"site_ipv4": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"site_ipv6": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"dns_servers": {
+										Type:     schema.TypeSet,
+										Required: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"allow_destinations": {
+										Type:     schema.TypeSet,
+										Required: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"netmask": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+											},
 										},
 									},
 								},

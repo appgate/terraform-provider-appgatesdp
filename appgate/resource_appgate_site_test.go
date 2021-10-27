@@ -736,19 +736,19 @@ func TestAccSite55Attributes(t *testing.T) {
                             subscription_id         = "AZ_test_subscription"
                             tenant_id               = "AZ_test_tentant"
                         }
-                    }
-                    dns_forwarding {
-                        site_ipv4           = "1.2.3.4"
-                        site_ipv6           = ""
-                        dns_servers         = [
-                            "1.1.1.1"
-                        ]
-                        allow_destinations  = [
-                            {
-                                address = "https://test.devops"
-                                netmask = 32
-                            }
-                        ]
+                        dns_forwarding {
+                            site_ipv4           = "1.2.3.4"
+                            site_ipv6           = ""
+                            dns_servers         = [
+                                "1.1.1.1"
+                            ]
+                            allow_destinations  = [
+                                {
+                                    address = "https://test.devops"
+                                    netmask = 32
+                                }
+                            ]
+                        }
                     }
                 }
                 `, map[string]interface{}{
