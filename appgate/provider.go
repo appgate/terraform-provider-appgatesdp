@@ -83,6 +83,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CONFIG_PATH", nil),
 				Description: "Path to the appgate config file. Can be set with APPGATE_CONFIG_PATH.",
 			},
+			"bearer_token": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_BEARER_TOKEN", nil),
+				Description: "The Token from the LoginResponse, provided from outside terraform.",
+			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"appgatesdp_appliance":               dataSourceAppgateAppliance(),
@@ -138,27 +144,13 @@ func Provider() *schema.Provider {
 	}
 }
 
-func requiredParameters(d *schema.ResourceData) bool {
-	required := []string{
-		"username",
-		"password",
-		"url",
-	}
-	for _, r := range required {
-		if _, ok := d.GetOk(r); !ok {
-			return false
-		}
-	}
-	return true
-}
-
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 	config := Config{}
 	config.Timeout = 20
 
-	if path, ok := d.GetOkExists("config_path"); ok {
+	if path, ok := d.GetOk("config_path"); ok {
 		p := path.(string)
 		file, err := os.OpenFile(p, os.O_RDWR, 0644)
 		if errors.Is(err, os.ErrNotExist) {
@@ -187,15 +179,12 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			return nil, diags
 		}
 		config = configFile
-	} else if !requiredParameters(d) {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Missing Appgate SDP credentials",
-			Detail:   "Appgate client is unauthenticated. Provide user credentials and URL to access restricted resources.",
-		})
-		return nil, diags
 	}
+
 	// overwrite config file value with ENV Variables or set attributes in the provider block
+	if v, ok := d.GetOk("bearer_token"); ok {
+		config.BearerToken = v.(string)
+	}
 	if v, ok := d.GetOk("username"); ok {
 		config.Username = v.(string)
 	}
@@ -219,6 +208,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 	if v, ok := d.GetOk("client_version"); ok {
 		config.Version = v.(int)
+	}
+	if err := config.Validate(); err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Missing Appgate SDP credentials",
+			Detail:   fmt.Sprintf("Appgate client is unauthenticated. %s", err.Error()),
+		})
+		return nil, diags
 	}
 	c, err := config.Client()
 	if err != nil {
