@@ -3,7 +3,7 @@ layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_local_database_identity_provider"
 sidebar_current: "docs-appgate-resource-local_database_identity_provider"
 description: |-
-   Create a new Local database Identity Provider.
+  Import and Update Local database Identity Provider.
 ---
 
 # appgatesdp_local_database_identity_provider
