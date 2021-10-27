@@ -3,16 +3,21 @@ layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_ldap_certificate_identity_provider"
 sidebar_current: "docs-appgate-resource-ldap_certificate_identity_provider"
 description: |-
-   Create a new Ldap certificate Identity Provider.
+   Create a new LdapCertificate Identity Provider.
 ---
 
 # appgatesdp_ldap_certificate_identity_provider
 
 Create a new Identity Provider.
 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
+
 ## Example Usage
 
 ```hcl
+
 
 data "appgatesdp_ip_pool" "ip_four_pool" {
   ip_pool_name = "default pool v4"
@@ -25,16 +30,16 @@ data "appgatesdp_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
 resource "appgatesdp_ldap_certificate_identity_provider" "ldap_cert_test_resource" {
-  name                     = "%s"
-  port                     = 389
-  admin_distinguished_name = "CN=admin,OU=Users,DC=company,DC=com"
-  hostnames                = ["dc.ad.company.com"]
-  ssl_enabled              = true
-  base_dn                  = "OU=Users,DC=company,DC=com"
-  object_class             = "user"
-  username_attribute       = "sAMAccountName"
-  membership_filter        = "(objectCategory=group)"
-  membership_base_dn       = "OU=Groups,DC=company,DC=com"
+  name                       = "%s"
+  port                       = 389
+  admin_distinguished_name   = "CN=admin,OU=Users,DC=company,DC=com"
+  hostnames                  = ["dc.ad.company.com"]
+  ssl_enabled                = true
+  base_dn                    = "OU=Users,DC=company,DC=com"
+  object_class               = "user"
+  username_attribute         = "sAMAccountName"
+  membership_filter          = "(objectCategory=group)"
+  membership_base_dn         = "OU=Groups,DC=company,DC=com"
   default                    = false
   inactivity_timeout_minutes = 28
   ip_pool_v4                 = data.appgatesdp_ip_pool.ip_four_pool.id
@@ -80,6 +85,7 @@ EOF
 
 ```
 
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -100,6 +106,7 @@ The following arguments are supported:
 * `certificate_user_attribute`: (Optional) The LDAP attribute to compare the Client certificate's Subject Alternative Name.
 * `certificate_attribute`: (Optional) The LDAP attribute to compare the Client certificate binary. Leave it null to skip this comparison.
 * `skip_x509_external_checks`: (Optional) By default, Controller contacts the endpoints on the certificate extensions in order to verify revocation status and pull the intermediate CA certificates. Set this flag in order to skip them.
+* `certificate_priorities`: (Optional) Client will order the available certificates according to the given priority list.
 
 
 ### hostnames
@@ -114,6 +121,11 @@ Password warning configuration for Active Directory. If enabled, the client will
 ### ca_certificates
 CA certificates to verify the Client certificates. In PEM format.
 
+### certificate_priorities
+Client will order the available certificates according to the given priority list.
+
+* `type`:  (Optional)  default value `Template`  Enum values: `Template,Issuer`Which attribute to compare.
+* `value`: (Required) The value to compare to the certificate attribute.
 
 
 

@@ -10,9 +10,14 @@ description: |-
 
 Create a new inactive Appliance.
 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
+
 ## Example Usage
 
 ```hcl
+
 
 
 data "appgatesdp_site" "default_site" {
@@ -253,6 +258,7 @@ resource "appgatesdp_appliance" "new_gateway" {
 
 }
 
+
 ```
 
 
@@ -264,14 +270,14 @@ The following arguments are supported:
 * `activated`: (Optional) Whether the Appliance is activated or not. If it is not activated, it won't be accessible by the Clients.
 * `pending_certificate_renewal`: (Optional) Whether the Appliance is pending certificate renewal or not. Should be true for a very short period on certificate renewal.
 * `version`: (Optional) Peer version of the Appliance.
-* `hostname`: (Required) Generic hostname of the appliance. Used as linux hostname and to identify within logs.
+* `hostname`: (Optional) Generic hostname of the appliance. Used as linux hostname and to identify within logs. If peerInterface.hostname is changed, this field's value is cleared. When empty, peerInterface.hostname will be used to generate it.
 * `site`: (Optional) Site served by the Appliance. Entitlements on this Site will be included in the Entitlement Token for this Appliance. Not useful if Gateway role is not enabled.
 * `site_name`: (Optional) Name of the Site for this Appliance. For convenience only.
 * `customization`: (Optional) Customization assigned to this Appliance.
-* `connect_to_peers_using_client_port_with_spa`: (Optional) Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect.
+* `connect_to_peers_using_client_port_with_spa`: (Optional) Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect. This field is deprecated as of 5.4. It will always be enabled when the support for peerInterface is removed.
 * `client_interface`: (Required) The details of the Client connection interface.
-* `peer_interface`: (Required) The details of peer connection interface. Used by other appliances and administrative UI.
-* `admin_interface`: (Optional) The details of the admin connection interface. If null, admin interface will be accessible via peerInterface.
+* `peer_interface`: (Required) The details of peer connection interface. Used by other appliances and administrative UI. This interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.
+* `admin_interface`: (Optional) The details of the admin connection interface. Required on Controllers and LogServers.
 * `networking`: (Required) Networking configuration of the system.
 * `ntp`: (Optional) NTP configuration.
 * `ssh_server`: (Optional) SSH server configuration.
@@ -284,6 +290,7 @@ The following arguments are supported:
 * `gateway`: (Optional) Gateway settings.
 * `log_forwarder`: (Optional) LogForwarder settings. LogForwarder collects audit logs from the appliances in the given sites and sends them to the given endpoints.
 * `connector`: (Optional) Connector settings.
+* `portal`: (Optional) Portal settings.
 * `rsyslog_destinations`: (Optional) Rsyslog destination settings to forward appliance logs.
 * `hostname_aliases`: (Optional) Hostname aliases. They are added to the Appliance certificate as Subject Alternative Names so it is trusted using different IPs or hostnames. Requires manual certificate renewal to apply changes to the certificate.
 * `id`: (Required) ID of the object.
@@ -307,10 +314,7 @@ Source configuration to allow via iptables.
 * `netmask`: (Optional) Netmask to use with address for allowing connections. Example: 0.
 * `nic`: (Optional) NIC name to accept connections on. Example: eth0.
 ### peer_interface
-The details of peer connection interface. Used by other appliances and administrative UI.
-
-!> **Warning:** peer_interface will be removed in future release. Estimated to be removed in the release after 5.5
-
+The details of peer connection interface. Used by other appliances and administrative UI. This interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.
 
 * `hostname`: (Required) Hostname to connect by the peers. It will be used to validate the appliance certificate. Example: appgate.company.com.
 * `https_port`:  (Optional)  default value `444` Port to connect for peer specific services.
@@ -321,12 +325,13 @@ Source configuration to allow via iptables.
 * `netmask`: (Optional) Netmask to use with address for allowing connections. Example: 0.
 * `nic`: (Optional) NIC name to accept connections on. Example: eth0.
 ### admin_interface
-The details of the admin connection interface. If null, admin interface will be accessible via peerInterface.
+The details of the admin connection interface. Required on Controllers and LogServers.
 
 * `hostname`: (Required) Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Example: appgate.company.com.
 * `https_port`:  (Optional)  default value `8443` Port to connect for admin services.
 * `https_ciphers`: (Required)  default value `ECDHE-RSA-AES256-GCM-SHA384,ECDHE-RSA-AES128-GCM-SHA256` The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.
 * `allow_sources`:  (Optional) Source configuration to allow via iptables.
+* `https_p12`:  (Optional) PKCS12 object with X.509 certificate and private key.
 #### https_ciphers
 The type of TLS ciphers to allow. See: https:&#x2F;&#x2F;www.openssl.org&#x2F;docs&#x2F;man1.0.2&#x2F;apps&#x2F;ciphers.html for all supported ciphers.
 #### allow_sources
@@ -334,6 +339,12 @@ Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
 * `netmask`: (Optional) Netmask to use with address for allowing connections. Example: 0.
 * `nic`: (Optional) NIC name to accept connections on. Example: eth0.
+#### https_p12
+PKCS12 object with X.509 certificate and private key.
+* `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
+* `content`: (Optional) Contents of the P12 file in Base64 format.
+* `password`: (Optional) Password for the P12 file.
+* `subject_name`: (Optional) Subject name of the certificate in the file.
 ### networking
 Networking configuration of the system.
 
@@ -364,7 +375,6 @@ IPv4 DHCP configuration for the NIC.
 IPv4 static NIC configuration for the NIC.
 * `address`: IPv4 Address of the network interface.
 * `netmask`: Netmask of the network interface.
-* `hostname`: NIC hostname.
 * `snat`: Enable SNAT on this IP.
 ##### virtual_ip
 Virtual IP to use for IPv4.
@@ -378,7 +388,6 @@ IPv6 DHCP configuration for the NIC.
 IPv6 static NIC configuration for the NIC.
 * `address`: IPv6 Address of the network interface.
 * `netmask`: Netmask of the network interface.
-* `hostname`: NIC hostname.
 * `snat`: Enable SNAT on this IP.
 ##### virtual_ip
 Virtual IP to use for IPv6.
@@ -395,11 +404,12 @@ System route settings.
 ### ntp
 NTP configuration.
 
-* `servers`:  (Optional)
+* `servers`:  (Optional) 
 #### servers
 
 * `hostname`: (Required) Hostname or IP of the NTP server. Example: 0.ubuntu.pool.ntp.org.
 * `key_type`: (Optional) Type of key to use for secure NTP communication. ENUM: MD5,SHA,SHA1,SHA256,SHA512,RMD160.
+* `key_no`: (Optional) Identifier number for the key.
 * `key`: (Optional) Key to use for secure NTP communication.
 ### ssh_server
 SSH server configuration.
@@ -465,7 +475,7 @@ Log Server settings. Log Server collects audit logs from all the appliances and 
 ### controller
 Controller settings.
 
-* `enabled`:  (Optional)  default value `false` Whether the Controller is enabled on this appliance or not.
+* `enabled`:  (Optional)  default value `false` Whether the Controller is enabled on this appliance or not. Cannot be enabled on an inactive Appliance since some checks need to be done first.
 ### gateway
 Gateway settings.
 
@@ -491,6 +501,8 @@ Elasticsearch endpoint configuration on AWS.
 * `use_instance_credentials`: (Optional) Whether to use the credentials from the AWS instance or not.
 * `url`: (Required) The URL of the elasticsearch server. Example: https://aws.com/elasticsearch/instance/asdaxllkmda64.
 * `retention_days`: (Optional) Optional field to enable log retention on the configured AWS elasticsearch. Defines how many days the audit logs will be kept. Example: 30.
+* `compatibility_mode`: (Optional) Which version of Elasticsearch that logs are forwarded to.
+* `authentication`: (Optional) Optional authentication settings used when sending logs to an elasticsearch instance.
 #### tcp_clients
 TCP endpoints to connect and send the audit logs with the given format.
 * `name`: (Required) Name of the endpoint. Example: Company SIEM.
@@ -501,17 +513,6 @@ TCP endpoints to connect and send the audit logs with the given format.
 * `filter`: (Optional) JMESPath expression to filter audit logs to forward. Example: event_type=='authentication_succeeded'.
 #### aws_kineses
 AWS Kinesis endpoints to connect and send the audit logs with the given format.
-* `aws_id`: (Optional) AWS ID to login. Only required if AWS Access Keys are being used to authenticate.
-* `aws_secret`: (Optional) AWS secret to login. Only required if AWS Access Keys are being used to authenticate.
-* `aws_region`: (Optional) AWS region. Only required if AWS Access Keys are being used to authenticate. Example: eu-west-2.
-* `use_instance_credentials`: (Optional) Whether to use the credentials from the AWS instance or not.
-* `url`: (Optional) The URL of the elasticsearch server. Example: https://aws.com/elasticsearch/instance/asdaxllkmda64.
-* `retention_days`: (Optional) Optional field to enable log retention on the configured AWS elasticsearch. Defines how many days the audit logs will be kept. Example: 30.
-* `type`: (Optional) AWS Kinesis type ENUM: Stream,Firehose.
-* `stream_name`: (Optional) Name of the stream. Example: Appgate_SDP_audit.
-* `batch_size`: (Optional) Batch size for the stream. Used only for "Stream" type.
-* `number_of_partition_keys`: (Optional) Number of partition keys to use for the stream. Used only for "Stream" type.
-* `filter`: (Optional) JMESPath expression to filter audit logs to forward. Example: event_type=='authentication_succeeded'.
 #### sites
 The sites to collect logs from and forward.
 ### connector
@@ -524,44 +525,54 @@ Connector settings.
 A list of Clients to run on the appliance with the given configuration. The Clients will get the necessary tokens automatically according to the Site assigned to this Appliance. Currently only one allowed.
 * `name`: (Required) Name for the Client. It will be mapped to the user claim 'clientName'. Example: Printers.
 * `device_id`: (Optional) The device ID to assign to this Client. It will be used to generate device distinguished name. Example: 12699e27-b584-464a-81ee-5b4784b6d425.
-* `allow_resources`: (Optional) A list of subnets to allow access via Client.
+* `allow_resources`: (Optional) A list of subnets to allow access.
 * `snat_to_resources`: (Optional) Use Source NAT for the resources.
+* `dnat_to_resource`: (Optional) Apply destination NAT to traffic from tunnel into a resource
 #### advanced_clients
 A list of Clients to run on the appliance with the given configuration. Requires manual Policy configuration.
 * `name`: (Required) Name for the Client. It will be mapped to the user claim 'clientName'. Example: Printers.
 * `device_id`: (Optional) The device ID to assign to this Client. It will be used to generate device distinguished name. Example: 12699e27-b584-464a-81ee-5b4784b6d425.
 * `allow_resources`: (Optional) Source configuration to allow via iptables.
 * `snat_to_tunnel`: (Optional) Use Source NAT for the Client tunnel.
-
+* `snat_to_resources`: (Optional) Use SNAT for outgoing traffic from the Express Connector, endpoints will see traffic as coming from the Connector itself
+* `dnat_to_resource`: (Optional) Apply destination NAT to traffic from tunnel into a resource
+* `default_gateway`: (Optional) Use this connector client as a default gw for local resources
 ### portal
 Portal settings.
 
 * `enabled`:  (Optional)  default value `false` Whether the Portal is enabled on this appliance or not.
 * `https_p12`:  (Optional) PKCS12 object with X.509 certificate and private key.
+* `http_redirect`:  (Optional)  default value `true` Automatic 80->443 redirection for Portal.
+* `proxy_ports`:  (Optional)  default value `443` Ports that can be proxied via Portal.
 * `proxy_p12s`:  (Optional) P12 files for proxying traffic to HTTPS endpoints.
 * `profiles`:  (Optional) Names of the profiles in this Collective to use in the Portal.
 * `external_profiles`:  (Optional) Profiles from other Collectives to use in the Portal.
+* `sign_in_customization`:  (Optional) Visual customizations to make on the Portal sign-in page.
 #### https_p12
 PKCS12 object with X.509 certificate and private key.
 * `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
-* `content`: (Optional) Contents expects the filepath of the P12 file
+* `content`: (Optional) Contents of the P12 file in Base64 format.
 * `password`: (Optional) Password for the P12 file.
-* `subject_name`: (Computed) Subject name of the certificate in the file.
+* `subject_name`: (Optional) Subject name of the certificate in the file.
+#### proxy_ports
+Ports that can be proxied via Portal.
 #### proxy_p12s
 P12 files for proxying traffic to HTTPS endpoints.
-* `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
-* `content`: (Optional) Contents expects the filepath of the P12 file, Required if portal is enabled.
-* `password`: (Optional) Password for the P12 file.
-* `subject_name`: (Computed) Subject name of the certificate in the file.
-* `verify_upstream`: (Optional) Portal will verify upstream certificate of the endpoints.
 #### profiles
 Names of the profiles in this Collective to use in the Portal.
 #### external_profiles
 Profiles from other Collectives to use in the Portal.
 * `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
-* `url`: (Computed) Appgate URL from Client Connections. Example: appgate://appgate.company.com/eyJjYUZpbmdlcnByaW50IjoiMmM4ZTBiNTM5YTM4NjRkYmVkYzhiOWRkMTcwYzM0NGFhMjZjZTVhNjA4MmY3YTI0YzRkZTU4ZGQ3NWRjNWZhMCIsImlkZW50aXR5UHJvdmlkZXJOYW1lIjoibG9jYWwifQ==.
-
-
+* `url`: (Optional) Appgate URL from Client Connections. Example: appgate://appgate.company.com/eyJjYUZpbmdlcnByaW50IjoiMmM4ZTBiNTM5YTM4NjRkYmVkYzhiOWRkMTcwYzM0NGFhMjZjZTVhNjA4MmY3YTI0YzRkZTU4ZGQ3NWRjNWZhMCIsImlkZW50aXR5UHJvdmlkZXJOYW1lIjoibG9jYWwifQ==.
+* `hostname`: (Optional) Hostname parsed from the given URL. Example: appgate.company.com.
+* `profile_name`: (Optional) Profile name parsed from the given URL. Example: Portal Users.
+#### sign_in_customization
+Visual customizations to make on the Portal sign-in page.
+* `background_color`: (Optional) Changes the background color on the sign-in page. In hexadecimal format. Example: #123456.
+* `background_image`: (Optional) Changes the background image on the sign-in page. Must be in PNG, JPEG or GIF format.
+* `logo`: (Optional) Changes the logo on the sign-in page. Must be in PNG, JPEG or GIF format.
+* `text`: (Optional) Adds a text to the sign-in page.
+* `text_color`: (Optional) Changes the text color on the sign-in page. In hexadecimal format. Example: #123456.
 ### rsyslog_destinations
 Rsyslog destination settings to forward appliance logs.
 

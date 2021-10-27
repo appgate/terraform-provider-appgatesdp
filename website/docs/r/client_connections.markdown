@@ -3,19 +3,21 @@ layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_client_connections"
 sidebar_current: "docs-appgate-resource-client_connections"
 description: |-
-   Update Client Connection settings. With API version 12, this API has changed significantly in order to manage client profiles. It is still possible to use the older APIs using older Accept headers.
+   Update Client Connection settings.
 ---
 
 # appgatesdp_client_connections
 
 Update Client Connection settings.
 
-~> **NOTE:** This resource has been replaced by [appgatesdp_client_profile](../r/client_profile.markdown) 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
 
 
 ## Example Usage
 
 ```hcl
+
 
 resource "appgatesdp_client_connections" "cc" {
   spa_mode = "TCP"
@@ -27,14 +29,17 @@ resource "appgatesdp_client_connections" "cc" {
 }
 
 
+
 ```
+
 
 ## Argument Reference
 
 The following arguments are supported:
 
 
-* `spa_mode`: (Optional) SPA mode.
+* `spa_mode`: (Optional) SPA mode. Deprecated as of 5.4. Use global-settings API instead.
+* `profile_hostname`: (Optional) The hostname to use for generating profile URLs.
 * `profiles`: (Optional) Client Profiles.
 
 

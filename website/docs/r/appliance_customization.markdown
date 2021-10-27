@@ -10,11 +10,14 @@ description: |-
 
 Create a new Appliance Customization.
 
-https://sdphelp.appgate.com/adminguide/v5.1/appliance-customizations-configure.html
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
 
 ## Example Usage
 
 ```hcl
+
 
 data "archive_file" "customization" {
   type        = "zip"
@@ -47,7 +50,9 @@ resource "appgatesdp_appliance_customization" "test_customization" {
   ]
 }
 
+
 ```
+
 
 ## Argument Reference
 

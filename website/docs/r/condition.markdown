@@ -10,9 +10,14 @@ description: |-
 
 Create a new Condition.
 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
+
 ## Example Usage
 
 ```hcl
+
 
 resource "appgatesdp_condition" "test_condition" {
   name = "teraform-example-condition"
@@ -39,7 +44,9 @@ EOF
 
 }
 
+
 ```
+
 
 ## Argument Reference
 

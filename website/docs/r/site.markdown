@@ -10,9 +10,14 @@ description: |-
 
 Create a new Site.
 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
+
 ## Example Usage
 
 ```hcl
+
 
 resource "appgatesdp_site" "gbg_site" {
   name       = "Gothenburg site"
@@ -35,7 +40,9 @@ resource "appgatesdp_site" "gbg_site" {
 
 }
 
+
 ```
+
 
 ## Argument Reference
 
@@ -80,21 +87,25 @@ VPN configuration for this Site.
 * `tls`:  (Optional) VPN over TLS protocol configuration.
 * `dtls`:  (Optional) VPN over DTLS protocol configuration.
 * `route_via`:  (Optional) Override routing for tunnel traffic.
+* `url_access_enabled`:  (Optional) Whether to enable URL Access feature or not.
 * `web_proxy_enabled`:  (Optional) Flag for manipulating web proxy p12 file. Setting this false will delete the existing p12 file from database.
 * `web_proxy_key_store`:  (Optional) The PKCS12 package to be used for web proxy. The file must be with no password and must include the full certificate chain and a private key. In Base64 format.
 * `web_proxy_verify_upstream_certificate`:  (Optional)  default value `true` Gateway will verify the certificate of the endpoints.
 * `web_proxy_certificate_subject_name`:  (Optional) The subject name of the certificate with private key in the PKCS12 file for web proxy assigned to this site.
+* `url_access_p12s`:  (Optional) P12 files for proxying traffic for URL Access feature.
 * `ip_access_log_interval_seconds`:  (Optional)  default value `120` Frequency configuration for generating IP Access audit logs for a connection.
 #### tls
 VPN over TLS protocol configuration.
-* `enabled`: (Optional)
+* `enabled`: (Optional) 
 #### dtls
 VPN over DTLS protocol configuration.
-* `enabled`: (Optional)
+* `enabled`: (Optional) 
 #### route_via
 Override routing for tunnel traffic.
 * `ipv4`: (Optional) IPv4 address for routing tunnel traffic. Example: 10.0.0.2.
 * `ipv6`: (Optional) IPv6 address for routing tunnel traffic. Example: 2001:db8:0:0:0:ff00:42:8329.
+#### url_access_p12s
+P12 files for proxying traffic for URL Access feature.
 ### name_resolution
 Settings for asset name resolution.
 
@@ -104,12 +115,14 @@ Settings for asset name resolution.
 * `azure_resolvers`:  (Optional) Resolvers to resolve Azure machines by querying Azure App Service.
 * `esx_resolvers`:  (Optional) Resolvers to resolve VMware vSphere machines by querying the vCenter.
 * `gcp_resolvers`:  (Optional) Resolvers to resolve GCP machine by querying Google web services.
+* `dns_forwarding`:  (Optional) Enable DNS Forwarding feature.
 #### dns_resolvers
 Resolver to resolve hostnames using DNS servers.
 * `name`: (Required) Identifier name. Has no functional effect. Example: DNS Resolver 1.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
 * `servers`: (Required) DNS Server addresses that will be used to resolve hostnames within the Site.
 * `search_domains`: (Optional) DNS search domains that will be used to resolve hostnames within the Site.
+* `match_domains`: (Optional) The DNS resolver will only attempt to resolve names matching the match domains. If match domains are not specified the DNS resolver will attempt to resolve all hostnames.
 #### aws_resolvers
 Resolvers to resolve Amazon machines by querying Amazon Web Services.
 * `name`: (Required) Identifier name. Has no functional effect. Example: AWS Resolver 1.
@@ -127,9 +140,10 @@ Resolvers to resolve Amazon machines by querying Amazon Web Services.
 Resolvers to resolve Azure machines by querying Azure App Service.
 * `name`: (Required) Identifier name. Has no functional effect.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
-* `subscription_id`: (Required) Azure subscription id, visible with the azure cli command `azure account show`.
-* `tenant_id`: (Required) Azure tenant id, visible with the azure cli command `azure account show`.
-* `client_id`: (Required) Azure client id, also called app id. Visible for a given application using the azure cli command `azure ad app show`.
+* `use_managed_identities`: (Optional) Uses the built-in Managed Identities in Azure instances to authenticate against the API.
+* `subscription_id`: (Optional) Azure subscription id, visible with the azure cli command `azure account show`.
+* `tenant_id`: (Optional) Azure tenant id, visible with the azure cli command `azure account show`.
+* `client_id`: (Optional) Azure client id, also called app id. Visible for a given application using the azure cli command `azure ad app show`.
 * `secret`: (Optional) Azure client secret. For Azure AD Apps this is done by creating a key for the app.
 #### esx_resolvers
 Resolvers to resolve VMware vSphere machines by querying the vCenter.
@@ -144,6 +158,12 @@ Resolvers to resolve GCP machine by querying Google web services.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
 * `project_filter`: (Optional) GCP project filter.
 * `instance_filter`: (Optional) GCP instance filter.
+#### dns_forwarding
+Enable DNS Forwarding feature.
+* `site_ipv4`: (Optional) DNS Forwarder Site IPv4 address. Example: 100.110.0.0.
+* `site_ipv6`: (Optional) DNS Forwarder Site IPv6 address. Example: 2001:db8:0:0:0:ff00:42:8329.
+* `dns_servers`: (Required) DNS Servers to use for resolving endpoints. Example: 172.17.18.19,192.100.111.31.
+* `allow_destinations`: (Required) A list of subnets to allow access.
 ### tags
 Array of tags.
 
