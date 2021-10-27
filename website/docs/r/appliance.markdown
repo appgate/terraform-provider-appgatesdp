@@ -314,6 +314,10 @@ Source configuration to allow via iptables.
 * `netmask`: (Optional) Netmask to use with address for allowing connections. Example: 0.
 * `nic`: (Optional) NIC name to accept connections on. Example: eth0.
 ### peer_interface
+
+!> **Warning:** peer_interface will be removed in future release. Estimated to be removed in the release after 5.5
+
+
 The details of peer connection interface. Used by other appliances and administrative UI. This interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.
 
 * `hostname`: (Required) Hostname to connect by the peers. It will be used to validate the appliance certificate. Example: appgate.company.com.
@@ -404,7 +408,7 @@ System route settings.
 ### ntp
 NTP configuration.
 
-* `servers`:  (Optional) 
+* `servers`:  (Optional)
 #### servers
 
 * `hostname`: (Required) Hostname or IP of the NTP server. Example: 0.ubuntu.pool.ntp.org.
