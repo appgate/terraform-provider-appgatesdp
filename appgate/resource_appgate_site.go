@@ -1285,6 +1285,9 @@ func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAll
 		if v, ok := raw["secret"]; ok {
 			row.SetSecret(v.(string))
 		}
+		if v, ok := raw["use_managed_identities"]; ok {
+			row.SetUseManagedIdentities(v.(bool))
+		}
 		result = append(result, row)
 	}
 	return result, nil
