@@ -626,7 +626,6 @@ func TestAccSiteBasicAwsResolverWithoutSecret(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "11"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", ""),

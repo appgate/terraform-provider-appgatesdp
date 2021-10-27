@@ -1138,7 +1138,9 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 			if err != nil {
 				return result, err
 			}
-			result.SetDnsForwarding(dnsForwardingResolvers)
+			if len(dnsForwardingResolvers.GetDnsServers()) > 0 {
+				result.SetDnsForwarding(dnsForwardingResolvers)
+			}
 		}
 	}
 	return result, nil
