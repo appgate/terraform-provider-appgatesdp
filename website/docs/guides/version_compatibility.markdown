@@ -8,7 +8,7 @@ description: |-
 
 ## Version compatibility
 
-The terraform provider tries to maintain full support for all [supported version](https://www.appgate.com/support/software-defined-perimeter-support). Depending on your appgate SDP appliance version, the configuration is diffrent.
+The terraform provider tries to maintain full support for all [supported version](https://www.appgate.com/support/software-defined-perimeter-support). Depending on your appgate SDP appliance version, the configuration is different.
 You need to specify the `client_version` if you are not running the latest supported version.
 
 The `client_version` tries to maintain backwards compatibility 2 versions back all the time.
