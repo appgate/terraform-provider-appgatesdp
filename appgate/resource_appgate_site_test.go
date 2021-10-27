@@ -780,6 +780,14 @@ func TestAccSite55Attributes(t *testing.T) {
 			},
 			{
 				ResourceName:     resourceName,
+                PreConfig: func() {
+                    c := testAccProvider.Meta().(*Client)
+                    c.GetToken()
+                    currentVersion := c.ApplianceVersion
+                    if currentVersion.LessThan(Appliance55Version) {
+                        t.Skip("Test only for 5.5 and above, dns_forwarding only supported in > 5.5")
+                    }
+                },
 				ImportState:      true,
 				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
 			},
