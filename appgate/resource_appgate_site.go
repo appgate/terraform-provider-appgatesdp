@@ -461,6 +461,7 @@ func resourceAppgateSite() *schema.Resource {
 									"allow_destinations": {
 										Type:     schema.TypeSet,
 										Required: true,
+										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"address": {
@@ -712,6 +713,9 @@ func flattenNameResolution(local map[string]interface{}, in openapi.SiteAllOfNam
 	if v, ok := in.GetGcpResolversOk(); ok {
 		m["gcp_resolvers"] = flattenSiteGCPResolvers(*v)
 	}
+	if v, ok := in.GetDnsForwardingOk(); ok {
+		m["dns_forwarding"] = flattenSiteDnsForwading(*v)
+	}
 	return []interface{}{m}
 }
 
@@ -827,6 +831,16 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 		out[i] = m
 	}
 	return out
+}
+
+func flattenSiteDnsForwading(in openapi.SiteAllOfNameResolutionDnsForwarding) []map[string]interface{} {
+	m := make(map[string]interface{})
+	m["site_ipv4"] = in.GetSiteIpv4()
+	m["site_ipv6"] = in.GetSiteIpv6()
+	m["dns_servers"] = in.GetDnsServers()
+	m["allow_destinations"] = in.GetAllowDestinations()
+
+	return []map[string]interface{}{m}
 }
 
 func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -1323,47 +1337,47 @@ func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNa
 	return result, nil
 }
 
-func readDNSForwardingResolversFromConfig(dnsForwardingConfigs interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
-	raw := dnsForwardingConfigs.(map[string]interface{})
-	row := openapi.SiteAllOfNameResolutionDnsForwarding{}
-	if v, ok := raw["site_ipv4"]; ok {
-		row.SetSiteIpv4(v.(string))
-	}
-	if v, ok := raw["site_ipv6"]; ok {
-		row.SetSiteIpv6(v.(string))
-	}
-	if v, ok := raw["dns_servers"]; ok {
-		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
-		if err != nil {
-			return row, err
+func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
+	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
+
+	for _, dnsForwarding := range dnsForwardingConfig {
+		raw := dnsForwarding.(map[string]interface{})
+		if v, ok := raw["site_ipv4"]; ok {
+			result.SetSiteIpv4(v.(string))
 		}
-		row.SetDnsServers(servers)
-	}
-	if v, ok := raw["allow_destinations"]; ok {
-		ds, err := listToMapList(v.([]interface{}))
-		if err != nil {
-			return row, err
+		if v, ok := raw["site_ipv6"]; ok {
+			result.SetSiteIpv6(v.(string))
 		}
-		destinations, err := readAllowDestinationsFromConfig(ds)
-		if err != nil {
-			return row, err
+		if v, ok := raw["dns_servers"]; ok {
+			servers, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetDnsServers(servers)
 		}
-		row.SetAllowDestinations(destinations)
+		if v, ok := raw["allow_destinations"]; ok {
+			destinations, err := readAllowDestinationsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetAllowDestinations(destinations)
+		}
 	}
-	return row, nil
+	return result, nil
 }
 
-func readAllowDestinationsFromConfig(input []map[string]interface{}) ([]map[string]interface{}, error) {
-	r := make([]map[string]interface{}, 0)
-	for _, raw := range input {
+func readAllowDestinationsFromConfig(input []interface{}) ([]map[string]interface{}, error) {
+	result := make([]map[string]interface{}, 0)
+	for _, r := range input {
+		raw := r.(map[string]interface{})
 		row := make(map[string]interface{}, 0)
 		if v, ok := raw["address"]; ok {
 			row["address"] = v.(string)
 		}
 		if v, ok := raw["netmask"]; ok {
-			row["netmask"] = v.(int32)
+			row["netmask"] = int32(v.(int))
 		}
-		r = append(r, row)
+		result = append(result, row)
 	}
-	return r, nil
+	return result, nil
 }

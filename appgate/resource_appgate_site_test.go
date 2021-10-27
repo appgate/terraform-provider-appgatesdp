@@ -738,16 +738,14 @@ func TestAccSite55Attributes(t *testing.T) {
                         }
                         dns_forwarding {
                             site_ipv4           = "1.2.3.4"
-                            site_ipv6           = ""
+                            site_ipv6           = "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
                             dns_servers         = [
                                 "1.1.1.1"
                             ]
-                            allow_destinations  = [
-                                {
-                                    address = "https://test.devops"
-                                    netmask = 32
-                                }
-                            ]
+                            allow_destinations {
+                                address = "1.1.1.1"
+                                netmask = 32
+                            }
                         }
                     }
                 }
@@ -756,13 +754,30 @@ func TestAccSite55Attributes(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.azure_resolvers.use_managed_identities", "true"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.site_ipv4", "1.2.3.4"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.site_ipv6", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.dns_servers.0", "1.1.1.1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.allow_destinations.0.address", "https://test.devops"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.dns_forwarding.allow_destinations.0.netmask", "32"),
-				),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.client_id", "test_client"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.name", "AZ resolver 99"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.secret", "test_secret"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.subscription_id", "AZ_test_subscription"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.tenant_id", "AZ_test_tentant"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.update_interval", "60"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.use_managed_identities", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.address", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv6", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false")),
 			},
 			{
 				ResourceName:     resourceName,
