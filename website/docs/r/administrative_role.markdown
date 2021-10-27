@@ -10,9 +10,14 @@ description: |-
 
 Create a new Administrative Role.
 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
+
 ## Example Usage
 
 ```hcl
+
 
 
 resource "appgatesdp_administrative_role" "test_administrative_role" {
@@ -29,11 +34,9 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 }
 
 ```
-
-### Example with scope
-
-
+## Example with data source
 ```hcl
+## Example with data source
 
 data "appgatesdp_site" "default_site" {
   site_name = "Default site"
@@ -53,7 +56,9 @@ resource "appgatesdp_administrative_role" "administrative_role_with_scope" {
   }
 }
 
+
 ```
+
 
 ## Argument Reference
 
@@ -70,8 +75,8 @@ The following arguments are supported:
 ### privileges
 Administrative privilege list.
 
-* `type`: (Required)  Enum values: `All,View,Create,Edit,Tag,Delete,Revoke,Export,Upgrade,RenewCertificate,DownloadLogs,Test,GetUserAttributes,Backup,CheckStatus,Reevaluate`The type of the Privilege defines the possible administrator actions.
-* `target`: (Required)  Enum values: `All,Appliance,Condition,CriteriaScript,Entitlement,AdministrativeRole,IdentityProvider,MfaProvider,IpPool,LocalUser,Policy,Site,DeviceScript,EntitlementScript,RingfenceRule,ApplianceCustomization,OtpSeed,TokenRecord,Blacklist,UserLicense,RegisteredDevice,AllocatedIp,SessionInfo,AuditLog,AdminMessage,GlobalSetting,CaCertificate,File,FailedAuthentication`The target of the Privilege defines the possible target objects for that type.
+* `type`: (Required)  Enum values: `All,View,Create,Edit,Tag,Delete,Revoke,Export,Upgrade,RenewCertificate,DownloadLogs,Test,GetUserAttributes,Backup,CheckStatus,Reevaluate,Reboot`The type of the Privilege defines the possible administrator actions.
+* `target`: (Required)  Enum values: `All,Appliance,Condition,CriteriaScript,Entitlement,AdministrativeRole,IdentityProvider,MfaProvider,IpPool,LocalUser,Policy,Site,DeviceClaimScript,EntitlementScript,RingfenceRule,ApplianceCustomization,TrustedCertificate,UserClaimScript,OtpSeed,Fido2Device,TokenRecord,Blacklist,License,UserLicense,RegisteredDevice,AllocatedIp,SessionInfo,AuditLog,AdminMessage,GlobalSetting,CaCertificate,File,FailedAuthentication,AutoUpdate,ClientConnection`The target of the Privilege defines the possible target objects for that type.
 * `scope`:  (Optional) The scope of the Privilege. Only applicable to certain type-target combinations. Some types depends on the IdP/MFA type, such as GetUserAttributes. This field must be omitted if not applicable.
 * `default_tags`:  (Optional) The items in this list would be added automatically to the newly created objects' tags. Only applicable on "Create" type and targets with tagging capability. This field must be omitted if not applicable.
 ### tags

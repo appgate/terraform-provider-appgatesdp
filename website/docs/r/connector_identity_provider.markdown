@@ -3,15 +3,21 @@ layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_connector_identity_provider"
 sidebar_current: "docs-appgate-resource-connector_identity_provider"
 description: |-
-   Connector Identity Provider.
+  Import and Update Connector Identity Provider.
 ---
 
 # appgatesdp_connector_identity_provider
+
+~> **NOTE:** Connector Identity Provider is a builtin default singleton resource, that cannot be deleted. But we can modify the existing one, import the default state from the collective with terraform import.
+
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
 
 
 ## Example Usage
 
 ```hcl
+
 
 data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
@@ -29,6 +35,7 @@ resource "appgatesdp_connector_identity_provider" "connector" {
 
 ```
 
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -39,16 +46,15 @@ The following arguments are supported:
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
 * `type`: (Required) The type of the Identity Provider.
-* `display_name`: (Optional) The name displayed to the user. "name" field is used for Distinguished Name generation. Deprecated as of 5.1 since the Client does not have the option to choose Identity Provider anymore.
-* `default`: (Optional) Whether the provider will be chosen by default in the Client UI. If enabled, it will remove the default flag of the current default Identity Provider.
-* `client_provider`: (Optional) Whether the provider will be listed in the Client UI or not. Deprecated as of 5.1 since the Client does not have the option to choose Identity Provider anymore.
 * `admin_provider`: (Optional) Whether the provider will be listed in the Admin UI or not.
+* `device_limit_per_user`: (Optional) The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.
 * `on_boarding2_fa`: (Optional) On-boarding two-factor authentication settings. Leave it empty keep it disabled.
 * `inactivity_timeout_minutes`: (Optional) (Desktop) clients will sign out automatically after the user has been inactive on the device for the configured duration. Set it to 0 to disable.
 * `ip_pool_v4`: (Optional) The IPv4 Pool ID the users in this Identity Provider are going to use to allocate IP addresses for the tunnels.
 * `ip_pool_v6`: (Optional) The IPv6 Pool ID the users in this Identity Provider are going to use to allocate IP addresses for the tunnels.
 * `dns_servers`: (Optional) The DNS servers to be assigned to the Clients of the users in this Identity Provider.
 * `dns_search_domains`: (Optional) The DNS search domains to be assigned to Clients of the users in this Identity Provider.
+* `enforce_windows_network_profile_as_domain`: (Optional) If enabled, Windows Client will configure the network profile as "DomainAuthenticated".
 * `block_local_dns_requests`: (Optional) Whether the Windows Client will block local DNS requests or not.
 * `claim_mappings`: (Optional) The mapping of Identity Provider attributes to claims.
 * `on_demand_claim_mappings`: (Optional) The mapping of Identity Provider on demand attributes to claims.
@@ -72,7 +78,8 @@ The following arguments are supported:
 * `force_authn`: (Optional) Enables ForceAuthn flag in the SAML Request. If the SAML Provider supports this flag, it will require user to enter their credentials every time Client requires SAML authentication.
 * `shared_secret`: (Optional) Radius shared secret to authenticate to the server.
 * `authentication_protocol`: (Optional) Radius protocol to use while authenticating users.
-* `user_lockout_threshold`: (Optional) After how many failed authentication attempts will a local user be locked out from authenticating again for 1 minute.
+* `user_lockout_threshold`: (Optional) After how many failed authentication attempts will a local user be locked out from authenticating again.
+* `user_lockout_duration_minutes`: (Optional) For how long lockout will last for local users.
 * `min_password_length`: (Optional) Minimum password length requirement for local users.
 
 
@@ -84,9 +91,9 @@ On-boarding two-factor authentication settings. Leave it empty keep it disabled.
 
 * `mfa_provider_id`: (Required) MFA provider ID to use for the authentication.
 * `message`:  (Optional) On-boarding MFA message to be displayed on the Client UI during the second-factor authentication. Example: Please use your multi factor authentication device to on-board..
-* `device_limit_per_user`:  (Optional)  default value `100` [Deprecated] The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded. Deprecated. Use root level field instead.
 * `claim_suffix`:  (Optional)  default value `onBoarding` Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled.
 * `always_required`:  (Optional) If enabled, MFA will be required on every authentication.
+* `device_limit_per_user`:  (Optional) The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded. Deprecated. Use root level field instead.
 ### dns_servers
 The DNS servers to be assigned to the Clients of the users in this Identity Provider.
 
@@ -124,9 +131,8 @@ Password warning configuration for Active Directory. If enabled, the client will
 
 ## Import
 
-Connector Identity Provider is a builtin default singleton resource, that cannot be deleted.
-But we can modify the existing one, import the default state from the collective with terraform import.
+Instances can be imported using the `id`, e.g.
 
-```bash
-$ terraform import 'appgatesdp_connector_identity_provider.connector' connector
+```
+$ terraform import appgatesdp_connector_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

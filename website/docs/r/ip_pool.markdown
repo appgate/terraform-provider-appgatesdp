@@ -10,9 +10,14 @@ description: |-
 
 Create a new IP Pool.
 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
+
 ## Example Usage
 
 ```hcl
+
 
 resource "appgatesdp_ip_pool" "example_ip_pool" {
   name            = "ip range example"
@@ -23,7 +28,9 @@ resource "appgatesdp_ip_pool" "example_ip_pool" {
   }
 }
 
+
 ```
+
 
 ## Argument Reference
 
@@ -45,9 +52,9 @@ The following arguments are supported:
 ### ranges
 List of (non-conflicting) IP address ranges to allocate IPs in order.
 
-* `first`:  (Required) The beginning of the IP range.
-* `last`:  (Required) The end of the IP range.
-
+* `cidr`:  (Optional) IP subnet in CIDR format.
+* `first`:  (Optional) The beginning of the IP range.
+* `last`:  (Optional) The end of the IP range.
 ### tags
 Array of tags.
 

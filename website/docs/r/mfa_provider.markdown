@@ -10,36 +10,43 @@ description: |-
 
 Create a new MFA Provider.
 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
+
 ## Example Usage
 
 ```hcl
 
-resource "appgatesdp_mfa_provider" "mfa" {
-   name = "hello world"
-   port = 1812
-   type = "Radius"
-   shared_secret = "helloworld"
-   challenge_shared_secret = "secretString"
-   hostnames = [
-      "mfa.company.com"
-   ]
 
-   tags = [
-      "terraform",
-      "api-created"
-   ]
+resource "appgatesdp_mfa_provider" "mfa" {
+  name                    = "hello world"
+  port                    = 1812
+  type                    = "Radius"
+  shared_secret           = "helloworld"
+  challenge_shared_secret = "secretString"
+  hostnames = [
+    "mfa.company.com"
+  ]
+
+  tags = [
+    "terraform",
+    "api-created"
+  ]
 }
 
+
 ```
+
 
 ## Argument Reference
 
 The following arguments are supported:
 
 
-* `type`: (Required) The type of the MFA Provider. "DefaultTimeBased" is built-in, a new one cannot be created.
-* `hostnames`: (Required) Hostnames/IP addresses to connect.
-* `port`: (Required) Port to connect.
+* `type`: (Required) The type of the MFA Provider. "DefaultTimeBased" and "Fido2" are built-in, new ones cannot be created.
+* `hostnames`: (Optional) Hostnames/IP addresses to connect.
+* `port`: (Optional) Port to connect.
 * `input_type`: (Optional) The input type used in the client to enter the MFA code. 
  * "Masked" - The input is masked the same way as a password field.
  * "Numeric" - The input is marked as a numeric input.

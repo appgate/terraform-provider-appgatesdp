@@ -3,18 +3,21 @@ layout: "appgatesdp"
 page_title: "APPGATE: appgatesdp_device_script"
 sidebar_current: "docs-appgate-resource-device_script"
 description: |-
-   Create a new Device Script.
+   Create a new Device Claim Script.
 ---
 
 # appgatesdp_device_script
 
-Create a new Device Script.
+Create a new Device Claim Script.
+
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
 
 ## Example Usage
 
-
-### Inline content script
 ```hcl
+
 
 resource "appgatesdp_device_script" "example_device_script" {
   name     = "device_script_name"
@@ -30,10 +33,9 @@ EOF
 }
 
 ```
-
-### Upload device script from file path
-
+## Example with data source
 ```hcl
+## Example with data source
 
 resource "appgatesdp_device_script" "example_device_script" {
   name     = "device_script_name"
@@ -41,7 +43,9 @@ resource "appgatesdp_device_script" "example_device_script" {
   file     = "/path/to/file/script.sh"
 }
 
+
 ```
+
 
 ## Argument Reference
 

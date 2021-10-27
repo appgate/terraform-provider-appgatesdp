@@ -10,9 +10,14 @@ description: |-
 
 Create a new Local User.
 
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+
+
 ## Example Usage
 
 ```hcl
+
 
 resource "appgatesdp_local_user" "api_user" {
   name                  = "apiuser"
@@ -23,13 +28,14 @@ resource "appgatesdp_local_user" "api_user" {
   phone                 = "+1-202-555-0172"
   failed_login_attempts = 30
   lock_start            = "2020-04-27T09:51:03Z"
-  lock_start            = ""
   tags = [
     "terraform",
     "api-created"
   ]
 }
+
 ```
+
 
 ## Argument Reference
 
