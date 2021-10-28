@@ -704,7 +704,7 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 	}
 	if v, ok := in.GetAzureResolversOk(); ok {
 		l := getNSLocalChanges(local, "azure_resolvers")
-		m["azure_resolvers"] = flattenSiteAzureResolver(*v, l)
+		m["azure_resolvers"] = flattenSiteAzureResolver(currentVersion, *v, l)
 	}
 	if v, ok := in.GetEsxResolversOk(); ok {
 		l := getNSLocalChanges(local, "esx_resolvers")
@@ -761,20 +761,22 @@ func flattenSiteESXResolvers(in []openapi.SiteAllOfNameResolutionEsxResolvers, l
 	return out
 }
 
-func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers, local map[string]interface{}) []map[string]interface{} {
+func flattenSiteAzureResolver(currentVersion *version.Version, in []openapi.SiteAllOfNameResolutionAzureResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
 		m["name"] = v.GetName()
 		m["update_interval"] = v.GetUpdateInterval()
 		m["subscription_id"] = v.GetSubscriptionId()
-		m["use_managed_identities"] = v.GetUseManagedIdentities()
 		m["tenant_id"] = v.GetTenantId()
 		m["client_id"] = v.GetClientId()
 		if val, ok := local["secret"]; ok {
 			m["secret"] = val
 		} else {
 			m["secret"] = v.GetSecret()
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+			m["use_managed_identities"] = v.GetUseManagedIdentities()
 		}
 
 		out[i] = m
