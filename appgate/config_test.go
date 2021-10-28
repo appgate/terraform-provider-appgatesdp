@@ -298,7 +298,7 @@ func TestConfigValidate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "ok config minimum requried",
+			name: "ok config minimum required",
 			fields: fields{
 				URL:      "http://appgate.controller.com/admin",
 				Username: "admin",

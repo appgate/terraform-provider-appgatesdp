@@ -140,7 +140,7 @@ func resourceAppgateAppliance() *schema.Resource {
 						"override_spa_mode": {
 							Type:     schema.TypeString,
 							Optional: true,
-							// We will have a default value here instead of omiting the attribute when its disabled.
+							// We will have a default value here instead of omitting the attribute when its disabled.
 							// https://github.com/appgate/terraform-provider-appgatesdp/issues/117#issuecomment-846381509
 							Default: "Disabled",
 							ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
@@ -1909,7 +1909,7 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 					auth["type"] = v
 				}
 
-				// token is sensitive, so we wont get it in the response body, but we can lookup it from the state
+				// token is sensitive, so we won't get it in the response body, but we can lookup it from the state
 				if state := d.Get("log_forwarder.0.elasticsearch.0.authentication").([]interface{}); len(state) > 0 && state[0] != nil {
 					s := state[0].(map[string]interface{})
 					if v, ok := s["token"]; ok {

@@ -191,7 +191,7 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 	}
 
 	// Since /login is the first request we do, it provide us the earliest check if a controller is up and running
-	// if the appgatesdp provider is combined with, for example  aws_instance where we create the inital controller
+	// if the appgatesdp provider is combined with, for example  aws_instance where we create the initial controller
 	// it might take awhile for the controller to startup and be responsive, so until its up it can return 500, 502, 503
 	// these status code is treated as retryable errors, during exponentialBackOff.MaxElapsedTime window.
 	// we will use this exponential backoff to retry until we get a 200-400 HTTP response from /login

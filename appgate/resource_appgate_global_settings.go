@@ -283,6 +283,6 @@ func resourceGlobalSettingsDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(fmt.Errorf("Could not reset Global settings %+v", prettyPrintAPIError(err)))
 	}
 	d.SetId("")
-	// The API wont allow us to delete/remove/reset profile_hostname from client_connections so we will just leave it be.
+	// The API won't allow us to delete/remove/reset profile_hostname from client_connections so we will just leave it be.
 	return diags
 }

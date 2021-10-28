@@ -20,7 +20,7 @@ func TestAccApplianceBasicController(t *testing.T) {
 		"updated_name":     fmt.Sprintf("updated-%s", rName),
 		"disabled_name":    fmt.Sprintf("disabled-%s", rName),
 	}
-	// This test include log_forwarder, and we cant run it in pararell with log_server
+	// This test include log_forwarder, and we can't run it in pararell with log_server
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -2266,7 +2266,7 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateCheck:  testAccApplianceImportStateCheckFunc(1),
 				ImportStateVerifyIgnore: []string{"site", "seed_file",
-					// we cant import verify local file path
+					// we can't import verify local file path
 					"portal.0.proxy_p12s.0.content", "portal.0.https_p12.0.content",
 					"portal.0.sign_in_customization.0.background_image",
 					"portal.0.sign_in_customization.0.logo",
@@ -2601,7 +2601,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 		"name":     rName,
 		"hostname": fmt.Sprintf("%s.devops", rName),
 	}
-	// This test include log_server, and we cant run it in pararell with log_forwarder
+	// This test include log_server, and we can't run it in pararell with log_forwarder
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -3234,7 +3234,7 @@ func TestAccApplianceLogForwarderElastic55(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateCheck:        testAccApplianceImportStateCheckFunc(1),
-				ImportStateVerifyIgnore: []string{"site", "seed_file", "log_forwarder.0.elasticsearch.0.authentication.0.token"}, // we cant import verify local file path
+				ImportStateVerifyIgnore: []string{"site", "seed_file", "log_forwarder.0.elasticsearch.0.authentication.0.token"}, // we can't import verify local file path
 
 			},
 		},
