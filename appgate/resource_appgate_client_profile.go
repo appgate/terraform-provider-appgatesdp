@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"net/http"
 	"strings"
 	"time"
 
@@ -21,7 +20,6 @@ func resourceAppgateClientProfile() *schema.Resource {
 
 		Create: resourceAppgateClientProfileCreate,
 		Read:   resourceAppgateClientProfileRead,
-		Update: resourceAppgateClientProfileUpdate,
 		Delete: resourceAppgateClientProfileDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -29,8 +27,8 @@ func resourceAppgateClientProfile() *schema.Resource {
 		SchemaVersion: 1,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(1 * time.Minute),
-			Delete: schema.DefaultTimeout(1 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -44,10 +42,12 @@ func resourceAppgateClientProfile() *schema.Resource {
 			"spa_key_name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 
 			"identity_provider_name": {
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Required: true,
 			},
 			"url": {
@@ -67,14 +67,14 @@ func getIdFromProfile(profile openapi.ClientConnectionsProfiles) string {
 func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create Client Profile %s", d.Get("name"))
 	ctx := context.Background()
-
 	api := meta.(*Client).API.ClientConnectionsApi
 
 	err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		rand.Seed(time.Now().UnixNano())
-		duration := rand.Intn(10) // n will be between 0 and 20
-		log.Printf("[DEBUG] Create Client Profile %s Sleep %d", d.Get("name"), duration)
+		duration := rand.Intn(10)
 		time.Sleep(time.Duration(duration) * time.Second)
+
+		// before we create a profile, make sure the controllers are in a healthy state
 		if err := applianceStatsRetryable(ctx, meta); err != nil {
 			return err
 		}
@@ -87,7 +87,7 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 			return resource.RetryableError(err)
 		}
 		existingProfiles := clientConnections.GetProfiles()
-		log.Printf("[DEBUG] Create  %s -- existing profiles count %d", d.Get("name"), len(existingProfiles))
+
 		profile := openapi.ClientConnectionsProfiles{}
 		if v, ok := d.GetOk("name"); ok {
 			profile.SetName(v.(string))
@@ -103,12 +103,31 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 
 		existingProfiles = append(existingProfiles, profile)
 		clientConnections.SetProfiles(existingProfiles)
-		_, response, err := api.ClientConnectionsPut(ctx).ClientConnections(clientConnections).Authorization(token).Execute()
+		_, _, err = api.ClientConnectionsPut(ctx).ClientConnections(clientConnections).Authorization(token).Execute()
 		if err != nil {
-			if response.StatusCode == http.StatusConflict {
-				return resource.RetryableError(fmt.Errorf("Expected client profile %q to be created but was in state %s", d.Get("name").(string), response.Status))
+			return resource.NonRetryableError(fmt.Errorf("Error updating client connection profile %s: %s", d.Id(), err))
+		}
+		// check number of client profiles again and verify that is existingProfiles+1
+		newConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
+		if err != nil {
+			return resource.RetryableError(err)
+		}
+		newProfiles := newConnections.GetProfiles()
+		beep := false
+		for _, existingProfile := range newProfiles {
+			log.Printf("[DEBUG] Creation Read Found profile %q - Looking for %s", profile.GetName(), d.Id())
+			if strings.EqualFold(existingProfile.GetName(), profile.GetName()) {
+				log.Printf("[DEBUG] Found profile %s after create, OK!", profile.GetName())
+				beep = true
 			}
-			return resource.NonRetryableError(fmt.Errorf("Error updating client connection profiles: %s", err))
+		}
+		if !beep {
+			return resource.RetryableError(fmt.Errorf("Profile %q did not get created", profile.GetName()))
+		}
+		// give the controller a moment before we check the initial status
+		time.Sleep(time.Duration(duration) * time.Second)
+		if err := waitForControllers(ctx, meta); err != nil {
+			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after creating a client_profile: %s", err))
 		}
 		return nil
 	})
@@ -133,6 +152,7 @@ func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) 
 	existingProfiles := clientConnections.GetProfiles()
 	var p *openapi.ClientConnectionsProfiles
 	for _, profile := range existingProfiles {
+		log.Printf("[DEBUG] Reading Found profile %q - Looking for %s", profile.GetName(), d.Id())
 		if strings.EqualFold(profile.GetName(), d.Id()) && profile.GetName() == d.Id() {
 			p = &profile
 			d.Set("name", p.GetName())
@@ -143,50 +163,10 @@ func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 	if p == nil {
-		return fmt.Errorf("could not find client profile %s during read", d.Id())
+		log.Printf("[DEBUG] Client Profile id %q not found in client connections profiles", d.Id())
+		d.SetId("")
 	}
 	return nil
-}
-
-func resourceAppgateClientProfileUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Updating Client Profile %+v", d.Id())
-	ctx := context.Background()
-	token, err := meta.(*Client).GetToken()
-	if err != nil {
-		return err
-	}
-	api := meta.(*Client).API.ClientConnectionsApi
-	clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
-	if err != nil {
-		return fmt.Errorf("Could not read Client Connections %+v", prettyPrintAPIError(err))
-	}
-	existingProfiles := clientConnections.GetProfiles()
-	var p *openapi.ClientConnectionsProfiles
-	for _, profile := range existingProfiles {
-		if strings.EqualFold(profile.GetName(), d.Id()) && profile.GetName() == d.Id() {
-			p = &profile
-			break
-		}
-	}
-	if p == nil {
-		diag.FromErr(fmt.Errorf("could not find client profile %s during update", d.Id()))
-	}
-
-	if d.HasChange("name") {
-		p.SetName(d.Get("name").(string))
-	}
-	if d.HasChange("spa_key_name") {
-		p.SetSpaKeyName(d.Get("spa_key_name").(string))
-	}
-	if d.HasChange("identity_provider_name") {
-		p.SetIdentityProviderName(d.Get("identity_provider_name").(string))
-	}
-	req := api.ClientConnectionsPut(ctx)
-	_, _, err = req.ClientConnections(clientConnections).Authorization(token).Execute()
-	if err != nil {
-		return fmt.Errorf("Could not update Client profile %s %+v", d.Id(), prettyPrintAPIError(err))
-	}
-	return resourceAppgateClientProfileRead(d, meta)
 }
 
 func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}) error {
@@ -194,7 +174,7 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 	ctx := context.Background()
 	api := meta.(*Client).API.ClientConnectionsApi
 
-	err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	err := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		rand.Seed(time.Now().UnixNano())
 		duration := rand.Intn(10) // n will be between 0 and 20
 		log.Printf("[DEBUG] Create Client Profile %s Sleep %d", d.Get("name"), duration)
@@ -218,24 +198,26 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 				p = &profile
 				// remove the profile from the list and maintain order.
 				newProfiles = append(existingProfiles[:i], existingProfiles[i+1:]...)
-
 				break
 			}
 		}
 		if p == nil {
 			diag.FromErr(fmt.Errorf("could not find client profile %s during delete", d.Id()))
 		}
-
 		clientConnections.SetProfiles(newProfiles)
-
 		_, _, err = api.ClientConnectionsPut(ctx).ClientConnections(clientConnections).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
+		// give the controller a moment before we check the initial status
+		time.Sleep(time.Duration(duration) * time.Second)
+		if err := waitForControllers(ctx, meta); err != nil {
+			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after deleting a client_profile: %s", err))
+		}
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("Could not delete Client Connections after retry %+v", err)
+		return fmt.Errorf("Could not delete Client profile %s after retry %+v", d.Id(), err)
 	}
 
 	d.SetId("")

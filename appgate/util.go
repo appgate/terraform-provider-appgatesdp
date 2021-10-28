@@ -12,9 +12,11 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
+	"github.com/cenkalti/backoff/v4"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -228,25 +230,67 @@ func Nprintf(format string, params map[string]interface{}) string {
 }
 
 func applianceStatsRetryable(ctx context.Context, meta interface{}) *resource.RetryError {
-	statsAPI := meta.(*Client).API.ApplianceStatsApi
-	token, err := meta.(*Client).GetToken()
-	if err != nil {
-		return resource.RetryableError(err)
-	}
-	stats, _, err := statsAPI.StatsAppliancesGet(ctx).Authorization(token).Execute()
-	if err != nil {
-		return resource.RetryableError(err)
-	}
-	for _, data := range stats.GetData() {
-		// If any controller is marked as busy, we will treat this as a retryable error.
-		status := data.GetStatus()
-		if status == "busy" {
-			ctrl := data.GetController()
-			if ctrl.GetStatus() != "n/a" {
-				return resource.RetryableError(fmt.Errorf("appliance is %s, waiting", status))
-			}
-
+	if err := checkApplianceStatus(ctx, meta)(); err != nil {
+		if err, ok := err.(ApplianceStatsRetryableError); ok {
+			return resource.RetryableError(err)
 		}
+		return resource.NonRetryableError(err)
 	}
 	return nil
+}
+
+// ApplianceStatsRetryableError is used when /stats/appliance should be retried.
+type ApplianceStatsRetryableError struct {
+	err error
+}
+
+// Error returns non-empty string if there was an error.
+func (e ApplianceStatsRetryableError) Error() string {
+	return e.err.Error()
+}
+
+func checkApplianceStatus(ctx context.Context, meta interface{}) func() error {
+	return func() error {
+		statsAPI := meta.(*Client).API.ApplianceStatsApi
+		token, err := meta.(*Client).GetToken()
+		if err != nil {
+			return err
+		}
+		stats, _, err := statsAPI.StatsAppliancesGet(ctx).Authorization(token).Execute()
+		if err != nil {
+			return ApplianceStatsRetryableError{err: err}
+		}
+		numberOfControllers := int(stats.GetControllerCount())
+		controllers := make([]openapi.StatsAppliancesListAllOfData, 0, numberOfControllers)
+		for _, data := range stats.GetData() {
+			c := data.GetController()
+			// all none controller appliances will return n/a as status
+			if c.GetStatus() != "n/a" {
+				controllers = append(controllers, data)
+			}
+		}
+		if len(controllers) != numberOfControllers {
+			log.Printf("[DEBUG] Found %d controller expected %d", len(controllers), numberOfControllers)
+		}
+		for _, controller := range controllers {
+			log.Printf("[DEBUG] Wait for controllers %s %s %s", controller.GetName(), controller.GetState(), controller.GetStatus())
+			if controller.GetStatus() == "busy" {
+				return ApplianceStatsRetryableError{err: fmt.Errorf("%s is busy, got %s", controller.GetName(), controller.GetStatus())}
+			}
+		}
+		return nil
+	}
+}
+
+// waitForControllers is a blocking function that does exponential backOff on appliance stats
+// and make sure all the controllers are healthy before returning nil
+func waitForControllers(ctx context.Context, meta interface{}) error {
+	return backoff.Retry(checkApplianceStatus(ctx, meta), &backoff.ExponentialBackOff{
+		InitialInterval:     2 * time.Second,
+		RandomizationFactor: 0.7,
+		Multiplier:          2,
+		MaxInterval:         5 * time.Minute,
+		Stop:                backoff.Stop,
+		Clock:               backoff.SystemClock,
+	})
 }

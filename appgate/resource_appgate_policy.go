@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
@@ -518,9 +519,12 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	api := meta.(*Client).API.PoliciesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.PoliciesIdGet(ctx, d.Id())
-	policy, _, err := request.Authorization(token).Execute()
+	policy, response, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
+		if response.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return fmt.Errorf("Failed to read policy, %+v", err)
 	}
 	d.Set("policy_id", policy.Id)
