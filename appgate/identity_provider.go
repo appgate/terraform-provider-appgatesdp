@@ -434,7 +434,7 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *vers
 					val,
 				)
 			} else {
-				// else omit devicelmit per user from the reqeust.
+				// else omit devicelmit per user from the request.
 				log.Printf("[DEBUG] on_boarding_two_factor.device_limit_per_user is not allowed on %s, omitted it from request, use root level instead", currentVersion.String())
 				onboarding.DeviceLimitPerUser = nil
 			}
