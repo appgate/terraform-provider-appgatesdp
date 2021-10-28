@@ -2,6 +2,7 @@ package appgate
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -355,6 +356,11 @@ func resourceAppgateSite() *schema.Resource {
 										Type:     schema.TypeInt,
 										Optional: true,
 									},
+									"use_managed_identities": {
+										Type:     schema.TypeBool,
+										Default:  false,
+										Optional: true,
+									},
 									"subscription_id": {
 										Type:     schema.TypeString,
 										Required: true,
@@ -434,6 +440,45 @@ func resourceAppgateSite() *schema.Resource {
 								},
 							},
 						},
+
+						"dns_forwarding": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"site_ipv4": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"site_ipv6": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"dns_servers": {
+										Type:     schema.TypeSet,
+										Required: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"allow_destinations": {
+										Type:     schema.TypeSet,
+										Required: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"netmask": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -494,7 +539,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if v, ok := d.GetOk("name_resolution"); ok {
-		nameResolution, err := readSiteNameResolutionFromConfig(v.([]interface{}))
+		nameResolution, err := readSiteNameResolutionFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -564,7 +609,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 		for _, l := range localNameResolutionList {
 			localNameResolution = l.(map[string]interface{})
 		}
-		if err = d.Set("name_resolution", flattenNameResolution(localNameResolution, *site.NameResolution)); err != nil {
+		if err = d.Set("name_resolution", flattenNameResolution(currentVersion, localNameResolution, *site.NameResolution)); err != nil {
 			return err
 		}
 	}
@@ -645,7 +690,7 @@ func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []
 	return []interface{}{m}
 }
 
-func flattenNameResolution(local map[string]interface{}, in openapi.SiteAllOfNameResolution) []interface{} {
+func flattenNameResolution(currentVersion *version.Version, local map[string]interface{}, in openapi.SiteAllOfNameResolution) []interface{} {
 	m := make(map[string]interface{})
 	if v, ok := in.GetUseHostsFileOk(); ok {
 		m["use_hosts_file"] = *v
@@ -660,7 +705,7 @@ func flattenNameResolution(local map[string]interface{}, in openapi.SiteAllOfNam
 	}
 	if v, ok := in.GetAzureResolversOk(); ok {
 		l := getNSLocalChanges(local, "azure_resolvers")
-		m["azure_resolvers"] = flattenSiteAzureResolver(*v, l)
+		m["azure_resolvers"] = flattenSiteAzureResolver(currentVersion, *v, l)
 	}
 	if v, ok := in.GetEsxResolversOk(); ok {
 		l := getNSLocalChanges(local, "esx_resolvers")
@@ -668,6 +713,11 @@ func flattenNameResolution(local map[string]interface{}, in openapi.SiteAllOfNam
 	}
 	if v, ok := in.GetGcpResolversOk(); ok {
 		m["gcp_resolvers"] = flattenSiteGCPResolvers(*v)
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+		if v, ok := in.GetDnsForwardingOk(); ok {
+			m["dns_forwarding"] = flattenSiteDnsForwading(*v)
+		}
 	}
 	return []interface{}{m}
 }
@@ -712,7 +762,7 @@ func flattenSiteESXResolvers(in []openapi.SiteAllOfNameResolutionEsxResolvers, l
 	return out
 }
 
-func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers, local map[string]interface{}) []map[string]interface{} {
+func flattenSiteAzureResolver(currentVersion *version.Version, in []openapi.SiteAllOfNameResolutionAzureResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -725,6 +775,9 @@ func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers
 			m["secret"] = val
 		} else {
 			m["secret"] = v.GetSecret()
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+			m["use_managed_identities"] = v.GetUseManagedIdentities()
 		}
 
 		out[i] = m
@@ -783,6 +836,16 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 		out[i] = m
 	}
 	return out
+}
+
+func flattenSiteDnsForwading(in openapi.SiteAllOfNameResolutionDnsForwarding) []map[string]interface{} {
+	m := make(map[string]interface{})
+	m["site_ipv4"] = in.GetSiteIpv4()
+	m["site_ipv6"] = in.GetSiteIpv6()
+	m["dns_servers"] = in.GetDnsServers()
+	m["allow_destinations"] = in.GetAllowDestinations()
+
+	return []map[string]interface{}{m}
 }
 
 func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -867,7 +930,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("name_resolution") {
 		_, v := d.GetChange("name_resolution")
-		nameResolution, err := readSiteNameResolutionFromConfig(v.([]interface{}))
+		nameResolution, err := readSiteNameResolutionFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1029,7 +1092,7 @@ func readSiteVPNRouteViaFromConfig(routeViaConf []interface{}) (openapi.SiteAllO
 	return result, nil
 }
 
-func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.SiteAllOfNameResolution, error) {
+func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresolutions []interface{}) (openapi.SiteAllOfNameResolution, error) {
 	result := openapi.SiteAllOfNameResolution{}
 	for _, nr := range nameresolutions {
 		if nr == nil {
@@ -1055,7 +1118,7 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 			result.SetAwsResolvers(awsResolvers)
 		}
 		if v, ok := raw["azure_resolvers"]; ok {
-			azureResolvers, err := readAzureResolversFromConfig(v.(*schema.Set).List())
+			azureResolvers, err := readAzureResolversFromConfig(currentVersion, v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
@@ -1075,6 +1138,15 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 			}
 			result.SetGcpResolvers(gcpResolvers)
 		}
+		if v, ok := raw["dns_forwarding"]; ok {
+			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(currentVersion, v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			if len(dnsForwardingResolvers.GetDnsServers()) > 0 {
+				result.SetDnsForwarding(dnsForwardingResolvers)
+			}
+		}
 	}
 	return result, nil
 }
@@ -1093,7 +1165,7 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v := raw["servers"]; len(v.([]interface{})) > 0 {
 			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve dns serers: %+v", err)
+				return result, fmt.Errorf("Failed to resolve dns servers: %+v", err)
 			}
 			if len(servers) > 0 {
 				row.SetServers(servers)
@@ -1197,7 +1269,7 @@ func readAwsAssumedRolesFromConfig(roles []interface{}) ([]openapi.SiteAllOfName
 	return result, nil
 }
 
-func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
+func readAzureResolversFromConfig(currentVersion *version.Version, azureConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAzureResolvers, 0)
 	for _, azure := range azureConfigs {
 		raw := azure.(map[string]interface{})
@@ -1219,6 +1291,11 @@ func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAll
 		}
 		if v, ok := raw["secret"]; ok {
 			row.SetSecret(v.(string))
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+			if v, ok := raw["use_managed_identities"]; ok {
+				row.SetUseManagedIdentities(v.(bool))
+			}
 		}
 		result = append(result, row)
 	}
@@ -1266,6 +1343,53 @@ func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNa
 		}
 		if v, ok := raw["instance_filter"]; ok {
 			row.SetInstanceFilter(v.(string))
+		}
+		result = append(result, row)
+	}
+	return result, nil
+}
+
+func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
+	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
+	if currentVersion.LessThan(Appliance55Version) {
+		return result, errors.New("dns_forwarding is only available in 5.5 or above")
+	}
+	for _, dnsForwarding := range dnsForwardingConfig {
+		raw := dnsForwarding.(map[string]interface{})
+		if v, ok := raw["site_ipv4"]; ok {
+			result.SetSiteIpv4(v.(string))
+		}
+		if v, ok := raw["site_ipv6"]; ok {
+			result.SetSiteIpv6(v.(string))
+		}
+		if v, ok := raw["dns_servers"]; ok {
+			servers, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetDnsServers(servers)
+		}
+		if v, ok := raw["allow_destinations"]; ok {
+			destinations, err := readAllowDestinationsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetAllowDestinations(destinations)
+		}
+	}
+	return result, nil
+}
+
+func readAllowDestinationsFromConfig(input []interface{}) ([]map[string]interface{}, error) {
+	result := make([]map[string]interface{}, 0)
+	for _, r := range input {
+		raw := r.(map[string]interface{})
+		row := make(map[string]interface{}, 0)
+		if v, ok := raw["address"]; ok {
+			row["address"] = v.(string)
+		}
+		if v, ok := raw["netmask"]; ok {
+			row["netmask"] = int32(v.(int))
 		}
 		result = append(result, row)
 	}
