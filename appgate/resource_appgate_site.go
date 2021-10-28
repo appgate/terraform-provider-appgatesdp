@@ -1351,7 +1351,7 @@ func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNa
 
 func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
 	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
-	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+	if currentVersion.LessThan(Appliance55Version) {
 		return result, errors.New("dns_forwarding is only available in 5.5 or above")
 	}
 	for _, dnsForwarding := range dnsForwardingConfig {
