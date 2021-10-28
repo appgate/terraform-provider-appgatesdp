@@ -1139,11 +1139,14 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 			result.SetGcpResolvers(gcpResolvers)
 		}
 		if v, ok := raw["dns_forwarding"]; ok {
-			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(currentVersion, v.(*schema.Set).List())
+			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
 			if len(dnsForwardingResolvers.GetDnsServers()) > 0 {
+				if currentVersion.LessThan(Appliance55Version) {
+					return result, errors.New("dns_forwarding is only available in 5.5 or above")
+				}
 				result.SetDnsForwarding(dnsForwardingResolvers)
 			}
 		}
@@ -1349,11 +1352,8 @@ func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNa
 	return result, nil
 }
 
-func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
+func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
 	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
-	if currentVersion.LessThan(Appliance55Version) {
-		return result, errors.New("dns_forwarding is only available in 5.5 or above")
-	}
 	for _, dnsForwarding := range dnsForwardingConfig {
 		raw := dnsForwarding.(map[string]interface{})
 		if v, ok := raw["site_ipv4"]; ok {
