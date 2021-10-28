@@ -274,8 +274,8 @@ func checkApplianceStatus(ctx context.Context, meta interface{}) func() error {
 		}
 		for _, controller := range controllers {
 			log.Printf("[DEBUG] Wait for controllers %s %s %s", controller.GetName(), controller.GetState(), controller.GetStatus())
-			if controller.GetStatus() != "healthy" {
-				return ApplianceStatsRetryableError{err: fmt.Errorf("%s is not healthy, got %s", controller.GetName(), controller.GetStatus())}
+			if controller.GetStatus() == "busy" {
+				return ApplianceStatsRetryableError{err: fmt.Errorf("%s is busy, got %s", controller.GetName(), controller.GetStatus())}
 			}
 		}
 		return nil
