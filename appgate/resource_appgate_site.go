@@ -538,7 +538,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if v, ok := d.GetOk("name_resolution"); ok {
-		nameResolution, err := readSiteNameResolutionFromConfig(v.([]interface{}))
+		nameResolution, err := readSiteNameResolutionFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -608,7 +608,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 		for _, l := range localNameResolutionList {
 			localNameResolution = l.(map[string]interface{})
 		}
-		if err = d.Set("name_resolution", flattenNameResolution(localNameResolution, *site.NameResolution)); err != nil {
+		if err = d.Set("name_resolution", flattenNameResolution(currentVersion, localNameResolution, *site.NameResolution)); err != nil {
 			return err
 		}
 	}
@@ -689,7 +689,7 @@ func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []
 	return []interface{}{m}
 }
 
-func flattenNameResolution(local map[string]interface{}, in openapi.SiteAllOfNameResolution) []interface{} {
+func flattenNameResolution(currentVersion *version.Version, local map[string]interface{}, in openapi.SiteAllOfNameResolution) []interface{} {
 	m := make(map[string]interface{})
 	if v, ok := in.GetUseHostsFileOk(); ok {
 		m["use_hosts_file"] = *v
@@ -713,8 +713,10 @@ func flattenNameResolution(local map[string]interface{}, in openapi.SiteAllOfNam
 	if v, ok := in.GetGcpResolversOk(); ok {
 		m["gcp_resolvers"] = flattenSiteGCPResolvers(*v)
 	}
-	if v, ok := in.GetDnsForwardingOk(); ok {
-		m["dns_forwarding"] = flattenSiteDnsForwading(*v)
+	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+		if v, ok := in.GetDnsForwardingOk(); ok {
+			m["dns_forwarding"] = flattenSiteDnsForwading(*v)
+		}
 	}
 	return []interface{}{m}
 }
@@ -925,7 +927,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("name_resolution") {
 		_, v := d.GetChange("name_resolution")
-		nameResolution, err := readSiteNameResolutionFromConfig(v.([]interface{}))
+		nameResolution, err := readSiteNameResolutionFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1087,7 +1089,7 @@ func readSiteVPNRouteViaFromConfig(routeViaConf []interface{}) (openapi.SiteAllO
 	return result, nil
 }
 
-func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.SiteAllOfNameResolution, error) {
+func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresolutions []interface{}) (openapi.SiteAllOfNameResolution, error) {
 	result := openapi.SiteAllOfNameResolution{}
 	for _, nr := range nameresolutions {
 		if nr == nil {
@@ -1113,7 +1115,7 @@ func readSiteNameResolutionFromConfig(nameresolutions []interface{}) (openapi.Si
 			result.SetAwsResolvers(awsResolvers)
 		}
 		if v, ok := raw["azure_resolvers"]; ok {
-			azureResolvers, err := readAzureResolversFromConfig(v.(*schema.Set).List())
+			azureResolvers, err := readAzureResolversFromConfig(currentVersion, v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
@@ -1264,7 +1266,7 @@ func readAwsAssumedRolesFromConfig(roles []interface{}) ([]openapi.SiteAllOfName
 	return result, nil
 }
 
-func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
+func readAzureResolversFromConfig(currentVersion *version.Version, azureConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAzureResolvers, 0)
 	for _, azure := range azureConfigs {
 		raw := azure.(map[string]interface{})
@@ -1287,8 +1289,10 @@ func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAll
 		if v, ok := raw["secret"]; ok {
 			row.SetSecret(v.(string))
 		}
-		if v, ok := raw["use_managed_identities"]; ok {
-			row.SetUseManagedIdentities(v.(bool))
+		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+			if v, ok := raw["use_managed_identities"]; ok {
+				row.SetUseManagedIdentities(v.(bool))
+			}
 		}
 		result = append(result, row)
 	}
