@@ -1,12 +1,13 @@
 package appgate
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,12 +21,6 @@ func resourceAppgatePolicy() *schema.Resource {
 		Delete: resourceAppgatePolicyDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
-		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		SchemaVersion: 1,
@@ -62,28 +57,47 @@ func resourceAppgatePolicy() *schema.Resource {
 				Required: true,
 			},
 
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Type of the Policy. It is informational and not enforced.",
+			},
+
 			"entitlements": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"entitlement_links": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"ringfence_rules": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"ringfence_rule_links": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Optional:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 
 			"tamper_proofing": {
@@ -95,6 +109,11 @@ func resourceAppgatePolicy() *schema.Resource {
 			"override_site": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"override_site_claim": {
+				Type:        schema.TypeString,
+				Description: "The path of a claim that contains the UUID of an override site. It should be defined as 'claims.xxx.xxx' or 'claims.xxx.xxx.xxx'1.",
+				Optional:    true,
 			},
 
 			"proxy_auto_config": {
@@ -144,13 +163,118 @@ func resourceAppgatePolicy() *schema.Resource {
 				},
 			},
 
+			"dns_settings": {
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Description:      "List of domain names with DNS server IPs that the Client should be using.",
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              resourcePolicyDnsSettingsHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"domain": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"servers": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Set:      schema.HashString,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+
+			"client_settings": {
+				Type:             schema.TypeList,
+				MaxItems:         1,
+				Optional:         true,
+				Description:      "Settings that admins can apply to the Client.",
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"entitlements_list": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"attention_level": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"auto_start": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"add_remove_profiles": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"keep_me_signed_in": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"saml_auto_sign_in": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"quit": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"sign_out": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"suspend": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"administrative_roles": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeSet,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+				Set:              schema.HashString,
+				Elem:             &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
+}
+
+func resourcePolicyDnsSettingsHash(v interface{}) int {
+	raw := v.(map[string]interface{})
+	// modifying raw actually modifies the values passed to the provider.
+	// Use a copy to avoid that.
+	copy := make((map[string]interface{}))
+	for key, value := range raw {
+		copy[key] = value
+	}
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("%s-", copy["domain"].(string)))
+	if v, ok := copy["servers"]; ok {
+		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
+	}
+
+	return hashcode.String(buf.String())
 }
 
 func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error {
@@ -168,7 +292,6 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	// Type is only available in >= 5.5
 	if currentVersion.LessThan(Appliance55Version) {
 		args.Type = nil
-		// TODO: add Schema resource for Type
 	}
 
 	args.SetName(d.Get("name").(string))
@@ -185,6 +308,31 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 
 	if c, ok := d.GetOk("expression"); ok {
 		args.SetExpression(c.(string))
+	}
+
+	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
+		if v, ok := d.GetOk("client_settings"); ok {
+			settings, err := readPolicyClientSettingsFromConfig(v.([]interface{}))
+			if err != nil {
+				return err
+			}
+			args.SetClientSettings(settings)
+		}
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+		if v, ok := d.GetOk("type"); ok {
+			args.SetType(v.(string))
+		}
+		if v, ok := d.GetOk("override_site_claim"); ok {
+			args.SetOverrideSiteClaim(v.(string))
+		}
+		if v, ok := d.GetOk("dns_settings"); ok {
+			servers, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return err
+			}
+			args.SetDnsSettings(servers)
+		}
 	}
 
 	if c, ok := d.GetOk("entitlements"); ok {
@@ -273,6 +421,73 @@ func readTrustedNetworkCheckFromConfig(trustedNetworks []interface{}) openapi.Po
 	return result
 }
 
+func readPolicyClientSettingsFromConfig(settings []interface{}) (openapi.PolicyAllOfClientSettings, error) {
+	result := openapi.PolicyAllOfClientSettings{}
+	for _, r := range settings {
+		if r == nil {
+			continue
+		}
+		raw := r.(map[string]interface{})
+		if v, ok := raw["enabled"]; ok {
+			result.SetEnabled(v.(bool))
+		}
+		if v, ok := raw["entitlements_list"].(string); ok && len(v) > 0 {
+			result.SetEntitlementsList(v)
+		}
+		if v, ok := raw["attention_level"].(string); ok && len(v) > 0 {
+			result.SetAttentionLevel(v)
+		}
+		if v, ok := raw["auto_start"].(string); ok && len(v) > 0 {
+			result.SetAutoStart(v)
+		}
+		if v, ok := raw["add_remove_profiles"].(string); ok && len(v) > 0 {
+			result.SetAddRemoveProfiles(v)
+		}
+		if v, ok := raw["keep_me_signed_in"].(string); ok && len(v) > 0 {
+			result.SetKeepMeSignedIn(v)
+		}
+		if v, ok := raw["saml_auto_sign_in"].(string); ok && len(v) > 0 {
+			result.SetSamlAutoSignIn(v)
+		}
+		if v, ok := raw["quit"].(string); ok && len(v) > 0 {
+			result.SetQuit(v)
+		}
+		if v, ok := raw["sign_out"].(string); ok && len(v) > 0 {
+			result.SetSignOut(v)
+		}
+		if v, ok := raw["suspend"].(string); ok && len(v) > 0 {
+			result.SetSuspend(v)
+		}
+	}
+	return result, nil
+}
+
+func readPolicyDnsSettingsFromConfig(dnsSettings []interface{}) ([]openapi.PolicyAllOfDnsSettings, error) {
+	list := make([]openapi.PolicyAllOfDnsSettings, 0, 0)
+	for _, r := range dnsSettings {
+		if r == nil {
+			continue
+		}
+		result := openapi.PolicyAllOfDnsSettings{}
+		raw := r.(map[string]interface{})
+		if v, ok := raw["domain"].(string); ok && len(v) > 0 {
+			result.SetDomain(v)
+		}
+		if v, ok := raw["servers"]; ok {
+			servers, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return list, fmt.Errorf("Failed to resolve dns_settings.servers: %+v", err)
+			}
+			if len(servers) > 0 {
+				result.SetServers(servers)
+			}
+		}
+		list = append(list, result)
+	}
+	log.Printf("[DEBUG] readPolicyDnsSettingsFromConfig Result %+v", list)
+	return list, nil
+}
+
 func readProxyAutoConfigFromConfig(proxyAutoConfigs []interface{}) openapi.PolicyAllOfProxyAutoConfig {
 	pac := openapi.PolicyAllOfProxyAutoConfig{}
 	for _, r := range proxyAutoConfigs {
@@ -337,6 +552,22 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		d.Set("trusted_network_check", t)
 	}
+	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
+		clientSettings, err := flattenPolicyClientSettings(policy.GetClientSettings())
+		if err != nil {
+			return err
+		}
+		d.Set("client_settings", clientSettings)
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+		d.Set("type", policy.GetType())
+		d.Set("override_site_claim", policy.GetOverrideSiteClaim())
+		dnsSettings, err := flattenPolicyDnsSettings(policy.GetDnsSettings())
+		if err != nil {
+			return err
+		}
+		d.Set("dns_settings", dnsSettings)
+	}
 	return nil
 }
 
@@ -363,8 +594,57 @@ func flattenTrustedNetworkCheck(in openapi.PolicyAllOfTrustedNetworkCheck) ([]in
 	if v, o := in.GetDnsSuffixOk(); o != false {
 		m["dns_suffix"] = v
 	}
-	log.Printf("[DEBUG] flattenTrustedNetworkCheck: %+v", m)
 	return []interface{}{m}, nil
+}
+
+func flattenPolicyClientSettings(clientSettings openapi.PolicyAllOfClientSettings) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, ok := clientSettings.GetEnabledOk(); ok {
+		m["enabled"] = *v
+	}
+	if v, ok := clientSettings.GetEntitlementsListOk(); ok {
+		m["entitlements_list"] = *v
+	}
+	if v, ok := clientSettings.GetAttentionLevelOk(); ok {
+		m["attention_level"] = *v
+	}
+	if v, ok := clientSettings.GetAutoStartOk(); ok {
+		m["auto_start"] = *v
+	}
+	if v, ok := clientSettings.GetAddRemoveProfilesOk(); ok {
+		m["add_remove_profiles"] = *v
+	}
+	if v, ok := clientSettings.GetKeepMeSignedInOk(); ok {
+		m["keep_me_signed_in"] = *v
+	}
+	if v, ok := clientSettings.GetSamlAutoSignInOk(); ok {
+		m["saml_auto_sign_in"] = *v
+	}
+	if v, ok := clientSettings.GetQuitOk(); ok {
+		m["quit"] = *v
+	}
+	if v, ok := clientSettings.GetSignOutOk(); ok {
+		m["sign_out"] = *v
+	}
+	if v, ok := clientSettings.GetSuspendOk(); ok {
+		m["suspend"] = *v
+	}
+	return []interface{}{m}, nil
+}
+
+func flattenPolicyDnsSettings(dnsSettings []openapi.PolicyAllOfDnsSettings) (*schema.Set, error) {
+	out := make([]interface{}, 0, 0)
+	for _, dnsSetting := range dnsSettings {
+		m := make(map[string]interface{})
+		if v, ok := dnsSetting.GetDomainOk(); ok {
+			m["domain"] = *v
+		}
+		if v, ok := dnsSetting.GetServersOk(); ok {
+			m["servers"] = schema.NewSet(schema.HashString, convertStringArrToInterface(*v))
+		}
+		out = append(out, m)
+	}
+	return schema.NewSet(resourcePolicyDnsSettingsHash, out), nil
 }
 
 func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -375,6 +655,7 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	api := meta.(*Client).API.PoliciesApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.PoliciesIdGet(ctx, d.Id())
 	orginalPolicy, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -463,7 +744,32 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 		orginalPolicy.SetAdministrativeRoles(entitlements)
 	}
-
+	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
+		if d.HasChange("client_settings") {
+			_, v := d.GetChange("client_settings")
+			clientSettings, err := readPolicyClientSettingsFromConfig(v.([]interface{}))
+			if err != nil {
+				return err
+			}
+			orginalPolicy.SetClientSettings(clientSettings)
+		}
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+		if d.HasChange("type") {
+			orginalPolicy.SetType(d.Get("type").(string))
+		}
+		if d.HasChange("override_site_claim") {
+			orginalPolicy.SetOverrideSiteClaim(d.Get("override_site_claim").(string))
+		}
+		if d.HasChange("dns_settings") {
+			_, v := d.GetChange("dns_settings")
+			dnsSettings, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return err
+			}
+			orginalPolicy.SetDnsSettings(dnsSettings)
+		}
+	}
 	req := api.PoliciesIdPut(ctx, d.Id())
 
 	_, _, err = req.Policy(orginalPolicy).Authorization(token).Execute()
