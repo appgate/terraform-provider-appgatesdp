@@ -12,10 +12,10 @@ import (
 
 func TestAccClientProfileBasic(t *testing.T) {
 	resourceName := "appgatesdp_client_profile.test_client_profile"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckClientProfileDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckClientProfileBasic(),
@@ -43,6 +43,30 @@ resource "appgatesdp_client_profile" "test_client_profile" {
 	identity_provider_name = "local"
 }
 `
+}
+
+func testAccCheckClientProfileDestroy(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "appgatesdp_client_profile" {
+			continue
+		}
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
+		api := testAccProvider.Meta().(*Client).API.ClientConnectionsApi
+		clientConnections, _, err := api.ClientConnectionsGet(context.Background()).Authorization(token).Execute()
+		if err != nil {
+			return err
+		}
+		existingProfiles := clientConnections.GetProfiles()
+		for _, profile := range existingProfiles {
+			if strings.EqualFold(profile.GetName(), rs.Primary.ID) && profile.GetName() == rs.Primary.ID {
+				return fmt.Errorf("appgatesdp_client_profile %q still exists got %d profiles", rs.Primary.ID, len(existingProfiles))
+			}
+		}
+	}
+	return nil
 }
 
 func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
