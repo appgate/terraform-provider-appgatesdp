@@ -117,7 +117,7 @@ func (c *Config) Client() (*Client, error) {
 	return client, nil
 }
 
-func guessVersion(response *openapi.LoginResponse, clientVersion int) (*version.Version, error) {
+func guessVersion(clientVersion int) (*version.Version, error) {
 	// TODO query GET /appliance controller and check exact version.
 	// POST /login does not include version anymore.
 	switch clientVersion {
@@ -141,28 +141,27 @@ func (c *Client) GetToken() (string, error) {
 		log.Printf("[DEBUG] Authenticate with Bearer token provided as APPGATE_BEARER_TOKEN")
 		c.Token = fmt.Sprintf("Bearer %s", c.Config.BearerToken)
 	}
-	if len(c.Token) > 0 {
-		return c.Token, nil
-	}
 	cfg := c.Config
-	response, err := c.login()
-	if err != nil {
-		return "", err
-	}
-
 	latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
 	if err != nil {
 		return "", err
 	}
-
-	currentVersion, err := guessVersion(response, cfg.Version)
+	currentVersion, err := guessVersion(cfg.Version)
 	if err != nil {
 		return "", err
 	}
 	c.ApplianceVersion = currentVersion
 	c.LatestSupportedVersion = latestSupportedVersion
-	c.Token = fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
 
+	if len(c.Token) > 0 {
+		return c.Token, nil
+	}
+	response, err := c.login()
+	if err != nil {
+		return "", err
+	}
+
+	c.Token = fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
 	return c.Token, nil
 }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/imdario/mergo"
 )
 
 const (
@@ -44,28 +45,30 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"url": {
 				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_ADDRESS", ""),
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_ADDRESS", nil),
 			},
 			"username": {
-				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_USERNAME", ""),
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("APPGATE_USERNAME", nil),
+				ConflictsWith: []string{"bearer_token"},
 			},
 			"password": {
-				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_PASSWORD", ""),
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("APPGATE_PASSWORD", nil),
+				ConflictsWith: []string{"bearer_token"},
 			},
 			"provider": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_PROVIDER", "local"),
 			},
 			"insecure": {
 				Type:        schema.TypeBool,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_INSECURE", true),
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_INSECURE", false),
 			},
 			"debug": {
 				Type:        schema.TypeBool,
@@ -84,10 +87,11 @@ func Provider() *schema.Provider {
 				Description: "Path to the appgate config file. Can be set with APPGATE_CONFIG_PATH.",
 			},
 			"bearer_token": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_BEARER_TOKEN", nil),
-				Description: "The Token from the LoginResponse, provided from outside terraform.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("APPGATE_BEARER_TOKEN", nil),
+				ConflictsWith: []string{"username", "password"},
+				Description:   "The Token from the LoginResponse, provided from outside terraform.",
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -149,6 +153,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	var diags diag.Diagnostics
 	config := Config{}
 	config.Timeout = 20
+	configFile := Config{}
+	usingFile := false
 
 	if path, ok := d.GetOk("config_path"); ok {
 		p := path.(string)
@@ -169,7 +175,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			return nil, diags
 		}
 		defer file.Close()
-		configFile := Config{}
 		if err := json.NewDecoder(file).Decode(&configFile); err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
@@ -178,10 +183,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			})
 			return nil, diags
 		}
-		config = configFile
+		usingFile = true
 	}
 
-	// overwrite config file value with ENV Variables or set attributes in the provider block
 	if v, ok := d.GetOk("bearer_token"); ok {
 		config.BearerToken = v.(string)
 	}
@@ -209,6 +213,24 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if v, ok := d.GetOk("client_version"); ok {
 		config.Version = v.(int)
 	}
+
+	if usingFile {
+		// we do not allow bool config keys from the config file, since they will always default to false if omitted
+		// for the boolean config attributes, we will fallback to the default values defined in the Schema.
+		// (yes this can be solved by pointers, however we are not intresting in doing that now)
+		// https://play.golang.org/p/QNkWPEjPlcD
+		configFile.Insecure = config.Insecure
+		configFile.Debug = config.Debug
+		if err := mergo.Merge(&config, configFile, mergo.WithOverride); err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Error merging config_file",
+				Detail:   fmt.Sprintf("Error merging config_file with computed values %s", err),
+			})
+			return nil, diags
+		}
+	}
+
 	if err := config.Validate(); err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
