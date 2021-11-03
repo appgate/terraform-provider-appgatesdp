@@ -3,12 +3,14 @@ package appgate
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	b64 "encoding/base64"
 	"errors"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
@@ -200,6 +202,15 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 	err := backoff.Retry(func() error {
 		login, response, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
 		if response == nil {
+			if err != nil {
+				if err, ok := err.(*url.Error); ok {
+					if err, ok := err.Unwrap().(x509.UnknownAuthorityError); ok {
+						return &backoff.PermanentError{
+							Err: fmt.Errorf("Import certificate or toggle APPGATE_INSECURE - %s", err),
+						}
+					}
+				}
+			}
 			log.Printf("[DEBUG] Login failed, No response %s", err)
 			return fmt.Errorf("No response from controller %w", err)
 		}
@@ -208,6 +219,18 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 			return fmt.Errorf("Controller got %w", err)
 		}
 		if err != nil {
+			if err, ok := err.(openapi.GenericOpenAPIError); ok {
+				if err, ok := err.Model().(openapi.InlineResponse406); ok {
+					return &backoff.PermanentError{
+						Err: fmt.Errorf(
+							"You are using the wrong client_version (peer api version) for you appgate sdp collective, you are using %d; min: %d max: %d",
+							c.Config.Version,
+							err.GetMinSupportedVersion(),
+							err.GetMaxSupportedVersion(),
+						),
+					}
+				}
+			}
 			log.Printf("[DEBUG] Login failed permanently, got HTTP %d", response.StatusCode)
 			return &backoff.PermanentError{Err: err}
 		}
