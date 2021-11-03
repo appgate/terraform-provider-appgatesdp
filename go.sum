@@ -63,6 +63,14 @@ github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
 github.com/appgate/sdp-api-client-go v1.0.5 h1:SeOQmS31ygVtm0jv2EEvyP9kaCmsDbY/7rimA1ML72A=
 github.com/appgate/sdp-api-client-go v1.0.5/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.6-0.20211102125328-52c1d12ffdb4 h1:I1m99/Vyi4GJd16sKE5Wcn1RCgVj/0qHGiiHalwJNxo=
+github.com/appgate/sdp-api-client-go v1.0.6-0.20211102125328-52c1d12ffdb4/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.6-0.20211102130358-a66398344298 h1:Q7qY4OyYzomldnMHN3ljmXrLgAH+EW88hd6GfHNcna0=
+github.com/appgate/sdp-api-client-go v1.0.6-0.20211102130358-a66398344298/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.6-0.20211102135721-9654567a433a h1:9SHsUwycLmToj7Cuv+0ZdXEfQlNrCOgngVZx2jm6tb4=
+github.com/appgate/sdp-api-client-go v1.0.6-0.20211102135721-9654567a433a/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.6 h1:rhOi6Ezo+BYVIvWM/hVbrtGsI9reY0DNgqa03mHj6Pw=
+github.com/appgate/sdp-api-client-go v1.0.6/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
