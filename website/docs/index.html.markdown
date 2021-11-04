@@ -74,7 +74,7 @@ $ terraform plan
 
 ### Config file
 
-Configure appgatesdp with a config file, can be combined with environment variables, if an `APPGATE_` environment variable is set, they take precedence over the config file.
+Configure appgatesdp with a config file, can be combined with environment variables, if an `APPGATE_` environment variable is set, they will merge with the config file, and the config file values take precedence over any existing values.
 
 ```hcl
 provider "appgatesdp" {
@@ -82,15 +82,27 @@ provider "appgatesdp" {
 }
 ```
 
-example config file format
+the following keys are allowed within the config file, all keys are optional.
+```json
+{
+    "appgate_url": "string",
+    "appgate_username": "string",
+    "appgate_password": "string",
+    "appgate_provider": "string",
+    "appgate_bearer_token": "string",
+    "appgate_client_version": 16,
+}
+
+```
+
+example config file format,
 ```json
 {
     "appgate_url": "https://controller.appgate/admin",
     "appgate_username": "admin",
     "appgate_password": "admin",
     "appgate_provider": "local",
-    "appgate_client_version": 16,
-    "appgate_insecure": true
+    "appgate_client_version": 16
 }
 
 ```
@@ -132,6 +144,9 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `config_path` - (Optional) Configure appgatesdp with a config file, if any environment variables is set, they take precedence.
 
+* `url` - (Optional) This is the Appgate controller API URL. It must be provided, but
+  it can also be sourced from the `APPGATE_ADDRESS` environment variable.
+
 * `username` - (Optional) This is the Appgate username. It must be provided, but
   it can also be sourced from the `APPGATE_USERNAME` environment variable.
 
@@ -143,6 +158,6 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `client_version` - (Optional) This reference the appgate client SDK version, it can also be sourced from the `APPGATE_CLIENT_VERSION` environment variables. Defaults to `16`, Its not recommended to change this unless you know what you are doing.
 
-* `insecure` - (Optional) Whether server should be accessed without verifying the TLS certificate. As the name suggests this is insecure and should not be used beyond experiments, accessing local (non-production) GHE instance etc. There is a number of ways to obtain trusted certificate for free, e.g. from Let's Encrypt. Such trusted certificate does not require this option to be enabled. Defaults to `true`.
+* `insecure` - (Optional) Whether server should be accessed without verifying the TLS certificate. As the name suggests this is insecure and should not be used beyond experiments, accessing local (non-production) GHE instance etc. There is a number of ways to obtain trusted certificate for free, e.g. from Let's Encrypt. Such trusted certificate does not require this option to be enabled. Defaults to `false`, it can also be sourced from the `APPGATE_INSECURE` environment variables.
 
 * `debug` - (Optional) Whether HTTP request should be displayed in debug mode, combine with [TF_LOG](https://www.terraform.io/docs/internals/debugging.html) Defaults to `false`.

@@ -3,12 +3,14 @@ package appgate
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	b64 "encoding/base64"
 	"errors"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
@@ -115,7 +117,7 @@ func (c *Config) Client() (*Client, error) {
 	return client, nil
 }
 
-func guessVersion(response *openapi.LoginResponse, clientVersion int) (*version.Version, error) {
+func guessVersion(clientVersion int) (*version.Version, error) {
 	// TODO query GET /appliance controller and check exact version.
 	// POST /login does not include version anymore.
 	switch clientVersion {
@@ -139,28 +141,27 @@ func (c *Client) GetToken() (string, error) {
 		log.Printf("[DEBUG] Authenticate with Bearer token provided as APPGATE_BEARER_TOKEN")
 		c.Token = fmt.Sprintf("Bearer %s", c.Config.BearerToken)
 	}
-	if len(c.Token) > 0 {
-		return c.Token, nil
-	}
 	cfg := c.Config
-	response, err := c.login()
-	if err != nil {
-		return "", err
-	}
-
 	latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
 	if err != nil {
 		return "", err
 	}
-
-	currentVersion, err := guessVersion(response, cfg.Version)
+	currentVersion, err := guessVersion(cfg.Version)
 	if err != nil {
 		return "", err
 	}
 	c.ApplianceVersion = currentVersion
 	c.LatestSupportedVersion = latestSupportedVersion
-	c.Token = fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
 
+	if len(c.Token) > 0 {
+		return c.Token, nil
+	}
+	response, err := c.login()
+	if err != nil {
+		return "", err
+	}
+
+	c.Token = fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
 	return c.Token, nil
 }
 
@@ -200,6 +201,15 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 	err := backoff.Retry(func() error {
 		login, response, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
 		if response == nil {
+			if err != nil {
+				if err, ok := err.(*url.Error); ok {
+					if err, ok := err.Unwrap().(x509.UnknownAuthorityError); ok {
+						return &backoff.PermanentError{
+							Err: fmt.Errorf("Import certificate or toggle APPGATE_INSECURE - %s", err),
+						}
+					}
+				}
+			}
 			log.Printf("[DEBUG] Login failed, No response %s", err)
 			return fmt.Errorf("No response from controller %w", err)
 		}
@@ -208,6 +218,18 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 			return fmt.Errorf("Controller got %w", err)
 		}
 		if err != nil {
+			if err, ok := err.(openapi.GenericOpenAPIError); ok {
+				if err, ok := err.Model().(openapi.InlineResponse406); ok {
+					return &backoff.PermanentError{
+						Err: fmt.Errorf(
+							"You are using the wrong client_version (peer api version) for you appgate sdp collective, you are using %d; min: %d max: %d",
+							c.Config.Version,
+							err.GetMinSupportedVersion(),
+							err.GetMaxSupportedVersion(),
+						),
+					}
+				}
+			}
 			log.Printf("[DEBUG] Login failed permanently, got HTTP %d", response.StatusCode)
 			return &backoff.PermanentError{Err: err}
 		}

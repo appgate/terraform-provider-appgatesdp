@@ -150,6 +150,14 @@ var (
 	"messageOfTheDay": "Welcome to Appgate SDP."
 }
 `
+	loginResponse406 = `
+{
+	"id": "string",
+	"message": "string",
+	"minSupportedVersion": 7,
+	"maxSupportedVersion": 15
+}
+  `
 )
 
 func TestConfigGetToken(t *testing.T) {
@@ -224,6 +232,16 @@ func TestConfigGetToken(t *testing.T) {
 			expectedVersion: computed54TestVersion,
 			clientVersion:   15,
 			statusCode:      http.StatusServiceUnavailable,
+		},
+		{
+			name: "406 login response",
+			fields: fields{
+				ResponseBody: loginResponse406,
+			},
+			wantErr:         true,
+			expectedVersion: computed54TestVersion,
+			clientVersion:   99,
+			statusCode:      http.StatusNotAcceptable,
 		},
 	}
 	for _, tt := range tests {
