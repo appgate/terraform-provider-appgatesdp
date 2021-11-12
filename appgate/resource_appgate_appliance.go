@@ -18,29 +18,6 @@ import (
 )
 
 func resourceAppgateAppliance() *schema.Resource {
-	reUsableSchemas := make(map[string]*schema.Schema)
-
-	reUsableSchemas["allow_sources"] = &schema.Schema{
-		Type:     schema.TypeList,
-		Optional: true,
-		Elem: &schema.Resource{
-			Schema: map[string]*schema.Schema{
-				"address": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					ValidateFunc: validateIPaddress,
-				},
-				"netmask": {
-					Type:     schema.TypeInt,
-					Optional: true,
-				},
-				"nic": {
-					Type:     schema.TypeString,
-					Optional: true,
-				},
-			},
-		},
-	}
 	return &schema.Resource{
 		Create: resourceAppgateApplianceCreate,
 		Read:   resourceAppgateApplianceRead,
@@ -135,7 +112,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 						},
 
-						"allow_sources": reUsableSchemas["allow_sources"],
+						"allow_sources": allowSourcesSchema(),
 
 						"override_spa_mode": {
 							Type:     schema.TypeString,
@@ -179,36 +156,12 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 							Default:  444,
 						},
-						"allow_sources": reUsableSchemas["allow_sources"],
+						"allow_sources": allowSourcesSchema(),
 					},
 				},
 			},
 
-			"admin_interface": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"hostname": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"https_port": {
-							Type:     schema.TypeInt,
-							Default:  443,
-							Optional: true,
-						},
-						"https_ciphers": {
-							Type:        schema.TypeList,
-							Description: "The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.",
-							Optional:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-						},
-						"allow_sources": reUsableSchemas["allow_sources"],
-					},
-				},
-			},
+			"admin_interface": adminInterfaceSchema(),
 
 			"networking": {
 				Type:     schema.TypeList,
@@ -494,7 +447,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Default:  22,
 						},
 
-						"allow_sources": reUsableSchemas["allow_sources"],
+						"allow_sources": allowSourcesSchema(),
 
 						"password_authentication": {
 							Type:     schema.TypeBool,
@@ -534,7 +487,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 						},
 
-						"allow_sources": reUsableSchemas["allow_sources"],
+						"allow_sources": allowSourcesSchema(),
 					},
 				},
 			},
@@ -558,7 +511,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 						},
 
-						"allow_sources": reUsableSchemas["allow_sources"],
+						"allow_sources": allowSourcesSchema(),
 					},
 				},
 			},
@@ -582,7 +535,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 						},
 
-						"allow_sources": reUsableSchemas["allow_sources"],
+						"allow_sources": allowSourcesSchema(),
 					},
 				},
 			},
@@ -594,7 +547,7 @@ func resourceAppgateAppliance() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"allow_sources": reUsableSchemas["allow_sources"],
+						"allow_sources": allowSourcesSchema(),
 					},
 				},
 			},
@@ -622,21 +575,7 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 
-			"controller": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-						},
-					},
-				},
-			},
+			"controller": controllerSchema(),
 
 			"gateway": {
 				Type:          schema.TypeList,
@@ -944,7 +883,7 @@ func resourceAppgateAppliance() *schema.Resource {
 										Optional: true,
 									},
 
-									"allow_resources": reUsableSchemas["allow_sources"],
+									"allow_resources": allowSourcesSchema(),
 
 									"snat_to_tunnel": {
 										Type:     schema.TypeBool,
