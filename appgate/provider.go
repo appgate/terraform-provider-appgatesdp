@@ -232,7 +232,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		}
 	}
 
-	if err := config.Validate(); err != nil {
+	if err := config.Validate(usingFile); err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Missing Appgate SDP credentials",
