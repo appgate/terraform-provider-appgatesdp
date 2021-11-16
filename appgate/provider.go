@@ -117,6 +117,7 @@ func Provider() *schema.Provider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgatesdp_appliance":                          resourceAppgateAppliance(),
+			"appgatesdp_appliance_controller_activation":    resourceAppgateApplianceControllerActivation(),
 			"appgatesdp_entitlement":                        resourceAppgateEntitlement(),
 			"appgatesdp_site":                               resourceAppgateSite(),
 			"appgatesdp_ringfence_rule":                     resourceAppgateRingfenceRule(),
@@ -231,7 +232,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		}
 	}
 
-	if err := config.Validate(); err != nil {
+	if err := config.Validate(usingFile); err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Missing Appgate SDP credentials",

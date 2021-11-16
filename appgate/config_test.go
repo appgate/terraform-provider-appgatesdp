@@ -388,7 +388,7 @@ func TestConfigValidate(t *testing.T) {
 				Version:      tt.fields.Version,
 				BearerToken:  tt.fields.BearerToken,
 			}
-			if err := c.Validate(); (err != nil) != tt.wantErr {
+			if err := c.Validate(false); (err != nil) != tt.wantErr {
 				t.Errorf("Config.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
