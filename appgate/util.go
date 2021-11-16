@@ -309,7 +309,7 @@ const (
 
 // waitForApplianceState is a blocking function that does exponential backOff on appliance stats
 // and make sure a certain appliance has reached state.
-func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, state string) error {
+func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, state string, b *backoff.ExponentialBackOff) error {
 	return backoff.Retry(func() error {
 		statsAPI := meta.(*Client).API.ApplianceStatsApi
 		token, err := meta.(*Client).GetToken()
@@ -334,12 +334,5 @@ func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, s
 			return nil
 		}
 		return fmt.Errorf("appliance %q is in state %s expected %s", applianceID, appliance.GetState(), state)
-	}, &backoff.ExponentialBackOff{
-		InitialInterval:     2 * time.Second,
-		RandomizationFactor: 0.7,
-		Multiplier:          2,
-		MaxInterval:         8 * time.Minute,
-		Stop:                backoff.Stop,
-		Clock:               backoff.SystemClock,
-	})
+	}, b)
 }
