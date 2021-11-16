@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/appgate/sdp-api-client-go v1.0.6
-	github.com/cenkalti/backoff/v4 v4.1.1
+	github.com/cenkalti/backoff/v4 v4.1.2
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-version v1.3.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.8.0
