@@ -102,7 +102,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 		}
 		// wait a few seconds and make sure the controller react to the changes.
 		time.Sleep(time.Duration(10) * time.Second)
-		if err := waitForControllers(ctx, meta); err != nil {
+		if err := waitForApplianceState(ctx, meta, id, ApplianceStateControllerReady); err != nil {
 			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after enabling controller on %s: %s", appliance.GetName(), err))
 		}
 		return nil
@@ -195,7 +195,12 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 			appliance.AdminInterface = nil
 		}
 	}
-
+	// if we disable the controller, we want another state.
+	state := ApplianceStateApplianceReady
+	ctrl := appliance.GetController()
+	if ctrl.GetEnabled() == true {
+		state = ApplianceStateControllerReady
+	}
 	retryErr := resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(appliance).Authorization(token).Execute()
 		if err != nil {
@@ -203,7 +208,7 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 		}
 		// wait a few seconds and make sure the controller react to the changes.
 		time.Sleep(time.Duration(10) * time.Second)
-		if err := waitForControllers(ctx, meta); err != nil {
+		if err := waitForApplianceState(ctx, meta, id, state); err != nil {
 			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %s", appliance.GetName(), err))
 		}
 		return nil
@@ -241,7 +246,7 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 		}
 		// wait a few seconds and make sure the controller react to the changes.
 		time.Sleep(time.Duration(10) * time.Second)
-		if err := waitForControllers(ctx, meta); err != nil {
+		if err := waitForApplianceState(ctx, meta, id, "appliance_ready"); err != nil {
 			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %s", appliance.GetName(), err))
 		}
 		return nil

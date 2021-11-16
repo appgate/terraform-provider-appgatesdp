@@ -294,3 +294,52 @@ func waitForControllers(ctx context.Context, meta interface{}) error {
 		Clock:               backoff.SystemClock,
 	})
 }
+
+const (
+	ApplianceStateInit                 = "init"
+	ApplianceStateWaitingConfig        = "waiting_config"
+	ApplianceStateMigratingdata        = "data_migration"
+	ApplianceStateUpgrading            = "upgrading"
+	ApplianceStateCloudinitializing    = "cloud_initializing"
+	ApplianceStateApplianceActivating  = "appliance_activating"
+	ApplianceStateApplianceRegistering = "appliance_registering"
+	ApplianceStateApplianceReady       = "appliance_ready"
+	ApplianceStateControllerReady      = "controller_ready"
+)
+
+// waitForApplianceState is a blocking function that does exponential backOff on appliance stats
+// and make sure a certain appliance has reached state.
+func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, state string) error {
+	return backoff.Retry(func() error {
+		statsAPI := meta.(*Client).API.ApplianceStatsApi
+		token, err := meta.(*Client).GetToken()
+		if err != nil {
+			return ApplianceStatsRetryableError{err: err}
+		}
+		stats, _, err := statsAPI.StatsAppliancesGet(ctx).Authorization(token).Execute()
+		if err != nil {
+			return ApplianceStatsRetryableError{err: err}
+		}
+		var appliance openapi.StatsAppliancesListAllOfData
+		for _, data := range stats.GetData() {
+			if data.GetId() == applianceID {
+				appliance = data
+			}
+		}
+		if appliance.GetId() != applianceID {
+			return fmt.Errorf("could not find appliance %q in stats list", applianceID)
+		}
+		if appliance.GetState() == state {
+			log.Printf("[DEBUG] Appliance %q reached expected state %s", applianceID, state)
+			return nil
+		}
+		return fmt.Errorf("appliance %q is in state %s expected %s", applianceID, appliance.GetState(), state)
+	}, &backoff.ExponentialBackOff{
+		InitialInterval:     2 * time.Second,
+		RandomizationFactor: 0.7,
+		Multiplier:          2,
+		MaxInterval:         8 * time.Minute,
+		Stop:                backoff.Stop,
+		Clock:               backoff.SystemClock,
+	})
+}
