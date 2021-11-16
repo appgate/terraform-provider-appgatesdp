@@ -10,6 +10,10 @@ description: |-
 # appgatesdp_appliance_controller_activation
 
 Activate controller functionallity on a appliance.
+
+
+~> **NOTE:**  The resource is only available in >= 5.4 appliances. When destroying this resource, it will disable the controller function on the appliance, and the appliance will remain.
+
 ## Example Usage
 
 ```hcl
