@@ -9,7 +9,7 @@ description: |-
 ## Provisioning high availability controllers
 
 
-In appliance >= 5.4.0 we cant create more then 1 controller at the time,
+In appliance >= 5.4.0 we can't create more then 1 controller at the time,
 it means that we must first create an appliance, seed it, then activate the controller function.
 
 
@@ -100,7 +100,7 @@ resource "null_resource" "seed_controller" {
 
 #### Enable controller function
 
-Once the second controller is seeded with the default appliance configuration, we can enable the controller functionallity.
+Once the second controller is seeded with the default appliance configuration, we can enable the controller functionality.
 
 ```hcl
 resource "appgatesdp_appliance_controller_activation" "activate_second_controller" {

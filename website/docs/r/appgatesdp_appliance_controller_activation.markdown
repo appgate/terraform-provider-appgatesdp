@@ -9,13 +9,13 @@ description: |-
 
 # appgatesdp_appliance_controller_activation
 
-Activate controller functionallity on a appliance.
+Activate controller functionality on a appliance.
 
 
 ~> **NOTE:**  The resource is only available in >= 5.4 appliances. When destroying this resource, it will disable the controller function on the appliance, and the appliance will remain.
 
 
-!> **Warning:** You wont be able to use this in a safe way on more then 1 appliance at the time.
+!> **Warning:** You won't be able to use this in a safe way on more then 1 appliance at the time.
 
 
 ## Example Usage
