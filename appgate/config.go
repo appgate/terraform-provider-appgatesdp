@@ -41,7 +41,7 @@ type Config struct {
 
 // Validate makes sure we have minimum required configuration values to authenticate against the controller.
 func (c *Config) Validate(usingFile bool) error {
-	// we wont validate the configuration if we are using the config_file
+	// we won't validate the configuration if we are using the config_file
 	// this is because we want defer it until the file has been populated.
 	if usingFile {
 		return nil

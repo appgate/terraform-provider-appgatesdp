@@ -62,7 +62,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 	}
 	currentVersion := meta.(*Client).ApplianceVersion
 	if !Appliance54Constraints.Check(currentVersion) {
-		return diag.FromErr(errors.New("This resource is only avaliable in 5.4 or higher."))
+		return diag.FromErr(errors.New("This resource is only available in 5.4 or higher."))
 	}
 
 	id := d.Get("appliance_id").(string)

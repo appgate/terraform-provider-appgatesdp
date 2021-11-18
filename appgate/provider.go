@@ -218,7 +218,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if usingFile {
 		// we do not allow bool config keys from the config file, since they will always default to false if omitted
 		// for the boolean config attributes, we will fallback to the default values defined in the Schema.
-		// (yes this can be solved by pointers, however we are not intresting in doing that now)
+		// (yes this can be solved by pointers, however we are not interesting in doing that now)
 		// https://play.golang.org/p/QNkWPEjPlcD
 		configFile.Insecure = config.Insecure
 		configFile.Debug = config.Debug
