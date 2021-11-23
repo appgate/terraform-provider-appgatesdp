@@ -99,7 +99,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 	retryErr := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(appliance).Authorization(token).Execute()
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return resource.NonRetryableError(prettyPrintAPIError(err))
 		}
 		b := &backoff.ExponentialBackOff{
 			InitialInterval:     10 * time.Second,
