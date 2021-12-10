@@ -160,8 +160,7 @@ var (
   `
 )
 
-func TestConfigGetToken(t *testing.T) {
-
+func TestClient(t *testing.T) {
 	type fields struct {
 		ResponseBody string
 	}
@@ -169,9 +168,12 @@ func TestConfigGetToken(t *testing.T) {
 		name            string
 		fields          fields
 		wantErr         bool
+		wantClientErr   bool
 		expectedVersion *version.Version
 		clientVersion   int
 		statusCode      int
+		config          *Config
+		wantInsecure    bool
 	}{
 		{
 			name: "test before 5.4",
@@ -180,8 +182,15 @@ func TestConfigGetToken(t *testing.T) {
 			},
 			wantErr:         false,
 			expectedVersion: version52Test,
-			clientVersion:   13,
 			statusCode:      http.StatusOK,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      13,
+				LoginTimeout: 1,
+				Insecure:     true,
+			},
+			wantInsecure: true,
 		},
 		{
 			name: "test 5.4 login",
@@ -190,8 +199,15 @@ func TestConfigGetToken(t *testing.T) {
 			},
 			wantErr:         false,
 			expectedVersion: computed54TestVersion,
-			clientVersion:   15,
-			statusCode:      http.StatusOK,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      15,
+				LoginTimeout: 1,
+				Insecure:     true,
+			},
+			wantInsecure: true,
+			statusCode:   http.StatusOK,
 		},
 		{
 			name: "invalid client version",
@@ -200,8 +216,15 @@ func TestConfigGetToken(t *testing.T) {
 			},
 			wantErr:         true,
 			expectedVersion: computed54TestVersion,
-			clientVersion:   2222,
-			statusCode:      http.StatusOK,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      22222,
+				LoginTimeout: 1,
+				Insecure:     true,
+			},
+			wantInsecure: true,
+			statusCode:   http.StatusOK,
 		},
 		{
 			name: "500 login response",
@@ -210,8 +233,15 @@ func TestConfigGetToken(t *testing.T) {
 			},
 			wantErr:         true,
 			expectedVersion: computed54TestVersion,
-			clientVersion:   15,
-			statusCode:      http.StatusInternalServerError,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      15,
+				LoginTimeout: 1,
+				Insecure:     true,
+			},
+			wantInsecure: true,
+			statusCode:   http.StatusInternalServerError,
 		},
 		{
 			name: "502 login response",
@@ -220,8 +250,15 @@ func TestConfigGetToken(t *testing.T) {
 			},
 			wantErr:         true,
 			expectedVersion: computed54TestVersion,
-			clientVersion:   15,
-			statusCode:      http.StatusBadGateway,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      15,
+				LoginTimeout: 1,
+				Insecure:     true,
+			},
+			wantInsecure: true,
+			statusCode:   http.StatusBadGateway,
 		},
 		{
 			name: "503 login response",
@@ -230,8 +267,15 @@ func TestConfigGetToken(t *testing.T) {
 			},
 			wantErr:         true,
 			expectedVersion: computed54TestVersion,
-			clientVersion:   15,
-			statusCode:      http.StatusServiceUnavailable,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      15,
+				LoginTimeout: 1,
+				Insecure:     true,
+			},
+			wantInsecure: true,
+			statusCode:   http.StatusServiceUnavailable,
 		},
 		{
 			name: "406 login response",
@@ -240,8 +284,53 @@ func TestConfigGetToken(t *testing.T) {
 			},
 			wantErr:         true,
 			expectedVersion: computed54TestVersion,
-			clientVersion:   99,
-			statusCode:      http.StatusNotAcceptable,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      99,
+				LoginTimeout: 1,
+				Insecure:     true,
+			},
+			wantInsecure: true,
+			statusCode:   http.StatusNotAcceptable,
+		},
+		{
+			name: "test with invalid pem",
+			fields: fields{
+				ResponseBody: loginResponse54,
+			},
+			wantErr:         false,
+			wantClientErr:   true,
+			expectedVersion: computed54TestVersion,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      15,
+				LoginTimeout: 1,
+				Insecure:     false,
+				PemFilePath:  "test-fixtures/invalid_cert.pem",
+			},
+			wantInsecure: false,
+			statusCode:   http.StatusOK,
+		},
+		{
+			name: "test with pem file",
+			fields: fields{
+				ResponseBody: loginResponse54,
+			},
+			wantErr:         false,
+			wantClientErr:   false,
+			expectedVersion: computed54TestVersion,
+			config: &Config{
+				Username:     "admin",
+				Password:     "admin",
+				Version:      15,
+				LoginTimeout: 1,
+				Insecure:     false,
+				PemFilePath:  "test-fixtures/cert.pem",
+			},
+			wantInsecure: false,
+			statusCode:   http.StatusOK,
 		},
 	}
 	for _, tt := range tests {
@@ -255,15 +344,10 @@ func TestConfigGetToken(t *testing.T) {
 				testMethod(t, r, http.MethodPost)
 
 			})
-			c := &Config{
-				URL:          fmt.Sprintf("http://localhost:%d", port),
-				Username:     "admin",
-				Password:     "admin",
-				Version:      tt.clientVersion,
-				LoginTimeout: 1,
-			}
+			c := tt.config
+			c.URL = fmt.Sprintf("http://localhost:%d", port)
 			appgateClient, err := c.Client()
-			if err != nil {
+			if (err != nil) != tt.wantClientErr {
 				t.Errorf("Got err, expected None %s", err)
 				return
 			}
@@ -278,7 +362,11 @@ func TestConfigGetToken(t *testing.T) {
 			if tt.wantErr && (err != nil) {
 				return
 			}
-
+			hc := appgateClient.API.GetConfig().HTTPClient
+			tr := hc.Transport.(*http.Transport)
+			if tr.TLSClientConfig.InsecureSkipVerify != tt.wantInsecure {
+				t.Fatalf("got %v expected %v", tr.TLSClientConfig.InsecureSkipVerify, tt.wantInsecure)
+			}
 			if !appgateClient.ApplianceVersion.Equal(tt.expectedVersion) {
 				t.Fatalf("Expected %s, got %s", tt.expectedVersion, appgateClient.ApplianceVersion)
 			}
