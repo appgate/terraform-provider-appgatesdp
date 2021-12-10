@@ -107,7 +107,13 @@ func (c *Config) Client() (*Client, error) {
 		}).Dial,
 		TLSHandshakeTimeout: timeoutDuration * time.Second,
 	}
-
+	if key, ok := os.LookupEnv("HTTP_PROXY"); ok {
+		proxyURL, err := url.Parse(key)
+		if err != nil {
+			return nil, err
+		}
+		tr.Proxy = http.ProxyURL(proxyURL)
+	}
 	httpclient := &http.Client{
 		Transport: tr,
 		Timeout:   ((timeoutDuration * 2) * time.Second),
