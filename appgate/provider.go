@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/denisbrodbeck/machineid"
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/imdario/mergo"
 )
 
@@ -98,6 +101,13 @@ func Provider() *schema.Provider {
 				DefaultFunc:   schema.EnvDefaultFunc("APPGATE_BEARER_TOKEN", nil),
 				ConflictsWith: []string{"username", "password"},
 				Description:   "The Token from the LoginResponse, provided from outside terraform.",
+			},
+			"device_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("APPGATE_DEVICE_ID", nil),
+				ValidateFunc: validation.IsUUID,
+				Description:  "UUID to distinguish the Client device making the request. It is supposed to be same for every login request from the same server.",
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -223,6 +233,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if v, ok := d.GetOk("pem_filepath"); ok {
 		config.PemFilePath = v.(string)
 	}
+	if v, ok := d.GetOk("device_id"); ok {
+		config.DeviceID = v.(string)
+	}
 
 	if usingFile {
 		// we do not allow bool config keys from the config file, since they will always default to false if omitted
@@ -240,7 +253,12 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 			return nil, diags
 		}
 	}
-
+	// if no device_id is set by the user, we will set
+	// the value based on the machine id, fallback to random UUID
+	_, errs := validation.IsUUID(config.DeviceID, "device_id")
+	if len(errs) > 0 {
+		config.DeviceID = defaultDeviceID()
+	}
 	if err := config.Validate(usingFile); err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -269,4 +287,28 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 
 	return c, diags
+}
+
+func defaultDeviceID() string {
+	readAndParseUUID := func() (uuid.UUID, error) {
+		// machine.ID() tries to read
+		// /etc/machine-id on Linux
+		// /etc/hostid on BSD
+		// ioreg -rd1 -c IOPlatformExpertDevice | grep IOPlatformUUID on OSX
+		// reg query HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography /v MachineGuid on Windows
+		// and tries to parse the value as a UUID
+		// https://github.com/denisbrodbeck/machineid
+		var id uuid.UUID
+		mid, err := machineid.ID()
+		if err != nil {
+			return id, err
+		}
+		return uuid.Parse(mid)
+	}
+	// if we can't get a valid UUID based on the machine ID, we will fallback to a random UUID value.
+	v, err := readAndParseUUID()
+	if err != nil {
+		return uuid.New().String()
+	}
+	return v.String()
 }

@@ -17,8 +17,6 @@ import (
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
-
-	"github.com/google/uuid"
 )
 
 const (
@@ -39,6 +37,7 @@ type Config struct {
 	Version      int    `json:"appgate_client_version,omitempty"`
 	BearerToken  string `json:"appgate_bearer_token,omitempty"`
 	PemFilePath  string `json:"appgate_pem_filepath,omitempty"`
+	DeviceID     string `json:"appgate_device_id,omitempty"`
 }
 
 // Validate makes sure we have minimum required configuration values to authenticate against the controller.
@@ -216,7 +215,7 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 		ProviderName: c.Config.Provider,
 		Username:     openapi.PtrString(c.Config.Username),
 		Password:     openapi.PtrString(c.Config.Password),
-		DeviceId:     uuid.New().String(),
+		DeviceId:     c.Config.DeviceID,
 	}
 
 	// Since /login is the first request we do, it provide us the earliest check if a controller is up and running
