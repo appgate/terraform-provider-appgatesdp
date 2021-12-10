@@ -86,6 +86,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CONFIG_PATH", nil),
 				Description: "Path to the appgate config file. Can be set with APPGATE_CONFIG_PATH.",
 			},
+			"pem_filepath": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_PEM_FILEPATH", nil),
+				Description: "Path to the controller's CA cert file in PEM format",
+			},
 			"bearer_token": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -213,6 +219,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 	if v, ok := d.GetOk("client_version"); ok {
 		config.Version = v.(int)
+	}
+	if v, ok := d.GetOk("pem_filepath"); ok {
+		config.PemFilePath = v.(string)
 	}
 
 	if usingFile {

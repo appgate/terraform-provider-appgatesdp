@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
@@ -37,6 +38,7 @@ type Config struct {
 	Debug        bool   `json:"appgate_http_debug,omitempty"`
 	Version      int    `json:"appgate_client_version,omitempty"`
 	BearerToken  string `json:"appgate_bearer_token,omitempty"`
+	PemFilePath  string `json:"appgate_pem_filepath,omitempty"`
 }
 
 // Validate makes sure we have minimum required configuration values to authenticate against the controller.
@@ -81,9 +83,24 @@ type Client struct {
 // Client creates
 func (c *Config) Client() (*Client, error) {
 	timeoutDuration := time.Duration(c.Timeout)
+
+	rootCAs, _ := x509.SystemCertPool()
+	if rootCAs == nil {
+		rootCAs = x509.NewCertPool()
+	}
+	if ok, err := FileExists(c.PemFilePath); err == nil && ok {
+		certs, err := os.ReadFile(c.PemFilePath)
+		if err != nil {
+			return nil, fmt.Errorf("could not read pem file %w", err)
+		}
+		if ok := rootCAs.AppendCertsFromPEM(certs); !ok {
+			return nil, fmt.Errorf("unable to append cert %s", c.PemFilePath)
+		}
+	}
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: c.Insecure,
+			RootCAs:            rootCAs,
 		},
 		Dial: (&net.Dialer{
 			Timeout: timeoutDuration * time.Second,
