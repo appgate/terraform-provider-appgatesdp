@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -335,4 +336,15 @@ func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, s
 		}
 		return fmt.Errorf("appliance %q is in state %s expected %s", applianceID, appliance.GetState(), state)
 	}, b)
+}
+
+func FileExists(name string) (bool, error) {
+	_, err := os.Stat(name)
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	return false, err
 }

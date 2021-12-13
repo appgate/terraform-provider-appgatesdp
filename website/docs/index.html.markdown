@@ -158,6 +158,8 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `client_version` - (Optional) This reference the appgate client SDK version, it can also be sourced from the `APPGATE_CLIENT_VERSION` environment variables. Defaults to `16`, Its not recommended to change this unless you know what you are doing.
 
+* `pem_filepath` - (Optional) Path to the controller's CA cert file in PEM format.
+
 * `insecure` - (Optional) Whether server should be accessed without verifying the TLS certificate. As the name suggests this is insecure and should not be used beyond experiments, accessing local (non-production) GHE instance etc. There is a number of ways to obtain trusted certificate for free, e.g. from Let's Encrypt. Such trusted certificate does not require this option to be enabled. Defaults to `false`, it can also be sourced from the `APPGATE_INSECURE` environment variables.
 
 * `debug` - (Optional) Whether HTTP request should be displayed in debug mode, combine with [TF_LOG](https://www.terraform.io/docs/internals/debugging.html) Defaults to `false`.
