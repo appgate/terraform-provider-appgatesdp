@@ -181,11 +181,11 @@ func resourceAppgateSite() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"ipv4": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"ipv6": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 								},
 							},
