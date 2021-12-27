@@ -674,7 +674,7 @@ func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []
 		if _, o := in.RouteVia.GetIpv6Ok(); o != false {
 			routeVia["ipv6"] = in.RouteVia.GetIpv6
 		}
-		m["route_via"] = routeVia
+		m["route_via"] = []interface{}{routeVia}
 	}
 
 	if currentVersion.Equal(Appliance53Version) {
