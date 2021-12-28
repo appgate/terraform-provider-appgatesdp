@@ -181,11 +181,11 @@ func resourceAppgateSite() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"ipv4": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"ipv6": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 								},
 							},
@@ -668,9 +668,13 @@ func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []
 
 	if in.HasRouteVia() && in.RouteVia.Ipv4 != nil {
 		routeVia := make(map[string]interface{})
-		routeVia["ipv4"] = in.RouteVia.GetIpv4()
-		routeVia["ipv6"] = in.RouteVia.GetIpv6()
-		m["route_via"] = routeVia
+		if _, o := in.RouteVia.GetIpv4Ok(); o != false {
+			routeVia["ipv4"] = in.RouteVia.GetIpv4()
+		}
+		if _, o := in.RouteVia.GetIpv6Ok(); o != false {
+			routeVia["ipv6"] = in.RouteVia.GetIpv6()
+		}
+		m["route_via"] = []interface{}{routeVia}
 	}
 
 	if currentVersion.Equal(Appliance53Version) {
