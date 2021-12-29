@@ -665,14 +665,13 @@ func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []
 		}
 		m["tls"] = []interface{}{tls}
 	}
-
-	if in.HasRouteVia() && in.RouteVia.Ipv4 != nil {
+	if in.HasRouteVia() && (in.RouteVia.Ipv4 != nil || in.RouteVia.Ipv6 != nil) {
 		routeVia := make(map[string]interface{})
-		if _, o := in.RouteVia.GetIpv4Ok(); o {
-			routeVia["ipv4"] = in.RouteVia.GetIpv4()
+		if v, o := in.RouteVia.GetIpv4Ok(); o && len(*v) > 0 {
+			routeVia["ipv4"] = v
 		}
-		if _, o := in.RouteVia.GetIpv6Ok(); o {
-			routeVia["ipv6"] = in.RouteVia.GetIpv6()
+		if v, o := in.RouteVia.GetIpv6Ok(); o && len(*v) > 0 {
+			routeVia["ipv6"] = v
 		}
 		m["route_via"] = []interface{}{routeVia}
 	}
@@ -1086,11 +1085,11 @@ func readSiteVPNRouteViaFromConfig(routeViaConf []interface{}) (openapi.SiteAllO
 		}
 
 		raw := r.(map[string]interface{})
-		if r, ok := raw["ipv4"]; ok {
-			result.SetIpv4(r.(string))
+		if v, ok := raw["ipv4"].(string); ok && len(v) > 0 {
+			result.SetIpv4(v)
 		}
-		if r, ok := raw["ipv6"]; ok {
-			result.SetIpv6(r.(string))
+		if v, ok := raw["ipv6"].(string); ok && len(v) > 0 {
+			result.SetIpv6(v)
 		}
 	}
 	return result, nil
