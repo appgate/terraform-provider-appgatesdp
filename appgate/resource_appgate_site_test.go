@@ -1111,3 +1111,277 @@ func testAccSiteVPNRouteViaDeleted(context map[string]interface{}) string {
       }
 `, context)
 }
+
+// Test for
+// https://github.com/appgate/terraform-provider-appgatesdp/issues/204
+func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
+	resourceName := "appgatesdp_site.d_test_site"
+	rName := RandStringFromCharSet(11, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name": rName,
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSiteDestroy,
+		Steps: []resource.TestStep{
+			{
+
+				Config: testAccSiteVPNRouteViaIpv4Only(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "true"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "9"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv4", "10.10.10.10"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv6", ""),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_key_store", ""),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_verify_upstream_certificate", "false"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+			{
+
+				Config: testAccSiteVPNRouteViaIpv4OnlyUpdated(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "true"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "9"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv4", "10.20.10.20"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv6", ""),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_key_store", ""),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_verify_upstream_certificate", "false"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+			{
+
+				Config: testAccSiteVPNRouteViaIpv4OnlyUpdatedWithIpv6(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "true"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "9"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv6", "fdf8:f53b:82e4::53"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_key_store", ""),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_verify_upstream_certificate", "false"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+// https://github.com/appgate/terraform-provider-appgatesdp/issues/204
+func testAccSiteVPNRouteViaIpv4Only(context map[string]interface{}) string {
+	return Nprintf(`
+resource "appgatesdp_site" "d_test_site" {
+	name                      = "%{name}"
+	short_name                = "DT"
+	entitlement_based_routing = false
+	notes                     = "Managed by terraform"
+
+	default_gateway {
+	  enabled_v4 = true
+	  enabled_v6 = false
+	}
+	vpn {
+	  state_sharing                  = false
+	  ip_access_log_interval_seconds = 120
+	  snat                           = false
+	  tls {
+		enabled = true
+	  }
+	  dtls {
+		enabled = false
+	  }
+	  route_via {
+		ipv4 = "10.10.10.10"
+	  }
+	}
+	tags = ["terraform", "api-created", "default_test"]
+}
+`, context)
+}
+
+// https://github.com/appgate/terraform-provider-appgatesdp/issues/204
+func testAccSiteVPNRouteViaIpv4OnlyUpdated(context map[string]interface{}) string {
+	return Nprintf(`
+resource "appgatesdp_site" "d_test_site" {
+	name                      = "%{name}"
+	short_name                = "DT"
+	entitlement_based_routing = false
+	notes                     = "Managed by terraform"
+
+	default_gateway {
+	  enabled_v4 = true
+	  enabled_v6 = false
+	}
+	vpn {
+	  state_sharing                  = false
+	  ip_access_log_interval_seconds = 120
+	  snat                           = false
+	  tls {
+		enabled = true
+	  }
+	  dtls {
+		enabled = false
+	  }
+	  route_via {
+		ipv4 = "10.20.10.20"
+	  }
+	}
+	tags = ["terraform", "api-created", "default_test"]
+}
+`, context)
+}
+
+// https://github.com/appgate/terraform-provider-appgatesdp/issues/204
+func testAccSiteVPNRouteViaIpv4OnlyUpdatedWithIpv6(context map[string]interface{}) string {
+	return Nprintf(`
+resource "appgatesdp_site" "d_test_site" {
+	name                      = "%{name}"
+	short_name                = "DT"
+	entitlement_based_routing = false
+	notes                     = "Managed by terraform"
+
+	default_gateway {
+	  enabled_v4 = true
+	  enabled_v6 = false
+	}
+	vpn {
+	  state_sharing                  = false
+	  ip_access_log_interval_seconds = 120
+	  snat                           = false
+	  tls {
+		enabled = true
+	  }
+	  dtls {
+		enabled = false
+	  }
+	  route_via {
+		ipv6 = "fdf8:f53b:82e4::53"
+	  }
+	}
+	tags = ["terraform", "api-created", "default_test"]
+}
+`, context)
+}
