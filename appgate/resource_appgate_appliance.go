@@ -1287,7 +1287,7 @@ func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 			ipv4networking := openapi.ApplianceAllOfNetworkingIpv4{}
 			for _, item := range v {
 				ipv4Data := item.(map[string]interface{})
-				if item, ok := ipv4Data["dhcp"].([]interface{}); ok && len(v) > 0 && item[0] != nil {
+				if item, ok := ipv4Data["dhcp"].([]interface{}); ok && len(item) > 0 && item[0] != nil {
 					ipv4networking.SetDhcp(readNetworkIpv4DhcpFromConfig(item[0].(map[string]interface{})))
 				}
 				if item := ipv4Data["static"]; len(item.([]interface{})) > 0 {
@@ -2742,8 +2742,8 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 						if v := raw["address"].(string); v != "" {
 							ad.SetAddress(v)
 						}
-						if v, ok := raw["netmask"]; ok {
-							ad.SetNetmask(int32(v.(int)))
+						if v, ok := raw["netmask"].(int); ok && v > 0 {
+							ad.SetNetmask(int32(v))
 						}
 						if v := raw["nic"].(string); v != "" {
 							ad.SetNic(v)
