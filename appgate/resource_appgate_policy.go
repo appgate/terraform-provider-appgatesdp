@@ -331,6 +331,9 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 			args.SetOverrideSiteClaim(v.(string))
 		}
 		if v, ok := d.GetOk("dns_settings"); ok {
+			if args.GetType() != "Dns" {
+				return fmt.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", args.GetType())
+			}
 			servers, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return err
@@ -640,7 +643,7 @@ func flattenPolicyClientSettings(clientSettings openapi.PolicyAllOfClientSetting
 }
 
 func flattenPolicyDnsSettings(dnsSettings []openapi.PolicyAllOfDnsSettings) (*schema.Set, error) {
-	out := make([]interface{}, 0, 0)
+	out := make([]interface{}, 0)
 	for _, dnsSetting := range dnsSettings {
 		m := make(map[string]interface{})
 		if v, ok := dnsSetting.GetDomainOk(); ok {
@@ -769,6 +772,9 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 			orginalPolicy.SetOverrideSiteClaim(d.Get("override_site_claim").(string))
 		}
 		if d.HasChange("dns_settings") {
+			if orginalPolicy.GetType() != "Dns" {
+				return fmt.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", orginalPolicy.GetType())
+			}
 			_, v := d.GetChange("dns_settings")
 			dnsSettings, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
 			if err != nil {
