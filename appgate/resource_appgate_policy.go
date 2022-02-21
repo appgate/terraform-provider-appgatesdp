@@ -261,6 +261,10 @@ func resourceAppgatePolicy() *schema.Resource {
 }
 
 func resourcePolicyDnsSettingsHash(v interface{}) int {
+	var buf bytes.Buffer
+	if v == nil {
+		return hashcode.String(buf.String())
+	}
 	raw := v.(map[string]interface{})
 	// modifying raw actually modifies the values passed to the provider.
 	// Use a copy to avoid that.
@@ -268,7 +272,7 @@ func resourcePolicyDnsSettingsHash(v interface{}) int {
 	for key, value := range raw {
 		copy[key] = value
 	}
-	var buf bytes.Buffer
+
 	buf.WriteString(fmt.Sprintf("%s-", copy["domain"].(string)))
 	if v, ok := copy["servers"]; ok {
 		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
