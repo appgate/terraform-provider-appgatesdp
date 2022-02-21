@@ -165,11 +165,10 @@ func resourceAppgatePolicy() *schema.Resource {
 			},
 
 			"dns_settings": {
-				Type:             schema.TypeSet,
-				Optional:         true,
-				Description:      "List of domain names with DNS server IPs that the Client should be using.",
-				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
-				Set:              resourcePolicyDnsSettingsHash,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "List of domain names with DNS server IPs that the Client should be using.",
+				Set:         resourcePolicyDnsSettingsHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"domain": {
