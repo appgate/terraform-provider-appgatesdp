@@ -749,6 +749,96 @@ func TestAccSite55Attributes(t *testing.T) {
                             dns_servers         = [
                                 "1.1.1.1"
                             ]
+							allow_destinations {
+								address = "1.1.1.1"
+								netmask = 32
+							}
+							allow_destinations {
+								address = "0.0.0.0"
+								netmask = 0
+							}
+							allow_destinations {
+								address = "::"
+								netmask = 0
+							}
+                        }
+                    }
+                }
+                `, map[string]interface{}{
+					"name": rName,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.client_id", "test_client"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.name", "AZ resolver 99"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.secret", "test_secret"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.subscription_id", "AZ_test_subscription"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.tenant_id", "AZ_test_tentant"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.update_interval", "60"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.use_managed_identities", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.address", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.address", "::"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv6", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false")),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+			{
+				// Delete 2 dns_forwarding.allow_destinations
+				Config: Nprintf(`
+                resource "appgatesdp_site" "test_site" {
+                    name       = "%{name}"
+                    tags = [
+                        "developer",
+                        "api-created"
+                    ]
+                    entitlement_based_routing = false
+                    network_subnets = [
+                        "10.0.0.0/16"
+                    ]
+                    default_gateway {
+                        enabled_v4       = false
+                        enabled_v6       = false
+                        excluded_subnets = []
+                    }
+                    name_resolution {
+                        azure_resolvers {
+                            name                    = "AZ resolver 99"
+                            client_id               = "test_client"
+                            secret                  = "test_secret"
+                            update_interval         = 60
+                            use_managed_identities  = true
+                            subscription_id         = "AZ_test_subscription"
+                            tenant_id               = "AZ_test_tentant"
+                        }
+                        dns_forwarding {
+                            site_ipv4           = "1.2.3.4"
+                            site_ipv6           = "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+                            dns_servers         = [
+                                "1.1.1.1"
+                            ]
                             allow_destinations {
                                 address = "1.1.1.1"
                                 netmask = 32
