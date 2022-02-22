@@ -165,11 +165,10 @@ func resourceAppgatePolicy() *schema.Resource {
 			},
 
 			"dns_settings": {
-				Type:             schema.TypeSet,
-				Optional:         true,
-				Description:      "List of domain names with DNS server IPs that the Client should be using.",
-				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
-				Set:              resourcePolicyDnsSettingsHash,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "List of domain names with DNS server IPs that the Client should be using.",
+				Set:         resourcePolicyDnsSettingsHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"domain": {
@@ -262,6 +261,10 @@ func resourceAppgatePolicy() *schema.Resource {
 }
 
 func resourcePolicyDnsSettingsHash(v interface{}) int {
+	var buf bytes.Buffer
+	if v == nil {
+		return hashcode.String(buf.String())
+	}
 	raw := v.(map[string]interface{})
 	// modifying raw actually modifies the values passed to the provider.
 	// Use a copy to avoid that.
@@ -269,7 +272,7 @@ func resourcePolicyDnsSettingsHash(v interface{}) int {
 	for key, value := range raw {
 		copy[key] = value
 	}
-	var buf bytes.Buffer
+
 	buf.WriteString(fmt.Sprintf("%s-", copy["domain"].(string)))
 	if v, ok := copy["servers"]; ok {
 		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
@@ -328,6 +331,9 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 			args.SetOverrideSiteClaim(v.(string))
 		}
 		if v, ok := d.GetOk("dns_settings"); ok {
+			if args.GetType() != "Dns" {
+				return fmt.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", args.GetType())
+			}
 			servers, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return err
@@ -637,7 +643,7 @@ func flattenPolicyClientSettings(clientSettings openapi.PolicyAllOfClientSetting
 }
 
 func flattenPolicyDnsSettings(dnsSettings []openapi.PolicyAllOfDnsSettings) (*schema.Set, error) {
-	out := make([]interface{}, 0, 0)
+	out := make([]interface{}, 0)
 	for _, dnsSetting := range dnsSettings {
 		m := make(map[string]interface{})
 		if v, ok := dnsSetting.GetDomainOk(); ok {
@@ -766,6 +772,9 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 			orginalPolicy.SetOverrideSiteClaim(d.Get("override_site_claim").(string))
 		}
 		if d.HasChange("dns_settings") {
+			if orginalPolicy.GetType() != "Dns" {
+				return fmt.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", orginalPolicy.GetType())
+			}
 			_, v := d.GetChange("dns_settings")
 			dnsSettings, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
 			if err != nil {

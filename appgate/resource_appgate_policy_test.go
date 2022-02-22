@@ -428,6 +428,54 @@ func TestAccPolicyDnsSettings55(t *testing.T) {
 				ImportState:      true,
 				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
 			},
+			{
+				Config: testAccCheckPolicyDnsSettingsDeleted(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPolicyExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "administrative_roles.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.%", "10"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.add_remove_profiles", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.attention_level", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.auto_start", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.entitlements_list", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.keep_me_signed_in", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.quit", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.saml_auto_sign_in", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.sign_out", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.suspend", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "dns_settings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_links.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "entitlements.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["updated_name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "override_site_claim", ""),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.persist", "false"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.url", ""),
+					resource.TestCheckResourceAttr(resourceName, "ringfence_rule_links.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ringfence_rules.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2", "updated"),
+					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "true"),
+					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.dns_suffix", ""),
+					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "type", "Dns"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
+			},
 		},
 	})
 }
@@ -473,6 +521,25 @@ resource "appgatesdp_policy" "dns_policy_with_dns_settings" {
 		domain  = "google.com"
 		servers = ["2.2.2.2", "3.3.3.3"]
 	}
+	expression = <<-EOF
+	var result = false;
+	return result;
+	EOF
+}
+`, context)
+}
+
+func testAccCheckPolicyDnsSettingsDeleted(context map[string]interface{}) string {
+	return Nprintf(`
+resource "appgatesdp_policy" "dns_policy_with_dns_settings" {
+	name = "%{updated_name}"
+	type = "Dns"
+	tags = [
+		"terraform",
+		"api-created",
+		"updated",
+	]
+	disabled = false
 	expression = <<-EOF
 	var result = false;
 	return result;
