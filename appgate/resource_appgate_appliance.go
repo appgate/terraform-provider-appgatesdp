@@ -2742,7 +2742,7 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 						if v := raw["address"].(string); v != "" {
 							ad.SetAddress(v)
 						}
-						if v, ok := raw["netmask"].(int); ok && v > 0 {
+						if v, ok := raw["netmask"].(int); ok && v >= 0 {
 							ad.SetNetmask(int32(v))
 						}
 						if v := raw["nic"].(string); v != "" {

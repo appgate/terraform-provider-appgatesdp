@@ -1295,7 +1295,7 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", ""),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", "0.0.0.0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.netmask", "0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
@@ -1408,6 +1408,8 @@ resource "appgatesdp_appliance" "test_gateway" {
       weight = 100
       allow_destinations {
         nic     = "eth0"
+        address = "0.0.0.0"
+        netmask = 0
       }
     }
   }
