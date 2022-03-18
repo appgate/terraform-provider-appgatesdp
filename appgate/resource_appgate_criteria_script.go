@@ -83,7 +83,7 @@ func resourceAppgateCriteriaScriptCreate(d *schema.ResourceData, meta interface{
 	request = request.CriteriaScript(*args)
 	criteraScript, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create Criteria script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create Criteria script %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(criteraScript.Id)
@@ -107,7 +107,7 @@ func resourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{})
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Criteria script, %+v", err)
+		return fmt.Errorf("Failed to read Criteria script, %w", err)
 	}
 	d.SetId(criteraScript.Id)
 	d.Set("criteria_script_id", criteraScript.Id)
@@ -131,7 +131,7 @@ func resourceAppgateCriteriaScriptUpdate(d *schema.ResourceData, meta interface{
 	request := api.CriteriaScriptsIdGet(ctx, d.Id())
 	originalCriteriaScript, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Criteria script while updating, %+v", err)
+		return fmt.Errorf("Failed to read Criteria script while updating, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -154,7 +154,7 @@ func resourceAppgateCriteriaScriptUpdate(d *schema.ResourceData, meta interface{
 	req = req.CriteriaScript(originalCriteriaScript)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Criteria script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update Criteria script %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateCriteriaScriptRead(d, meta)
 }
@@ -169,7 +169,7 @@ func resourceAppgateCriteriaScriptDelete(d *schema.ResourceData, meta interface{
 	api := meta.(*Client).API.CriteriaScriptsApi
 
 	if _, err := api.CriteriaScriptsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete Criteria script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete Criteria script %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

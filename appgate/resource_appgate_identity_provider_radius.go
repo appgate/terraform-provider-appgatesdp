@@ -80,7 +80,7 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	provider.Type = identityProviderRadius
 	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
-		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderRadius, err)
+		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderRadius, err)
 	}
 	args := openapi.NewRadiusProviderWithDefaults()
 	// base
@@ -145,7 +145,7 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create %s provider %+v", identityProviderRadius, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create %s provider %w", identityProviderRadius, prettyPrintAPIError(err))
 	}
 	d.SetId(p.Id)
 	return resourceAppgateRadiusProviderRuleRead(d, meta)
@@ -165,7 +165,7 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 	radius, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
 	d.Set("type", identityProviderRadius)
 	// base attributes
@@ -236,7 +236,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalRadiusProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
 	// base attributes
 	if d.HasChange("name") {
@@ -280,7 +280,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 		_, v := d.GetChange("dns_servers")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns servers %s", err)
+			return fmt.Errorf("Failed to read dns servers %w", err)
 		}
 		originalRadiusProvider.SetDnsServers(servers)
 	}
@@ -288,7 +288,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 		_, v := d.GetChange("dns_search_domains")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns search domains %s", err)
+			return fmt.Errorf("Failed to read dns search domains %w", err)
 		}
 		originalRadiusProvider.SetDnsSearchDomains(servers)
 	}
@@ -311,7 +311,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 		_, v := d.GetChange("hostnames")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read hostnames %s", err)
+			return fmt.Errorf("Failed to read hostnames %w", err)
 		}
 		originalRadiusProvider.SetHostnames(servers)
 	}
@@ -326,7 +326,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	req = req.IdentityProvider(originalRadiusProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update %s provider %+v", identityProviderRadius, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update %s provider %w", identityProviderRadius, prettyPrintAPIError(err))
 	}
 	return resourceAppgateRadiusProviderRuleRead(d, meta)
 }

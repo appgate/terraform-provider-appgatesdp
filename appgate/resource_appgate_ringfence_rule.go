@@ -160,7 +160,7 @@ func resourceAppgateRingfenceRuleCreate(d *schema.ResourceData, meta interface{}
 	request = request.RingfenceRule(*args)
 	ringfenceRule, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create Ringfence rule  %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create Ringfence rule  %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(ringfenceRule.Id)
@@ -178,7 +178,7 @@ func resourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) 
 	request := api.RingfenceRulesIdGet(ctx, d.Id())
 	ringfenceRule, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Ringfence rule, %+v", err)
+		return fmt.Errorf("Failed to read Ringfence rule, %w", err)
 	}
 	d.Set("ringfence_rule_id", ringfenceRule.Id)
 	d.Set("name", ringfenceRule.Name)
@@ -230,7 +230,7 @@ func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}
 	request := api.RingfenceRulesIdGet(ctx, d.Id())
 	originalRingfenceRule, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Ringfence rule, %+v", err)
+		return fmt.Errorf("Failed to read Ringfence rule, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -256,7 +256,7 @@ func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}
 
 	_, _, err = req.RingfenceRule(originalRingfenceRule).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Ringfence rule %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update Ringfence rule %w", prettyPrintAPIError(err))
 	}
 
 	return resourceAppgateRingfenceRuleRead(d, meta)
@@ -274,13 +274,13 @@ func resourceAppgateRingfenceRuleDelete(d *schema.ResourceData, meta interface{}
 	request := api.RingfenceRulesIdGet(ctx, d.Id())
 	ringfenceRule, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete Ringfence rule while GET, %+v", err)
+		return fmt.Errorf("Failed to delete Ringfence rule while GET, %w", err)
 	}
 
 	deleteRequest := api.RingfenceRulesIdDelete(ctx, ringfenceRule.GetId())
 	_, err = deleteRequest.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete Ringfence rule, %+v", err)
+		return fmt.Errorf("Failed to delete Ringfence rule, %w", err)
 	}
 	d.SetId("")
 	return nil

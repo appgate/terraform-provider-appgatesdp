@@ -1257,7 +1257,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	request = request.Appliance(*args)
 	appliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create appliance %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create appliance %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(appliance.Id)
@@ -1485,7 +1485,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Appliance, %+v", err)
+		return fmt.Errorf("Failed to read Appliance, %w", err)
 	}
 	d.Set("appliance_id", appliance.Id)
 	d.Set("name", appliance.Name)
@@ -1494,13 +1494,13 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("hostname", appliance.GetHostname())
 
 	if err := d.Set("site", appliance.GetSite()); err != nil {
-		return fmt.Errorf("Error setting appliance.site %s", err)
+		return fmt.Errorf("Error setting appliance.site %w", err)
 	}
 	if err := d.Set("customization", appliance.GetCustomization()); err != nil {
-		return fmt.Errorf("Error setting appliance.customization %s", err)
+		return fmt.Errorf("Error setting appliance.customization %w", err)
 	}
 	if err := d.Set("connect_to_peers_using_client_port_with_spa", appliance.GetConnectToPeersUsingClientPortWithSpa()); err != nil {
-		return fmt.Errorf("Error setting appliance.connect_to_peers_using_client_port_with_spa %s", err)
+		return fmt.Errorf("Error setting appliance.connect_to_peers_using_client_port_with_spa %w", err)
 	}
 
 	if v, ok := appliance.GetClientInterfaceOk(); ok {
@@ -1649,7 +1649,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 		if err := d.Set("log_forwarder", logforward); err != nil {
-			return fmt.Errorf("Unable to read log fowarder %s", err)
+			return fmt.Errorf("Unable to read log fowarder %w", err)
 		}
 	}
 
@@ -1659,7 +1659,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 		if err := d.Set("connector", connector); err != nil {
-			return fmt.Errorf("Unable to read connectors %s", err)
+			return fmt.Errorf("Unable to read connectors %w", err)
 		}
 	}
 
@@ -2174,7 +2174,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 	request := api.AppliancesIdGet(ctx, d.Id())
 	originalAppliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Appliance, %+v", err)
+		return fmt.Errorf("Failed to read Appliance, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -2387,7 +2387,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	_, _, err = req.Appliance(originalAppliance).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update appliance %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update appliance %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateApplianceRead(d, meta)
 }
@@ -2405,7 +2405,7 @@ func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) er
 	request := api.AppliancesIdGet(ctx, d.Id())
 	appliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete Appliance while GET, %+v", err)
+		return fmt.Errorf("Failed to delete Appliance while GET, %w", err)
 	}
 	// Deactivate
 	if ok, _ := appliance.GetActivatedOk(); *ok {
@@ -2413,7 +2413,7 @@ func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) er
 		deactiveRequest := api.AppliancesIdDeactivatePost(ctx, appliance.GetId())
 		_, err = deactiveRequest.Wipe(true).Authorization(token).Execute()
 		if err != nil {
-			return fmt.Errorf("Failed to delete Appliance while deactivating, %+v", err)
+			return fmt.Errorf("Failed to delete Appliance while deactivating, %w", err)
 		}
 	}
 
@@ -2421,7 +2421,7 @@ func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) er
 	deleteRequest := api.AppliancesIdDelete(ctx, appliance.GetId())
 	_, err = deleteRequest.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete Appliance, %+v", err)
+		return fmt.Errorf("Failed to delete Appliance, %w", err)
 	}
 	d.SetId("")
 	return nil
@@ -2450,7 +2450,7 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 			}
 			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
-				return cinterface, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+				return cinterface, fmt.Errorf("Failed to resolve network hosts: %w", err)
 			}
 			cinterface.SetAllowSources(allowSources)
 		}
@@ -2480,7 +2480,7 @@ func readPeerInterfaceFromConfig(pinterfaces []interface{}) (openapi.ApplianceAl
 			}
 			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
-				return pinterf, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+				return pinterf, fmt.Errorf("Failed to resolve network hosts: %w", err)
 			}
 			pinterf.SetAllowSources(allowSources)
 		}
@@ -2516,7 +2516,7 @@ func readAdminInterfaceFromConfig(adminInterfaces []interface{}) (openapi.Applia
 			}
 			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
-				return aInterface, fmt.Errorf("Failed to admin interface allowed sources: %+v", err)
+				return aInterface, fmt.Errorf("Failed to admin interface allowed sources: %w", err)
 			}
 			aInterface.SetAllowSources(allowSources)
 		}
@@ -2535,7 +2535,7 @@ func readNetworkingFromConfig(networks []interface{}) (openapi.ApplianceAllOfNet
 		if v := rawNetwork["hosts"]; len(v.([]interface{})) > 0 {
 			hosts, err := readNetworkHostFromConfig(v.([]interface{}))
 			if err != nil {
-				return network, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+				return network, fmt.Errorf("Failed to resolve network hosts: %w", err)
 			}
 			network.SetHosts(hosts)
 		}
@@ -2543,7 +2543,7 @@ func readNetworkingFromConfig(networks []interface{}) (openapi.ApplianceAllOfNet
 		if v := rawNetwork["nics"]; len(v.([]interface{})) > 0 {
 			nics, err := readNetworkNicsFromConfig(v.([]interface{}))
 			if err != nil {
-				return network, fmt.Errorf("Failed to resolve network nics: %+v", err)
+				return network, fmt.Errorf("Failed to resolve network nics: %w", err)
 			}
 			network.SetNics(nics)
 		}
@@ -2572,7 +2572,7 @@ func readNetworkingFromConfig(networks []interface{}) (openapi.ApplianceAllOfNet
 		if v := rawNetwork["routes"]; len(v.([]interface{})) > 0 {
 			routes, err := readNetworkRoutesFromConfig(v.([]interface{}))
 			if err != nil {
-				return network, fmt.Errorf("Failed to resolve network routes: %+v", err)
+				return network, fmt.Errorf("Failed to resolve network routes: %w", err)
 			}
 			network.SetRoutes(routes)
 		}
@@ -2603,7 +2603,7 @@ func readSSHServerFromConfig(sshServers []interface{}) (openapi.ApplianceAllOfSs
 			}
 			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
-				return sshServer, fmt.Errorf("Failed to resolve ssh server allowed sources: %+v", err)
+				return sshServer, fmt.Errorf("Failed to resolve ssh server allowed sources: %w", err)
 			}
 			sshServer.SetAllowSources(allowSources)
 		}
@@ -2639,7 +2639,7 @@ func readSNMPServerFromConfig(snmpServers []interface{}) (openapi.ApplianceAllOf
 			}
 			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
-				return server, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+				return server, fmt.Errorf("Failed to resolve network hosts: %w", err)
 			}
 			server.SetAllowSources(allowSources)
 		}
@@ -2668,7 +2668,7 @@ func readHealthcheckServerFromConfig(healhCheckServers []interface{}) (openapi.A
 			}
 			allowSources, err := readAllowSourcesFromConfig(as)
 			if err != nil {
-				return server, fmt.Errorf("Failed to resolve network hosts: %+v", err)
+				return server, fmt.Errorf("Failed to resolve network hosts: %w", err)
 			}
 			server.SetAllowSources(allowSources)
 		}
@@ -2686,7 +2686,7 @@ func readNTPFromConfig(ntps []interface{}) (openapi.ApplianceAllOfNtp, error) {
 		if servers := raw["servers"]; len(servers.([]interface{})) > 0 {
 			ntpServers, err := readNtpServersFromConfig(servers.([]interface{}))
 			if err != nil {
-				return ntpCfg, fmt.Errorf("Failed to resolve ntp servers: %+v", err)
+				return ntpCfg, fmt.Errorf("Failed to resolve ntp servers: %w", err)
 			}
 			ntpCfg.SetServers(ntpServers)
 		}
@@ -3166,7 +3166,7 @@ func readAppliancePortalFromConfig(d *schema.ResourceData, portals []interface{}
 func appliancePortalReadp12Content(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return "", fmt.Errorf("Error opening p12 file (%s): %s", path, err)
+		return "", fmt.Errorf("Error opening p12 file (%s): %w", path, err)
 	}
 	defer func() {
 		err := file.Close()
@@ -3177,7 +3177,7 @@ func appliancePortalReadp12Content(path string) (string, error) {
 	reader := bufio.NewReader(file)
 	content, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return "", fmt.Errorf("Error reading file (%s): %s", path, err)
+		return "", fmt.Errorf("Error reading file (%s): %w", path, err)
 	}
 	encoded := base64.StdEncoding.EncodeToString(content)
 	return encoded, nil

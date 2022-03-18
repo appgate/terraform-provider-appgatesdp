@@ -105,7 +105,7 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 		clientConnections.SetProfiles(existingProfiles)
 		_, _, err = api.ClientConnectionsPut(ctx).ClientConnections(clientConnections).Authorization(token).Execute()
 		if err != nil {
-			return resource.NonRetryableError(fmt.Errorf("Error updating client connection profile %s: %s", d.Id(), err))
+			return resource.NonRetryableError(fmt.Errorf("Error updating client connection profile %s: %w", d.Id(), err))
 		}
 		// check number of client profiles again and verify that is existingProfiles+1
 		newConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
@@ -127,12 +127,12 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 		// give the controller a moment before we check the initial status
 		time.Sleep(time.Duration(duration) * time.Second)
 		if err := waitForControllers(ctx, meta); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after creating a client_profile: %s", err))
+			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after creating a client_profile: %w", err))
 		}
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("Error create: %s", err)
+		return fmt.Errorf("Error create: %w", err)
 	}
 	return resourceAppgateClientProfileRead(d, meta)
 }
@@ -147,7 +147,7 @@ func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) 
 	ctx := context.Background()
 	clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not read Client Connections %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not read Client Connections %w", prettyPrintAPIError(err))
 	}
 	existingProfiles := clientConnections.GetProfiles()
 	var p *openapi.ClientConnectionsProfiles
@@ -188,7 +188,7 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 		}
 		clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 		if err != nil {
-			return resource.RetryableError(fmt.Errorf("Could not read Client Connections during delete %+v", prettyPrintAPIError(err)))
+			return resource.RetryableError(fmt.Errorf("Could not read Client Connections during delete %w", prettyPrintAPIError(err)))
 		}
 		existingProfiles := clientConnections.GetProfiles()
 		var p *openapi.ClientConnectionsProfiles
@@ -212,12 +212,12 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 		// give the controller a moment before we check the initial status
 		time.Sleep(time.Duration(duration) * time.Second)
 		if err := waitForControllers(ctx, meta); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after deleting a client_profile: %s", err))
+			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after deleting a client_profile: %w", err))
 		}
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("Could not delete Client profile %s after retry %+v", d.Id(), err)
+		return fmt.Errorf("Could not delete Client profile %s after retry %w", d.Id(), err)
 	}
 
 	d.SetId("")

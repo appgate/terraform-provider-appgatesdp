@@ -92,7 +92,7 @@ func dataSourceAppgateGlobalSettingsRead(d *schema.ResourceData, meta interface{
 
 	settings, err := getGlobalSettings(api, token)
 	if err != nil {
-		return fmt.Errorf("Could not read global settings %s", err)
+		return fmt.Errorf("Could not read global settings %w", err)
 	}
 	d.SetId(settings.GetCollectiveId())
 	d.Set("claims_token_expiration", settings.GetClaimsTokenExpiration())

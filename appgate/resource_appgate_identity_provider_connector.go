@@ -91,7 +91,7 @@ func resourceAppgateConnectorProviderRuleRead(d *schema.ResourceData, meta inter
 	connectorIP, err := getBuiltinConnectorProviderUUID(ctx, *api, token)
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Failed to read Connector Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read Connector Identity provider, %w", err)
 	}
 	d.SetId(connectorIP.GetId())
 
@@ -132,7 +132,7 @@ func resourceAppgateConnectorProviderRuleUpdate(d *schema.ResourceData, meta int
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalConnectorProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Connector Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read Connector Identity provider, %w", err)
 	}
 	// base attributes
 	if d.HasChange("name") {
@@ -169,7 +169,7 @@ func resourceAppgateConnectorProviderRuleUpdate(d *schema.ResourceData, meta int
 	req = req.IdentityProvider(originalConnectorProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update %s provider %+v", identityProviderConnector, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update %s provider %w", identityProviderConnector, prettyPrintAPIError(err))
 	}
 	return resourceAppgateConnectorProviderRuleRead(d, meta)
 }

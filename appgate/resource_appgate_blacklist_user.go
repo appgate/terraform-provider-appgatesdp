@@ -74,7 +74,7 @@ func resourceAppgateBlacklistUserCreate(d *schema.ResourceData, meta interface{}
 
 	entry, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create blacklisted user %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create blacklisted user %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(entry.GetUserDistinguishedName())
@@ -125,7 +125,7 @@ func resourceAppgateBlacklistUserDelete(d *schema.ResourceData, meta interface{}
 	api := meta.(*Client).API.BlacklistedUsersApi
 
 	if _, err := api.BlacklistDistinguishedNameDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete blacklisted user %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete blacklisted user %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

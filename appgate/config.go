@@ -53,7 +53,7 @@ func (c *Config) Validate(usingFile bool) error {
 	if len(c.BearerToken) > 0 {
 		_, err := b64.StdEncoding.DecodeString(c.BearerToken)
 		if err != nil {
-			return fmt.Errorf("appgate bearer_token set, but invalid format, expected base64 %s", err)
+			return fmt.Errorf("appgate bearer_token set, but invalid format, expected base64 %w", err)
 		}
 	} else if len(c.Username) < 1 && len(c.Password) < 1 {
 		return fmt.Errorf("username and password required if appgate bearer token is empty")

@@ -111,7 +111,7 @@ func prettyPrintAPIError(err error) error {
 		}
 		return fmt.Errorf("%s", err.Error())
 	}
-	return fmt.Errorf("%+v", err)
+	return fmt.Errorf("%w", err)
 }
 
 func schemaExtractTags(d *schema.ResourceData) []string {
@@ -184,7 +184,7 @@ func getResourceFileContent(d *schema.ResourceData, key string) ([]byte, error) 
 		path := v.(string)
 		file, err := os.Open(path)
 		if err != nil {
-			return nil, fmt.Errorf("Error opening file %q (%s): %s", key, path, err)
+			return nil, fmt.Errorf("Error opening file %q (%s): %w", key, path, err)
 		}
 		defer func() {
 			err := file.Close()
@@ -195,7 +195,7 @@ func getResourceFileContent(d *schema.ResourceData, key string) ([]byte, error) 
 		reader := bufio.NewReader(file)
 		content, err = ioutil.ReadAll(reader)
 		if err != nil {
-			return nil, fmt.Errorf("Error reading file %q (%s): %s", key, path, err)
+			return nil, fmt.Errorf("Error reading file %q (%s): %w", key, path, err)
 		}
 	} else if v, ok := d.GetOk("content"); ok {
 		content = []byte(v.(string))

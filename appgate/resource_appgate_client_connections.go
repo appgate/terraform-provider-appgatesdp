@@ -87,7 +87,7 @@ func resourceClientConnectionsRead(d *schema.ResourceData, meta interface{}) err
 	clientConnections, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Failed to read Client Connections, %+v", err)
+		return fmt.Errorf("Failed to read Client Connections, %w", err)
 	}
 	d.SetId("spa_mode")
 	if v, o := clientConnections.GetSpaModeOk(); o {
@@ -127,7 +127,7 @@ func resourceClientConnectionsUpdate(d *schema.ResourceData, meta interface{}) e
 	request := api.ClientConnectionsGet(ctx)
 	originalclientConnections, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Client Connections while updating, %+v", err)
+		return fmt.Errorf("Failed to read Client Connections while updating, %w", err)
 	}
 	d.SetId("client_connections")
 
@@ -139,7 +139,7 @@ func resourceClientConnectionsUpdate(d *schema.ResourceData, meta interface{}) e
 		profiles := readClientConnectionProfilesFromConfig(v.([]interface{}))
 		log.Printf("[DEBUG] Updating Client PROFILES SET %+v", profiles)
 		if err != nil {
-			return fmt.Errorf("Failed to read profiles %s", err)
+			return fmt.Errorf("Failed to read profiles %w", err)
 		}
 		originalclientConnections.SetProfiles(profiles)
 	}
@@ -148,7 +148,7 @@ func resourceClientConnectionsUpdate(d *schema.ResourceData, meta interface{}) e
 	req := api.ClientConnectionsPut(ctx)
 	_, _, err = req.ClientConnections(originalclientConnections).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Client Connections %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update Client Connections %w", prettyPrintAPIError(err))
 	}
 
 	return resourceClientConnectionsRead(d, meta)
@@ -184,7 +184,7 @@ func resourceClientConnectionsDelete(d *schema.ResourceData, meta interface{}) e
 	api := meta.(*Client).API.ClientConnectionsApi
 
 	if _, err := api.ClientConnectionsDelete(context.Background()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could reset Client Connections %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could reset Client Connections %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

@@ -91,7 +91,7 @@ func resourceAppgateEntitlementScriptCreate(d *schema.ResourceData, meta interfa
 	request = request.EntitlementScript(*args)
 	EntitlementScript, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create Entitlement script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create Entitlement script %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(EntitlementScript.Id)
@@ -115,7 +115,7 @@ func resourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Entitlement script, %+v", err)
+		return fmt.Errorf("Failed to read Entitlement script, %w", err)
 	}
 	d.SetId(EntitlementScript.Id)
 	d.Set("entitlement_script_id", EntitlementScript.Id)
@@ -140,7 +140,7 @@ func resourceAppgateEntitlementScriptUpdate(d *schema.ResourceData, meta interfa
 	request := api.EntitlementScriptsIdGet(ctx, d.Id())
 	originalEntitlementScript, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Entitlement script while updating, %+v", err)
+		return fmt.Errorf("Failed to read Entitlement script while updating, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -167,7 +167,7 @@ func resourceAppgateEntitlementScriptUpdate(d *schema.ResourceData, meta interfa
 	req = req.EntitlementScript(originalEntitlementScript)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Entitlement script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update Entitlement script %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateEntitlementScriptRead(d, meta)
 }
@@ -182,7 +182,7 @@ func resourceAppgateEntitlementScriptDelete(d *schema.ResourceData, meta interfa
 	api := meta.(*Client).API.EntitlementScriptsApi
 
 	if _, err := api.EntitlementScriptsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete Entitlement script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete Entitlement script %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

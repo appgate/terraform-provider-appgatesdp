@@ -158,7 +158,7 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	request := api.AdministrativeRolesPost(ctx)
 	administrativeRole, _, err := request.AdministrativeRole(*args).Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Could not create Administrative role %+v", prettyPrintAPIError(err)))
+		return diag.FromErr(fmt.Errorf("Could not create Administrative role %w", prettyPrintAPIError(err)))
 	}
 
 	d.SetId(administrativeRole.Id)
@@ -201,14 +201,14 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 					if v, ok := rawScope["ids"]; ok {
 						ids, err := readArrayOfStringsFromConfig(v.([]interface{}))
 						if err != nil {
-							return result, fmt.Errorf("Failed to resolve privileges scope ids: %+v", err)
+							return result, fmt.Errorf("Failed to resolve privileges scope ids: %w", err)
 						}
 						scope.SetIds(ids)
 					}
 					if v, ok := rawScope["tags"]; ok {
 						tags, err := readArrayOfStringsFromConfig(v.([]interface{}))
 						if err != nil {
-							return result, fmt.Errorf("Failed to resolve privileges scope tags: %+v", err)
+							return result, fmt.Errorf("Failed to resolve privileges scope tags: %w", err)
 						}
 						scope.SetTags(tags)
 					}
@@ -220,13 +220,13 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 		if v, ok := raw["default_tags"]; ok {
 			tags, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve privileges default tags: %+v", err)
+				return result, fmt.Errorf("Failed to resolve privileges default tags: %w", err)
 			}
 			// The items in this list would be added automatically to the newly created objects' tags.
 			// Only applicable on "Create" type and targets with tagging capability.
 			// This field must be omitted if not applicable.
 			if a.GetType() != "Create" && len(tags) > 0 {
-				return result, fmt.Errorf("You used %s, %s", a.GetType(), errDefaultTagsError)
+				return result, fmt.Errorf("You used %s, %w", a.GetType(), errDefaultTagsError)
 			}
 			a.SetDefaultTags(tags)
 		}
@@ -251,7 +251,7 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return diag.FromErr(fmt.Errorf("Failed to read Administrative role, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Administrative role, %w", err))
 	}
 	d.SetId(administrativeRole.Id)
 	d.Set("administrative_role_id", administrativeRole.Id)
@@ -264,7 +264,7 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 	if err = d.Set("privileges", privileges); err != nil {
-		return diag.FromErr(fmt.Errorf("Failed to read privileges %s", err))
+		return diag.FromErr(fmt.Errorf("Failed to read privileges %w", err))
 	}
 
 	return diags
@@ -288,7 +288,7 @@ func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePriv
 			// Only applicable on "Create" type and targets with tagging capability.
 			// This field must be omitted if not applicable.
 			if m["type"] != "Create" {
-				return out, fmt.Errorf("You used %s, %s", m["type"], errDefaultTagsError)
+				return out, fmt.Errorf("You used %s, %w", m["type"], errDefaultTagsError)
 			}
 			m["default_tags"] = *val
 		}
@@ -321,7 +321,7 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
 	originalAdministrativeRole, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Failed to read Administrative role while updating, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Administrative role while updating, %w", err))
 	}
 	if d.HasChange("name") {
 		originalAdministrativeRole.SetName(d.Get("name").(string))
@@ -339,7 +339,7 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 		_, v := d.GetChange("privileges")
 		privileges, err := readAdminIstrativeRolePrivileges(v.([]interface{}))
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Failed to administrative role privileges %s", err))
+			return diag.FromErr(fmt.Errorf("Failed to administrative role privileges %w", err))
 		}
 		originalAdministrativeRole.SetPrivileges(privileges)
 	}
@@ -348,7 +348,7 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 	req = req.AdministrativeRole(originalAdministrativeRole)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Could not update Administrative role %+v", prettyPrintAPIError(err)))
+		return diag.FromErr(fmt.Errorf("Could not update Administrative role %w", prettyPrintAPIError(err)))
 	}
 	return resourceAppgateAdministrativeRoleRead(ctx, d, meta)
 }
@@ -363,7 +363,7 @@ func resourceAppgateAdministrativeRoleDelete(ctx context.Context, d *schema.Reso
 	}
 	api := meta.(*Client).API.AdministrativeRolesApi
 	if _, err := api.AdministrativeRolesIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
-		return diag.FromErr(fmt.Errorf("Could not delete Administrative role %+v", prettyPrintAPIError(err)))
+		return diag.FromErr(fmt.Errorf("Could not delete Administrative role %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")
 	return diags

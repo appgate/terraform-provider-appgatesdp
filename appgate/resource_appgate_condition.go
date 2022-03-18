@@ -154,7 +154,7 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("remedy_logic"); ok {
 		if currentVersion.LessThan(Appliance53Version) {
-			return fmt.Errorf("%s, you are using %q client v%d", errRemedyLogicUnsupportedVersion, currentVersion, meta.(*Client).ClientVersion)
+			return fmt.Errorf("%w, you are using %q client v%d", errRemedyLogicUnsupportedVersion, currentVersion, meta.(*Client).ClientVersion)
 		}
 		args.SetRemedyLogic(v.(string))
 	}
@@ -179,7 +179,7 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 	request = request.Condition(args)
 	condition, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create condition %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create condition %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(condition.Id)
@@ -203,7 +203,7 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Condition, %+v", err)
+		return fmt.Errorf("Failed to read Condition, %w", err)
 	}
 	d.SetId(remoteCondition.Id)
 	d.Set("condition_id", remoteCondition.Id)
@@ -251,7 +251,7 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 	request := api.ConditionsIdGet(ctx, d.Id())
 	orginalCondition, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read condition, %+v", err)
+		return fmt.Errorf("Failed to read condition, %w", err)
 	}
 	if d.HasChange("name") {
 		orginalCondition.SetName(d.Get("name").(string))
@@ -270,7 +270,7 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	if d.HasChange("remedy_logic") {
 		if currentVersion.LessThan(Appliance53Version) {
-			return fmt.Errorf("%s, you are using %q client v%d", errRemedyLogicUnsupportedVersion, currentVersion, meta.(*Client).ClientVersion)
+			return fmt.Errorf("%w, you are using %q client v%d", errRemedyLogicUnsupportedVersion, currentVersion, meta.(*Client).ClientVersion)
 		}
 		orginalCondition.SetRemedyLogic(d.Get("remedy_logic").(string))
 	}
@@ -297,7 +297,7 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 
 	_, _, err = req.Condition(orginalCondition).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update condition %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update condition %w", prettyPrintAPIError(err))
 	}
 
 	return resourceAppgateConditionRead(d, meta)
@@ -316,13 +316,13 @@ func resourceAppgateConditionDelete(d *schema.ResourceData, meta interface{}) er
 	request := api.ConditionsIdGet(ctx, d.Id())
 	condition, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete condition while GET, %+v", err)
+		return fmt.Errorf("Failed to delete condition while GET, %w", err)
 	}
 
 	deleteRequest := api.ConditionsIdDelete(ctx, condition.GetId())
 	_, err = deleteRequest.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete condition, %+v", err)
+		return fmt.Errorf("Failed to delete condition, %w", err)
 	}
 	d.SetId("")
 	return nil

@@ -108,7 +108,7 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 
 	deviceScript, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create Device script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create Device script %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(deviceScript.Id)
@@ -132,7 +132,7 @@ func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) e
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Device script, %+v", err)
+		return fmt.Errorf("Failed to read Device script, %w", err)
 	}
 	d.SetId(deviceScript.Id)
 	d.Set("device_script_id", deviceScript.Id)
@@ -156,7 +156,7 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
 	originalDeviceScript, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Device script while updating, %+v", err)
+		return fmt.Errorf("Failed to read Device script while updating, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -185,7 +185,7 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 	req = req.DeviceScript(originalDeviceScript)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Device script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update Device script %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateDeviceScriptRead(d, meta)
 }
@@ -200,7 +200,7 @@ func resourceAppgateDeviceScriptDelete(d *schema.ResourceData, meta interface{})
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 
 	if _, err := api.DeviceScriptsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete Device script %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete Device script %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil
