@@ -73,5 +73,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_device_script d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_device_script.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

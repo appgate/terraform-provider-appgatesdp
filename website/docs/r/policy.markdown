@@ -89,13 +89,13 @@ List of Ringfence Rule tags in this Policy.
 ### proxy_auto_config
 Client configures PAC URL on the client OS.
 
-* `enabled`:  (Optional)  default value `false` 
+* `enabled`:  (Optional)  default value `false`
 * `url`:  (Optional) The URL to set on the Client OS. Example: https://pac.company.com/file.pac.
 * `persist`:  (Optional) If true Client will leave the PAC URL configured after signing out.
 ### trusted_network_check
 Client suspends operations when it's in a trusted network.
 
-* `enabled`:  (Optional)  default value `false` 
+* `enabled`:  (Optional)  default value `false`
 * `dns_suffix`:  (Optional) Client checks if the DNS suffix has been configured on the OS to decide whether it's on a trusted network or not.
 ### dns_settings
 List of domain names with DNS server IPs that the Client should be using.
@@ -129,5 +129,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_policy d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_policy.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

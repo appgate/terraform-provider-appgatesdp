@@ -69,5 +69,5 @@ List of users to be excluded from MFA during admin login.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_admin_mfa_settings d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_admin_mfa_settings.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

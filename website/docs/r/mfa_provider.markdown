@@ -47,7 +47,7 @@ The following arguments are supported:
 * `type`: (Required) The type of the MFA Provider. "DefaultTimeBased" and "Fido2" are built-in, new ones cannot be created.
 * `hostnames`: (Optional) Hostnames/IP addresses to connect.
 * `port`: (Optional) Port to connect.
-* `input_type`: (Optional) The input type used in the client to enter the MFA code. 
+* `input_type`: (Optional) The input type used in the client to enter the MFA code.
  * "Masked" - The input is masked the same way as a password field.
  * "Numeric" - The input is marked as a numeric input.
  * "Text" - The input is handled as a regular plain text field.
@@ -86,5 +86,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_mfa_provider d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_mfa_provider.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

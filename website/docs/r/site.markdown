@@ -96,10 +96,10 @@ VPN configuration for this Site.
 * `ip_access_log_interval_seconds`:  (Optional)  default value `120` Frequency configuration for generating IP Access audit logs for a connection.
 #### tls
 VPN over TLS protocol configuration.
-* `enabled`: (Optional) 
+* `enabled`: (Optional)
 #### dtls
 VPN over DTLS protocol configuration.
-* `enabled`: (Optional) 
+* `enabled`: (Optional)
 #### route_via
 Override routing for tunnel traffic.
 * `ipv4`: (Optional) IPv4 address for routing tunnel traffic. Example: 10.0.0.2.
@@ -175,5 +175,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_site d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_site.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```
