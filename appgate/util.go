@@ -22,6 +22,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func mergeSchemaMaps(maps ...map[string]*schema.Schema) map[string]*schema.Schema {
@@ -209,6 +210,37 @@ func getResourceFileContent(d *schema.ResourceData, key string) ([]byte, error) 
 //  * The operator's configuration omits the optional configuration block
 func suppressMissingOptionalConfigurationBlock(k, old, new string, d *schema.ResourceData) bool {
 	return old == "1" && new == "0"
+}
+
+// supressComputedResourceID handles a resource with a computed resource id.
+// for example, most resource support that you set a UUID as its ID, if
+// the ID is omitted, the API will computed one.
+// if you set a custom id, for example
+// appgatesdp_policy.example.policy_id = UUID
+// the resource will get 2 values from this
+// appgatesdp_policy.example.policy_id and appgatesdp_policy.example.id
+// appgatesdp_policy.example.id is always Compute only
+// and appgatesdp_policy.example.policy_id is ForceNew
+// if the computed ID and the optional resource ID is not the same, we will show
+// it as a diff.
+func supressComputedResourceID(k, old, new string, d *schema.ResourceData) bool {
+	// only detect diff if new is not null
+	if d.Id() == old && len(new) == 0 {
+		return true
+	}
+	return false
+}
+
+// resourceUUID provides a generic schema for all resource that support UUID as ID
+func resourceUUID() *schema.Schema {
+	return &schema.Schema{
+		Type:             schema.TypeString,
+		Description:      "ID of the object.",
+		Optional:         true,
+		ForceNew:         true,
+		ValidateFunc:     validation.IsUUID,
+		DiffSuppressFunc: supressComputedResourceID,
+	}
 }
 
 func convertStringArrToInterface(strs []string) []interface{} {
