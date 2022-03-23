@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -34,11 +33,7 @@ func resourceAppgateCondition() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 
-			"condition_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"condition_id": resourceUUID(),
 
 			"name": {
 				Type:        schema.TypeString,
@@ -139,7 +134,9 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 	currentVersion := meta.(*Client).ApplianceVersion
 
 	args := openapi.Condition{}
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("condition_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 
 	if c, ok := d.GetOk("notes"); ok {

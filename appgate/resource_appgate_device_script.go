@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -32,11 +31,7 @@ func resourceAppgateDeviceScript() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 
-			"device_script_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"device_script_id": resourceUUID(),
 
 			"name": {
 				Type:        schema.TypeString,
@@ -89,7 +84,9 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 	args := openapi.NewDeviceScriptWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("device_script_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetNotes(d.Get("notes").(string))
 	args.SetFilename(d.Get("filename").(string))

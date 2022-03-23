@@ -9,7 +9,6 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -32,11 +31,7 @@ func resourceAppgateCriteriaScript() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 
-			"criteria_script_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"criteria_script_id": resourceUUID(),
 
 			"name": {
 				Type:        schema.TypeString,
@@ -70,7 +65,9 @@ func resourceAppgateCriteriaScriptCreate(d *schema.ResourceData, meta interface{
 	}
 	api := meta.(*Client).API.CriteriaScriptsApi
 	args := openapi.NewCriteriaScriptWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("criteria_script_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))

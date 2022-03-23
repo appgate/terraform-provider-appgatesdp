@@ -12,8 +12,6 @@ import (
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
-	"github.com/google/uuid"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -36,11 +34,7 @@ func resourceAppgateEntitlement() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			"entitlement_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"entitlement_id": resourceUUID(),
 
 			"name": {
 				Type:        schema.TypeString,
@@ -268,7 +262,9 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 	api := meta.(*Client).API.EntitlementsApi
 
 	args := openapi.NewEntitlementWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("entitlement_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetSite(d.Get("site").(string))
 	args.SetNotes(d.Get("notes").(string))

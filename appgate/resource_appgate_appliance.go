@@ -30,11 +30,7 @@ func resourceAppgateAppliance() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 
-			"appliance_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"appliance_id": resourceUUID(),
 			"activated": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -1080,7 +1076,9 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewApplianceWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("appliance_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetHostname(d.Get("hostname").(string))
 
