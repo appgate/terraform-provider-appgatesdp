@@ -66,7 +66,7 @@ The following arguments are supported:
 
 
 * `privileges`: (Required) Administrative privilege list.
-* `id`: (Required) ID of the object.
+* `administrative_role_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

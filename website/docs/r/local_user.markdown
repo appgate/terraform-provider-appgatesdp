@@ -49,7 +49,7 @@ The following arguments are supported:
 * `phone`: (Optional) Phone number for the user. May be used as claim.
 * `failed_login_attempts`: (Optional) Number of wrong password login attempts since last successiful login.
 * `lock_start`: (Optional) The date time when the user got locked out. A local user is locked out of the system after 5 consecutive failed login attempts. The lock is in effect for 1 minute. When the user logs in successfully, this field becomes null.
-* `id`: (Required) ID of the object.
+* `local_user_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

@@ -76,7 +76,7 @@ The following arguments are supported:
 * `actions`: (Required) List of all IP Access actions in this Entitlement.
 * `app_shortcuts`: (Optional) Array of App Shortcuts.
 * `app_shortcut_scripts`: (Optional) List of Entitlement Script IDs used for creating App Shortcuts dynamically.
-* `id`: (Required) ID of the object.
+* `entitlement_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

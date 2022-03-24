@@ -293,7 +293,7 @@ The following arguments are supported:
 * `portal`: (Optional) Portal settings.
 * `rsyslog_destinations`: (Optional) Rsyslog destination settings to forward appliance logs.
 * `hostname_aliases`: (Optional) Hostname aliases. They are added to the Appliance certificate as Subject Alternative Names so it is trusted using different IPs or hostnames. Requires manual certificate renewal to apply changes to the certificate.
-* `id`: (Required) ID of the object.
+* `appliance_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

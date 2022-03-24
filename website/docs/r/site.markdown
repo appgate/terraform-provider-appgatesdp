@@ -57,7 +57,7 @@ The following arguments are supported:
 * `entitlement_based_routing`: (Optional) When enabled, the routes are sent to the Client by the Gateways according to the user's Entitlements "networkSubnets" should be left be empty if it's enabled.
 * `vpn`: (Optional) VPN configuration for this Site.
 * `name_resolution`: (Optional) Settings for asset name resolution.
-* `id`: (Required) ID of the object.
+* `site_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

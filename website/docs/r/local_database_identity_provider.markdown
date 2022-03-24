@@ -51,7 +51,7 @@ resource "appgatesdp_local_database_identity_provider" "local" {
 The following arguments are supported:
 
 
-* `id`: (Required) ID of the object.
+* `local_database_identity_provider_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

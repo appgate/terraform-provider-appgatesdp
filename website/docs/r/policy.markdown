@@ -68,7 +68,7 @@ The following arguments are supported:
 * `dns_settings`: (Optional) List of domain names with DNS server IPs that the Client should be using.
 * `client_settings`: (Optional) Settings that admins can apply to the Client.
 * `administrative_roles`: (Optional) List of Administrative Role IDs in this Policy.
-* `id`: (Required) ID of the object.
+* `policy_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

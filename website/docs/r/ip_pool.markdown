@@ -43,7 +43,7 @@ The following arguments are supported:
 * `total`: (Optional) The total size of the IP Pool.
 * `currently_used`: (Optional) Number of IPs in the pool are currently in use by device&users.
 * `reserved`: (Optional) Number of IPs in the pool are not currently in use but reserved for device&users according to the "leaseTimeDays" setting.
-* `id`: (Required) ID of the object.
+* `ip_pool_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

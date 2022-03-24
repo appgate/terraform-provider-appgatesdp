@@ -63,7 +63,7 @@ The following arguments are supported:
   12:30 and so on.
 * `remedy_logic`: (Optional) Whether all the Remedy Methods must succeed to pass this Condition or just one.
 * `remedy_methods`: (Optional) The remedy methods that will be triggered if the evaluation fails.
-* `id`: (Required) ID of the object.
+* `condition_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
