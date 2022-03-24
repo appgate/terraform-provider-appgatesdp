@@ -60,5 +60,5 @@ Client Profiles.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_client_connections d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_client_connections.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

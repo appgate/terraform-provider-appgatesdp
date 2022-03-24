@@ -204,5 +204,5 @@ Password warning configuration for Active Directory. If enabled, the client will
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_radius_identity_provider d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_radius_identity_provider.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

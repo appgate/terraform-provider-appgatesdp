@@ -60,5 +60,5 @@ Array of tags.
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_trusted_certificate d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_trusted_certificate.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```
