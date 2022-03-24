@@ -10,7 +10,6 @@ import (
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -26,11 +25,7 @@ func resourceAppgatePolicy() *schema.Resource {
 
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
-			"policy_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"policy_id": resourceUUID(),
 
 			"name": {
 				Type:        schema.TypeString,
@@ -291,7 +286,10 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	api := meta.(*Client).API.PoliciesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewPolicyWithDefaults()
-	args.Id = uuid.New().String()
+
+	if v, ok := d.GetOk("policy_id"); ok {
+		args.SetId(v.(string))
+	}
 
 	// Type is only available in >= 5.5
 	if currentVersion.LessThan(Appliance55Version) {

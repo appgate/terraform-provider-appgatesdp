@@ -66,7 +66,7 @@ The following arguments are supported:
 
 * `use_user_password`: (Optional) -> If enabled, the Client will send the cached password instead of using challengeSharedSecret" to initiate the multi-factor authentication.
 * `challenge_shared_secret`: (Optional) -> Password sent to RADIUS to initiate multi-factor authentication. Required if "useUserPassword" is not enabled.
-* `id`: (Required) ID of the object.
+* `mfa_provider_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

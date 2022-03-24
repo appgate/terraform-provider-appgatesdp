@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -31,11 +30,7 @@ func resourceAppgateTrustedCertificate() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: func() map[string]*schema.Schema {
 			return mergeSchemaMaps(baseEntitySchema(), map[string]*schema.Schema{
-				"trusted_certificate_id": {
-					Type:        schema.TypeString,
-					Description: "ID of the object.",
-					Computed:    true,
-				},
+				"trusted_certificate_id": resourceUUID(),
 				"pem": {
 					Type:        schema.TypeString,
 					Description: "A certificate in PEM format.",
@@ -54,7 +49,9 @@ func resourceAppgateTrustedCertificateCreate(d *schema.ResourceData, meta interf
 	}
 	api := meta.(*Client).API.TrustedCertificatesApi
 	args := openapi.NewTrustedCertificateWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("trusted_certificate_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))

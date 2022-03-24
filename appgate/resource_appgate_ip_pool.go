@@ -9,7 +9,6 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -32,11 +31,7 @@ func resourceAppgateIPPool() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 
-			"ip_pool_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"ip_pool_id": resourceUUID(),
 
 			"name": {
 				Type:        schema.TypeString,
@@ -93,7 +88,9 @@ func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	api := meta.(*Client).API.IPPoolsApi
 	args := openapi.NewIpPoolWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("ip_pool_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetNotes(d.Get("notes").(string))
 

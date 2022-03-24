@@ -73,7 +73,7 @@ The following arguments are supported:
 
 
 * `actions`: (Required) List of all ringfence actions in this Ringfence Rule.
-* `id`: (Required) ID of the object.
+* `ringfence_rule_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

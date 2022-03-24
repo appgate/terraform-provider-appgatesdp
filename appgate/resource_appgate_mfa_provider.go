@@ -9,7 +9,6 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -32,12 +31,7 @@ func resourceAppgateMfaProvider() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 
-			"mfa_provider_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
-
+			"mfa_provider_id": resourceUUID(),
 			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the object.",
@@ -156,7 +150,9 @@ func resourceAppgateMfaProviderCreate(d *schema.ResourceData, meta interface{}) 
 	}
 	api := meta.(*Client).API.MFAProvidersApi
 	args := openapi.NewMfaProviderWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("mfa_provider_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))

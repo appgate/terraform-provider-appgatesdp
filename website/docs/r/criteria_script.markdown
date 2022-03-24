@@ -34,7 +34,7 @@ The following arguments are supported:
 
 
 * `expression`: (Required) A JavaScript expression that returns boolean.
-* `id`: (Required) ID of the object.
+* `criteria_script_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

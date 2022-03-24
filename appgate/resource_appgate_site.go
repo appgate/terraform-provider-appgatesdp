@@ -10,7 +10,6 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -35,11 +34,7 @@ func resourceAppgateSite() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			"site_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"site_id": resourceUUID(),
 
 			"name": {
 				Type:        schema.TypeString,
@@ -494,7 +489,9 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	args := openapi.NewSiteWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("site_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetShortName(d.Get("short_name").(string))
 	args.SetDescription(d.Get("description").(string))

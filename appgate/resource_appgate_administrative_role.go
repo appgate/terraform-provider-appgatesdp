@@ -9,7 +9,6 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -33,11 +32,7 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 
-			"administrative_role_id": {
-				Type:        schema.TypeString,
-				Description: "ID of the object.",
-				Computed:    true,
-			},
+			"administrative_role_id": resourceUUID(),
 
 			"name": {
 				Type:        schema.TypeString,
@@ -143,7 +138,9 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	}
 	api := meta.(*Client).API.AdministrativeRolesApi
 	args := openapi.NewAdministrativeRoleWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("administrative_role_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))

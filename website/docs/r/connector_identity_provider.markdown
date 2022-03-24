@@ -41,7 +41,6 @@ resource "appgatesdp_connector_identity_provider" "connector" {
 The following arguments are supported:
 
 
-* `id`: (Required) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

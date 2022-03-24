@@ -115,7 +115,7 @@ resource "appgatesdp_ldap_identity_provider" "ldap" {
 The following arguments are supported:
 
 
-* `id`: (Required) ID of the object.
+* `ldap_identity_provider_id`: (Optional) ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.

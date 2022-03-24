@@ -8,7 +8,6 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -35,11 +34,7 @@ func resourceAppgateLocalUser() *schema.Resource {
 		SchemaVersion: 1,
 		Schema: func() map[string]*schema.Schema {
 			return mergeSchemaMaps(baseEntitySchema(), map[string]*schema.Schema{
-				"local_user_id": {
-					Type:        schema.TypeString,
-					Description: "ID of the object.",
-					Computed:    true,
-				},
+				"local_user_id": resourceUUID(),
 				"first_name": {
 					Type:     schema.TypeString,
 					Required: true,
@@ -84,7 +79,9 @@ func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	api := meta.(*Client).API.LocalUsersApi
 	args := openapi.NewLocalUserWithDefaults()
-	args.Id = uuid.New().String()
+	if v, ok := d.GetOk("local_user_id"); ok {
+		args.SetId(v.(string))
+	}
 	args.SetName(d.Get("name").(string))
 	args.SetNotes(d.Get("notes").(string))
 
