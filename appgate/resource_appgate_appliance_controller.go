@@ -75,7 +75,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %w", err))
 	}
 
 	if v := appliance.GetActivated(); !v {
@@ -110,7 +110,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 			Clock:               backoff.SystemClock,
 		}
 		if err := waitForApplianceState(ctx, meta, id, ApplianceStateControllerReady, b); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after enabling controller on %s: %s", appliance.GetName(), err))
+			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after enabling controller on %s: %w", appliance.GetName(), err))
 		}
 		return nil
 	})
@@ -137,7 +137,7 @@ func resourceAppgateApplianceControllerActivationRead(ctx context.Context, d *sc
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %w", err))
 	}
 	d.SetId(appliance.Id)
 	if v, ok := appliance.GetControllerOk(); ok {
@@ -172,7 +172,7 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 	request := api.AppliancesIdGet(ctx, id)
 	appliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %w", err))
 	}
 	if v := appliance.GetActivated(); !v {
 		return diag.FromErr(fmt.Errorf("Can not activate controller functions on an inactive appliance. The appliance %q need to be seeded first.", appliance.GetName()))
@@ -211,7 +211,7 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 	retryErr := resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(appliance).Authorization(token).Execute()
 		if err != nil {
-			return resource.NonRetryableError(fmt.Errorf("Could not update appliance %+v", prettyPrintAPIError(err)))
+			return resource.NonRetryableError(fmt.Errorf("Could not update appliance %w", prettyPrintAPIError(err)))
 		}
 		b := &backoff.ExponentialBackOff{
 			InitialInterval:     10 * time.Second,
@@ -222,7 +222,7 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 			Clock:               backoff.SystemClock,
 		}
 		if err := waitForApplianceState(ctx, meta, id, state, b); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %s", appliance.GetName(), err))
+			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %w", appliance.GetName(), err))
 		}
 		return nil
 	})
@@ -246,7 +246,7 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 	request := api.AppliancesIdGet(ctx, id)
 	appliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %w", err))
 	}
 	c := openapi.ApplianceAllOfController{}
 	c.SetEnabled(false)
@@ -255,7 +255,7 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 	retryErr := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(appliance).Authorization(token).Execute()
 		if err != nil {
-			return resource.NonRetryableError(fmt.Errorf("Could not update appliance when disable controller on %s %+v", appliance.Name, prettyPrintAPIError(err)))
+			return resource.NonRetryableError(fmt.Errorf("Could not update appliance when disable controller on %s %w", appliance.Name, prettyPrintAPIError(err)))
 		}
 		b := &backoff.ExponentialBackOff{
 			InitialInterval:     10 * time.Second,
@@ -266,7 +266,7 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 			Clock:               backoff.SystemClock,
 		}
 		if err := waitForApplianceState(ctx, meta, id, ApplianceStateApplianceReady, b); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %s", appliance.GetName(), err))
+			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %w", appliance.GetName(), err))
 		}
 		return nil
 	})

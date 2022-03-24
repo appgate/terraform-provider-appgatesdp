@@ -404,7 +404,7 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	request = request.Policy(*args)
 	policy, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create policy %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create policy %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(policy.Id)
@@ -483,7 +483,7 @@ func readPolicyDnsSettingsFromConfig(dnsSettings []interface{}) ([]openapi.Polic
 		if v, ok := raw["servers"]; ok {
 			servers, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 			if err != nil {
-				return list, fmt.Errorf("Failed to resolve dns_settings.servers: %+v", err)
+				return list, fmt.Errorf("Failed to resolve dns_settings.servers: %w", err)
 			}
 			if len(servers) > 0 {
 				result.SetServers(servers)
@@ -531,7 +531,7 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 		if response.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read policy, %+v", err)
+		return fmt.Errorf("Failed to read policy, %w", err)
 	}
 	d.Set("policy_id", policy.Id)
 	d.Set("name", policy.GetName())
@@ -669,7 +669,7 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 	request := api.PoliciesIdGet(ctx, d.Id())
 	orginalPolicy, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read policy, %+v", err)
+		return fmt.Errorf("Failed to read policy, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -787,7 +787,7 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 
 	_, _, err = req.Policy(orginalPolicy).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update policy %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update policy %w", prettyPrintAPIError(err))
 	}
 
 	return resourceAppgatePolicyRead(d, meta)
@@ -806,13 +806,13 @@ func resourceAppgatePolicyDelete(d *schema.ResourceData, meta interface{}) error
 	request := api.PoliciesIdGet(ctx, d.Id())
 	policy, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete policy while GET, %+v", err)
+		return fmt.Errorf("Failed to delete policy while GET, %w", err)
 	}
 
 	deleteRequest := api.PoliciesIdDelete(ctx, policy.GetId())
 	_, err = deleteRequest.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete policy, %+v", err)
+		return fmt.Errorf("Failed to delete policy, %w", err)
 	}
 	d.SetId("")
 	return nil

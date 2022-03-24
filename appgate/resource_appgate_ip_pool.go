@@ -107,7 +107,7 @@ func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error
 	if v, ok := d.GetOk("ranges"); ok {
 		ranges, err := readIPPoolRangesFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read ip pool ranges %s", err)
+			return fmt.Errorf("Failed to read ip pool ranges %w", err)
 		}
 		args.SetRanges(ranges)
 	}
@@ -119,7 +119,7 @@ func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error
 
 	IPPool, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create Ip pool %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create Ip pool %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(IPPool.Id)
@@ -163,7 +163,7 @@ func resourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Ip pool, %+v", err)
+		return fmt.Errorf("Failed to read Ip pool, %w", err)
 	}
 	d.SetId(IPPool.Id)
 	d.Set("ip_pool_id", IPPool.Id)
@@ -174,7 +174,7 @@ func resourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("lease_time_days", IPPool.LeaseTimeDays)
 	if ranges, o := IPPool.GetRangesOk(); o {
 		if err = d.Set("ranges", flattenIPPoolRanges(*ranges)); err != nil {
-			return fmt.Errorf("Failed to read ip pool ranges %s", err)
+			return fmt.Errorf("Failed to read ip pool ranges %w", err)
 		}
 	}
 
@@ -209,7 +209,7 @@ func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error
 	request := api.IpPoolsIdGet(ctx, d.Id())
 	originalIPPool, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Ip pool while updating, %+v", err)
+		return fmt.Errorf("Failed to read Ip pool while updating, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -236,7 +236,7 @@ func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error
 		_, n := d.GetChange("ranges")
 		ranges, err := readIPPoolRangesFromConfig(n.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read ip pool ranges %s", err)
+			return fmt.Errorf("Failed to read ip pool ranges %w", err)
 		}
 		originalIPPool.SetRanges(ranges)
 	}
@@ -244,7 +244,7 @@ func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error
 	req := api.IpPoolsIdPut(ctx, d.Id())
 	_, _, err = req.IpPool(originalIPPool).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Ip pool %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update Ip pool %w", prettyPrintAPIError(err))
 	}
 
 	return resourceAppgateIPPoolRead(d, meta)
@@ -259,7 +259,7 @@ func resourceAppgateIPPoolDelete(d *schema.ResourceData, meta interface{}) error
 	api := meta.(*Client).API.IPPoolsApi
 
 	if _, err := api.IpPoolsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete Ip pool %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete Ip pool %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

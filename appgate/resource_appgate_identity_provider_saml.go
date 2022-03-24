@@ -73,7 +73,7 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	provider.Type = identityProviderSaml
 	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
-		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderSaml, err)
+		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderSaml, err)
 	}
 
 	args := openapi.NewSamlProviderWithDefaults()
@@ -138,7 +138,7 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create %s provider %+v", identityProviderSaml, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create %s provider %w", identityProviderSaml, prettyPrintAPIError(err))
 	}
 	d.SetId(p.Id)
 	return resourceAppgateSamlProviderRuleRead(d, meta)
@@ -158,7 +158,7 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 	saml, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Failed to read Saml Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read Saml Identity provider, %w", err)
 	}
 	d.Set("type", identityProviderSaml)
 	// base attributes
@@ -219,7 +219,7 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalSamlProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Saml Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read Saml Identity provider, %w", err)
 	}
 	// base attributes
 	if d.HasChange("name") {
@@ -263,7 +263,7 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		_, v := d.GetChange("dns_servers")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns servers %s", err)
+			return fmt.Errorf("Failed to read dns servers %w", err)
 		}
 		originalSamlProvider.SetDnsServers(servers)
 	}
@@ -271,7 +271,7 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		_, v := d.GetChange("dns_search_domains")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns search domains %s", err)
+			return fmt.Errorf("Failed to read dns search domains %w", err)
 		}
 		originalSamlProvider.SetDnsSearchDomains(servers)
 	}
@@ -313,7 +313,7 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	req = req.IdentityProvider(originalSamlProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update %s provider %+v", identityProviderSaml, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update %s provider %w", identityProviderSaml, prettyPrintAPIError(err))
 	}
 	return resourceAppgateSamlProviderRuleRead(d, meta)
 }

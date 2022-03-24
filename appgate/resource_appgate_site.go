@@ -549,7 +549,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	request = request.Site(*args)
 	site, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create site %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create site %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(site.Id)
@@ -573,7 +573,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Site, %+v", err)
+		return fmt.Errorf("Failed to read Site, %w", err)
 	}
 
 	d.SetId(site.Id)
@@ -866,7 +866,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Site, %+v", err)
+		return fmt.Errorf("Failed to read Site, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -942,7 +942,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	putRequest := api.SitesIdPut(context.Background(), d.Id())
 	_, _, err = putRequest.Site(orginalSite).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update site %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update site %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateSiteRead(d, meta)
 }
@@ -956,7 +956,7 @@ func resourceAppgateSiteDelete(d *schema.ResourceData, meta interface{}) error {
 	api := meta.(*Client).API.SitesApi
 
 	if _, err := api.SitesIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Failed to delete Site, %+v", err)
+		return fmt.Errorf("Failed to delete Site, %w", err)
 	}
 	d.SetId("")
 	return nil
@@ -999,7 +999,7 @@ func readSiteDefaultGatewayFromConfig(defaultGateways []interface{}) (openapi.Si
 		if v := raw["excluded_subnets"]; len(v.([]interface{})) > 0 {
 			nets, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve default gateway excluded subnets: %+v", err)
+				return result, fmt.Errorf("Failed to resolve default gateway excluded subnets: %w", err)
 			}
 			result.SetExcludedSubnets(nets)
 		}
@@ -1051,7 +1051,7 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 		if v, ok := raw["route_via"]; ok {
 			routeVia, err := readSiteVPNRouteViaFromConfig(v.(*schema.Set).List())
 			if err != nil {
-				return result, fmt.Errorf("Failed to parse/retrieve route_via config %+v", err)
+				return result, fmt.Errorf("Failed to parse/retrieve route_via config %w", err)
 			}
 			result.SetRouteVia(routeVia)
 		}
@@ -1170,7 +1170,7 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v := raw["servers"]; len(v.([]interface{})) > 0 {
 			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve dns servers: %+v", err)
+				return result, fmt.Errorf("Failed to resolve dns servers: %w", err)
 			}
 			if len(servers) > 0 {
 				row.SetServers(servers)
@@ -1179,7 +1179,7 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v := raw["search_domains"]; len(v.([]interface{})) > 0 {
 			domains, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve dns search domains: %+v", err)
+				return result, fmt.Errorf("Failed to resolve dns search domains: %w", err)
 			}
 			if len(domains) > 0 {
 				row.SetSearchDomains(domains)
@@ -1205,7 +1205,7 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v := raw["vpcs"]; len(v.([]interface{})) > 0 {
 			vpcs, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve vpcs from aws config: %+v", err)
+				return result, fmt.Errorf("Failed to resolve vpcs from aws config: %w", err)
 			}
 			row.SetVpcs(vpcs)
 		}
@@ -1215,7 +1215,7 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v := raw["regions"]; len(v.([]interface{})) > 0 && v.([]interface{}) != nil {
 			regions, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve regions from aws config: %+v", err)
+				return result, fmt.Errorf("Failed to resolve regions from aws config: %w", err)
 			}
 			row.SetRegions(regions)
 		}

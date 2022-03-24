@@ -138,7 +138,7 @@ func resourceAppgateApplianceCustomizationCreate(d *schema.ResourceData, meta in
 
 	customization, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create Appliance customization %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create Appliance customization %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(customization.Id)
@@ -162,27 +162,27 @@ func resourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta inte
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Appliance customization, %+v", err)
+		return fmt.Errorf("Failed to read Appliance customization, %w", err)
 	}
 	d.SetId(customization.Id)
 	d.Set("appliance_customization_id", customization.Id)
 	if err := d.Set("name", customization.GetName()); err != nil {
-		return fmt.Errorf("Error setting name %s", err)
+		return fmt.Errorf("Error setting name %w", err)
 	}
 	if err := d.Set("notes", customization.GetNotes()); err != nil {
-		return fmt.Errorf("Error setting notes %s", err)
+		return fmt.Errorf("Error setting notes %w", err)
 	}
 	if err := d.Set("tags", customization.GetTags()); err != nil {
-		return fmt.Errorf("Error setting tags %s", err)
+		return fmt.Errorf("Error setting tags %w", err)
 	}
 	if err := d.Set("size", customization.GetSize()); err != nil {
-		return fmt.Errorf("Error setting size %s", err)
+		return fmt.Errorf("Error setting size %w", err)
 	}
 	if err := d.Set("checksum_sha256", customization.GetChecksum()); err != nil {
-		return fmt.Errorf("Error setting checksum_sha256 %s", err)
+		return fmt.Errorf("Error setting checksum_sha256 %w", err)
 	}
 	if err := d.Set("detect_sha256", customization.GetChecksum()); err != nil {
-		return fmt.Errorf("Error setting detect_sha256: %s", err)
+		return fmt.Errorf("Error setting detect_sha256: %w", err)
 	}
 
 	return nil
@@ -199,7 +199,7 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 	request := api.ApplianceCustomizationsIdGet(ctx, d.Id())
 	originalApplianceCustomization, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Appliance customization while updating, %+v", err)
+		return fmt.Errorf("Failed to read Appliance customization while updating, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -218,7 +218,7 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 		var content []byte
 		file, err := os.Open(v)
 		if err != nil {
-			return fmt.Errorf("Error opening file (%s): %s", v, err)
+			return fmt.Errorf("Error opening file (%s): %w", v, err)
 		}
 		defer func() {
 			err := file.Close()
@@ -229,7 +229,7 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 		reader := bufio.NewReader(file)
 		content, err = io.ReadAll(reader)
 		if err != nil {
-			return fmt.Errorf("Error reading file (%s): %s", v, err)
+			return fmt.Errorf("Error reading file (%s): %w", v, err)
 		}
 		encoded := base64.StdEncoding.EncodeToString(content)
 		originalApplianceCustomization.SetFile(encoded)
@@ -239,7 +239,7 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 	req = req.ApplianceCustomization(originalApplianceCustomization)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Appliance customization %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update Appliance customization %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateApplianceCustomizationRead(d, meta)
 }
@@ -253,7 +253,7 @@ func resourceAppgateApplianceCustomizationDelete(d *schema.ResourceData, meta in
 	api := meta.(*Client).API.ApplianceCustomizationsApi
 
 	if _, err := api.ApplianceCustomizationsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete Appliance customization %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete Appliance customization %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

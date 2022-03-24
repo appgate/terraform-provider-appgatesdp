@@ -50,7 +50,7 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	provider.Type = identityProviderLdap
 	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
-		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdap, err)
+		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderLdap, err)
 	}
 
 	args := openapi.NewLdapProviderWithDefaults()
@@ -135,7 +135,7 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create %s provider %+v", identityProviderLdap, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create %s provider %w", identityProviderLdap, prettyPrintAPIError(err))
 	}
 	d.SetId(p.Id)
 	return resourceAppgateLdapProviderRuleRead(d, meta)
@@ -158,7 +158,7 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
 	d.Set("type", identityProviderLdap)
 	// base attributes
@@ -269,7 +269,7 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalLdapProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
 	// base attributes
 	if d.HasChange("name") {
@@ -313,7 +313,7 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		_, v := d.GetChange("dns_servers")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns servers %s", err)
+			return fmt.Errorf("Failed to read dns servers %w", err)
 		}
 		originalLdapProvider.SetDnsServers(servers)
 	}
@@ -321,7 +321,7 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		_, v := d.GetChange("dns_search_domains")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns search domains %s", err)
+			return fmt.Errorf("Failed to read dns search domains %w", err)
 		}
 		originalLdapProvider.SetDnsSearchDomains(servers)
 	}
@@ -384,7 +384,7 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	req = req.IdentityProvider(originalLdapProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update %s provider %+v", identityProviderLdap, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update %s provider %w", identityProviderLdap, prettyPrintAPIError(err))
 	}
 	return resourceAppgateLdapProviderRuleRead(d, meta)
 }

@@ -152,7 +152,7 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return diag.FromErr(fmt.Errorf("Failed to read Global settings, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Global settings, %w", err))
 	}
 	d.SetId(settings.GetCollectiveId())
 	d.Set("claims_token_expiration", settings.GetClaimsTokenExpiration())
@@ -179,7 +179,7 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 		clientConnections, _, err := request.Authorization(token).Execute()
 		if err != nil {
 			d.SetId("")
-			return diag.FromErr(fmt.Errorf("Failed to read Client Connections, %+v", err))
+			return diag.FromErr(fmt.Errorf("Failed to read Client Connections, %w", err))
 		}
 		d.Set("profile_hostname", clientConnections.GetProfileHostname())
 
@@ -198,7 +198,7 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	request := api.GlobalSettingsGet(ctx)
 	originalsettings, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Failed to read Global settings while updating, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Global settings while updating, %w", err))
 	}
 
 	if d.HasChange("claims_token_expiration") {
@@ -246,7 +246,7 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	req := api.GlobalSettingsPut(ctx)
 	_, err = req.GlobalSettings(originalsettings).Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Could not update Global settings %+v", prettyPrintAPIError(err)))
+		return diag.FromErr(fmt.Errorf("Could not update Global settings %w", prettyPrintAPIError(err)))
 	}
 
 	if currentVersion.GreaterThanOrEqual(Appliance54Version) && d.HasChange("profile_hostname") {
@@ -255,14 +255,14 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		originalclientConnections, _, err := request.Authorization(token).Execute()
 		if err != nil {
 			d.SetId("")
-			return diag.FromErr(fmt.Errorf("Failed to read Client Connections, %+v", err))
+			return diag.FromErr(fmt.Errorf("Failed to read Client Connections, %w", err))
 		}
 		_, v := d.GetChange("profile_hostname")
 		originalclientConnections.SetProfileHostname(v.(string))
 		req := ccAPI.ClientConnectionsPut(ctx)
 		_, _, err = req.ClientConnections(originalclientConnections).Authorization(token).Execute()
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Could not update Client Connections %+v", prettyPrintAPIError(err)))
+			return diag.FromErr(fmt.Errorf("Could not update Client Connections %w", prettyPrintAPIError(err)))
 		}
 
 	}
@@ -280,7 +280,7 @@ func resourceGlobalSettingsDelete(ctx context.Context, d *schema.ResourceData, m
 	api := meta.(*Client).API.GlobalSettingsApi
 
 	if _, err := api.GlobalSettingsDelete(context.Background()).Authorization(token).Execute(); err != nil {
-		return diag.FromErr(fmt.Errorf("Could not reset Global settings %+v", prettyPrintAPIError(err)))
+		return diag.FromErr(fmt.Errorf("Could not reset Global settings %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")
 	// The API won't allow us to delete/remove/reset profile_hostname from client_connections so we will just leave it be.

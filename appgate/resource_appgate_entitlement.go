@@ -315,7 +315,7 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 	request = request.Entitlement(*args)
 	ent, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Could not create entitlement %+v", prettyPrintAPIError(err)))
+		return diag.FromErr(fmt.Errorf("Could not create entitlement %w", prettyPrintAPIError(err)))
 	}
 
 	d.SetId(ent.Id)
@@ -344,7 +344,7 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return diag.FromErr(fmt.Errorf("Failed to read Entitlement, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Entitlement, %w", err))
 	}
 	d.SetId(entitlement.Id)
 	d.Set("entitlement_id", entitlement.Id)
@@ -448,7 +448,7 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 	request := api.EntitlementsIdGet(ctx, d.Id())
 	orginalEntitlment, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Failed to read Entitlement while updating, %+v", err))
+		return diag.FromErr(fmt.Errorf("Failed to read Entitlement while updating, %w", err))
 	}
 
 	if d.HasChange("name") {
@@ -515,7 +515,7 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 	req = req.Entitlement(orginalEntitlment)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Could not update Entitlement %+v", prettyPrintAPIError(err)))
+		return diag.FromErr(fmt.Errorf("Could not update Entitlement %w", prettyPrintAPIError(err)))
 	}
 
 	return resourceAppgateEntitlementRuleRead(ctx, d, meta)
@@ -533,7 +533,7 @@ func resourceAppgateEntitlementRuleDelete(ctx context.Context, d *schema.Resourc
 	api := meta.(*Client).API.EntitlementsApi
 
 	if _, err := api.EntitlementsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
-		return diag.FromErr(fmt.Errorf("Could not delete Entitlement %+v", prettyPrintAPIError(err)))
+		return diag.FromErr(fmt.Errorf("Could not delete Entitlement %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")
 	return diags
@@ -556,14 +556,14 @@ func readEntitlmentActionsFromConfig(actions []interface{}, diags diag.Diagnosti
 		if v, ok := raw["hosts"]; ok {
 			hosts, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 			if err != nil {
-				return result, diags, fmt.Errorf("Failed to resolve entitlement action hosts: %+v", err)
+				return result, diags, fmt.Errorf("Failed to resolve entitlement action hosts: %w", err)
 			}
 			a.SetHosts(hosts)
 		}
 		if v, ok := raw["ports"]; ok {
 			ports, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 			if err != nil {
-				return result, diags, fmt.Errorf("Failed to resolve entitlement action ports: %+v", err)
+				return result, diags, fmt.Errorf("Failed to resolve entitlement action ports: %w", err)
 			}
 			a.SetPorts(ports)
 		}
@@ -577,7 +577,7 @@ func readEntitlmentActionsFromConfig(actions []interface{}, diags diag.Diagnosti
 			}
 			types, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, diags, fmt.Errorf("Failed to resolve entitlment action types: %+v", err)
+				return result, diags, fmt.Errorf("Failed to resolve entitlment action types: %w", err)
 			}
 			a.SetTypes(types)
 		}

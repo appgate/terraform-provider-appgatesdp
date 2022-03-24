@@ -97,7 +97,7 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 	localDatabase, err := getBuiltinLocalDatabaseProviderUUID(ctx, *api, token)
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Failed to read LocalDatabase Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read LocalDatabase Identity provider, %w", err)
 	}
 	d.SetId(localDatabase.GetId())
 
@@ -153,7 +153,7 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalLocalDatabaseProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read LocalDatabase Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read LocalDatabase Identity provider, %w", err)
 	}
 	// base attributes
 	if d.HasChange("name") {
@@ -195,7 +195,7 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 		_, v := d.GetChange("dns_servers")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns servers %s", err)
+			return fmt.Errorf("Failed to read dns servers %w", err)
 		}
 		originalLocalDatabaseProvider.SetDnsServers(servers)
 	}
@@ -203,7 +203,7 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 		_, v := d.GetChange("dns_search_domains")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns search domains %s", err)
+			return fmt.Errorf("Failed to read dns search domains %w", err)
 		}
 		originalLocalDatabaseProvider.SetDnsSearchDomains(servers)
 	}
@@ -233,7 +233,7 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 	req = req.IdentityProvider(originalLocalDatabaseProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update %s provider %+v", identityProviderLocalDatabase, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update %s provider %w", identityProviderLocalDatabase, prettyPrintAPIError(err))
 	}
 	return resourceAppgateLocalDatabaseProviderRuleRead(d, meta)
 }

@@ -76,7 +76,7 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Appliance, %+v", err)
+		return fmt.Errorf("Failed to read Appliance, %w", err)
 	}
 
 	d.SetId(applianceID.(string))
@@ -119,11 +119,11 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 	exportRequest = exportRequest.SSHConfig(*sshConfig)
 	seedmap, _, err := exportRequest.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not export appliance %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not export appliance %w", prettyPrintAPIError(err))
 	}
 	encodedSeed, err := json.Marshal(seedmap)
 	if err != nil {
-		return fmt.Errorf("Could not parse json seed file: %+v", err)
+		return fmt.Errorf("Could not parse json seed file: %w", err)
 	}
 
 	d.Set("seed_file", b64.StdEncoding.EncodeToString([]byte(encodedSeed)))

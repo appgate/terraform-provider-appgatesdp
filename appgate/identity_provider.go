@@ -517,7 +517,7 @@ func identityProviderDelete(d *schema.ResourceData, meta interface{}) error {
 	api := meta.(*Client).API.IdentityProvidersApi
 
 	if _, err := api.IdentityProvidersIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete LdapProvider %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete LdapProvider %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

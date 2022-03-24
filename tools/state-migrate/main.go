@@ -51,12 +51,12 @@ func ProcessDirectory(targetDir string, backupDir string, fileActionFn FileActio
 	_, err = os.Stat(targetDir)
 
 	if err != nil {
-		return fmt.Errorf("Error reading directory\n %s", err)
+		return fmt.Errorf("Error reading directory\n %w", err)
 	}
 
 	files, err := ioutil.ReadDir(targetDir)
 	if err != nil {
-		return fmt.Errorf("Error reading directory contents \n %s", err)
+		return fmt.Errorf("Error reading directory contents \n %w", err)
 	}
 
 	for _, res := range files {
@@ -99,29 +99,29 @@ func CopyFile(targetFile string, backupFile string) (err error) {
 			fi, err := os.Stat(oDir)
 
 			if err != nil {
-				return fmt.Errorf("Error reading original directory %s", err)
+				return fmt.Errorf("Error reading original directory %w", err)
 			}
 
 			err = os.MkdirAll(bkDir, fi.Mode())
 
 			if err != nil {
-				return fmt.Errorf("Error creating directory for file %s", err)
+				return fmt.Errorf("Error creating directory for file %w", err)
 			}
 		} else {
-			return fmt.Errorf("Unexpected error reading original directory %s", err)
+			return fmt.Errorf("Unexpected error reading original directory %w", err)
 		}
 	}
 
 	src, err := os.Open(targetFile)
 	if err != nil {
-		return fmt.Errorf("Error reading original file\n %s", err)
+		return fmt.Errorf("Error reading original file\n %w", err)
 	}
 
 	defer src.Close()
 
 	dst, err := os.Create(backupFile)
 	if err != nil {
-		return fmt.Errorf("Error creating backup file\n %s", err)
+		return fmt.Errorf("Error creating backup file\n %w", err)
 	}
 
 	defer dst.Close()
@@ -130,7 +130,7 @@ func CopyFile(targetFile string, backupFile string) (err error) {
 
 	size, err := io.Copy(dst, src)
 	if err != nil {
-		return fmt.Errorf("Error writing file\n %s", err)
+		return fmt.Errorf("Error writing file\n %w", err)
 	}
 
 	fmt.Printf(", %d bytes\n", size)
@@ -141,14 +141,14 @@ func CopyFile(targetFile string, backupFile string) (err error) {
 func MigratePlanFile(targetFile string, backupFile string) (err error) {
 	src, err := os.Open(backupFile)
 	if err != nil {
-		return fmt.Errorf("Error reading file\n %s", err)
+		return fmt.Errorf("Error reading file\n %w", err)
 	}
 
 	defer src.Close()
 
 	dst, err := os.Create(targetFile)
 	if err != nil {
-		return fmt.Errorf("Error creating write location\n %s", err)
+		return fmt.Errorf("Error creating write location\n %w", err)
 	}
 
 	defer dst.Close()
@@ -189,7 +189,7 @@ func CreateBackup(targetDir string, backupDir string) (err error) {
 
 	fi, err := os.Stat(targetDir)
 	if err != nil {
-		return fmt.Errorf("Error reading directory\n %s", err)
+		return fmt.Errorf("Error reading directory\n %w", err)
 	}
 
 	if !fi.IsDir() {
@@ -225,20 +225,20 @@ func RestoreBackup(backupDir string, targetDir string) (err error) {
 
 	fi, err := os.Stat(backupDir)
 	if err != nil {
-		return fmt.Errorf("Error reading backup\n %s", err)
+		return fmt.Errorf("Error reading backup\n %w", err)
 	}
 
 	err = os.RemoveAll(targetDir)
 
 	if err != nil {
-		return fmt.Errorf("Error removing original directory\n %s", err)
+		return fmt.Errorf("Error removing original directory\n %w", err)
 	}
 
 	os.MkdirAll(targetDir, fi.Mode())
 
 	err = ProcessDirectory(backupDir, targetDir, CopyFile)
 	if err != nil {
-		return fmt.Errorf("Error restoring from backup directory\n %s", err)
+		return fmt.Errorf("Error restoring from backup directory\n %w", err)
 	}
 
 	fmt.Println("Complete")
@@ -251,7 +251,7 @@ func DeleteBackup(backupDir string) (err error) {
 
 	err = os.RemoveAll(backupDir)
 	if err != nil {
-		return fmt.Errorf("Error removing backup directory\n %s", err)
+		return fmt.Errorf("Error removing backup directory\n %w", err)
 	}
 
 	fmt.Println("Complete")
@@ -264,12 +264,12 @@ func Migrate(targetDir string, backupDir string) (err error) {
 	err = CreateBackup(targetDir, backupDir)
 
 	if err != nil {
-		return fmt.Errorf("Error backing up directory before migration\n %s", err)
+		return fmt.Errorf("Error backing up directory before migration\n %w", err)
 	}
 
 	err = ProcessDirectory(targetDir, backupDir, MigratePlanFile, ".tf", ".tfstate")
 	if err != nil {
-		return fmt.Errorf("Error removing backup directory\n %s", err)
+		return fmt.Errorf("Error removing backup directory\n %w", err)
 	}
 
 	fmt.Println("Complete")
@@ -376,7 +376,7 @@ func updateTerraformBlock(targetDir string, backupDir string) (err error) {
 
 	err = ProcessDirectory(targetDir, backupDir, addAppGateSDPToRequiredProviders, ".tf")
 	if err != nil {
-		return fmt.Errorf("Error scanning terraform.required_providers.appgate\n %s", err)
+		return fmt.Errorf("Error scanning terraform.required_providers.appgate\n %w", err)
 	}
 
 	fmt.Println("Complete")
@@ -389,7 +389,7 @@ func addAppGateSDPToRequiredProviders(targetFile string, backupFile string) erro
 
 	fileInfo, err := os.Stat(targetFile)
 	if err != nil {
-		return fmt.Errorf("Error os stat provider block\n %s", err)
+		return fmt.Errorf("Error os stat provider block\n %w", err)
 	}
 
 	const maxSize = 1024 * 1024
@@ -399,11 +399,11 @@ func addAppGateSDPToRequiredProviders(targetFile string, backupFile string) erro
 
 	fileBytes, err := ioutil.ReadFile(targetFile)
 	if err != nil {
-		return fmt.Errorf("Error read file provider block\n %s", err)
+		return fmt.Errorf("Error read file provider block\n %w", err)
 	}
 	str, err := scanAndUpdateTerraform(string(fileBytes))
 	if err != nil {
-		return fmt.Errorf("Error updating provider block\n %s", err)
+		return fmt.Errorf("Error updating provider block\n %w", err)
 	}
 
 	ioutil.WriteFile(targetFile, []byte(str), fileInfo.Mode())
@@ -435,7 +435,7 @@ func scanAndUpdateTerraform(content string) (string, error) {
 
 		res, err := insertNewAppgateInProviderBlock(content[start:end])
 		if err != nil {
-			return content, fmt.Errorf("Problem parsing terraform block\n %s", err)
+			return content, fmt.Errorf("Problem parsing terraform block\n %w", err)
 		}
 
 		content = content[:start] + res + content[end:]

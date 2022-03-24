@@ -112,7 +112,7 @@ func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("lock_start"); ok {
 		t, err := parseDateTimeString(v.(string))
 		if err != nil {
-			return fmt.Errorf("Failed to read lock start timestamp %s", err)
+			return fmt.Errorf("Failed to read lock start timestamp %w", err)
 		}
 		args.SetLockStart(*t)
 	}
@@ -121,7 +121,7 @@ func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) er
 
 	localUser, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create Local user %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create Local user %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(localUser.Id)
@@ -133,7 +133,7 @@ func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) er
 func parseDateTimeString(input string) (*time.Time, error) {
 	t, err := time.Parse(iso8601Format, input)
 	if err != nil {
-		return nil, fmt.Errorf("Failed resolve datetime %s", err)
+		return nil, fmt.Errorf("Failed resolve datetime %w", err)
 	}
 	return &t, nil
 }
@@ -150,7 +150,7 @@ func resourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) erro
 	localUser, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Failed to read Local user, %+v", err)
+		return fmt.Errorf("Failed to read Local user, %w", err)
 	}
 	d.SetId(localUser.Id)
 	d.Set("local_user_id", localUser.Id)
@@ -182,7 +182,7 @@ func resourceAppgateLocalUserUpdate(d *schema.ResourceData, meta interface{}) er
 	request := api.LocalUsersIdGet(ctx, d.Id())
 	originalLocalUser, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Local user while updating, %+v", err)
+		return fmt.Errorf("Failed to read Local user while updating, %w", err)
 	}
 	updatedLocalUser := openapi.NewLocalUserWithDefaults()
 	updatedLocalUser.SetPassword(d.Get("password").(string))
@@ -234,7 +234,7 @@ func resourceAppgateLocalUserUpdate(d *schema.ResourceData, meta interface{}) er
 		if len(raw) > 0 {
 			t, err := parseDateTimeString(raw)
 			if err != nil {
-				return fmt.Errorf("Failed to read lock start timestamp %s", err)
+				return fmt.Errorf("Failed to read lock start timestamp %w", err)
 			}
 			updatedLocalUser.SetLockStart(*t)
 		}
@@ -244,7 +244,7 @@ func resourceAppgateLocalUserUpdate(d *schema.ResourceData, meta interface{}) er
 	req = req.LocalUser(*updatedLocalUser)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Local user %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update Local user %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateLocalUserRead(d, meta)
 }
@@ -258,7 +258,7 @@ func resourceAppgateLocalUserDelete(d *schema.ResourceData, meta interface{}) er
 	api := meta.(*Client).API.LocalUsersApi
 
 	if _, err := api.LocalUsersIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete Local user %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete Local user %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

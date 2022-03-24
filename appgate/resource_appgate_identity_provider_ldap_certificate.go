@@ -71,7 +71,7 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	provider.Type = identityProviderLdapCertificate
 	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
-		return fmt.Errorf("Failed to read and create basic identity provider for %s %s", identityProviderLdapCertificate, err)
+		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderLdapCertificate, err)
 	}
 
 	args := openapi.NewLdapCertificateProviderWithDefaults()
@@ -173,7 +173,7 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	request := api.IdentityProvidersPost(ctx)
 	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create %s provider %+v", identityProviderLdapCertificate, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create %s provider %w", identityProviderLdapCertificate, prettyPrintAPIError(err))
 	}
 	d.SetId(p.Id)
 	return resourceAppgateLdapCertificateProviderRuleRead(d, meta)
@@ -196,7 +196,7 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
 	d.Set("type", identityProviderLdapCertificate)
 	// base attributes
@@ -282,7 +282,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalLdapCertificateProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read LDAP Identity provider, %+v", err)
+		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
 	// base attributes
 	if d.HasChange("name") {
@@ -326,7 +326,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 		_, v := d.GetChange("dns_servers")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns servers %s", err)
+			return fmt.Errorf("Failed to read dns servers %w", err)
 		}
 		originalLdapCertificateProvider.SetDnsServers(servers)
 	}
@@ -334,7 +334,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 		_, v := d.GetChange("dns_search_domains")
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
 		if err != nil {
-			return fmt.Errorf("Failed to read dns search domains %s", err)
+			return fmt.Errorf("Failed to read dns search domains %w", err)
 		}
 		originalLdapCertificateProvider.SetDnsSearchDomains(servers)
 	}
@@ -417,7 +417,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	req = req.IdentityProvider(originalLdapCertificateProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update %s provider %+v", identityProviderLdapCertificate, prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update %s provider %w", identityProviderLdapCertificate, prettyPrintAPIError(err))
 	}
 	return resourceAppgateLdapCertificateProviderRuleRead(d, meta)
 }

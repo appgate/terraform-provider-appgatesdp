@@ -68,7 +68,7 @@ func resourceAppgateTrustedCertificateCreate(d *schema.ResourceData, meta interf
 
 	trustedCertificate, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create trusted certificate %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create trusted certificate %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(trustedCertificate.Id)
@@ -92,7 +92,7 @@ func resourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interfac
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read trusted certificate, %+v", err)
+		return fmt.Errorf("Failed to read trusted certificate, %w", err)
 	}
 	d.SetId(trustedCertificate.Id)
 	d.Set("trusted_certificate_id", trustedCertificate.Id)
@@ -115,7 +115,7 @@ func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interf
 	request := api.TrustedCertificatesIdGet(ctx, d.Id())
 	originalTrustedCertificate, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read trusted certificate while updating, %+v", err)
+		return fmt.Errorf("Failed to read trusted certificate while updating, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -138,7 +138,7 @@ func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interf
 	req = req.TrustedCertificate(originalTrustedCertificate)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update trusted certificate %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update trusted certificate %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateTrustedCertificateRead(d, meta)
 }
@@ -152,7 +152,7 @@ func resourceAppgateTrustedCertificateDelete(d *schema.ResourceData, meta interf
 	api := meta.(*Client).API.TrustedCertificatesApi
 
 	if _, err := api.TrustedCertificatesIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete trusted certificate %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete trusted certificate %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

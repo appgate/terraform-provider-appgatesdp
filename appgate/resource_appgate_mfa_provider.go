@@ -166,7 +166,7 @@ func resourceAppgateMfaProviderCreate(d *schema.ResourceData, meta interface{}) 
 	if v, ok := d.GetOk("hostnames"); ok {
 		hostnames, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 		if err != nil {
-			return fmt.Errorf("Could not read hostnames %s", err)
+			return fmt.Errorf("Could not read hostnames %w", err)
 		}
 		args.SetHostnames(hostnames)
 	}
@@ -200,7 +200,7 @@ func resourceAppgateMfaProviderCreate(d *schema.ResourceData, meta interface{}) 
 
 	mfaProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create MFA provider %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create MFA provider %w", prettyPrintAPIError(err))
 	}
 
 	d.SetId(mfaProvider.Id)
@@ -224,7 +224,7 @@ func resourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) er
 		if res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read MFA provider, %+v", err)
+		return fmt.Errorf("Failed to read MFA provider, %w", err)
 	}
 	d.SetId(mfaProvider.Id)
 	d.Set("mfa_provider_id", mfaProvider.Id)
@@ -254,7 +254,7 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 	request := api.MfaProvidersIdGet(ctx, d.Id())
 	originalMfaProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read MFA provider while updating, %+v", err)
+		return fmt.Errorf("Failed to read MFA provider while updating, %w", err)
 	}
 
 	if d.HasChange("name") {
@@ -274,7 +274,7 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 		_, v := d.GetChange("hostnames")
 		hostnames, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
 		if err != nil {
-			return fmt.Errorf("Failed to read hostnames %s", err)
+			return fmt.Errorf("Failed to read hostnames %w", err)
 		}
 		originalMfaProvider.SetHostnames(hostnames)
 	}
@@ -306,7 +306,7 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 	req = req.MfaProvider(originalMfaProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update MFA provider %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not update MFA provider %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateMfaProviderRead(d, meta)
 }
@@ -320,7 +320,7 @@ func resourceAppgateMfaProviderDelete(d *schema.ResourceData, meta interface{}) 
 	api := meta.(*Client).API.MFAProvidersApi
 
 	if _, err := api.MfaProvidersIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete MFA provider %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete MFA provider %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil

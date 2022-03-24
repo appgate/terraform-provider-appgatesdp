@@ -51,7 +51,7 @@ func resourceAppgateLicenseCreate(d *schema.ResourceData, meta interface{}) erro
 	args.SetLicense(d.Get("license").(string))
 
 	if _, _, err := api.LicensePost(context.TODO()).LicenseImport(*args).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not create license %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not create license %w", prettyPrintAPIError(err))
 	}
 	return resourceAppgateLicenseRead(d, meta)
 }
@@ -72,7 +72,7 @@ func resourceAppgateLicenseRead(d *schema.ResourceData, meta interface{}) error 
 	license, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Failed to read license, %+v", err)
+		return fmt.Errorf("Failed to read license, %w", err)
 	}
 	d.SetId(getLicenseIdentifier(license))
 
@@ -88,7 +88,7 @@ func resourceAppgateLicenseDelete(d *schema.ResourceData, meta interface{}) erro
 	api := meta.(*Client).API.LicenseApi
 
 	if _, err := api.LicenseDelete(context.TODO()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete license %+v", prettyPrintAPIError(err))
+		return fmt.Errorf("Could not delete license %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")
 	return nil
