@@ -1228,7 +1228,7 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v, ok := raw["https_proxy"]; ok && len(v.(string)) > 0 {
 			row.SetHttpsProxy(v.(string))
 		}
-		if v, ok := raw["resolve_with_master_credentials"]; ok && v != nil && v.(bool) {
+		if v, ok := raw["resolve_with_master_credentials"]; ok {
 			row.SetResolveWithMasterCredentials(v.(bool))
 		}
 		if v, ok := raw["assumed_roles"]; ok {
