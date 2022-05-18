@@ -700,6 +700,286 @@ func testAccSiteBasicAwsResolverConfig(context map[string]interface{}) string {
     `, context)
 }
 
+// https://github.com/appgate/terraform-provider-appgatesdp/issues/229
+func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
+	resourceName := "appgatesdp_site.test_site"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name": rName,
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSiteDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSiteBasicAwsResolverConfiWithMasterCredentials(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "11"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", "string1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.account_id", "abc123"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.external_id", "3a569552-48a4-4589-990d-5f1d8e3a6a18"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.regions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.regions.0", "eu-central-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.role_name", "The role"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.https_proxy", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.name", "AWS Resolver 1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.0", "eu-central-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.1", "eu-west-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.resolve_with_master_credentials", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.secret_access_key", "string2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.update_interval", "59"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.use_iam_role", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpc_auto_discovery", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpcs.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", ""),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "9"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_key_store", ""),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_verify_upstream_certificate", "false"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+			{
+				Config: testAccSiteBasicAwsResolverConfiWithMasterCredentialsUpdated(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "11"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", "string1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.account_id", "abc123"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.external_id", "3a569552-48a4-4589-990d-5f1d8e3a6a18"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.regions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.regions.0", "eu-central-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.role_name", "The role"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.https_proxy", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.name", "AWS Resolver 1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.0", "eu-central-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.1", "eu-west-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.resolve_with_master_credentials", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.secret_access_key", "string2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.update_interval", "59"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.use_iam_role", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpc_auto_discovery", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpcs.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", ""),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "9"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_key_store", ""),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_verify_upstream_certificate", "false"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+
+			{
+				Config: testAccSiteBasicAwsResolverConfiWithMasterCredentials(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "11"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", "string1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.account_id", "abc123"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.external_id", "3a569552-48a4-4589-990d-5f1d8e3a6a18"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.regions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.regions.0", "eu-central-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.role_name", "The role"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.https_proxy", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.name", "AWS Resolver 1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.0", "eu-central-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.regions.1", "eu-west-1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.resolve_with_master_credentials", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.secret_access_key", "string2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.update_interval", "59"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.use_iam_role", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpc_auto_discovery", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpcs.#", "0"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccSiteBasicAwsResolverConfiWithMasterCredentials(context map[string]interface{}) string {
+	return Nprintf(`
+    resource "appgatesdp_site" "test_site" {
+        name       = "%{name}"
+        tags = [
+          "developer",
+          "api-created"
+        ]
+        entitlement_based_routing = false
+        network_subnets = [
+          "10.0.0.0/16"
+        ]
+        default_gateway {
+          enabled_v4       = false
+          enabled_v6       = false
+          excluded_subnets = []
+        }
+		name_resolution {
+			aws_resolvers {
+			  name = "AWS Resolver 1"
+			  regions = [
+				"eu-central-1",
+				"eu-west-1"
+			  ]
+			  update_interval                 = 59
+			  vpcs                            = []
+			  vpc_auto_discovery              = true
+			  use_iam_role                    = true
+			  access_key_id                   = "string1"
+			  secret_access_key               = "string2"
+			  resolve_with_master_credentials = false
+			  assumed_roles {
+				account_id  = "abc123"
+				role_name   = "The role"
+				external_id = "3a569552-48a4-4589-990d-5f1d8e3a6a18"
+				regions = [
+				  "eu-central-1",
+				]
+			  }
+			}
+		  }
+      }
+    `, context)
+}
+
+func testAccSiteBasicAwsResolverConfiWithMasterCredentialsUpdated(context map[string]interface{}) string {
+	return Nprintf(`
+    resource "appgatesdp_site" "test_site" {
+        name       = "%{name}"
+        tags = [
+          "developer",
+          "api-created"
+        ]
+        entitlement_based_routing = false
+        network_subnets = [
+          "10.0.0.0/16"
+        ]
+        default_gateway {
+          enabled_v4       = false
+          enabled_v6       = false
+          excluded_subnets = []
+        }
+		name_resolution {
+			aws_resolvers {
+			  name = "AWS Resolver 1"
+			  regions = [
+				"eu-central-1",
+				"eu-west-1"
+			  ]
+			  update_interval                 = 59
+			  vpcs                            = []
+			  vpc_auto_discovery              = true
+			  use_iam_role                    = true
+			  access_key_id                   = "string1"
+			  secret_access_key               = "string2"
+			  resolve_with_master_credentials = true # updated
+			  assumed_roles {
+				account_id  = "abc123"
+				role_name   = "The role"
+				external_id = "3a569552-48a4-4589-990d-5f1d8e3a6a18"
+				regions = [
+				  "eu-central-1",
+				]
+			  }
+			}
+		  }
+      }
+    `, context)
+}
 func TestAccSite55Attributes(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
