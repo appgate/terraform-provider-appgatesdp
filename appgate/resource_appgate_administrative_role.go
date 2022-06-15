@@ -245,7 +245,7 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 	administrativeRole, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		if res.StatusCode == http.StatusNotFound {
+		if res != nil && res.StatusCode == http.StatusNotFound {
 			return nil
 		}
 		return diag.FromErr(fmt.Errorf("Failed to read Administrative role, %w", err))

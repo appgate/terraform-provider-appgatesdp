@@ -155,7 +155,7 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 	ldap, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		if res.StatusCode == http.StatusNotFound {
+		if res != nil && res.StatusCode == http.StatusNotFound {
 			return nil
 		}
 		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)

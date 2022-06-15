@@ -337,7 +337,7 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 	entitlement, res, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		if res.StatusCode == http.StatusNotFound {
+		if res != nil && res.StatusCode == http.StatusNotFound {
 			return nil
 		}
 		return diag.FromErr(fmt.Errorf("Failed to read Entitlement, %w", err))

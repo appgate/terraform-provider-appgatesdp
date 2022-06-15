@@ -526,7 +526,7 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	policy, response, err := request.Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		if response.StatusCode == http.StatusNotFound {
+		if response != nil && response.StatusCode == http.StatusNotFound {
 			return nil
 		}
 		return fmt.Errorf("Failed to read policy, %w", err)
