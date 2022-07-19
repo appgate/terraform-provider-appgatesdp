@@ -144,6 +144,7 @@ func Provider() *schema.Provider {
 			"appgatesdp_criteria_script":                    resourceAppgateCriteriaScript(),
 			"appgatesdp_entitlement_script":                 resourceAppgateEntitlementScript(),
 			"appgatesdp_device_script":                      resourceAppgateDeviceScript(),
+			"appgatesdp_user_claim_script":                  resourceAppgateUserClaimScript(),
 			"appgatesdp_appliance_customization":            resourceAppgateApplianceCustomizations(),
 			"appgatesdp_ip_pool":                            resourceAppgateIPPool(),
 			"appgatesdp_administrative_role":                resourceAppgateAdministrativeRole(),
