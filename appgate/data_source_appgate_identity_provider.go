@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -43,7 +43,7 @@ func dataSourceAppgateIdentityProviderRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("please provide one of identity_provider_id or identity_provider_name attributes")
 	}
 	var reqErr error
-	var provider *openapi.IdentityProvider
+	var provider map[string]interface{}
 	if iok {
 		provider, reqErr = findIdentityProviderByUUID(api, providerID.(string), token)
 	} else {
@@ -54,21 +54,21 @@ func dataSourceAppgateIdentityProviderRead(d *schema.ResourceData, meta interfac
 	}
 	log.Printf("[DEBUG] Got identity provider: %+v", provider)
 
-	d.SetId(provider.Id)
-	d.Set("identity_provider_name", provider.Name)
-	d.Set("identity_provider_id", provider.Id)
+	d.SetId(provider["id"].(string))
+	d.Set("identity_provider_name", provider["name"].(string))
+	d.Set("identity_provider_id", provider["id"].(string))
 	return nil
 }
 
-func findIdentityProviderByUUID(api *openapi.IdentityProvidersApiService, id string, token string) (*openapi.IdentityProvider, error) {
+func findIdentityProviderByUUID(api *openapi.IdentityProvidersApiService, id string, token string) (map[string]interface{}, error) {
 	provider, _, err := api.IdentityProvidersIdGet(context.Background(), id).Authorization(token).Execute()
 	if err != nil {
 		return nil, err
 	}
-	return &provider, nil
+	return provider, nil
 }
 
-func findIdentityProviderByName(api *openapi.IdentityProvidersApiService, name string, token string) (*openapi.IdentityProvider, error) {
+func findIdentityProviderByName(api *openapi.IdentityProvidersApiService, name string, token string) (map[string]interface{}, error) {
 	request := api.IdentityProvidersGet(context.Background())
 
 	provider, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
@@ -76,7 +76,7 @@ func findIdentityProviderByName(api *openapi.IdentityProvidersApiService, name s
 		return nil, err
 	}
 	for _, s := range provider.GetData() {
-		return &s, nil
+		return s, nil
 	}
 	return nil, fmt.Errorf("Failed to find identity provider %s", name)
 }

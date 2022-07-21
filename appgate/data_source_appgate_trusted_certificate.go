@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -54,9 +54,9 @@ func dataSourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interf
 	}
 	log.Printf("[DEBUG] Got trusted certificate: %+v", trustedCert.Id)
 
-	d.SetId(trustedCert.Id)
-	d.Set("trusted_certificate_name", trustedCert.Name)
-	d.Set("trusted_certificate_id", trustedCert.Id)
+	d.SetId(trustedCert.GetId())
+	d.Set("trusted_certificate_name", trustedCert.GetName())
+	d.Set("trusted_certificate_id", trustedCert.GetId())
 	return nil
 }
 
@@ -66,7 +66,7 @@ func findTrustedCertificateByUUID(api *openapi.TrustedCertificatesApiService, id
 	if err != nil {
 		return nil, err
 	}
-	return &trustedCert, nil
+	return trustedCert, nil
 }
 
 func findTrustedCertificateByName(api *openapi.TrustedCertificatesApiService, name string, token string) (*openapi.TrustedCertificate, error) {

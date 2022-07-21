@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -179,7 +179,7 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Could not create condition %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(condition.Id)
+	d.SetId(condition.GetId())
 
 	return resourceAppgateConditionRead(d, meta)
 }
@@ -202,7 +202,7 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		return fmt.Errorf("Failed to read Condition, %w", err)
 	}
-	d.SetId(remoteCondition.Id)
+	d.SetId(remoteCondition.GetId())
 	d.Set("condition_id", remoteCondition.Id)
 	d.Set("name", remoteCondition.Name)
 	d.Set("notes", remoteCondition.Notes)
@@ -215,14 +215,14 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("repeat_schedules", remoteCondition.RepeatSchedules)
 	if remoteCondition.RemedyMethods != nil {
-		if err = d.Set("remedy_methods", flattenConditionRemedyMethods(*remoteCondition.RemedyMethods)); err != nil {
+		if err = d.Set("remedy_methods", flattenConditionRemedyMethods(remoteCondition.RemedyMethods)); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func flattenConditionRemedyMethods(in []openapi.ConditionAllOfRemedyMethods) []map[string]interface{} {
+func flattenConditionRemedyMethods(in []openapi.RemedyMethod) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -292,7 +292,7 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 
 	req := api.ConditionsIdPut(ctx, d.Id())
 
-	_, _, err = req.Condition(orginalCondition).Authorization(token).Execute()
+	_, _, err = req.Condition(*orginalCondition).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update condition %w", prettyPrintAPIError(err))
 	}
@@ -325,13 +325,13 @@ func resourceAppgateConditionDelete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func readRemedyMethodsFromConfig(methods []interface{}) ([]openapi.ConditionAllOfRemedyMethods, error) {
-	result := make([]openapi.ConditionAllOfRemedyMethods, 0)
+func readRemedyMethodsFromConfig(methods []interface{}) ([]openapi.RemedyMethod, error) {
+	result := make([]openapi.RemedyMethod, 0)
 	for _, method := range methods {
 		if method == nil {
 			continue
 		}
-		r := openapi.ConditionAllOfRemedyMethods{}
+		r := openapi.RemedyMethod{}
 		raw := method.(map[string]interface{})
 		if v, ok := raw["type"]; ok {
 			r.SetType(v.(string))

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -53,9 +53,9 @@ func dataSourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) er
 	}
 	log.Printf("[DEBUG] Got appliance: %+v", appliance)
 
-	d.SetId(appliance.Id)
-	d.Set("appliance_name", appliance.Name)
-	d.Set("appliance_id", appliance.Id)
+	d.SetId(appliance.GetId())
+	d.Set("appliance_name", appliance.GetName())
+	d.Set("appliance_id", appliance.GetId())
 	return nil
 }
 
@@ -65,7 +65,7 @@ func findApplianceByUUID(api *openapi.AppliancesApiService, id string, token str
 	if err != nil {
 		return nil, err
 	}
-	return &appliance, nil
+	return appliance, nil
 }
 
 func findApplianceByName(api *openapi.AppliancesApiService, name string, token string) (*openapi.Appliance, error) {

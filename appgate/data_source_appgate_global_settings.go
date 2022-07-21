@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -115,5 +115,5 @@ func getGlobalSettings(api *openapi.GlobalSettingsApiService, token string) (*op
 	if err != nil {
 		return nil, err
 	}
-	return &globalSettings, nil
+	return globalSettings, nil
 }

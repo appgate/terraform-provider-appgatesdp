@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -335,8 +335,8 @@ func ldapProviderSchema() map[string]*schema.Schema {
 	return s
 }
 
-// readProviderFromConfig reads all the common attribudes for the IdentityProviders.
-func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityProvider, currentVersion *version.Version) (*openapi.IdentityProvider, error) {
+// readProviderFromConfig reads all the common attributes for the IdentityProviders.
+func readProviderFromConfig(d *schema.ResourceData, provider openapi.ConfigurableIdentityProvider, currentVersion *version.Version) (*openapi.ConfigurableIdentityProvider, error) {
 	base, err := readBaseEntityFromConfig(d)
 	if err != nil {
 		return &provider, err
@@ -423,8 +423,8 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	return &provider, nil
 }
 
-func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *version.Version) (openapi.IdentityProviderAllOfOnBoarding2FA, error) {
-	onboarding := openapi.IdentityProviderAllOfOnBoarding2FA{}
+func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *version.Version) (openapi.ConfigurableIdentityProviderAllOfOnBoarding2FA, error) {
+	onboarding := openapi.ConfigurableIdentityProviderAllOfOnBoarding2FA{}
 	for _, r := range input {
 		raw := r.(map[string]interface{})
 		if v, ok := raw["mfa_provider_id"]; ok {
@@ -462,60 +462,61 @@ func readOnBoardingTwoFactorFromConfig(input []interface{}, currentVersion *vers
 	return onboarding, nil
 }
 
-func readIdentityProviderClaimMappingFromConfig(input []interface{}) []map[string]interface{} {
-	claims := make([]map[string]interface{}, 0)
+// func readIdentityProviderClaimMappingFromConfig(input []interface{}) []map[string]interface{} {
+func readIdentityProviderClaimMappingFromConfig(input []interface{}) []openapi.ClaimMappingsInner {
+	claims := make([]openapi.ClaimMappingsInner, 0)
 	for _, raw := range input {
 		claim := raw.(map[string]interface{})
-		c := make(map[string]interface{})
+		c := openapi.NewClaimMappingsInnerWithDefaults()
 		if v, ok := claim["attribute_name"]; ok {
-			c["attributeName"] = v.(string)
+			c.SetAttributeName(v.(string))
 		}
 		if v, ok := claim["claim_name"]; ok {
-			c["claimName"] = v.(string)
+			c.SetClaimName(v.(string))
 		}
 		if v, ok := claim["list"]; ok {
-			c["list"] = v.(bool)
+			c.SetList(v.(bool))
 		}
-		if v, ok := claim["encrypted"]; ok {
-			c["encrypt"] = v.(bool)
+		if v, ok := claim["encrypt"]; ok {
+			c.SetEncrypt(v.(bool))
 		}
-		claims = append(claims, c)
+		claims = append(claims, *c)
 	}
 	return claims
 }
 
-func readIdentityProviderOnDemandClaimMappingFromConfig(input []interface{}) []map[string]interface{} {
-	claims := make([]map[string]interface{}, 0)
+func readIdentityProviderOnDemandClaimMappingFromConfig(input []interface{}) []openapi.OnDemandClaimMappingsInner {
+	claims := make([]openapi.OnDemandClaimMappingsInner, 0)
 	for _, raw := range input {
 		claim := raw.(map[string]interface{})
-		c := make(map[string]interface{})
+		c := openapi.NewOnDemandClaimMappingsInnerWithDefaults()
 		if v, ok := claim["command"]; ok {
-			c["command"] = v.(string)
+			c.SetCommand(v.(string))
 		}
 		if v, ok := claim["claim_name"]; ok {
-			c["claimName"] = v.(string)
+			c.SetClaimName(v.(string))
 		}
 		if v, ok := claim["platform"]; ok {
-			c["platform"] = v.(string)
+			c.SetPlatform(v.(string))
 		}
 		if v, ok := claim["parameters"]; ok {
-			p := make(map[string]interface{})
+			p := openapi.NewOnDemandClaimMappingsInnerParametersWithDefaults()
 			for _, para := range v.([]interface{}) {
 				parameters := para.(map[string]interface{})
 				if v, ok := parameters["name"]; ok && len(v.(string)) > 0 {
-					p["name"] = v.(string)
+					p.SetName(v.(string))
 				}
 				if v, ok := parameters["path"]; ok && len(v.(string)) > 0 {
-					p["path"] = v.(string)
+					p.SetPath(v.(string))
 				}
 				if v, ok := parameters["args"]; ok && len(v.(string)) > 0 {
-					p["args"] = v.(string)
+					p.SetArgs(v.(string))
 				}
-				c["parameters"] = p
+				c.SetParameters(*p)
 			}
 		}
 
-		claims = append(claims, c)
+		claims = append(claims, *c)
 	}
 	return claims
 }
@@ -590,7 +591,7 @@ func flattenIdentityProviderOnDemandClaimsMappning(claims []map[string]interface
 	return out
 }
 
-func flattenIdentityProviderOnboarding2fa(input openapi.IdentityProviderAllOfOnBoarding2FA, currentVersion *version.Version) []interface{} {
+func flattenIdentityProviderOnboarding2fa(input openapi.ConfigurableIdentityProviderAllOfOnBoarding2FA, currentVersion *version.Version) []interface{} {
 	o := make(map[string]interface{})
 	if v, ok := input.GetMfaProviderIdOk(); ok {
 		o["mfa_provider_id"] = v

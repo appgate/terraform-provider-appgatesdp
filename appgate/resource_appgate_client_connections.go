@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -81,7 +81,7 @@ func resourceClientConnectionsRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	api := meta.(*Client).API.ClientConnectionsApi
+	api := meta.(*Client).API.ClientProfilesApi
 	ctx := context.TODO()
 	request := api.ClientConnectionsGet(ctx)
 	clientConnections, _, err := request.Authorization(token).Execute()
@@ -95,7 +95,7 @@ func resourceClientConnectionsRead(d *schema.ResourceData, meta interface{}) err
 	}
 	if profiles, o := clientConnections.GetProfilesOk(); o {
 		flattenProfiles := make([]map[string]interface{}, 0)
-		for _, p := range *profiles {
+		for _, p := range profiles {
 			profile := make(map[string]interface{})
 			if v, o := p.GetNameOk(); o {
 				profile["name"] = *v
@@ -122,7 +122,7 @@ func resourceClientConnectionsUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	api := meta.(*Client).API.ClientConnectionsApi
+	api := meta.(*Client).API.ClientProfilesApi
 	ctx := context.TODO()
 	request := api.ClientConnectionsGet(ctx)
 	originalclientConnections, _, err := request.Authorization(token).Execute()
@@ -146,7 +146,7 @@ func resourceClientConnectionsUpdate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] Updating Client Connections %+v", originalclientConnections)
 	req := api.ClientConnectionsPut(ctx)
-	_, _, err = req.ClientConnections(originalclientConnections).Authorization(token).Execute()
+	_, _, err = req.ClientConnections(*originalclientConnections).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Client Connections %w", prettyPrintAPIError(err))
 	}
@@ -154,12 +154,11 @@ func resourceClientConnectionsUpdate(d *schema.ResourceData, meta interface{}) e
 	return resourceClientConnectionsRead(d, meta)
 }
 
-func readClientConnectionProfilesFromConfig(input []interface{}) []openapi.ClientConnectionsProfiles {
-	result := make([]openapi.ClientConnectionsProfiles, 0)
+func readClientConnectionProfilesFromConfig(input []interface{}) []openapi.ClientConnectionsProfilesInner {
+	result := make([]openapi.ClientConnectionsProfilesInner, 0)
 	for _, p := range input {
 		rawProfile := p.(map[string]interface{})
-		log.Printf("[DEBUG] Updating RAW PROFILE %+v", rawProfile)
-		profile := openapi.ClientConnectionsProfiles{}
+		profile := openapi.ClientConnectionsProfilesInner{}
 		if v, o := rawProfile["name"]; o {
 			profile.SetName(v.(string))
 		}
@@ -169,7 +168,6 @@ func readClientConnectionProfilesFromConfig(input []interface{}) []openapi.Clien
 		if v, o := rawProfile["identity_provider_name"]; o {
 			profile.SetIdentityProviderName(v.(string))
 		}
-		log.Printf("[DEBUG] Updating SINGLE PROFILE %+v", profile)
 		result = append(result, profile)
 	}
 	return result
@@ -181,7 +179,7 @@ func resourceClientConnectionsDelete(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	api := meta.(*Client).API.ClientConnectionsApi
+	api := meta.(*Client).API.ClientProfilesApi
 
 	if _, err := api.ClientConnectionsDelete(context.Background()).Authorization(token).Execute(); err != nil {
 		return fmt.Errorf("Could reset Client Connections %w", prettyPrintAPIError(err))

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -68,8 +68,8 @@ func dataSourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error
 		return reqErr
 	}
 
-	d.SetId(ippool.Id)
-	d.Set("ip_pool_name", ippool.Name)
+	d.SetId(ippool.GetId())
+	d.Set("ip_pool_name", ippool.GetName())
 	d.Set("lease_time_days", ippool.GetLeaseTimeDays())
 	d.Set("total", ippool.GetTotal().String())
 	d.Set("currently_used", strconv.FormatInt(ippool.GetCurrentlyUsed(), 10))
@@ -83,7 +83,7 @@ func findIPPoolByUUID(api *openapi.IPPoolsApiService, id string, token string) (
 	if err != nil {
 		return nil, err
 	}
-	return &ippool, nil
+	return ippool, nil
 }
 
 func findIPPoolByName(api *openapi.IPPoolsApiService, name string, token string) (*openapi.IpPool, error) {

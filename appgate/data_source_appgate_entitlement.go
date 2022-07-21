@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -53,9 +53,9 @@ func dataSourceAppgateEntitlementRead(ctx context.Context, d *schema.ResourceDat
 	if reqErr != nil {
 		return diag.FromErr(reqErr)
 	}
-	d.SetId(entitlement.Id)
-	d.Set("entitlement_name", entitlement.Name)
-	d.Set("entitlement_id", entitlement.Id)
+	d.SetId(entitlement.GetId())
+	d.Set("entitlement_name", entitlement.GetName())
+	d.Set("entitlement_id", entitlement.GetId())
 
 	return diags
 }
@@ -65,7 +65,7 @@ func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiServ
 	if err != nil {
 		return nil, err
 	}
-	return &entitlement, nil
+	return entitlement, nil
 }
 
 func findEntitlementByName(ctx context.Context, api *openapi.EntitlementsApiService, name, token string) (*openapi.Entitlement, error) {

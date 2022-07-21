@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -83,8 +83,8 @@ func resourceAppgateCriteriaScriptCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Could not create Criteria script %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(criteraScript.Id)
-	d.Set("criteria_script_id", criteraScript.Id)
+	d.SetId(criteraScript.GetId())
+	d.Set("criteria_script_id", criteraScript.GetId())
 
 	return resourceAppgateCriteriaScriptRead(d, meta)
 }
@@ -106,12 +106,12 @@ func resourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{})
 		}
 		return fmt.Errorf("Failed to read Criteria script, %w", err)
 	}
-	d.SetId(criteraScript.Id)
-	d.Set("criteria_script_id", criteraScript.Id)
-	d.Set("name", criteraScript.Name)
-	d.Set("notes", criteraScript.Notes)
-	d.Set("tags", criteraScript.Tags)
-	d.Set("expression", criteraScript.Expression)
+	d.SetId(criteraScript.GetId())
+	d.Set("criteria_script_id", criteraScript.GetId())
+	d.Set("name", criteraScript.GetName())
+	d.Set("notes", criteraScript.GetNotes())
+	d.Set("tags", criteraScript.GetTags())
+	d.Set("expression", criteraScript.GetExpression())
 
 	return nil
 }
@@ -148,7 +148,7 @@ func resourceAppgateCriteriaScriptUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	req := api.CriteriaScriptsIdPut(ctx, d.Id())
-	req = req.CriteriaScript(originalCriteriaScript)
+	req = req.CriteriaScript(*originalCriteriaScript)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Criteria script %w", prettyPrintAPIError(err))

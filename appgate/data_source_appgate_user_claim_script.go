@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -51,8 +51,8 @@ func dataSourceAppgateUserClaimScriptRead(d *schema.ResourceData, meta interface
 		return reqErr
 	}
 
-	d.SetId(userClaimScript.Id)
-	d.Set("user_claim_script_name", userClaimScript.Name)
+	d.SetId(userClaimScript.GetId())
+	d.Set("user_claim_script_name", userClaimScript.GetName())
 
 	return nil
 }
@@ -62,7 +62,7 @@ func findUserClaimScriptByUUID(api *openapi.UserClaimScriptsApiService, id strin
 	if err != nil {
 		return nil, err
 	}
-	return &userClaimScript, nil
+	return userClaimScript, nil
 }
 
 func findUserClaimScriptByName(api *openapi.UserClaimScriptsApiService, name string, token string) (*openapi.UserScript, error) {

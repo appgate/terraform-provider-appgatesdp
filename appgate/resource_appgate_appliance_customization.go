@@ -12,7 +12,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -138,8 +138,8 @@ func resourceAppgateApplianceCustomizationCreate(d *schema.ResourceData, meta in
 		return fmt.Errorf("Could not create Appliance customization %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(customization.Id)
-	d.Set("appliance_customization_id", customization.Id)
+	d.SetId(customization.GetId())
+	d.Set("appliance_customization_id", customization.GetId())
 
 	return resourceAppgateApplianceCustomizationRead(d, meta)
 }
@@ -161,8 +161,8 @@ func resourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta inte
 		}
 		return fmt.Errorf("Failed to read Appliance customization, %w", err)
 	}
-	d.SetId(customization.Id)
-	d.Set("appliance_customization_id", customization.Id)
+	d.SetId(customization.GetId())
+	d.Set("appliance_customization_id", customization.GetId())
 	if err := d.Set("name", customization.GetName()); err != nil {
 		return fmt.Errorf("Error setting name %w", err)
 	}
@@ -233,7 +233,7 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 	}
 
 	req := api.ApplianceCustomizationsIdPut(ctx, d.Id())
-	req = req.ApplianceCustomization(originalApplianceCustomization)
+	req = req.ApplianceCustomization(*originalApplianceCustomization)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Appliance customization %w", prettyPrintAPIError(err))

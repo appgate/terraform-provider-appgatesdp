@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -108,8 +108,8 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Could not create Device script %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(deviceScript.Id)
-	d.Set("device_script_id", deviceScript.Id)
+	d.SetId(deviceScript.GetId())
+	d.Set("device_script_id", deviceScript.GetId())
 
 	return resourceAppgateDeviceScriptRead(d, meta)
 }
@@ -131,11 +131,11 @@ func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return fmt.Errorf("Failed to read Device script, %w", err)
 	}
-	d.SetId(deviceScript.Id)
-	d.Set("device_script_id", deviceScript.Id)
-	d.Set("name", deviceScript.Name)
-	d.Set("notes", deviceScript.Notes)
-	d.Set("tags", deviceScript.Tags)
+	d.SetId(deviceScript.GetId())
+	d.Set("device_script_id", deviceScript.GetId())
+	d.Set("name", deviceScript.GetName())
+	d.Set("notes", deviceScript.GetNotes())
+	d.Set("tags", deviceScript.GetTags())
 	d.Set("checksum_sha256", deviceScript.GetChecksumSha256())
 
 	return nil
@@ -179,7 +179,7 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	req := api.DeviceScriptsIdPut(ctx, d.Id())
-	req = req.DeviceScript(originalDeviceScript)
+	req = req.DeviceScript(*originalDeviceScript)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Device script %w", prettyPrintAPIError(err))

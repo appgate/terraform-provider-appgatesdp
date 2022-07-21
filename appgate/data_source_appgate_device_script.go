@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -51,8 +51,8 @@ func dataSourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{})
 		return reqErr
 	}
 
-	d.SetId(deviceScript.Id)
-	d.Set("device_script_name", deviceScript.Name)
+	d.SetId(deviceScript.GetId())
+	d.Set("device_script_name", deviceScript.GetName())
 
 	return nil
 }
@@ -62,7 +62,7 @@ func findDeviceScriptByUUID(api *openapi.DeviceClaimScriptsApiService, id string
 	if err != nil {
 		return nil, err
 	}
-	return &deviceScript, nil
+	return deviceScript, nil
 }
 
 func findDeviceScriptByName(api *openapi.DeviceClaimScriptsApiService, name string, token string) (*openapi.DeviceScript, error) {

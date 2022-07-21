@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -51,8 +51,8 @@ func dataSourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interfa
 		return reqErr
 	}
 
-	d.SetId(entitlementScript.Id)
-	d.Set("name", entitlementScript.Name)
+	d.SetId(entitlementScript.GetId())
+	d.Set("name", entitlementScript.GetName())
 
 	return nil
 }
@@ -62,7 +62,7 @@ func findEntitlementScriptByUUID(api *openapi.EntitlementScriptsApiService, id s
 	if err != nil {
 		return nil, err
 	}
-	return &entitlementScript, nil
+	return entitlementScript, nil
 }
 
 func findEntitlementScriptByName(api *openapi.EntitlementScriptsApiService, name string, token string) (*openapi.EntitlementScript, error) {

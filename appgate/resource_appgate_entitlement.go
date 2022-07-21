@@ -9,7 +9,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -314,8 +314,8 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(fmt.Errorf("Could not create entitlement %w", prettyPrintAPIError(err)))
 	}
 
-	d.SetId(ent.Id)
-	d.Set("entitlement_id", ent.Id)
+	d.SetId(ent.GetId())
+	d.Set("entitlement_id", ent.GetId())
 	resourceAppgateEntitlementRuleRead(ctx, d, meta)
 
 	return diags
@@ -342,17 +342,17 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 		}
 		return diag.FromErr(fmt.Errorf("Failed to read Entitlement, %w", err))
 	}
-	d.SetId(entitlement.Id)
-	d.Set("entitlement_id", entitlement.Id)
-	d.Set("name", entitlement.Name)
-	d.Set("disabled", entitlement.Disabled)
-	d.Set("notes", entitlement.Notes)
-	d.Set("conditions", entitlement.Conditions)
-	d.Set("condition_logic", entitlement.ConditionLogic)
-	d.Set("tags", entitlement.Tags)
-	d.Set("site", entitlement.Site)
+	d.SetId(entitlement.GetId())
+	d.Set("entitlement_id", entitlement.GetId())
+	d.Set("name", entitlement.GetName())
+	d.Set("disabled", entitlement.GetDisabled())
+	d.Set("notes", entitlement.GetNotes())
+	d.Set("conditions", entitlement.GetConditions())
+	d.Set("condition_logic", entitlement.GetConditionLogic())
+	d.Set("tags", entitlement.GetTags())
+	d.Set("site", entitlement.GetSite())
 	if entitlement.AppShortcuts != nil {
-		if err = d.Set("app_shortcuts", flattenEntitlementAppShortcut(*entitlement.AppShortcuts)); err != nil {
+		if err = d.Set("app_shortcuts", flattenEntitlementAppShortcut(entitlement.GetAppShortcuts())); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -363,7 +363,7 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 	}
 
 	if v, ok := entitlement.GetAppShortcutScriptsOk(); ok {
-		d.Set("app_shortcut_scripts", *v)
+		d.Set("app_shortcut_scripts", v)
 	}
 
 	return diags
@@ -397,10 +397,10 @@ func flattenEntitlementActions(actions []openapi.EntitlementAllOfActions, d *sch
 		action["hosts"] = schema.NewSet(schema.HashString, convertStringArrToInterface(act.GetHosts()))
 		action["ports"] = schema.NewSet(schema.HashString, convertStringArrToInterface(act.GetPorts()))
 		types := act.GetTypes()
-		if types != nil && inArray(act.Subtype, icmpTypes()) {
+		if types != nil && inArray(act.GetSubtype(), icmpTypes()) {
 			action["types"] = convertStringArrToInterface(act.GetTypes())
 		}
-		if act.Monitor != nil && act.Subtype == "tcp_up" {
+		if act.Monitor != nil && act.GetSubtype() == "tcp_up" {
 			action["monitor"] = flattenEntitlementActionMonitor(act.GetMonitor())
 			dataActions := d.Get("actions")
 			hash := resourceAppgateEntitlementActionHash(action)
@@ -508,7 +508,7 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	req := api.EntitlementsIdPut(ctx, d.Id())
-	req = req.Entitlement(orginalEntitlment)
+	req = req.Entitlement(*orginalEntitlment)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Entitlement %w", prettyPrintAPIError(err)))

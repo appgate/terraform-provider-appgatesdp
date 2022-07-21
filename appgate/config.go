@@ -14,7 +14,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 )
@@ -248,7 +248,7 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 		}
 		if err != nil {
 			if err, ok := err.(openapi.GenericOpenAPIError); ok {
-				if err, ok := err.Model().(openapi.InlineResponse406); ok {
+				if err, ok := err.Model().(openapi.LoginPost406Response); ok {
 					return &backoff.PermanentError{
 						Err: fmt.Errorf(
 							"You are using the wrong client_version (peer api version) for you appgate sdp collective, you are using %d; min: %d max: %d",
@@ -262,7 +262,7 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 			log.Printf("[DEBUG] Login failed permanently, got HTTP %d", response.StatusCode)
 			return &backoff.PermanentError{Err: err}
 		}
-		loginResponse = &login
+		loginResponse = login
 		return nil
 	}, &exponentialBackOff)
 	if err != nil {
