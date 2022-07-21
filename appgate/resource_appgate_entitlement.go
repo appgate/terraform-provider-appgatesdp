@@ -528,7 +528,7 @@ func resourceAppgateEntitlementRuleDelete(ctx context.Context, d *schema.Resourc
 	}
 	api := meta.(*Client).API.EntitlementsApi
 
-	if _, err := api.EntitlementsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.EntitlementsIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete Entitlement %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")
