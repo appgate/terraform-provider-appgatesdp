@@ -59,6 +59,10 @@ github.com/appgate/sdp-api-client-go v1.0.6 h1:rhOi6Ezo+BYVIvWM/hVbrtGsI9reY0DNg
 github.com/appgate/sdp-api-client-go v1.0.6/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
 github.com/appgate/sdp-api-client-go v1.0.7-0.20220719063622-50a0e37bed13 h1:7YKhvxmuRA/oktwgdmvchzTnHY6Jnz3MOlwx1FJ1tGY=
 github.com/appgate/sdp-api-client-go v1.0.7-0.20220719063622-50a0e37bed13/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220722132243-5edfd37eff08 h1:cTDSCgOYFH8gEQOnizeHlf42p3w6eg2Hf8Ky7Uz2QVs=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220722132243-5edfd37eff08/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220722133533-f90ca0d5d7d8 h1:CpqFfyL3cW255bzSwgOl2WSqnW0kK5ponbR/BCbL33g=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220722133533-f90ca0d5d7d8/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
 github.com/cenkalti/backoff/v4 v4.1.3 h1:cFAlzYUlVYDysBEH2T5hyJZMh3+5+WCBvSnK6Q8UtC4=
