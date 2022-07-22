@@ -63,8 +63,8 @@ func resourceAppgateConnectorProviderRuleCreate(d *schema.ResourceData, meta int
 	return resourceAppgateConnectorProviderRuleUpdate(d, meta)
 }
 
-func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorIdentityProvidersApiService, token string) (*openapi.ConnectorProvider, error) {
-	var connectorIP *openapi.ConnectorProvider
+func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorIdentityProvidersApiService, token string) (*openapi.BaseIdentityProvider, error) {
+	var connectorIP *openapi.BaseIdentityProvider
 	request := api.IdentityProvidersGet(ctx)
 
 	provider, _, err := request.Query(builtinProviderConnector).OrderBy("name").Range_("0-25").Authorization(token).Execute()
