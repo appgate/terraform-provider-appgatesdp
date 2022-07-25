@@ -78,7 +78,7 @@ func tagsSchema() *schema.Schema {
 
 func readBaseEntityFromConfig(d *schema.ResourceData) (*openapi.BaseEntity, error) {
 	base := &openapi.BaseEntity{}
-	base.Id = uuid.New().String()
+	base.SetId(uuid.New().String())
 	if v, ok := d.GetOk("name"); ok {
 		base.SetName(v.(string))
 	}

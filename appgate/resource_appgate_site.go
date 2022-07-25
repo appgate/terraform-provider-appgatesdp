@@ -549,7 +549,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Could not create site %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(site.Id)
+	d.SetId(site.GetId())
 
 	return resourceAppgateSiteRead(d, meta)
 }
@@ -573,15 +573,15 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Failed to read Site, %w", err)
 	}
 
-	d.SetId(site.Id)
-	d.Set("site_id", site.Id)
-	d.Set("name", site.Name)
-	d.Set("description", site.Description)
-	d.Set("notes", site.Notes)
-	d.Set("tags", site.Tags)
+	d.SetId(site.GetId())
+	d.Set("site_id", site.GetId())
+	d.Set("name", site.GetName())
+	d.Set("description", site.GetDescription())
+	d.Set("notes", site.GetNotes())
+	d.Set("tags", site.GetTags())
 	d.Set("network_subnets", site.NetworkSubnets)
 	if site.IpPoolMappings != nil {
-		if err = d.Set("ip_pool_mappings", flattenSiteIPpoolmappning(*site.IpPoolMappings)); err != nil {
+		if err = d.Set("ip_pool_mappings", flattenSiteIPpoolmappning(site.GetIpPoolMappings())); err != nil {
 			return err
 		}
 	}
@@ -671,19 +671,19 @@ func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []
 		}
 		m["route_via"] = []interface{}{routeVia}
 	}
+	// TODO patch Spec
+	// if currentVersion.Equal(Appliance53Version) {
+	// 	if v, ok := in.GetWebProxyEnabledOk(); ok {
+	// 		m["web_proxy_enabled"] = *v
+	// 	}
+	// }
 
-	if currentVersion.Equal(Appliance53Version) {
-		if v, ok := in.GetWebProxyEnabledOk(); ok {
-			m["web_proxy_enabled"] = *v
-		}
-	}
-
-	if v, ok := in.GetWebProxyKeyStoreOk(); ok {
-		m["web_proxy_key_store"] = *v
-	}
-	if v, ok := in.GetWebProxyVerifyUpstreamCertificateOk(); ok {
-		m["web_proxy_verify_upstream_certificate"] = *v
-	}
+	// if v, ok := in.GetWebProxyKeyStoreOk(); ok {
+	// 	m["web_proxy_key_store"] = *v
+	// }
+	// if v, ok := in.GetWebProxyVerifyUpstreamCertificateOk(); ok {
+	// 	m["web_proxy_verify_upstream_certificate"] = *v
+	// }
 	m["ip_access_log_interval_seconds"] = in.IpAccessLogIntervalSeconds
 
 	return []interface{}{m}
@@ -696,22 +696,22 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 	}
 
 	if v, ok := in.GetDnsResolversOk(); ok {
-		m["dns_resolvers"] = flattenSiteDNSResolver(*v)
+		m["dns_resolvers"] = flattenSiteDNSResolver(v)
 	}
 	if v, ok := in.GetAwsResolversOk(); ok {
 		l := getNSLocalChanges(local, "aws_resolvers")
-		m["aws_resolvers"] = flattenSiteAWSResolver(*v, l)
+		m["aws_resolvers"] = flattenSiteAWSResolver(v, l)
 	}
 	if v, ok := in.GetAzureResolversOk(); ok {
 		l := getNSLocalChanges(local, "azure_resolvers")
-		m["azure_resolvers"] = flattenSiteAzureResolver(currentVersion, *v, l)
+		m["azure_resolvers"] = flattenSiteAzureResolver(currentVersion, v, l)
 	}
 	if v, ok := in.GetEsxResolversOk(); ok {
 		l := getNSLocalChanges(local, "esx_resolvers")
-		m["esx_resolvers"] = flattenSiteESXResolvers(*v, l)
+		m["esx_resolvers"] = flattenSiteESXResolvers(v, l)
 	}
 	if v, ok := in.GetGcpResolversOk(); ok {
-		m["gcp_resolvers"] = flattenSiteGCPResolvers(*v)
+		m["gcp_resolvers"] = flattenSiteGCPResolvers(v)
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
 		if v, ok := in.GetDnsForwardingOk(); ok {
@@ -803,7 +803,7 @@ func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers, lo
 		m["https_proxy"] = v.GetHttpsProxy()
 		m["resolve_with_master_credentials"] = v.GetResolveWithMasterCredentials()
 		if vv, o := v.GetAssumedRolesOk(); o != false {
-			m["assumed_roles"] = flattenSiteAwsAssumedRoles(*vv)
+			m["assumed_roles"] = flattenSiteAwsAssumedRoles(vv)
 		}
 		out[i] = m
 	}
@@ -937,7 +937,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	putRequest := api.SitesIdPut(context.Background(), d.Id())
-	_, _, err = putRequest.Site(orginalSite).Authorization(token).Execute()
+	_, _, err = putRequest.Site(*orginalSite).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update site %w", prettyPrintAPIError(err))
 	}
@@ -1053,18 +1053,19 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 			result.SetRouteVia(routeVia)
 		}
 
-		if v, ok := raw["web_proxy_key_store"]; ok && len(v.(string)) > 0 {
-			result.SetWebProxyKeyStore(v.(string))
-		}
-		// webProxyVerifyUpstreamCertificate is only present in 5.3
-		if currentVersion.Equal(Appliance53Version) {
-			if v, ok := raw["web_proxy_enabled"]; ok {
-				result.SetWebProxyEnabled(v.(bool))
-			}
-			if v, ok := raw["web_proxy_verify_upstream_certificate"]; ok {
-				result.SetWebProxyVerifyUpstreamCertificate(v.(bool))
-			}
-		}
+		// TODO Patch Spec
+		// if v, ok := raw["web_proxy_key_store"]; ok && len(v.(string)) > 0 {
+		// 	result.SetWebProxyKeyStore(v.(string))
+		// }
+		// // webProxyVerifyUpstreamCertificate is only present in 5.3
+		// if currentVersion.Equal(Appliance53Version) {
+		// 	if v, ok := raw["web_proxy_enabled"]; ok {
+		// 		result.SetWebProxyEnabled(v.(bool))
+		// 	}
+		// 	if v, ok := raw["web_proxy_verify_upstream_certificate"]; ok {
+		// 		result.SetWebProxyVerifyUpstreamCertificate(v.(bool))
+		// 	}
+		// }
 
 		if v, ok := raw["ip_access_log_interval_seconds"]; ok {
 			result.SetIpAccessLogIntervalSeconds(float32(v.(int)))
@@ -1368,13 +1369,14 @@ func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (op
 			}
 			result.SetDnsServers(servers)
 		}
-		if v, ok := raw["allow_destinations"]; ok {
-			destinations, err := readAllowDestinationsFromConfig(v.(*schema.Set).List())
-			if err != nil {
-				return result, err
-			}
-			result.SetAllowDestinations(destinations)
-		}
+		// TODO Update allow_destinations
+		// if v, ok := raw["allow_destinations"]; ok {
+		// 	destinations, err := readAllowDestinationsFromConfig(v.(*schema.Set).List())
+		// 	if err != nil {
+		// 		return result, err
+		// 	}
+		// 	result.SetAllowDestinations(destinations)
+		// }
 	}
 	return result, nil
 }

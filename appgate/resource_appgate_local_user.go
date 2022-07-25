@@ -121,8 +121,8 @@ func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Could not create Local user %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(localUser.Id)
-	d.Set("local_user_id", localUser.Id)
+	d.SetId(localUser.GetId())
+	d.Set("local_user_id", localUser.GetId())
 
 	return resourceAppgateLocalUserRead(d, meta)
 }
@@ -149,8 +149,8 @@ func resourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) erro
 		d.SetId("")
 		return fmt.Errorf("Failed to read Local user, %w", err)
 	}
-	d.SetId(localUser.Id)
-	d.Set("local_user_id", localUser.Id)
+	d.SetId(localUser.GetId())
+	d.Set("local_user_id", localUser.GetId())
 	d.Set("name", localUser.GetName())
 	d.Set("notes", localUser.GetNotes())
 	d.Set("tags", localUser.GetTags())

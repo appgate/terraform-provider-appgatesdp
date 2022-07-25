@@ -68,8 +68,8 @@ func resourceAppgateTrustedCertificateCreate(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Could not create trusted certificate %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(trustedCertificate.Id)
-	d.Set("trusted_certificate_id", trustedCertificate.Id)
+	d.SetId(trustedCertificate.GetId())
+	d.Set("trusted_certificate_id", trustedCertificate.GetId())
 
 	return resourceAppgateTrustedCertificateRead(d, meta)
 }
@@ -91,8 +91,8 @@ func resourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interfac
 		}
 		return fmt.Errorf("Failed to read trusted certificate, %w", err)
 	}
-	d.SetId(trustedCertificate.Id)
-	d.Set("trusted_certificate_id", trustedCertificate.Id)
+	d.SetId(trustedCertificate.GetId())
+	d.Set("trusted_certificate_id", trustedCertificate.GetId())
 	d.Set("name", trustedCertificate.GetName())
 	d.Set("notes", trustedCertificate.GetNotes())
 	d.Set("tags", trustedCertificate.GetTags())
@@ -132,7 +132,7 @@ func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interf
 	}
 
 	req := api.TrustedCertificatesIdPut(ctx, d.Id())
-	req = req.TrustedCertificate(originalTrustedCertificate)
+	req = req.TrustedCertificate(*originalTrustedCertificate)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update trusted certificate %w", prettyPrintAPIError(err))

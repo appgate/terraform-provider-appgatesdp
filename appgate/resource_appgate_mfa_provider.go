@@ -199,8 +199,8 @@ func resourceAppgateMfaProviderCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Could not create MFA provider %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(mfaProvider.Id)
-	d.Set("mfa_provider_id", mfaProvider.Id)
+	d.SetId(mfaProvider.GetId())
+	d.Set("mfa_provider_id", mfaProvider.GetId())
 
 	return resourceAppgateMfaProviderRead(d, meta)
 }
@@ -222,8 +222,8 @@ func resourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) er
 		}
 		return fmt.Errorf("Failed to read MFA provider, %w", err)
 	}
-	d.SetId(mfaProvider.Id)
-	d.Set("mfa_provider_id", mfaProvider.Id)
+	d.SetId(mfaProvider.GetId())
+	d.Set("mfa_provider_id", mfaProvider.GetId())
 	d.Set("name", mfaProvider.GetName())
 	d.Set("notes", mfaProvider.GetNotes())
 	d.Set("tags", mfaProvider.GetTags())
@@ -299,7 +299,7 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 		originalMfaProvider.SetChallengeSharedSecret(d.Get("challenge_shared_secret").(string))
 	}
 	req := api.MfaProvidersIdPut(ctx, d.Id())
-	req = req.MfaProvider(originalMfaProvider)
+	req = req.MfaProvider(*originalMfaProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update MFA provider %w", prettyPrintAPIError(err))

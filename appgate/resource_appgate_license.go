@@ -56,7 +56,7 @@ func resourceAppgateLicenseCreate(d *schema.ResourceData, meta interface{}) erro
 	return resourceAppgateLicenseRead(d, meta)
 }
 
-func getLicenseIdentifier(license openapi.LicenseDetails) string {
+func getLicenseIdentifier(license *openapi.LicenseDetails) string {
 	return license.GetRequestCode()
 }
 

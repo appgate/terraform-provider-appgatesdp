@@ -405,7 +405,7 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Could not create policy %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(policy.Id)
+	d.SetId(policy.GetId())
 	return resourceAppgatePolicyRead(d, meta)
 }
 
@@ -531,7 +531,7 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		return fmt.Errorf("Failed to read policy, %w", err)
 	}
-	d.Set("policy_id", policy.Id)
+	d.Set("policy_id", policy.GetId())
 	d.Set("name", policy.GetName())
 	d.Set("notes", policy.GetNotes())
 	d.Set("disabled", policy.GetDisabled())
@@ -648,7 +648,7 @@ func flattenPolicyDnsSettings(dnsSettings []openapi.PolicyAllOfDnsSettings) (*sc
 			m["domain"] = *v
 		}
 		if v, ok := dnsSetting.GetServersOk(); ok {
-			m["servers"] = schema.NewSet(schema.HashString, convertStringArrToInterface(*v))
+			m["servers"] = schema.NewSet(schema.HashString, convertStringArrToInterface(v))
 		}
 		out = append(out, m)
 	}
@@ -783,7 +783,7 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 	req := api.PoliciesIdPut(ctx, d.Id())
 
-	_, _, err = req.Policy(orginalPolicy).Authorization(token).Execute()
+	_, _, err = req.Policy(*orginalPolicy).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update policy %w", prettyPrintAPIError(err))
 	}

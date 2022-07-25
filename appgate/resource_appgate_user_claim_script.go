@@ -73,8 +73,8 @@ func resourceAppgateUserClaimScriptCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(fmt.Errorf("Could not create User Claim Script %w", prettyPrintAPIError(err)))
 	}
 
-	d.SetId(UserClaimScript.Id)
-	d.Set("user_claim_script_id", UserClaimScript.Id)
+	d.SetId(UserClaimScript.GetId())
+	d.Set("user_claim_script_id", UserClaimScript.GetId())
 
 	return resourceAppgateUserClaimScriptRead(ctx, d, meta)
 }
@@ -95,7 +95,7 @@ func resourceAppgateUserClaimScriptRead(ctx context.Context, d *schema.ResourceD
 		}
 		return diag.FromErr(fmt.Errorf("Failed to read User claim script, %w", err))
 	}
-	d.SetId(UserClaimScript.Id)
+	d.SetId(UserClaimScript.GetId())
 	d.Set("user_claim_script_id", UserClaimScript.GetId())
 	d.Set("name", UserClaimScript.GetName())
 	d.Set("notes", UserClaimScript.GetNotes())
@@ -136,7 +136,7 @@ func resourceAppgateUserClaimScriptUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	req := api.UserScriptsIdPut(ctx, d.Id())
-	req = req.UserScript(originalUserClaimScript)
+	req = req.UserScript(*originalUserClaimScript)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update User Claim Script %w", prettyPrintAPIError(err)))
