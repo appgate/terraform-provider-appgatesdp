@@ -63,6 +63,16 @@ github.com/appgate/sdp-api-client-go v1.0.7-0.20220722132243-5edfd37eff08 h1:cTD
 github.com/appgate/sdp-api-client-go v1.0.7-0.20220722132243-5edfd37eff08/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
 github.com/appgate/sdp-api-client-go v1.0.7-0.20220722133533-f90ca0d5d7d8 h1:CpqFfyL3cW255bzSwgOl2WSqnW0kK5ponbR/BCbL33g=
 github.com/appgate/sdp-api-client-go v1.0.7-0.20220722133533-f90ca0d5d7d8/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725105411-034395717e8d h1:oLp+Nd6VyWmX+CcTiNEvw8EUIRheIP4catXhp0/bxzQ=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725105411-034395717e8d/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725122751-7fd1d686bfaf h1:KqMPh/seuVIIqsqGpG48pPjiAAF8tAcS0GVqsM2KnPs=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725122751-7fd1d686bfaf/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725123641-b0c4932e5972 h1:epW8diDEIHfR/X1tpPDavOGEnzAGKxoC2nBkpWbtvMI=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725123641-b0c4932e5972/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725123944-aa99b1a82030 h1:vRHXsiyr2Yh5lfHe5gGbHNvV+Ew4sSX1AJ27rEtTx/A=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725123944-aa99b1a82030/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725145808-08dcc70fd7b4 h1:+Yyv7+DlIn7B6oOOg+A/gMjnvJ6m3BVTbRn78SMrhTY=
+github.com/appgate/sdp-api-client-go v1.0.7-0.20220725145808-08dcc70fd7b4/go.mod h1:aPyFeh0fein8VSxFPZpEkeMi8m9dbN+I1RVO4QrONyk=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
 github.com/cenkalti/backoff/v4 v4.1.3 h1:cFAlzYUlVYDysBEH2T5hyJZMh3+5+WCBvSnK6Q8UtC4=

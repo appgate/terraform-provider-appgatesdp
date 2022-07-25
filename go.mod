@@ -3,7 +3,7 @@ module github.com/appgate/terraform-provider-appgatesdp
 go 1.13
 
 require (
-	github.com/appgate/sdp-api-client-go v1.0.7-0.20220722133533-f90ca0d5d7d8
+	github.com/appgate/sdp-api-client-go v1.0.7-0.20220725145808-08dcc70fd7b4
 	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/denisbrodbeck/machineid v1.0.1
 	github.com/google/uuid v1.3.0
