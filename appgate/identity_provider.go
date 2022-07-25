@@ -536,55 +536,54 @@ func identityProviderDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func flattenIdentityProviderClaimsMappning(claims []map[string]interface{}) []map[string]interface{} {
+func flattenIdentityProviderClaimsMappning(claims []openapi.ClaimMappingsInner) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(claims), len(claims))
 	for i, claim := range claims {
 		row := make(map[string]interface{})
-		if v, ok := claim["attributeName"]; ok && len(v.(string)) > 0 {
-			row["attribute_name"] = v.(string)
+		if v, ok := claim.GetAttributeNameOk(); ok && len(*v) > 0 {
+			row["attribute_name"] = *v
 		}
-		if v, ok := claim["claimName"]; ok && len(v.(string)) > 0 {
-			row["claim_name"] = v.(string)
+		if v, ok := claim.GetClaimNameOk(); ok && len(*v) > 0 {
+			row["claim_name"] = *v
 		}
-		if v, ok := claim["list"]; ok {
-			row["list"] = v.(bool)
+		if v, ok := claim.GetListOk(); ok {
+			row["list"] = v
 		}
-		if v, ok := claim["encrypt"]; ok {
-			row["encrypted"] = v.(bool)
+		if v, ok := claim.GetEncryptOk(); ok {
+			row["encrypted"] = v
 		}
 		out[i] = row
 	}
 	return out
 }
 
-func flattenIdentityProviderOnDemandClaimsMappning(claims []map[string]interface{}) []map[string]interface{} {
+func flattenIdentityProviderOnDemandClaimsMappning(claims []openapi.OnDemandClaimMappingsInner) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(claims), len(claims))
 	for i, claim := range claims {
 		row := make(map[string]interface{})
-		if v, ok := claim["command"]; ok {
-			row["command"] = v.(string)
+		if v, ok := claim.GetCommandOk(); ok {
+			row["command"] = v
 		}
-		if v, ok := claim["claimName"]; ok {
-			row["claim_name"] = v.(string)
+		if v, ok := claim.GetClaimNameOk(); ok {
+			row["claim_name"] = v
 		}
-		if v, ok := claim["parameters"]; ok {
-			raw := v.(map[string]interface{})
+		if v, ok := claim.GetParametersOk(); ok {
 			parameters := make([]map[string]interface{}, 0)
 			parameter := make(map[string]interface{})
-			if v, ok := raw["name"]; ok && len(v.(string)) > 0 {
-				parameter["name"] = v.(string)
+			if v, ok := v.GetNameOk(); ok && len(*v) > 0 {
+				parameter["name"] = v
 			}
-			if v, ok := raw["path"]; ok && len(v.(string)) > 0 {
-				parameter["path"] = v.(string)
+			if v, ok := v.GetPathOk(); ok && len(*v) > 0 {
+				parameter["path"] = v
 			}
-			if v, ok := raw["args"]; ok && len(v.(string)) > 0 {
-				parameter["args"] = v.(string)
+			if v, ok := v.GetArgsOk(); ok && len(*v) > 0 {
+				parameter["args"] = v
 			}
 			parameters = append(parameters, parameter)
 			row["parameters"] = parameters
 		}
-		if v, ok := claim["platform"]; ok {
-			row["platform"] = v.(string)
+		if v, ok := claim.GetPlatformOk(); ok {
+			row["platform"] = v
 		}
 		out[i] = row
 	}

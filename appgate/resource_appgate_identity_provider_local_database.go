@@ -128,12 +128,12 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 	d.Set("dns_search_domains", localDatabase.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", localDatabase.GetBlockLocalDnsRequests())
 	if v, ok := localDatabase.GetClaimMappingsOk(); ok {
-		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(*v)); err != nil {
+		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
 	if v, ok := localDatabase.GetOnDemandClaimMappingsOk(); ok {
-		d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v))
+		d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(v))
 	}
 	// localDatabase attributes
 	d.Set("user_lockout_threshold", localDatabase.GetUserLockoutThreshold())
@@ -239,7 +239,7 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 	}
 
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
-	req = req.IdentityProvider(originalLocalDatabaseProvider)
+	req = req.Body(*originalLocalDatabaseProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderLocalDatabase, prettyPrintAPIError(err))
