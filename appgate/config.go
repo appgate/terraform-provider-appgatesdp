@@ -247,7 +247,7 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 			return fmt.Errorf("Controller got %w", err)
 		}
 		if err != nil {
-			if err, ok := err.(openapi.GenericOpenAPIError); ok {
+			if err, ok := err.(*openapi.GenericOpenAPIError); ok {
 				if err, ok := err.Model().(openapi.LoginPost406Response); ok {
 					return &backoff.PermanentError{
 						Err: fmt.Errorf(

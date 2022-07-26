@@ -78,7 +78,8 @@ func TestLoginInternalServerError(t *testing.T) {
 	if resp != nil && resp.StatusCode != http.StatusInternalServerError {
 		t.Fatalf("Expected HTTP 500, got %v", resp.StatusCode)
 	}
-	oerr, ok := err.(openapi.GenericOpenAPIError)
+
+	oerr, ok := err.(*openapi.GenericOpenAPIError)
 	if !ok {
 		t.Fatalf("Expected GenericOpenAPIError, got %+v", err)
 	}
