@@ -1096,10 +1096,9 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 		args.SetCustomization(v.(string))
 	}
 
-	// TODO: PATCH API
-	// if v, ok := d.GetOk("connect_to_peers_using_client_port_with_spa"); ok {
-	// 	args.SetConnectToPeersUsingClientPortWithSpa(v.(bool))
-	// }
+	if v, ok := d.GetOk("connect_to_peers_using_client_port_with_spa"); ok {
+		args.SetConnectToPeersUsingClientPortWithSpa(v.(bool))
+	}
 
 	if c, ok := d.GetOk("client_interface"); ok {
 		cinterface, err := readClientInterfaceFromConfig(c.([]interface{}))
@@ -1498,10 +1497,10 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("customization", appliance.GetCustomization()); err != nil {
 		return fmt.Errorf("Error setting appliance.customization %w", err)
 	}
-	// TODO: PATCH API connect_to_peers_using_client_port_with_spa
-	// if err := d.Set("connect_to_peers_using_client_port_with_spa", appliance.GetConnectToPeersUsingClientPortWithSpa()); err != nil {
-	// 	return fmt.Errorf("Error setting appliance.connect_to_peers_using_client_port_with_spa %w", err)
-	// }
+
+	if err := d.Set("connect_to_peers_using_client_port_with_spa", appliance.GetConnectToPeersUsingClientPortWithSpa()); err != nil {
+		return fmt.Errorf("Error setting appliance.connect_to_peers_using_client_port_with_spa %w", err)
+	}
 
 	if v, ok := appliance.GetClientInterfaceOk(); ok {
 		ci, err := flattenApplianceClientInterface(*v)
@@ -2201,10 +2200,9 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		originalAppliance.SetCustomization(d.Get("customization").(string))
 	}
 
-	// TODO Patch API connect_to_peers_using_client_port_with_spa
-	// if d.HasChange("connect_to_peers_using_client_port_with_spa") {
-	// 	originalAppliance.SetConnectToPeersUsingClientPortWithSpa(d.Get("connect_to_peers_using_client_port_with_spa").(bool))
-	// }
+	if d.HasChange("connect_to_peers_using_client_port_with_spa") {
+		originalAppliance.SetConnectToPeersUsingClientPortWithSpa(d.Get("connect_to_peers_using_client_port_with_spa").(bool))
+	}
 
 	if d.HasChange("client_interface") {
 		_, v := d.GetChange("client_interface")
