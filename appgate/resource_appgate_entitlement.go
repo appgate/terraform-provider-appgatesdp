@@ -307,9 +307,7 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 		args.SetAppShortcutScripts(scripts)
 	}
 
-	request := api.EntitlementsPost(context.Background())
-	request = request.Entitlement(*args)
-	ent, _, err := request.Authorization(token).Execute()
+	ent, _, err := api.EntitlementsPost(ctx).Entitlement(*args).Authorization(token).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not create entitlement %w", prettyPrintAPIError(err)))
 	}
@@ -357,7 +355,7 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	actions := flattenEntitlementActions(entitlement.Actions, d)
+	actions := flattenEntitlementActions(entitlement.GetActions(), d)
 	if err = d.Set("actions", actions); err != nil {
 		return diag.FromErr(err)
 	}
@@ -392,8 +390,8 @@ func flattenEntitlementActions(actions []openapi.EntitlementAllOfActions, d *sch
 	out := []interface{}{}
 	for _, act := range actions {
 		action := make(map[string]interface{})
-		action["subtype"] = act.Subtype
-		action["action"] = act.Action
+		action["subtype"] = act.GetSubtype()
+		action["action"] = act.GetAction()
 		action["hosts"] = schema.NewSet(schema.HashString, convertStringArrToInterface(act.GetHosts()))
 		action["ports"] = schema.NewSet(schema.HashString, convertStringArrToInterface(act.GetPorts()))
 		types := act.GetTypes()
@@ -425,8 +423,8 @@ func flattenEntitlementActions(actions []openapi.EntitlementAllOfActions, d *sch
 func flattenEntitlementActionMonitor(monitor openapi.EntitlementAllOfMonitor) []interface{} {
 	log.Printf("[DEBUG] flattenEntitlementActionMonitor %+v", monitor)
 	m := make(map[string]interface{})
-	m["enabled"] = *monitor.Enabled
-	m["timeout"] = int(*monitor.Timeout)
+	m["enabled"] = monitor.GetEnabled()
+	m["timeout"] = int(monitor.GetTimeout())
 
 	return []interface{}{m}
 }
