@@ -84,6 +84,9 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	}
 	args := openapi.NewRadiusProviderWithDefaults()
 	// base
+	if currentVersion.LessThan(Appliance55Version) {
+		args.DeviceLimitPerUser = nil
+	}
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())

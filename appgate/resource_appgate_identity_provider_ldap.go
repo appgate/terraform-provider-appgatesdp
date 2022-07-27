@@ -54,6 +54,11 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	}
 
 	args := openapi.NewLdapProviderWithDefaults()
+
+	if currentVersion.LessThan(Appliance55Version) {
+		args.DeviceLimitPerUser = nil
+	}
+
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())
