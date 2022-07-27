@@ -1410,21 +1410,35 @@ func readNtpServersFromConfig(input []interface{}) ([]openapi.ApplianceAllOfNtpS
 	return r, nil
 }
 
-func readAllowSourcesFromConfig(input []openapi.AllowSourcesInner) ([]openapi.AllowSourcesInner, error) {
-	r := make([]openapi.AllowSourcesInner, 0)
+func flattenAllowSources(input []openapi.AllowSourcesInner) ([]map[string]interface{}, error) {
+	r := make([]map[string]interface{}, 0)
 	for _, raw := range input {
-		row := openapi.NewAllowSourcesInnerWithDefaults()
-		// TODO, address can be both list and single string.
+		row := make(map[string]interface{}, 0)
 		if v, ok := raw.GetAddressOk(); ok {
-			row.SetAddress(*v)
+			row["address"] = v
 		}
 		if v, ok := raw.GetNetmaskOk(); ok {
-			row.SetNetmask(*v)
+			row["netmask"] = v
 		}
 		if v, ok := raw.GetNicOk(); ok && *v != "" {
-			row.SetNic(*v)
+			row["nic"] = v
 		}
-		r = append(r, *row)
+		r = append(r, row)
+	}
+	return r, nil
+}
+
+func flattenAllowResources(input []openapi.AllowResourcesInner) ([]map[string]interface{}, error) {
+	r := make([]map[string]interface{}, 0)
+	for _, raw := range input {
+		row := make(map[string]interface{}, 0)
+		if v, ok := raw.GetAddressOk(); ok {
+			row["address"] = v
+		}
+		if v, ok := raw.GetNetmaskOk(); ok {
+			row["netmask"] = v
+		}
+		r = append(r, row)
 	}
 	return r, nil
 }
@@ -1558,7 +1572,11 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		sshServer := make(map[string]interface{})
 		sshServer["enabled"] = v.GetEnabled()
 		sshServer["port"] = v.GetPort()
-		sshServer["allow_sources"] = v.GetAllowSources()
+		as, err := flattenAllowSources(v.GetAllowSources())
+		if err != nil {
+			return err
+		}
+		sshServer["allow_sources"] = as
 		sshServer["password_authentication"] = v.GetPasswordAuthentication()
 
 		if err := d.Set("ssh_server", []interface{}{sshServer}); err != nil {
@@ -1572,7 +1590,11 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		snmpSrv["tcp_port"] = v.GetTcpPort()
 		snmpSrv["udp_port"] = v.GetUdpPort()
 		snmpSrv["snmpd_conf"] = v.GetSnmpdConf()
-		snmpSrv["allow_sources"] = v.GetAllowSources()
+		as, err := flattenAllowSources(v.GetAllowSources())
+		if err != nil {
+			return err
+		}
+		snmpSrv["allow_sources"] = as
 
 		if err := d.Set("snmp_server", []interface{}{snmpSrv}); err != nil {
 			return err
@@ -1583,7 +1605,11 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		healthSrv := make(map[string]interface{})
 		healthSrv["enabled"] = v.GetEnabled()
 		healthSrv["port"] = v.GetPort()
-		healthSrv["allow_sources"] = v.GetAllowSources()
+		as, err := flattenAllowSources(v.GetAllowSources())
+		if err != nil {
+			return err
+		}
+		healthSrv["allow_sources"] = as
 
 		if err := d.Set("healthcheck_server", []interface{}{healthSrv}); err != nil {
 			return err
@@ -1593,7 +1619,11 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		exporter := make(map[string]interface{})
 		exporter["enabled"] = v.GetEnabled()
 		exporter["port"] = v.GetPort()
-		exporter["allow_sources"] = v.GetAllowSources()
+		as, err := flattenAllowSources(v.GetAllowSources())
+		if err != nil {
+			return err
+		}
+		exporter["allow_sources"] = as
 
 		if err := d.Set("prometheus_exporter", []interface{}{exporter}); err != nil {
 			return err
@@ -1602,7 +1632,11 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 
 	if v, ok := appliance.GetPingOk(); ok {
 		ping := make(map[string]interface{})
-		ping["allow_sources"] = v.GetAllowSources()
+		as, err := flattenAllowSources(v.GetAllowSources())
+		if err != nil {
+			return err
+		}
+		ping["allow_sources"] = as
 
 		if err := d.Set("ping", []interface{}{ping}); err != nil {
 			return err
@@ -1911,7 +1945,12 @@ func flatttenApplianceConnector(currentVersion *version.Version, in openapi.Appl
 			c := make(map[string]interface{})
 			c["name"] = client.GetName()
 			c["device_id"] = client.GetDeviceId()
-			c["allow_resources"] = client.GetAllowResources()
+
+			alloweResources, err := flattenAllowResources(client.GetAllowResources())
+			if err != nil {
+				return nil, err
+			}
+			c["allow_resources"] = alloweResources
 			c["snat_to_resources"] = client.GetSnatToResources()
 			if currentVersion.GreaterThanOrEqual(Appliance54Version) {
 				c["dnat_to_resource"] = client.GetDnatToResource()
@@ -1927,7 +1966,7 @@ func flatttenApplianceConnector(currentVersion *version.Version, in openapi.Appl
 			c := make(map[string]interface{})
 			c["name"] = client.GetName()
 			c["device_id"] = client.GetDeviceId()
-			alloweResources, err := readAllowSourcesFromConfig(client.GetAllowResources())
+			alloweResources, err := flattenAllowSources(client.GetAllowResources())
 			if err != nil {
 				return nil, err
 			}
@@ -1957,7 +1996,7 @@ func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) (
 		m["dtls_port"] = *v
 	}
 	if _, ok := in.GetAllowSourcesOk(); ok {
-		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		allowSources, err := flattenAllowSources(in.GetAllowSources())
 		if err != nil {
 			return nil, err
 		}
@@ -1985,7 +2024,7 @@ func flattenAppliancePeerInterface(in openapi.ApplianceAllOfPeerInterface) ([]in
 		m["https_port"] = v
 	}
 	if _, ok := in.GetAllowSourcesOk(); ok {
-		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		allowSources, err := flattenAllowSources(in.GetAllowSources())
 		if err != nil {
 			return nil, err
 		}
@@ -2007,7 +2046,7 @@ func flattenApplianceAdminInterface(in openapi.ApplianceAllOfAdminInterface) ([]
 	}
 
 	if _, ok := in.GetAllowSourcesOk(); ok {
-		allowSources, err := readAllowSourcesFromConfig(in.GetAllowSources())
+		allowSources, err := flattenAllowSources(in.GetAllowSources())
 		if err != nil {
 			return nil, err
 		}
@@ -2148,7 +2187,7 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 			if v, ok := r.GetGatewayOk(); ok {
 				route["gateway"] = *v
 			}
-			if v, ok := r.GetNicOk(); ok {
+			if v, ok := r.GetNicOk(); ok && *v != "" {
 				route["nic"] = *v
 			}
 			routes = append(routes, route)
@@ -2442,18 +2481,13 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 		if v, ok := raw["dtls_port"]; ok {
 			cinterface.SetDtlsPort(int32(v.(int)))
 		}
-		// TODO translate ListToAllowSourcesInner
-		// if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-		// 	as, err := listToMapList(v.([]interface{}))
-		// 	if err != nil {
-		// 		return cinterface, err
-		// 	}
-		// 	allowSources, err := readAllowSourcesFromConfig(as)
-		// 	if err != nil {
-		// 		return cinterface, fmt.Errorf("Failed to resolve network hosts: %w", err)
-		// 	}
-		// 	cinterface.SetAllowSources(allowSources)
-		// }
+		if v := raw["allow_sources"].([]interface{}); len(v) > 0 {
+			allowSources, err := readAllowSources(v)
+			if err != nil {
+				return cinterface, fmt.Errorf("Failed to resolve client_interface.allow_sources: %w", err)
+			}
+			cinterface.SetAllowSources(allowSources)
+		}
 		if v, ok := raw["override_spa_mode"].(string); ok && len(v) > 0 {
 			if v != "Disabled" {
 				cinterface.SetOverrideSpaMode(v)
@@ -2473,18 +2507,13 @@ func readPeerInterfaceFromConfig(pinterfaces []interface{}) (openapi.ApplianceAl
 		if v, ok := raw["https_port"]; ok {
 			pinterf.SetHttpsPort(int32(v.(int)))
 		}
-		// TODO translate ListToAllowSourcesInner
-		// if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-		// 	as, err := listToMapList(v.([]interface{}))
-		// 	if err != nil {
-		// 		return pinterf, err
-		// 	}
-		// 	allowSources, err := readAllowSourcesFromConfig(as)
-		// 	if err != nil {
-		// 		return pinterf, fmt.Errorf("Failed to resolve network hosts: %w", err)
-		// 	}
-		// 	pinterf.SetAllowSources(allowSources)
-		// }
+		if v := raw["allow_sources"].([]interface{}); len(v) > 0 {
+			allowSources, err := readAllowSources(v)
+			if err != nil {
+				return pinterf, fmt.Errorf("Failed to resolve peer_interface.allow_sources: %w", err)
+			}
+			pinterf.SetAllowSources(allowSources)
+		}
 	}
 	return pinterf, nil
 }
@@ -2509,18 +2538,14 @@ func readAdminInterfaceFromConfig(adminInterfaces []interface{}) (openapi.Applia
 			}
 			aInterface.SetHttpsCiphers(ciphers)
 		}
-		// TODO translate ListToAllowSourcesInner
-		// if v := raw["allow_sources"]; len(v.([]interface{})) > 0 {
-		// 	as, err := listToMapList(v.([]interface{}))
-		// 	if err != nil {
-		// 		return aInterface, err
-		// 	}
-		// 	allowSources, err := readAllowSourcesFromConfig(as)
-		// 	if err != nil {
-		// 		return aInterface, fmt.Errorf("Failed to admin interface allowed sources: %w", err)
-		// 	}
-		// 	aInterface.SetAllowSources(allowSources)
-		// }
+
+		if v := raw["allow_sources"].([]interface{}); len(v) > 0 {
+			allowSources, err := readAllowSources(v)
+			if err != nil {
+				return aInterface, fmt.Errorf("Failed to admin interface allowed sources: %w", err)
+			}
+			aInterface.SetAllowSources(allowSources)
+		}
 	}
 	return aInterface, nil
 }
@@ -2597,18 +2622,13 @@ func readSSHServerFromConfig(sshServers []interface{}) (openapi.ApplianceAllOfSs
 		if v, ok := rawServer["password_authentication"]; ok {
 			sshServer.SetPasswordAuthentication(v.(bool))
 		}
-		// TODO translate ListToAllowSourcesInner
-		// if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-		// 	as, err := listToMapList(v.([]interface{}))
-		// 	if err != nil {
-		// 		return sshServer, err
-		// 	}
-		// 	allowSources, err := readAllowSourcesFromConfig(as)
-		// 	if err != nil {
-		// 		return sshServer, fmt.Errorf("Failed to resolve ssh server allowed sources: %w", err)
-		// 	}
-		// 	sshServer.SetAllowSources(allowSources)
-		// }
+		if v := rawServer["allow_sources"].([]interface{}); len(v) > 0 {
+			allowSources, err := readAllowSources(v)
+			if err != nil {
+				return sshServer, err
+			}
+			sshServer.SetAllowSources(allowSources)
+		}
 	}
 	return sshServer, nil
 }
@@ -2634,18 +2654,13 @@ func readSNMPServerFromConfig(snmpServers []interface{}) (openapi.ApplianceAllOf
 			server.SetSnmpdConf(v.(string))
 		}
 
-		// TODO translate ListToAllowSourcesInner
-		// if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-		// 	as, err := listToMapList(v.([]interface{}))
-		// 	if err != nil {
-		// 		return server, err
-		// 	}
-		// 	allowSources, err := readAllowSourcesFromConfig(as)
-		// 	if err != nil {
-		// 		return server, fmt.Errorf("Failed to resolve network hosts: %w", err)
-		// 	}
-		// 	server.SetAllowSources(allowSources)
-		// }
+		if v := rawServer["allow_sources"].([]interface{}); len(v) > 0 {
+			allowSources, err := readAllowSources(v)
+			if err != nil {
+				return server, err
+			}
+			server.SetAllowSources(allowSources)
+		}
 	}
 	return server, nil
 }
@@ -2664,18 +2679,13 @@ func readHealthcheckServerFromConfig(healhCheckServers []interface{}) (openapi.A
 		if v, ok := rawServer["port"]; ok {
 			server.SetPort(int32(v.(int)))
 		}
-		// TODO translate ListToAllowSourcesInner
-		// if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-		// 	as, err := listToMapList(v.([]interface{}))
-		// 	if err != nil {
-		// 		return server, err
-		// 	}
-		// 	allowSources, err := readAllowSourcesFromConfig(as)
-		// 	if err != nil {
-		// 		return server, fmt.Errorf("Failed to resolve network hosts: %w", err)
-		// 	}
-		// 	server.SetAllowSources(allowSources)
-		// }
+		if v := rawServer["allow_sources"].([]interface{}); len(v) > 0 {
+			allowSources, err := readAllowSources(v)
+			if err != nil {
+				return server, err
+			}
+			server.SetAllowSources(allowSources)
+		}
 	}
 	return server, nil
 }
@@ -2777,18 +2787,13 @@ func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.Applianc
 		if v, ok := rawServer["port"]; ok {
 			val.SetPort(int32(v.(int)))
 		}
-		// TODO translate ListToAllowSourcesInner
-		// if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-		// 	as, err := listToMapList(v.([]interface{}))
-		// 	if err != nil {
-		// 		return val, err
-		// 	}
-		// 	allowSources, err := readAllowSourcesFromConfig(as)
-		// 	if err != nil {
-		// 		return val, err
-		// 	}
-		// 	val.SetAllowSources(allowSources)
-		// }
+		if v := rawServer["allow_sources"].([]interface{}); len(v) > 0 {
+			allowSources, err := readAllowSources(v)
+			if err != nil {
+				return val, err
+			}
+			val.SetAllowSources(allowSources)
+		}
 	}
 	return val, nil
 }
@@ -2799,20 +2804,14 @@ func readPingFromConfig(pingers []interface{}) (openapi.ApplianceAllOfPing, erro
 		if srv == nil {
 			continue
 		}
-
-		// rawServer := srv.(map[string]interface{})
-		// TODO translate ListToAllowSourcesInner
-		// if v := rawServer["allow_sources"]; len(v.([]interface{})) > 0 {
-		// 	as, err := listToMapList(v.([]interface{}))
-		// 	if err != nil {
-		// 		return val, err
-		// 	}
-		// 	allowSources, err := readAllowSourcesFromConfig(as)
-		// 	if err != nil {
-		// 		return val, err
-		// 	}
-		// 	val.SetAllowSources(allowSources)
-		// }
+		rawServer := srv.(map[string]interface{})
+		if v := rawServer["allow_sources"].([]interface{}); len(v) > 0 {
+			allowSources, err := readAllowSources(v)
+			if err != nil {
+				return val, err
+			}
+			val.SetAllowSources(allowSources)
+		}
 	}
 	return val, nil
 }
@@ -2979,18 +2978,24 @@ func readApplianceConnectorFromConfig(currentVersion *version.Version, connector
 				if v, ok := r["device_id"]; ok {
 					client.SetDeviceId(v.(string))
 				}
-				// TODO translate ListToAllowSourcesInner
-				// if v := r["allow_resources"]; len(v.([]interface{})) > 0 {
-				// 	as, err := listToMapList(v.([]interface{}))
-				// 	if err != nil {
-				// 		return val, err
-				// 	}
-				// 	sources, err := readAllowSourcesFromConfig(as)
-				// 	if err != nil {
-				// 		return val, err
-				// 	}
-				// 	client.SetAllowResources(sources)
-				// }
+				if v := r["allow_resources"].([]interface{}); len(v) > 0 {
+					allowedSources, err := listToMapList(v)
+					if err != nil {
+						return val, err
+					}
+					sources := make([]openapi.AllowResourcesInner, 0)
+					for _, as := range allowedSources {
+						row := openapi.NewAllowResourcesInnerWithDefaults()
+						if v, ok := as["address"].(string); ok {
+							row.SetAddress(v)
+						}
+						if v, ok := as["netmask"].(int); ok {
+							row.SetNetmask(int32(v))
+						}
+						sources = append(sources, *row)
+					}
+					client.SetAllowResources(sources)
+				}
 				if v, ok := r["snat_to_resources"]; ok {
 					client.SetSnatToResources(v.(bool))
 				}
@@ -3015,18 +3020,26 @@ func readApplianceConnectorFromConfig(currentVersion *version.Version, connector
 				if v, ok := r["device_id"]; ok {
 					client.SetDeviceId(v.(string))
 				}
-				// TODO translate ListToAllowSourcesInner
-				// if v := r["allow_resources"]; len(v.([]interface{})) > 0 {
-				// 	as, err := listToMapList(v.([]interface{}))
-				// 	if err != nil {
-				// 		return val, err
-				// 	}
-				// 	sources, err := readAllowSourcesFromConfig(as)
-				// 	if err != nil {
-				// 		return val, err
-				// 	}
-				// 	client.SetAllowResources(sources)
-				// }
+				if v := r["allow_resources"]; len(v.([]interface{})) > 0 {
+					allowedSources, err := listToMapList(v.([]interface{}))
+					if err != nil {
+						return val, err
+					}
+					sources := make([]openapi.AllowSourcesInner, 0)
+					for _, as := range allowedSources {
+						row := openapi.NewAllowSourcesInnerWithDefaults()
+						if v, ok := as["address"].(string); ok {
+							row.SetAddress(v)
+						}
+						if v, ok := as["netmask"].(int); ok {
+							row.SetNetmask(int32(v))
+						}
+						if v, ok := as["nic"].(string); ok {
+							row.SetNic(v)
+						}
+					}
+					client.SetAllowResources(sources)
+				}
 				if v, ok := r["snat_to_tunnel"]; ok {
 					client.SetSnatToTunnel(v.(bool))
 				}

@@ -94,7 +94,7 @@ func readBaseEntityFromConfig(d *schema.ResourceData) (*openapi.BaseEntity, erro
 // prettyPrintAPIError is used to show a formatted error message
 // from a HTTP 400-503 response from the http client.
 func prettyPrintAPIError(err error) error {
-	if err, ok := err.(openapi.GenericOpenAPIError); ok {
+	if err, ok := err.(*openapi.GenericOpenAPIError); ok {
 		model := err.Model()
 		if err, ok := model.(openapi.Error); ok {
 			return fmt.Errorf("%s - %s", err.GetId(), err.GetMessage())
@@ -131,6 +131,30 @@ func listToMapList(in []interface{}) ([]map[string]interface{}, error) {
 		result = append(result, source)
 	}
 	return result, nil
+}
+
+func readAllowSources(in []interface{}) ([]openapi.AllowSourcesInner, error) {
+	r := make([]openapi.AllowSourcesInner, 0)
+	as, err := listToMapList(in)
+	if err != nil {
+		return r, err
+	}
+
+	for _, source := range as {
+		row := openapi.NewAllowSourcesInnerWithDefaults()
+		if v, ok := source["address"].(string); ok {
+			row.SetAddress(v)
+		}
+		if v, ok := source["netmask"].(int); ok {
+			row.SetNetmask(int32(v))
+		}
+		if v, ok := source["nic"].(string); ok && len(v) > 0 {
+			row.SetNic(v)
+		}
+		r = append(r, *row)
+	}
+
+	return r, nil
 }
 
 func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {
