@@ -1,11 +1,13 @@
 package appgate
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
 
 	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
+	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -141,6 +143,7 @@ func identityProviderClaimsSchema() map[string]*schema.Schema {
 			Type:     schema.TypeSet,
 			Optional: true,
 			Computed: true,
+			Set:      resourceIdentityProviderClaimMappingsHash,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"attribute_name": {
@@ -152,14 +155,16 @@ func identityProviderClaimsSchema() map[string]*schema.Schema {
 						Required: true,
 					},
 					"list": {
-						Type:     schema.TypeBool,
-						Computed: true,
-						Optional: true,
+						Type:             schema.TypeBool,
+						Computed:         true,
+						Optional:         true,
+						DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
 					},
-					"encrypted": {
-						Type:     schema.TypeBool,
-						Computed: true,
-						Optional: true,
+					"encrypt": {
+						Type:             schema.TypeBool,
+						Computed:         true,
+						Optional:         true,
+						DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
 					},
 				},
 			},
@@ -167,6 +172,7 @@ func identityProviderClaimsSchema() map[string]*schema.Schema {
 		"on_demand_claim_mappings": {
 			Type:     schema.TypeSet,
 			Optional: true,
+			Set:      resourceIdentityProviderOnDemandClaimMappingsHash,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					"command": {
@@ -255,6 +261,68 @@ func identityProviderClaimsSchema() map[string]*schema.Schema {
 			},
 		},
 	}
+}
+
+func resourceIdentityProviderClaimMappingsHash(v interface{}) int {
+	raw, ok := v.(map[string]interface{})
+	if !ok {
+		return 0
+	}
+	// modifying raw actually modifies the values passed to the provider.
+	// Use a copy to avoid that.
+	copy := make((map[string]interface{}))
+	for key, value := range raw {
+		copy[key] = value
+	}
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("%s-", copy["attribute_name"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", copy["claim_name"].(string)))
+	buf.WriteString(fmt.Sprintf("%t-", copy["list"].(bool)))
+	buf.WriteString(fmt.Sprintf("%t-", copy["encrypt"].(bool)))
+
+	h := hashcode.String(buf.String())
+
+	return h
+}
+
+func resourceIdentityProviderOnDemandClaimMappingsHash(v interface{}) int {
+	raw := v.(map[string]interface{})
+	// modifying raw actually modifies the values passed to the provider.
+	// Use a copy to avoid that.
+	copy := make((map[string]interface{}))
+	for key, value := range raw {
+		copy[key] = value
+	}
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("%s-", copy["command"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", copy["claim_name"].(string)))
+
+	if v, ok := copy["parameters"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+		phash := func(i interface{}) int {
+			var buf bytes.Buffer
+			m, ok := i.(map[string]interface{})
+
+			if !ok {
+				return 0
+			}
+			if v, ok := m["name"]; ok {
+				buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+			}
+			if v, ok := m["path"]; ok {
+				buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+			}
+			if v, ok := m["args"]; ok {
+				buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+			}
+
+			return hashcode.String(buf.String())
+		}
+		mHash := phash(v[0])
+		buf.WriteString(fmt.Sprintf("%d-", mHash))
+	}
+	buf.WriteString(fmt.Sprintf("%s-", copy["platform"].(string)))
+
+	return hashcode.String(buf.String())
 }
 
 // ldapProviderSchema return the default base schema for
@@ -467,20 +535,16 @@ func readIdentityProviderClaimMappingFromConfig(input []interface{}) []openapi.C
 	claims := make([]openapi.ClaimMappingsInner, 0)
 	for _, raw := range input {
 		claim := raw.(map[string]interface{})
-		c := openapi.NewClaimMappingsInnerWithDefaults()
+		c := openapi.ClaimMappingsInner{}
 		if v, ok := claim["attribute_name"]; ok {
 			c.SetAttributeName(v.(string))
 		}
 		if v, ok := claim["claim_name"]; ok {
 			c.SetClaimName(v.(string))
 		}
-		if v, ok := claim["list"]; ok {
-			c.SetList(v.(bool))
-		}
-		if v, ok := claim["encrypt"]; ok {
-			c.SetEncrypt(v.(bool))
-		}
-		claims = append(claims, *c)
+		c.SetList(claim["list"].(bool))
+		c.SetEncrypt(claim["encrypt"].(bool))
+		claims = append(claims, c)
 	}
 	return claims
 }
@@ -536,36 +600,29 @@ func identityProviderDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func flattenIdentityProviderClaimsMappning(claims []openapi.ClaimMappingsInner) []map[string]interface{} {
-	var out = make([]map[string]interface{}, len(claims), len(claims))
-	for i, claim := range claims {
+func flattenIdentityProviderClaimsMappning(claims []openapi.ClaimMappingsInner) *schema.Set {
+	out := make([]interface{}, 0)
+	for _, claim := range claims {
 		row := make(map[string]interface{})
-		if v, ok := claim.GetAttributeNameOk(); ok && len(*v) > 0 {
-			row["attribute_name"] = *v
-		}
-		if v, ok := claim.GetClaimNameOk(); ok && len(*v) > 0 {
-			row["claim_name"] = *v
-		}
-		if v, ok := claim.GetListOk(); ok {
-			row["list"] = v
-		}
-		if v, ok := claim.GetEncryptOk(); ok {
-			row["encrypted"] = v
-		}
-		out[i] = row
+		row["attribute_name"] = claim.GetAttributeName()
+		row["claim_name"] = claim.GetClaimName()
+		row["list"] = claim.GetList()
+		row["encrypt"] = claim.GetEncrypt()
+
+		out = append(out, row)
 	}
-	return out
+	return schema.NewSet(resourceIdentityProviderClaimMappingsHash, out)
 }
 
-func flattenIdentityProviderOnDemandClaimsMappning(claims []openapi.OnDemandClaimMappingsInner) []map[string]interface{} {
-	var out = make([]map[string]interface{}, len(claims), len(claims))
-	for i, claim := range claims {
+func flattenIdentityProviderOnDemandClaimsMappning(claims []openapi.OnDemandClaimMappingsInner) *schema.Set {
+	out := []interface{}{}
+	for _, claim := range claims {
 		row := make(map[string]interface{})
 		if v, ok := claim.GetCommandOk(); ok {
-			row["command"] = v
+			row["command"] = *v
 		}
 		if v, ok := claim.GetClaimNameOk(); ok {
-			row["claim_name"] = v
+			row["claim_name"] = *v
 		}
 		if v, ok := claim.GetParametersOk(); ok {
 			parameters := make([]map[string]interface{}, 0)
@@ -583,11 +640,11 @@ func flattenIdentityProviderOnDemandClaimsMappning(claims []openapi.OnDemandClai
 			row["parameters"] = parameters
 		}
 		if v, ok := claim.GetPlatformOk(); ok {
-			row["platform"] = v
+			row["platform"] = *v
 		}
-		out[i] = row
+		out = append(out, row)
 	}
-	return out
+	return schema.NewSet(resourceIdentityProviderOnDemandClaimMappingsHash, out)
 }
 
 func flattenIdentityProviderOnboarding2fa(input openapi.ConfigurableIdentityProviderAllOfOnBoarding2FA, currentVersion *version.Version) []interface{} {

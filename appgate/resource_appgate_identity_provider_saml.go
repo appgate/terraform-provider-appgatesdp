@@ -168,9 +168,9 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 	}
 	d.Set("type", identityProviderSaml)
 	// base attributes
-	d.Set("name", saml.Name)
-	d.Set("notes", saml.Notes)
-	d.Set("tags", saml.Tags)
+	d.Set("name", saml.GetName())
+	d.Set("notes", saml.GetNotes())
+	d.Set("tags", saml.GetTags())
 
 	// identity provider attributes
 	d.Set("admin_provider", saml.GetAdminProvider())
