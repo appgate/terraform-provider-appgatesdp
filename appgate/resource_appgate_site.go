@@ -605,7 +605,11 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 		for _, l := range localNameResolutionList {
 			localNameResolution = l.(map[string]interface{})
 		}
-		if err = d.Set("name_resolution", flattenNameResolution(currentVersion, localNameResolution, *site.NameResolution)); err != nil {
+		ns, err := flattenNameResolution(currentVersion, localNameResolution, *site.NameResolution)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("name_resolution", ns); err != nil {
 			return err
 		}
 	}
@@ -689,7 +693,7 @@ func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []
 	return []interface{}{m}
 }
 
-func flattenNameResolution(currentVersion *version.Version, local map[string]interface{}, in openapi.SiteAllOfNameResolution) []interface{} {
+func flattenNameResolution(currentVersion *version.Version, local map[string]interface{}, in openapi.SiteAllOfNameResolution) ([]interface{}, error) {
 	m := make(map[string]interface{})
 	if v, ok := in.GetUseHostsFileOk(); ok {
 		m["use_hosts_file"] = *v
@@ -715,10 +719,14 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
 		if v, ok := in.GetDnsForwardingOk(); ok {
-			m["dns_forwarding"] = flattenSiteDnsForwading(*v)
+			dnsfwd, err := flattenSiteDnsForwading(*v)
+			if err != nil {
+				return nil, err
+			}
+			m["dns_forwarding"] = dnsfwd
 		}
 	}
-	return []interface{}{m}
+	return []interface{}{m}, nil
 }
 
 func getNSLocalChanges(local map[string]interface{}, name string) map[string]interface{} {
@@ -837,14 +845,32 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 	return out
 }
 
-func flattenSiteDnsForwading(in openapi.SiteAllOfNameResolutionDnsForwarding) []map[string]interface{} {
+func flattenSiteDnsForwading(in openapi.SiteAllOfNameResolutionDnsForwarding) ([]map[string]interface{}, error) {
 	m := make(map[string]interface{})
 	m["site_ipv4"] = in.GetSiteIpv4()
 	m["site_ipv6"] = in.GetSiteIpv6()
 	m["dns_servers"] = in.GetDnsServers()
-	m["allow_destinations"] = in.GetAllowDestinations()
+	ad, err := flattenAllowDestinations(in.GetAllowDestinations())
+	if err != nil {
+		return nil, err
+	}
+	m["allow_destinations"] = ad
+	return []map[string]interface{}{m}, nil
+}
 
-	return []map[string]interface{}{m}
+func flattenAllowDestinations(input []openapi.AllowResourcesInner) ([]map[string]interface{}, error) {
+	r := make([]map[string]interface{}, 0)
+	for _, raw := range input {
+		row := make(map[string]interface{}, 0)
+		if v, ok := raw.GetAddressOk(); ok {
+			row["address"] = *v
+		}
+		if v, ok := raw.GetNetmaskOk(); ok {
+			row["netmask"] = *v
+		}
+		r = append(r, row)
+	}
+	return r, nil
 }
 
 func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -1369,28 +1395,27 @@ func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (op
 			}
 			result.SetDnsServers(servers)
 		}
-		// TODO Update allow_destinations
-		// if v, ok := raw["allow_destinations"]; ok {
-		// 	destinations, err := readAllowDestinationsFromConfig(v.(*schema.Set).List())
-		// 	if err != nil {
-		// 		return result, err
-		// 	}
-		// 	result.SetAllowDestinations(destinations)
-		// }
+		if v, ok := raw["allow_destinations"]; ok {
+			destinations, err := readAllowDestinationsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetAllowDestinations(destinations)
+		}
 	}
 	return result, nil
 }
 
-func readAllowDestinationsFromConfig(input []interface{}) ([]map[string]interface{}, error) {
-	result := make([]map[string]interface{}, 0)
+func readAllowDestinationsFromConfig(input []interface{}) ([]openapi.AllowResourcesInner, error) {
+	result := make([]openapi.AllowResourcesInner, 0)
 	for _, r := range input {
 		raw := r.(map[string]interface{})
-		row := make(map[string]interface{}, 0)
-		if v, ok := raw["address"]; ok {
-			row["address"] = v.(string)
+		row := openapi.AllowResourcesInner{}
+		if v, ok := raw["address"].(string); ok {
+			row.SetAddress(v)
 		}
-		if v, ok := raw["netmask"]; ok {
-			row["netmask"] = int32(v.(int))
+		if v, ok := raw["netmask"].(int); ok {
+			row.SetNetmask(int32(v))
 		}
 		result = append(result, row)
 	}
