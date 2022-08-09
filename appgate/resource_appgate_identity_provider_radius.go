@@ -109,6 +109,9 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	if provider.IpPoolV6 != nil {
 		args.SetIpPoolV6(*provider.IpPoolV6)
 	}
+	if provider.UserScripts != nil {
+		args.SetUserScripts(provider.GetUserScripts())
+	}
 	if provider.DnsServers != nil {
 		args.SetDnsServers(*provider.DnsServers)
 	}
@@ -193,6 +196,7 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 		d.Set("ip_pool_v6", *v)
 	}
 
+	d.Set("user_scripts", radius.GetUserScripts())
 	d.Set("dns_servers", radius.GetDnsServers())
 	d.Set("dns_search_domains", radius.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", radius.GetBlockLocalDnsRequests())
@@ -275,6 +279,14 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	}
 	if d.HasChange("ip_pool_v6") {
 		originalRadiusProvider.SetIpPoolV6(d.Get("ip_pool_v6").(string))
+	}
+	if d.HasChange("user_scripts") {
+		_, v := d.GetChange("user_scripts")
+		us, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return fmt.Errorf("Failed to read user_scripts %w", err)
+		}
+		originalRadiusProvider.SetUserScripts(us)
 	}
 	if d.HasChange("dns_servers") {
 		_, v := d.GetChange("dns_servers")

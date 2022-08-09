@@ -99,6 +99,9 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	if provider.IpPoolV6 != nil {
 		args.SetIpPoolV6(*provider.IpPoolV6)
 	}
+	if provider.UserScripts != nil {
+		args.SetUserScripts(provider.GetUserScripts())
+	}
 	if provider.DnsServers != nil {
 		args.SetDnsServers(*provider.DnsServers)
 	}
@@ -223,6 +226,7 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 		d.Set("ip_pool_v6", *v)
 	}
 
+	d.Set("user_scripts", ldap.GetUserScripts())
 	d.Set("dns_servers", ldap.GetDnsServers())
 	d.Set("dns_search_domains", ldap.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", ldap.GetBlockLocalDnsRequests())
@@ -321,6 +325,14 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	if d.HasChange("ip_pool_v6") {
 		originalLdapCertificateProvider.SetIpPoolV6(d.Get("ip_pool_v6").(string))
+	}
+	if d.HasChange("user_scripts") {
+		_, v := d.GetChange("user_scripts")
+		us, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return fmt.Errorf("Failed to read user_scripts %w", err)
+		}
+		originalLdapCertificateProvider.SetUserScripts(us)
 	}
 	if d.HasChange("dns_servers") {
 		_, v := d.GetChange("dns_servers")
