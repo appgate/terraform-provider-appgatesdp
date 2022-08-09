@@ -14,15 +14,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceAppgateAppliance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAppgateApplianceCreate,
-		Read:   resourceAppgateApplianceRead,
-		Update: resourceAppgateApplianceUpdate,
-		Delete: resourceAppgateApplianceDelete,
+		CreateContext: resourceAppgateApplianceCreate,
+		ReadContext:   resourceAppgateApplianceRead,
+		UpdateContext: resourceAppgateApplianceUpdate,
+		DeleteContext: resourceAppgateApplianceDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -134,7 +135,7 @@ func resourceAppgateAppliance() *schema.Resource {
 
 			"peer_interface": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				// TODO:
 				// Temporary removed this warning, since its not scheduled to be removed until the version after 5.5
 				// and since its still required for all existing supported versions, we will not show this error for the users.
@@ -1066,12 +1067,12 @@ func resourceAppgateAppliance() *schema.Resource {
 	}
 }
 
-func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateApplianceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Creating Appliance with name: %s", d.Get("name").(string))
-	ctx := context.Background()
+	var diags diag.Diagnostics
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
@@ -1103,15 +1104,26 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if c, ok := d.GetOk("client_interface"); ok {
 		cinterface, err := readClientInterfaceFromConfig(c.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetClientInterface(cinterface)
 	}
 
 	if p, ok := d.GetOk("peer_interface"); ok {
+		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("peer_interface is not supported in %s", currentVersion.String()),
+				Detail: `peer_interface is removed in >= 6.0.
+All connections will be handled by client_interface and admin_interface in the future.
+The hostname field is used as identifier and will take over the hostname field in
+the root of Appliance when this interface is removed.`,
+			})
+			return diags
+		}
 		pinterface, err := readPeerInterfaceFromConfig(p.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetPeerInterface(pinterface)
 	}
@@ -1119,7 +1131,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if a, ok := d.GetOk("admin_interface"); ok {
 		ainterface, err := readAdminInterfaceFromConfig(a.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetAdminInterface(ainterface)
 	}
@@ -1127,7 +1139,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if n, ok := d.GetOk("networking"); ok {
 		network, err := readNetworkingFromConfig(n.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetNetworking(network)
 	}
@@ -1135,7 +1147,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if n, ok := d.GetOk("ssh_server"); ok {
 		sshServer, err := readSSHServerFromConfig(n.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetSshServer(sshServer)
 	}
@@ -1143,7 +1155,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if n, ok := d.GetOk("snmp_server"); ok {
 		srv, err := readSNMPServerFromConfig(n.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetSnmpServer(srv)
 	}
@@ -1151,7 +1163,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if n, ok := d.GetOk("healthcheck_server"); ok {
 		srv, err := readHealthcheckServerFromConfig(n.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetHealthcheckServer(srv)
 	}
@@ -1159,7 +1171,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if n, ok := d.GetOk("prometheus_exporter"); ok {
 		exporter, err := readPrometheusExporterFromConfig(n.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetPrometheusExporter(exporter)
 	}
@@ -1167,7 +1179,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if n, ok := d.GetOk("ping"); ok {
 		p, err := readPingFromConfig(n.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetPing(p)
 	}
@@ -1175,7 +1187,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if n, ok := d.GetOk("ntp"); ok {
 		ntp, err := readNTPFromConfig(n.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetNtp(ntp)
 	}
@@ -1183,7 +1195,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("log_server"); ok {
 		logSrv, err := readLogServerFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		if logSrv.GetEnabled() {
 			args.SetLogServer(logSrv)
@@ -1195,7 +1207,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("controller"); ok {
 		ctrl, err := readControllerFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetController(ctrl)
 	}
@@ -1203,7 +1215,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("gateway"); ok {
 		gw, err := readGatewayFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetGateway(gw)
 	}
@@ -1211,7 +1223,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("log_forwarder"); ok {
 		lf, err := readLogForwardFromConfig(v.([]interface{}), currentVersion)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetLogForwarder(lf)
 	}
@@ -1219,7 +1231,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("connector"); ok {
 		connector, err := readApplianceConnectorFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetConnector(connector)
 	}
@@ -1227,18 +1239,18 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("rsyslog_destinations"); ok {
 		rsyslog, err := readRsyslogDestinationFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetRsyslogDestinations(rsyslog)
 	}
 
 	if v, ok := d.GetOk("portal"); ok {
 		if !currentVersion.GreaterThanOrEqual(Appliance54Version) {
-			return fmt.Errorf("appliance.portal requires %s, you are using %q client v%d", Appliance54Version, currentVersion, meta.(*Client).ClientVersion)
+			return diag.Errorf("appliance.portal requires %s, you are using %q client v%d", Appliance54Version, currentVersion, meta.(*Client).ClientVersion)
 		}
 		portal, err := readAppliancePortalFromConfig(d, v.([]interface{}), currentVersion)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetPortal(portal)
 	}
@@ -1246,7 +1258,7 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("hostname_aliases"); ok {
 		hostnames, err := readHostnameAliasesFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		args.SetHostnameAliases(hostnames)
 	}
@@ -1255,12 +1267,13 @@ func resourceAppgateApplianceCreate(d *schema.ResourceData, meta interface{}) er
 	request = request.Appliance(*args)
 	appliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create appliance %w", prettyPrintAPIError(err))
+		return diag.Errorf("Could not create appliance %s", prettyPrintAPIError(err))
 	}
 
 	d.SetId(appliance.GetId())
 
-	return resourceAppgateApplianceRead(d, meta)
+	resourceAppgateApplianceRead(ctx, d, meta)
+	return diags
 }
 
 func readNetworkNicsFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNetworkingNics, error) {
@@ -1481,15 +1494,17 @@ func readNetworkHostFromConfig(hosts []interface{}) ([]openapi.ApplianceAllOfNet
 	return apiHosts, nil
 }
 
-func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Reading Appliance Name: %s", d.Get("name").(string))
+	var diags diag.Diagnostics
+
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
-	ctx := context.Background()
+
 	request := api.AppliancesIdGet(ctx, d.Id())
 	appliance, res, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -1497,7 +1512,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		if res != nil && res.StatusCode == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("Failed to read Appliance, %w", err)
+		return diag.Errorf("Failed to read Appliance, %s", err)
 	}
 	d.Set("appliance_id", appliance.GetId())
 	d.Set("name", appliance.GetName())
@@ -1506,20 +1521,20 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("hostname", appliance.GetHostname())
 
 	if err := d.Set("site", appliance.GetSite()); err != nil {
-		return fmt.Errorf("Error setting appliance.site %w", err)
+		return diag.Errorf("Error setting appliance.site %s", err)
 	}
 	if err := d.Set("customization", appliance.GetCustomization()); err != nil {
-		return fmt.Errorf("Error setting appliance.customization %w", err)
+		return diag.Errorf("Error setting appliance.customization %s", err)
 	}
 
 	if err := d.Set("connect_to_peers_using_client_port_with_spa", appliance.GetConnectToPeersUsingClientPortWithSpa()); err != nil {
-		return fmt.Errorf("Error setting appliance.connect_to_peers_using_client_port_with_spa %w", err)
+		return diag.Errorf("Error setting appliance.connect_to_peers_using_client_port_with_spa %s", err)
 	}
 
 	if v, ok := appliance.GetClientInterfaceOk(); ok {
 		ci, err := flattenApplianceClientInterface(*v)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		d.Set("client_interface", ci)
 	}
@@ -1527,7 +1542,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if v, ok := appliance.GetPeerInterfaceOk(); ok {
 		peerInterface, err := flattenAppliancePeerInterface(*v)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		d.Set("peer_interface", peerInterface)
 	}
@@ -1535,20 +1550,20 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 	if v, ok := appliance.GetAdminInterfaceOk(); ok {
 		adminInterface, err := flattenApplianceAdminInterface(*v)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		if err := d.Set("admin_interface", adminInterface); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if v, ok := appliance.GetNetworkingOk(); ok {
 		networking, err := flattenApplianceNetworking(*v)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		if err := d.Set("networking", networking); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1564,7 +1579,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		ntp["servers"] = servers
 		if err := d.Set("ntp", []interface{}{ntp}); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1574,13 +1589,13 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		sshServer["port"] = v.GetPort()
 		as, err := flattenAllowSources(v.GetAllowSources())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		sshServer["allow_sources"] = as
 		sshServer["password_authentication"] = v.GetPasswordAuthentication()
 
 		if err := d.Set("ssh_server", []interface{}{sshServer}); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1592,12 +1607,12 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		snmpSrv["snmpd_conf"] = v.GetSnmpdConf()
 		as, err := flattenAllowSources(v.GetAllowSources())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		snmpSrv["allow_sources"] = as
 
 		if err := d.Set("snmp_server", []interface{}{snmpSrv}); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1607,12 +1622,12 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		healthSrv["port"] = v.GetPort()
 		as, err := flattenAllowSources(v.GetAllowSources())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		healthSrv["allow_sources"] = as
 
 		if err := d.Set("healthcheck_server", []interface{}{healthSrv}); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 	if v, ok := appliance.GetPrometheusExporterOk(); ok {
@@ -1621,12 +1636,12 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		exporter["port"] = v.GetPort()
 		as, err := flattenAllowSources(v.GetAllowSources())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		exporter["allow_sources"] = as
 
 		if err := d.Set("prometheus_exporter", []interface{}{exporter}); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1634,12 +1649,12 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		ping := make(map[string]interface{})
 		as, err := flattenAllowSources(v.GetAllowSources())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		ping["allow_sources"] = as
 
 		if err := d.Set("ping", []interface{}{ping}); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1652,7 +1667,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 			logsrv["enabled"] = enabledLogServer
 			logsrv["retention_days"] = v.GetRetentionDays()
 			if err := d.Set("log_server", []interface{}{logsrv}); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 	}
@@ -1662,37 +1677,37 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		ctrl["enabled"] = v.GetEnabled()
 
 		if err := d.Set("controller", []interface{}{ctrl}); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if v, ok := appliance.GetGatewayOk(); ok {
 		gateway, err := flatttenApplianceGateway(*v)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		if err := d.Set("gateway", gateway); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if v, ok := appliance.GetLogForwarderOk(); ok {
 		logforward, err := flatttenApplianceLogForwarder(*v, currentVersion, d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		if err := d.Set("log_forwarder", logforward); err != nil {
-			return fmt.Errorf("Unable to read log fowarder %w", err)
+			return diag.Errorf("Unable to read log fowarder %s", err)
 		}
 	}
 
 	if v, ok := appliance.GetConnectorOk(); ok {
 		connector, err := flatttenApplianceConnector(currentVersion, *v)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		if err := d.Set("connector", connector); err != nil {
-			return fmt.Errorf("Unable to read connectors %w", err)
+			return diag.Errorf("Unable to read connectors %s", err)
 		}
 	}
 
@@ -1707,7 +1722,7 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := d.Set("rsyslog_destinations", rsyslogs); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1725,13 +1740,13 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		if len(v.GetProxyP12s()) > 0 {
 			proxyp12s, err := flattenAppliancePortalProxyp12s(localPortal, v.GetProxyP12s())
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 			portal["proxy_p12s"] = proxyp12s
 		}
 		https_p12, err := flattenApplianceProxyp12s(localPortal, v.GetHttpsP12())
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		portal["https_p12"] = https_p12
 
@@ -1740,22 +1755,22 @@ func resourceAppgateApplianceRead(d *schema.ResourceData, meta interface{}) erro
 		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
 			signInCustomization, err := flattenAppliancePortalSignInCustomziation(d, localPortal, v.GetSignInCustomization())
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 			portal["sign_in_customization"] = signInCustomization
 		}
 		portals = append(portals, portal)
 		if err := d.Set("portal", portals); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	if v, ok := appliance.GetHostnameAliasesOk(); ok {
 		if err := d.Set("hostname_aliases", v); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
-	return nil
+	return diags
 }
 
 func flattenAppliancePortalProxyp12s(local map[string]interface{}, p12s []openapi.Portal12) ([]map[string]interface{}, error) {
@@ -2200,19 +2215,19 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 	return networkings, nil
 }
 
-func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Updating Appliance: %s", d.Get("name").(string))
-	ctx := context.Background()
+	// var diags diag.Diagnostics
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.AppliancesIdGet(ctx, d.Id())
 	originalAppliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Appliance, %w", err)
+		return diag.Errorf("Failed to read Appliance, %s", err)
 	}
 
 	if d.HasChange("name") {
@@ -2247,7 +2262,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("client_interface")
 		cinterface, err := readClientInterfaceFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetClientInterface(cinterface)
 	}
@@ -2256,7 +2271,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("peer_interface")
 		pinterface, err := readPeerInterfaceFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetPeerInterface(pinterface)
 	}
@@ -2265,7 +2280,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("admin_interface")
 		ainterface, err := readAdminInterfaceFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		// since admin_interface is Optional, but admin_interface.hostname is required
 		// if it set, we will make sure that hostname is not None before we send the request
@@ -2283,7 +2298,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("networking")
 		networking, err := readNetworkingFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetNetworking(networking)
 	}
@@ -2292,7 +2307,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("ntp")
 		ntp, err := readNTPFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetNtp(ntp)
 	}
@@ -2301,7 +2316,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("ssh_server")
 		sshServer, err := readSSHServerFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetSshServer(sshServer)
 	}
@@ -2310,7 +2325,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("snmp_server")
 		srv, err := readSNMPServerFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetSnmpServer(srv)
 	}
@@ -2319,7 +2334,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("healthcheck_server")
 		srv, err := readHealthcheckServerFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetHealthcheckServer(srv)
 	}
@@ -2328,7 +2343,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("prometheus_exporter")
 		exporter, err := readPrometheusExporterFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetPrometheusExporter(exporter)
 	}
@@ -2337,7 +2352,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("ping")
 		p, err := readPingFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetPing(p)
 	}
@@ -2346,7 +2361,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("log_server")
 		logSrv, err := readLogServerFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		// we will only include log server in the request body if its enabled,
 		// otherwise we will omit it in the request body and let the controller compute the rest.
@@ -2362,7 +2377,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("controller")
 		ctrl, err := readControllerFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetController(ctrl)
 	}
@@ -2371,7 +2386,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("gateway")
 		gw, err := readGatewayFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetGateway(gw)
 	}
@@ -2380,7 +2395,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("log_forwarder")
 		lf, err := readLogForwardFromConfig(v.([]interface{}), currentVersion)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetLogForwarder(lf)
 	}
@@ -2389,7 +2404,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("connector")
 		iot, err := readApplianceConnectorFromConfig(currentVersion, v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetConnector(iot)
 	}
@@ -2398,7 +2413,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("portal")
 		portal, err := readAppliancePortalFromConfig(d, v.([]interface{}), currentVersion)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetPortal(portal)
 	}
@@ -2407,7 +2422,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("rsyslog_destinations")
 		rsys, err := readRsyslogDestinationFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetRsyslogDestinations(rsys)
 	}
@@ -2416,7 +2431,7 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 		_, v := d.GetChange("hostname_aliases")
 		hostnames, err := readHostnameAliasesFromConfig(v.([]interface{}))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		originalAppliance.SetHostnameAliases(hostnames)
 	}
@@ -2425,25 +2440,26 @@ func resourceAppgateApplianceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	_, _, err = req.Appliance(*originalAppliance).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update appliance %w", prettyPrintAPIError(err))
+		return diag.Errorf("Could not update appliance %s", prettyPrintAPIError(err))
 	}
-	return resourceAppgateApplianceRead(d, meta)
+	return resourceAppgateApplianceRead(ctx, d, meta)
 }
 
-func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateApplianceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Delete Appliance: %s", d.Get("name").(string))
+	var diags diag.Diagnostics
+
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AppliancesApi
-	ctx := context.Background()
 
 	// Get appliance
 	request := api.AppliancesIdGet(ctx, d.Id())
 	appliance, _, err := request.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete Appliance while GET, %w", err)
+		return diag.Errorf("Failed to delete Appliance while GET, %s", err)
 	}
 	// Deactivate
 	if ok, _ := appliance.GetActivatedOk(); *ok {
@@ -2451,7 +2467,7 @@ func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) er
 		deactiveRequest := api.AppliancesIdDeactivatePost(ctx, appliance.GetId())
 		_, err = deactiveRequest.Wipe(true).Authorization(token).Execute()
 		if err != nil {
-			return fmt.Errorf("Failed to delete Appliance while deactivating, %w", err)
+			return diag.Errorf("Failed to delete Appliance while deactivating, %s", err)
 		}
 	}
 
@@ -2459,10 +2475,10 @@ func resourceAppgateApplianceDelete(d *schema.ResourceData, meta interface{}) er
 	deleteRequest := api.AppliancesIdDelete(ctx, appliance.GetId())
 	_, err = deleteRequest.Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to delete Appliance, %w", err)
+		return diag.Errorf("Failed to delete Appliance, %s", err)
 	}
 	d.SetId("")
-	return nil
+	return diags
 }
 
 func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.ApplianceAllOfClientInterface, error) {
