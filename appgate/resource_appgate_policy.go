@@ -98,7 +98,7 @@ func resourceAppgatePolicy() *schema.Resource {
 
 			"tamper_proofing": {
 				Type:     schema.TypeBool,
-				Default:  true,
+				Computed: true,
 				Optional: true,
 			},
 
@@ -285,7 +285,7 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	api := meta.(*Client).API.PoliciesApi
 	currentVersion := meta.(*Client).ApplianceVersion
-	args := openapi.NewPolicyWithDefaults()
+	args := openapi.Policy{}
 
 	if v, ok := d.GetOk("policy_id"); ok {
 		args.SetId(v.(string))
@@ -324,6 +324,9 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
 		if v, ok := d.GetOk("type"); ok {
 			args.SetType(v.(string))
+		}
+		if args.GetType() == "Dns" {
+			args.SetTamperProofing(false)
 		}
 		if v, ok := d.GetOk("override_site_claim"); ok {
 			args.SetOverrideSiteClaim(v.(string))
@@ -371,9 +374,8 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 		}
 		args.SetRingfenceRuleLinks(ringfenceRuleLinks)
 	}
-
-	if c, ok := d.GetOk("tamper_proofing"); ok {
-		args.SetTamperProofing(c.(bool))
+	if v, ok := d.GetOkExists("tamper_proofing"); ok {
+		args.SetTamperProofing(v.(bool))
 	}
 
 	if c, ok := d.GetOk("override_site"); ok {
@@ -399,7 +401,7 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	request := api.PoliciesPost(ctx)
-	request = request.Policy(*args)
+	request = request.Policy(args)
 	policy, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create policy %w", prettyPrintAPIError(err))
