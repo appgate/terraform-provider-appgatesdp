@@ -10,6 +10,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+var applianceTestForFiveFive = func(t *testing.T) {
+	c := testAccProvider.Meta().(*Client)
+	c.GetToken()
+	currentVersion := c.ApplianceVersion
+	constraints, err := version.NewConstraint(">= 5.5, < 6.0")
+	if err != nil {
+		t.Fatalf("could not parse version constraint %s", err)
+		return
+	}
+	if !constraints.Check(currentVersion) {
+		t.Skip("Test is only for 5.5")
+	}
+}
+
 func TestAccApplianceBasicController(t *testing.T) {
 	resourceName := "appgatesdp_appliance.test_controller"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
@@ -29,6 +43,9 @@ func TestAccApplianceBasicController(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					applianceTestForFiveFive(t)
+				},
 				Config: testAccCheckApplianceBasicController(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -1096,6 +1113,9 @@ func TestAccApplianceConnector(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					applianceTestForFiveFive(t)
+				},
 				Config: testAccCheckApplianceBasicConnector(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -1283,6 +1303,9 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 		CheckDestroy: testAccCheckApplianceDestroy,
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					applianceTestForFiveFive(t)
+				},
 				Config: testAccCheckApplianceBasicGateway(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -1432,6 +1455,9 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					applianceTestForFiveFive(t)
+				},
 				Config: testAccCheckApplianceBasicControllerWithoutOverrideSPA(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -1802,6 +1828,9 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					applianceTestForFiveFive(t)
+				},
 				Config: testAccCheckApplianceBasicControllerWithOverrideSPA(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -2569,6 +2598,9 @@ func TestAccApplianceAdminInterfaceAddRemove(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					applianceTestForFiveFive(t)
+				},
 				Config: testAccApplianceWithAdminInterface(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -2811,6 +2843,9 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					applianceTestForFiveFive(t)
+				},
 				Config: testAccApplianceWithLogServer(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -3205,12 +3240,7 @@ func TestAccApplianceLogForwarderElastic55(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					c := testAccProvider.Meta().(*Client)
-					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					if currentVersion.LessThan(Appliance55Version) {
-						t.Skip("Test only for 5.5 and above, appliance.log_forwarder_elasticseach specific testcase")
-					}
+					applianceTestForFiveFive(t)
 				},
 				Config: testAccCheckApplianceLogforwarderElasticSearch(context),
 				Check: resource.ComposeTestCheckFunc(
