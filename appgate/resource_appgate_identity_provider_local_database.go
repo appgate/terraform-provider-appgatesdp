@@ -123,6 +123,7 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 		d.Set("ip_pool_v6", v)
 	}
 
+	d.Set("user_scripts", localDatabase.GetUserScripts())
 	d.Set("dns_servers", localDatabase.GetDnsServers())
 	d.Set("dns_search_domains", localDatabase.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", localDatabase.GetBlockLocalDnsRequests())
@@ -190,6 +191,14 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 	}
 	if d.HasChange("ip_pool_v6") {
 		originalLocalDatabaseProvider.SetIpPoolV6(d.Get("ip_pool_v6").(string))
+	}
+	if d.HasChange("user_scripts") {
+		_, v := d.GetChange("user_scripts")
+		us, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return fmt.Errorf("Failed to read user_scripts %w", err)
+		}
+		originalLocalDatabaseProvider.SetUserScripts(us)
 	}
 	if d.HasChange("dns_servers") {
 		_, v := d.GetChange("dns_servers")

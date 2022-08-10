@@ -101,6 +101,9 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	if provider.IpPoolV6 != nil {
 		args.SetIpPoolV6(*provider.IpPoolV6)
 	}
+	if provider.UserScripts != nil {
+		args.SetUserScripts(provider.GetUserScripts())
+	}
 	if provider.DnsServers != nil {
 		args.SetDnsServers(*provider.DnsServers)
 	}
@@ -185,6 +188,7 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 		d.Set("ip_pool_v6", v)
 	}
 
+	d.Set("user_scripts", saml.GetUserScripts())
 	d.Set("dns_servers", saml.GetDnsServers())
 	d.Set("dns_search_domains", saml.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", saml.GetBlockLocalDnsRequests())
@@ -258,6 +262,14 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 	if d.HasChange("ip_pool_v6") {
 		originalSamlProvider.SetIpPoolV6(d.Get("ip_pool_v6").(string))
+	}
+	if d.HasChange("user_scripts") {
+		_, v := d.GetChange("user_scripts")
+		scripts, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return fmt.Errorf("Failed to read user_scripts %w", err)
+		}
+		originalSamlProvider.SetUserScripts(scripts)
 	}
 	if d.HasChange("dns_servers") {
 		_, v := d.GetChange("dns_servers")

@@ -97,6 +97,11 @@ func identityProviderSchema() map[string]*schema.Schema {
 				Computed: true,
 				Optional: true,
 			},
+			"user_scripts": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"dns_servers": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -378,6 +383,13 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.IdentityPro
 	}
 	if v, ok := d.GetOk("ip_pool_v6"); ok {
 		provider.SetIpPoolV6(v.(string))
+	}
+	if v, ok := d.GetOk("user_scripts"); ok {
+		us, err := readArrayOfStringsFromConfig(v.([]interface{}))
+		if err != nil {
+			return &provider, err
+		}
+		provider.SetUserScripts(us)
 	}
 	if v, ok := d.GetOk("dns_servers"); ok {
 		servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
