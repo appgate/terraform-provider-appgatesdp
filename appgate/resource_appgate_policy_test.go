@@ -120,7 +120,7 @@ func testAccCheckPolicyDestroy(s *terraform.State) error {
 	return nil
 }
 
-//  TestAccPolicyClientSettings55 is only applicable on appliance 5.5
+// TestAccPolicyClientSettings55 is only applicable on appliance 5.5
 func TestAccPolicyClientSettings55(t *testing.T) {
 	resourceName := "appgatesdp_policy.device_policy_with_client_settings"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
