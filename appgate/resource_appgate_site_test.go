@@ -1755,3 +1755,109 @@ resource "appgatesdp_site" "d_test_site" {
 }
 `, context)
 }
+
+func TestAccSiteDnsResolver6(t *testing.T) {
+	resourceName := "appgatesdp_site.test_site"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSiteDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor6AndAbove(t)
+				},
+				Config: testAccSiteDnsResolver6(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.name", "DNS Resolver 1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.0", "hostname.dns"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.1", "foo.bar"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.servers.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.servers.0", "8.8.8.8"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.servers.1", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.update_interval", "13"),
+
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
+
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_enabled", "false"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccSiteDnsResolver6(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_site" "test_site" {
+    name       = "%s"
+    short_name = "ts0"
+    tags = [
+        "developer",
+        "api-created"
+    ]
+
+    notes = "This object has been created for test purposes."
+    entitlement_based_routing = false
+    network_subnets = [
+        "10.0.0.0/16"
+    ]
+
+    default_gateway {
+        enabled_v4       = false
+        enabled_v6       = false
+        excluded_subnets = []
+    }
+
+    name_resolution {
+
+        dns_resolvers {
+            name            = "DNS Resolver 1"
+            update_interval = 13
+			query_aaaa = true
+			default_ttl_seconds = 12
+            servers = [
+                "8.8.8.8",
+                "1.1.1.1"
+            ]
+            search_domains = [
+                "hostname.dns",
+                "foo.bar"
+            ]
+        }
+    }
+}
+`, rName)
+}

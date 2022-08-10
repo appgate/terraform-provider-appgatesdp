@@ -242,6 +242,16 @@ func resourceAppgateSite() *schema.Resource {
 										Type:     schema.TypeInt,
 										Optional: true,
 									},
+									"query_aaaa": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"default_ttl_seconds": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
 									"servers": {
 										Type:     schema.TypeList,
 										Required: true,
@@ -837,6 +847,8 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 		m := make(map[string]interface{})
 		m["name"] = v.GetName()
 		m["update_interval"] = v.GetUpdateInterval()
+		m["query_aaaa"] = v.GetQueryAAAA()
+		m["default_ttl_seconds"] = v.GetDefaultTtlSeconds()
 		m["servers"] = v.GetServers()
 		m["search_domains"] = v.GetSearchDomains()
 
@@ -1130,7 +1142,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 		}
 		if v, ok := raw["dns_resolvers"]; ok {
 			dnss := v.(*schema.Set).List()
-			dnsResolvers, err := readDNSResolversFromConfig(dnss)
+			dnsResolvers, err := readDNSResolversFromConfig(currentVersion, dnss)
 			if err != nil {
 				return result, err
 			}
@@ -1180,7 +1192,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 	return result, nil
 }
 
-func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
+func readDNSResolversFromConfig(currentVersion *version.Version, dnsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionDnsResolvers, 0)
 	for _, dns := range dnsConfigs {
 		raw := dns.(map[string]interface{})
@@ -1190,6 +1202,14 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		}
 		if v, ok := raw["update_interval"]; ok {
 			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			if v, ok := raw["query_aaaa"]; ok {
+				row.SetQueryAAAA(v.(bool))
+			}
+			if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
+				row.SetDefaultTtlSeconds(int32(v))
+			}
 		}
 		if v := raw["servers"]; len(v.([]interface{})) > 0 {
 			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))

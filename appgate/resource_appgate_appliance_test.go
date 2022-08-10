@@ -38,6 +38,20 @@ var testFor6AndAbove = func(t *testing.T) {
 	}
 }
 
+var testFor6AndAbove = func(t *testing.T) {
+	c := testAccProvider.Meta().(*Client)
+	c.GetToken()
+	currentVersion := c.ApplianceVersion
+	constraints, err := version.NewConstraint(">= 6.0")
+	if err != nil {
+		t.Fatalf("could not parse version constraint %s", err)
+		return
+	}
+	if !constraints.Check(currentVersion) {
+		t.Skip("Test is only for >= 6.0")
+	}
+}
+
 func TestAccApplianceBasicController(t *testing.T) {
 	resourceName := "appgatesdp_appliance.test_controller"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
