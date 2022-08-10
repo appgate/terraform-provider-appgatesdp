@@ -937,6 +937,7 @@ func TestAccSamlIdentityProviderBasic55OrGreater(t *testing.T) {
 	})
 }
 
+// TestAccSamlIdentityProviderUserScripts55OrGreater tests https://github.com/appgate/terraform-provider-appgatesdp/issues/246
 func TestAccSamlIdentityProviderUserScripts55OrGreater(t *testing.T) {
 	resourceName := "appgatesdp_saml_identity_provider.saml_test_resource"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
