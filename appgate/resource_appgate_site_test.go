@@ -115,7 +115,7 @@ func TestAccSiteBasic(t *testing.T) {
 			{
 				ResourceName:     resourceName,
 				ImportState:      true,
-				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
 			},
 			{
 				Config: testAccCheckSiteNetworkDelete(),
@@ -1756,7 +1756,7 @@ resource "appgatesdp_site" "d_test_site" {
 `, context)
 }
 
-func TestAccSiteDnsResolver6(t *testing.T) {
+func TestAccSiteNameResolver6(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
@@ -1768,20 +1768,45 @@ func TestAccSiteDnsResolver6(t *testing.T) {
 				PreConfig: func() {
 					testFor6AndAbove(t)
 				},
-				Config: testAccSiteDnsResolver6(rName),
+				Config: testAccSiteNameResolver6(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
+
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
-
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.address", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.address", "::"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.default_ttl_seconds", "15"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv6", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.default_ttl_seconds", "99"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.name", "DNS Resolver 1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.query_aaaa", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.0", "hostname.dns"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.1", "foo.bar"),
@@ -1789,25 +1814,74 @@ func TestAccSiteDnsResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.servers.0", "8.8.8.8"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.servers.1", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.update_interval", "13"),
-
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
 					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
-
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "9"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_key_store", ""),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.web_proxy_verify_upstream_certificate", "false"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+			{
+				Config: testAccSiteNameResolver6Updated(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.address", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.1.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.address", "::"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.default_ttl_seconds", "43199"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv6", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.default_ttl_seconds", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.name", "DNS Resolver 1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.query_aaaa", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.0", "hostname.dns"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.1", "foo.bar"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.servers.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.servers.0", "8.8.8.8"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.servers.1", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.update_interval", "13"),
 				),
 			},
 			{
@@ -1819,45 +1893,128 @@ func TestAccSiteDnsResolver6(t *testing.T) {
 	})
 }
 
-func testAccSiteDnsResolver6(rName string) string {
+func testAccSiteNameResolver6(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "test_site" {
-    name       = "%s"
-    short_name = "ts0"
-    tags = [
-        "developer",
-        "api-created"
-    ]
+	name       = "%s"
+	short_name = "ts0"
+	tags = [
+	  "developer",
+	  "api-created"
+	]
 
-    notes = "This object has been created for test purposes."
-    entitlement_based_routing = false
-    network_subnets = [
-        "10.0.0.0/16"
-    ]
+	notes                     = "This object has been created for test purposes."
+	entitlement_based_routing = false
+	network_subnets = [
+	  "10.0.0.0/16"
+	]
 
-    default_gateway {
-        enabled_v4       = false
-        enabled_v6       = false
-        excluded_subnets = []
-    }
+	default_gateway {
+	  enabled_v4       = false
+	  enabled_v6       = false
+	  excluded_subnets = []
+	}
 
-    name_resolution {
+	name_resolution {
 
-        dns_resolvers {
-            name            = "DNS Resolver 1"
-            update_interval = 13
-			query_aaaa = true
-			default_ttl_seconds = 12
-            servers = [
-                "8.8.8.8",
-                "1.1.1.1"
-            ]
-            search_domains = [
-                "hostname.dns",
-                "foo.bar"
-            ]
-        }
-    }
+	  dns_resolvers {
+		name                = "DNS Resolver 1"
+		update_interval     = 13
+		query_aaaa          = true
+		default_ttl_seconds = 99
+		servers = [
+		  "8.8.8.8",
+		  "1.1.1.1"
+		]
+		search_domains = [
+		  "hostname.dns",
+		  "foo.bar"
+		]
+	  }
+
+	  dns_forwarding {
+		site_ipv4 = "1.2.3.4"
+		site_ipv6 = "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+		dns_servers = [
+		  "1.1.1.1"
+		]
+		default_ttl_seconds = 15
+		allow_destinations {
+		  address = "1.1.1.1"
+		  netmask = 32
+		}
+		allow_destinations {
+		  address = "0.0.0.0"
+		  netmask = 0
+		}
+		allow_destinations {
+		  address = "::"
+		  netmask = 0
+		}
+	  }
+	}
+}`, rName)
 }
-`, rName)
+
+func testAccSiteNameResolver6Updated(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_site" "test_site" {
+	name       = "%s"
+	short_name = "ts0"
+	tags = [
+	  "developer",
+	  "api-created"
+	]
+
+	notes                     = "This object has been created for test purposes."
+	entitlement_based_routing = false
+	network_subnets = [
+	  "10.0.0.0/16"
+	]
+
+	default_gateway {
+	  enabled_v4       = false
+	  enabled_v6       = false
+	  excluded_subnets = []
+	}
+
+	name_resolution {
+
+	  dns_resolvers {
+		name                = "DNS Resolver 1"
+		update_interval     = 13
+		query_aaaa          = true
+		default_ttl_seconds = 5
+		servers = [
+		  "8.8.8.8",
+		  "1.1.1.1"
+		]
+		search_domains = [
+		  "hostname.dns",
+		  "foo.bar"
+		]
+	  }
+
+	  dns_forwarding {
+		site_ipv4 = "1.2.3.4"
+		site_ipv6 = "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+		dns_servers = [
+		  "1.1.1.1"
+		]
+		default_ttl_seconds = 43199
+		allow_destinations {
+		  address = "1.1.1.1"
+		  netmask = 32
+		}
+		allow_destinations {
+		  address = "0.0.0.0"
+		  netmask = 0
+		}
+		allow_destinations {
+		  address = "::"
+		  netmask = 0
+		}
+	  }
+	}
+}`, rName)
 }
