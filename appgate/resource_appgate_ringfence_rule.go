@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -160,7 +160,7 @@ func resourceAppgateRingfenceRuleCreate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Could not create Ringfence rule  %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(ringfenceRule.Id)
+	d.SetId(ringfenceRule.GetId())
 	return resourceAppgateRingfenceRuleRead(d, meta)
 }
 
@@ -177,7 +177,7 @@ func resourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Failed to read Ringfence rule, %w", err)
 	}
-	d.Set("ringfence_rule_id", ringfenceRule.Id)
+	d.Set("ringfence_rule_id", ringfenceRule.GetId())
 	d.Set("name", ringfenceRule.Name)
 	d.Set("notes", ringfenceRule.Notes)
 	d.Set("tags", ringfenceRule.Tags)
@@ -203,13 +203,13 @@ func flattenRingfenceActions(in []openapi.RingfenceRuleAllOfActions) []map[strin
 			m["action"] = *v
 		}
 		if v, o := v.GetHostsOk(); o {
-			m["hosts"] = *v
+			m["hosts"] = v
 		}
 		if v, o := v.GetPortsOk(); o {
-			m["ports"] = *v
+			m["ports"] = v
 		}
 		if v, o := v.GetTypesOk(); o {
-			m["types"] = *v
+			m["types"] = v
 		}
 		out[i] = m
 	}
@@ -251,7 +251,7 @@ func resourceAppgateRingfenceRuleUpdate(d *schema.ResourceData, meta interface{}
 	}
 	req := api.RingfenceRulesIdPut(ctx, d.Id())
 
-	_, _, err = req.RingfenceRule(originalRingfenceRule).Authorization(token).Execute()
+	_, _, err = req.RingfenceRule(*originalRingfenceRule).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Ringfence rule %w", prettyPrintAPIError(err))
 	}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -51,9 +51,9 @@ func dataSourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) er
 		return reqErr
 	}
 
-	d.SetId(condition.Id)
-	d.Set("condition_id", condition.Id)
-	d.Set("condition_name", condition.Name)
+	d.SetId(condition.GetId())
+	d.Set("condition_id", condition.GetId())
+	d.Set("condition_name", condition.GetName())
 
 	return nil
 }
@@ -63,7 +63,7 @@ func findConditionByUUID(api *openapi.ConditionsApiService, id string, token str
 	if err != nil {
 		return nil, err
 	}
-	return &condition, nil
+	return condition, nil
 }
 
 func findConditionByName(api *openapi.ConditionsApiService, name string, token string) (*openapi.Condition, error) {

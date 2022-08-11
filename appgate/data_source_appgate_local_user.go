@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -54,9 +54,9 @@ func dataSourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) er
 	}
 	log.Printf("[DEBUG] Got local user: %+v", localUser)
 
-	d.SetId(localUser.Id)
-	d.Set("local_user_name", localUser.Name)
-	d.Set("local_user_id", localUser.Id)
+	d.SetId(localUser.GetId())
+	d.Set("local_user_name", localUser.GetName())
+	d.Set("local_user_id", localUser.GetId())
 	return nil
 }
 
@@ -66,7 +66,7 @@ func findLocalUserByUUID(api *openapi.LocalUsersApiService, id string, token str
 	if err != nil {
 		return nil, err
 	}
-	return &localUser, nil
+	return localUser, nil
 }
 
 func findLocalUserByName(api *openapi.LocalUsersApiService, name string, token string) (*openapi.LocalUser, error) {

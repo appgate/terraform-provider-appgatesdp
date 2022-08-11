@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -69,7 +69,7 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	api := meta.(*Client).API.SamlIdentityProvidersApi
 	ctx := context.TODO()
 	currentVersion := meta.(*Client).ApplianceVersion
-	provider := &openapi.IdentityProvider{}
+	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderSaml
 	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
@@ -77,6 +77,9 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	}
 
 	args := openapi.NewSamlProviderWithDefaults()
+	if currentVersion.LessThan(Appliance55Version) {
+		args.DeviceLimitPerUser = nil
+	}
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())
@@ -105,19 +108,19 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 		args.SetUserScripts(provider.GetUserScripts())
 	}
 	if provider.DnsServers != nil {
-		args.SetDnsServers(*provider.DnsServers)
+		args.SetDnsServers(provider.GetDnsServers())
 	}
 	if provider.DnsSearchDomains != nil {
-		args.SetDnsSearchDomains(*provider.DnsSearchDomains)
+		args.SetDnsSearchDomains(provider.GetDnsSearchDomains())
 	}
 	if provider.BlockLocalDnsRequests != nil {
 		args.SetBlockLocalDnsRequests(*provider.BlockLocalDnsRequests)
 	}
 	if provider.ClaimMappings != nil {
-		args.SetClaimMappings(*provider.ClaimMappings)
+		args.SetClaimMappings(provider.GetClaimMappings())
 	}
 	if provider.OnDemandClaimMappings != nil {
-		args.SetOnDemandClaimMappings(*provider.OnDemandClaimMappings)
+		args.SetOnDemandClaimMappings(provider.GetOnDemandClaimMappings())
 	}
 
 	if v, ok := d.GetOk("redirect_url"); ok {
@@ -139,11 +142,11 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 		args.SetForceAuthn(v.(bool))
 	}
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
+	p, _, err := request.Body(*args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderSaml, prettyPrintAPIError(err))
 	}
-	d.SetId(p.Id)
+	d.SetId(p.GetId())
 	return resourceAppgateSamlProviderRuleRead(d, meta)
 }
 
@@ -165,9 +168,9 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 	}
 	d.Set("type", identityProviderSaml)
 	// base attributes
-	d.Set("name", saml.Name)
-	d.Set("notes", saml.Notes)
-	d.Set("tags", saml.Tags)
+	d.Set("name", saml.GetName())
+	d.Set("notes", saml.GetNotes())
+	d.Set("tags", saml.GetTags())
 
 	// identity provider attributes
 	d.Set("admin_provider", saml.GetAdminProvider())
@@ -193,12 +196,12 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("dns_search_domains", saml.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", saml.GetBlockLocalDnsRequests())
 	if v, ok := saml.GetClaimMappingsOk(); ok {
-		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(*v)); err != nil {
+		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
 	if v, ok := saml.GetOnDemandClaimMappingsOk(); ok {
-		d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v))
+		d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(v))
 	}
 	// saml attributes
 	d.Set("redirect_url", saml.GetRedirectUrl())
@@ -322,7 +325,7 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
-	req = req.IdentityProvider(originalSamlProvider)
+	req = req.Body(*originalSamlProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderSaml, prettyPrintAPIError(err))

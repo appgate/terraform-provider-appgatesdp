@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -89,7 +89,7 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 		return nil
 	}
 
-	exportRequest := api.AppliancesIdExportPost(ctx, appliance.Id)
+	exportRequest := api.AppliancesIdExportPost(ctx, appliance.GetId())
 	password, passwordOk := d.GetOk("password")
 	sshKey, sshOk := d.GetOk("ssh_key")
 	cloudKey, cloudOk := d.GetOk("provide_cloud_ssh_key")

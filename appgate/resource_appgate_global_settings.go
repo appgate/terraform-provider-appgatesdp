@@ -174,7 +174,7 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	d.Set("collective_id", settings.GetCollectiveId())
 
 	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
-		ccAPI := meta.(*Client).API.ClientConnectionsApi
+		ccAPI := meta.(*Client).API.ClientProfilesApi
 		request := ccAPI.ClientConnectionsGet(ctx)
 		clientConnections, _, err := request.Authorization(token).Execute()
 		if err != nil {
@@ -244,13 +244,13 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 	log.Printf("[DEBUG] Updating Global settings %+v", originalsettings)
 	req := api.GlobalSettingsPut(ctx)
-	_, err = req.GlobalSettings(originalsettings).Authorization(token).Execute()
+	_, err = req.GlobalSettings(*originalsettings).Authorization(token).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Global settings %w", prettyPrintAPIError(err)))
 	}
 
 	if currentVersion.GreaterThanOrEqual(Appliance54Version) && d.HasChange("profile_hostname") {
-		ccAPI := meta.(*Client).API.ClientConnectionsApi
+		ccAPI := meta.(*Client).API.ClientProfilesApi
 		request := ccAPI.ClientConnectionsGet(ctx)
 		originalclientConnections, _, err := request.Authorization(token).Execute()
 		if err != nil {
@@ -260,7 +260,7 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		_, v := d.GetChange("profile_hostname")
 		originalclientConnections.SetProfileHostname(v.(string))
 		req := ccAPI.ClientConnectionsPut(ctx)
-		_, _, err = req.ClientConnections(originalclientConnections).Authorization(token).Execute()
+		_, _, err = req.ClientConnections(*originalclientConnections).Authorization(token).Execute()
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Could not update Client Connections %w", prettyPrintAPIError(err)))
 		}

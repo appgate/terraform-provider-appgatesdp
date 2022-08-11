@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -136,7 +136,7 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	api := meta.(*Client).API.AdministrativeRolesApi
+	api := meta.(*Client).API.AdminRolesApi
 	args := openapi.NewAdministrativeRoleWithDefaults()
 	if v, ok := d.GetOk("administrative_role_id"); ok {
 		args.SetId(v.(string))
@@ -158,8 +158,8 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 		return diag.FromErr(fmt.Errorf("Could not create Administrative role %w", prettyPrintAPIError(err)))
 	}
 
-	d.SetId(administrativeRole.Id)
-	d.Set("administrative_role_id", administrativeRole.Id)
+	d.SetId(administrativeRole.GetId())
+	d.Set("administrative_role_id", administrativeRole.GetId())
 
 	resourceAppgateAdministrativeRoleRead(ctx, d, meta)
 
@@ -240,7 +240,7 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	api := meta.(*Client).API.AdministrativeRolesApi
+	api := meta.(*Client).API.AdminRolesApi
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
 	administrativeRole, res, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -250,11 +250,11 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 		}
 		return diag.FromErr(fmt.Errorf("Failed to read Administrative role, %w", err))
 	}
-	d.SetId(administrativeRole.Id)
-	d.Set("administrative_role_id", administrativeRole.Id)
-	d.Set("name", administrativeRole.Name)
-	d.Set("notes", administrativeRole.Notes)
-	d.Set("tags", administrativeRole.Tags)
+	d.SetId(administrativeRole.GetId())
+	d.Set("administrative_role_id", administrativeRole.GetId())
+	d.Set("name", administrativeRole.GetName())
+	d.Set("notes", administrativeRole.GetNotes())
+	d.Set("tags", administrativeRole.GetTags())
 
 	privileges, err := flattenAdministrativeRolePrivileges(administrativeRole.Privileges)
 	if err != nil {
@@ -287,7 +287,7 @@ func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePriv
 			if m["type"] != "Create" {
 				return out, fmt.Errorf("You used %s, %w", m["type"], errDefaultTagsError)
 			}
-			m["default_tags"] = *val
+			m["default_tags"] = val
 		}
 		out[i] = m
 	}
@@ -300,10 +300,10 @@ func flattenAdministrativeRolePrivilegesScope(scope openapi.AdministrativePrivil
 		m["all"] = *val
 	}
 	if val, ok := scope.GetIdsOk(); ok {
-		m["ids"] = *val
+		m["ids"] = val
 	}
 	if val, ok := scope.GetTagsOk(); ok {
-		m["tags"] = *val
+		m["tags"] = val
 	}
 	return []interface{}{m}
 }
@@ -314,7 +314,7 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	api := meta.(*Client).API.AdministrativeRolesApi
+	api := meta.(*Client).API.AdminRolesApi
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
 	originalAdministrativeRole, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -342,7 +342,7 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 	}
 
 	req := api.AdministrativeRolesIdPut(ctx, d.Id())
-	req = req.AdministrativeRole(originalAdministrativeRole)
+	req = req.AdministrativeRole(*originalAdministrativeRole)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Administrative role %w", prettyPrintAPIError(err)))
@@ -358,7 +358,7 @@ func resourceAppgateAdministrativeRoleDelete(ctx context.Context, d *schema.Reso
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	api := meta.(*Client).API.AdministrativeRolesApi
+	api := meta.(*Client).API.AdminRolesApi
 	if _, err := api.AdministrativeRolesIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete Administrative role %w", prettyPrintAPIError(err)))
 	}

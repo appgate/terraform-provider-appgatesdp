@@ -357,7 +357,7 @@ func TestAccPolicyDnsSettings55(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.dns_suffix", ""),
@@ -415,7 +415,7 @@ func TestAccPolicyDnsSettings55(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "updated"),
-					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.dns_suffix", ""),
@@ -463,7 +463,7 @@ func TestAccPolicyDnsSettings55(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "updated"),
-					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.dns_suffix", ""),
@@ -489,6 +489,7 @@ resource "appgatesdp_policy" "dns_policy_with_dns_settings" {
 		"terraform",
 		"api-created"
 	]
+	tamper_proofing = false
 	disabled = false
 	dns_settings {
 		domain  = "appgate.com"

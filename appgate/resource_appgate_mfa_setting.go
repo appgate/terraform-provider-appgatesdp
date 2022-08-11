@@ -91,7 +91,7 @@ func resourceAdminMfaSettingsUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Updating MFA admin settings %+v", originalsettings)
 	req := api.AdminMfaSettingsPut(ctx)
-	_, err = req.AdminMfaSettings(originalsettings).Authorization(token).Execute()
+	_, err = req.AdminMfaSettings(*originalsettings).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update MFA admin settings %w", prettyPrintAPIError(err))
 	}

@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
 )
@@ -78,7 +78,8 @@ func TestLoginInternalServerError(t *testing.T) {
 	if resp != nil && resp.StatusCode != http.StatusInternalServerError {
 		t.Fatalf("Expected HTTP 500, got %v", resp.StatusCode)
 	}
-	oerr, ok := err.(openapi.GenericOpenAPIError)
+
+	oerr, ok := err.(*openapi.GenericOpenAPIError)
 	if !ok {
 		t.Fatalf("Expected GenericOpenAPIError, got %+v", err)
 	}

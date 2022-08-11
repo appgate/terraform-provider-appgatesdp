@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -90,8 +90,8 @@ func resourceAppgateEntitlementScriptCreate(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Could not create Entitlement script %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(EntitlementScript.Id)
-	d.Set("entitlement_script_id", EntitlementScript.Id)
+	d.SetId(EntitlementScript.GetId())
+	d.Set("entitlement_script_id", EntitlementScript.GetId())
 
 	return resourceAppgateEntitlementScriptRead(d, meta)
 }
@@ -113,12 +113,12 @@ func resourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface
 		}
 		return fmt.Errorf("Failed to read Entitlement script, %w", err)
 	}
-	d.SetId(EntitlementScript.Id)
-	d.Set("entitlement_script_id", EntitlementScript.Id)
-	d.Set("name", EntitlementScript.Name)
-	d.Set("notes", EntitlementScript.Notes)
-	d.Set("tags", EntitlementScript.Tags)
-	d.Set("expression", EntitlementScript.Expression)
+	d.SetId(EntitlementScript.GetId())
+	d.Set("entitlement_script_id", EntitlementScript.GetId())
+	d.Set("name", EntitlementScript.GetName())
+	d.Set("notes", EntitlementScript.GetNotes())
+	d.Set("tags", EntitlementScript.GetTags())
+	d.Set("expression", EntitlementScript.GetExpression())
 	d.Set("type", EntitlementScript.GetType())
 
 	return nil
@@ -160,7 +160,7 @@ func resourceAppgateEntitlementScriptUpdate(d *schema.ResourceData, meta interfa
 	}
 
 	req := api.EntitlementScriptsIdPut(ctx, d.Id())
-	req = req.EntitlementScript(originalEntitlementScript)
+	req = req.EntitlementScript(*originalEntitlementScript)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Entitlement script %w", prettyPrintAPIError(err))

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -51,8 +51,8 @@ func dataSourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{
 		return reqErr
 	}
 
-	d.SetId(criteraScript.Id)
-	d.Set("name", criteraScript.Name)
+	d.SetId(criteraScript.GetId())
+	d.Set("name", criteraScript.GetName())
 
 	return nil
 }
@@ -62,7 +62,7 @@ func findCriteriaScriptByUUID(api *openapi.CriteriaScriptsApiService, id string,
 	if err != nil {
 		return nil, err
 	}
-	return &criteraScript, nil
+	return criteraScript, nil
 }
 
 func findCriteriaScriptByName(api *openapi.CriteriaScriptsApiService, name string, token string) (*openapi.CriteriaScript, error) {

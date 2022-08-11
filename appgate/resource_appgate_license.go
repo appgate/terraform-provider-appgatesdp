@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -56,7 +56,7 @@ func resourceAppgateLicenseCreate(d *schema.ResourceData, meta interface{}) erro
 	return resourceAppgateLicenseRead(d, meta)
 }
 
-func getLicenseIdentifier(license openapi.LicenseDetails) string {
+func getLicenseIdentifier(license *openapi.LicenseDetails) string {
 	return license.GetRequestCode()
 }
 

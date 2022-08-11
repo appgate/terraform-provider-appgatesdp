@@ -67,37 +67,37 @@ EOF
   claim_mappings {
     attribute_name = "objectGUID"
     claim_name     = "userId"
-    encrypted      = false
+    encrypt      = false
     list           = false
   }
   claim_mappings {
     attribute_name = "sAMAccountName"
     claim_name     = "username"
-    encrypted      = false
+    encrypt      = false
     list           = false
   }
   claim_mappings {
     attribute_name = "givenName"
     claim_name     = "firstName"
-    encrypted      = false
+    encrypt      = false
     list           = false
   }
   claim_mappings {
     attribute_name = "sn"
     claim_name     = "lastName"
-    encrypted      = false
+    encrypt      = false
     list           = false
   }
   claim_mappings {
     attribute_name = "mail"
     claim_name     = "emails"
-    encrypted      = false
+    encrypt      = false
     list           = true
   }
   claim_mappings {
     attribute_name = "memberOf"
     claim_name     = "groups"
-    encrypted      = false
+    encrypt      = false
     list           = true
   }
 
@@ -153,7 +153,7 @@ The following arguments are supported:
 * `issuer`: (Required) SAML issuer ID to make sure the sender of the Token is the expected SAML provider.
 * `audience`: (Required) SAML audience to make sure the recipient of the Token is this Controller.
 * `provider_certificate`: (Required) The certificate of the SAML provider to verify the SAML tokens. In PEM format.
-* `decryption_key`: (Optional) The private key to decrypt encrypted assertions if there is any. In PEM format.
+* `decryption_key`: (Optional) The private key to decrypt encrypt assertions if there is any. In PEM format.
 * `force_authn`: (Optional) Enables ForceAuthn flag in the SAML Request. If the SAML Provider supports this flag, it will require user to enter their credentials every time Client requires SAML authentication.
 
 
@@ -180,7 +180,7 @@ The mapping of Identity Provider attributes to claims.
 * `attribute_name`: (Required) The name of the attribute coming from the Identity Provider.
 * `claim_name`: (Required) The name of the user claim to be used in Appgate SDP.
 * `list`:  (Optional)  default value `false` Whether the claim is expected to be a list and have multiple values or not.
-* `encrypt`:  (Optional)  default value `false` Whether the claim should be encrypted or not.
+* `encrypt`:  (Optional)  default value `false` Whether the claim should be encrypt or not.
 ### on_demand_claim_mappings
 The mapping of Identity Provider on demand attributes to claims.
 

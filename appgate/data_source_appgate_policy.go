@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -64,10 +64,10 @@ func dataSourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error
 	}
 	log.Printf("[DEBUG] Got policy: %+v", policy)
 
-	d.SetId(policy.Id)
-	d.Set("name", policy.Name)
-	d.Set("policy_id", policy.Id)
-	d.Set("tags", policy.Tags)
+	d.SetId(policy.GetId())
+	d.Set("name", policy.GetName())
+	d.Set("policy_id", policy.GetId())
+	d.Set("tags", policy.GetTags())
 
 	return nil
 }
@@ -78,7 +78,7 @@ func findPolicyByUUID(ctx context.Context, api *openapi.PoliciesApiService, id s
 	if err != nil {
 		return nil, err
 	}
-	return &policy, nil
+	return policy, nil
 }
 
 func findPolicyByName(ctx context.Context, api *openapi.PoliciesApiService, name string, token string) (*openapi.Policy, error) {

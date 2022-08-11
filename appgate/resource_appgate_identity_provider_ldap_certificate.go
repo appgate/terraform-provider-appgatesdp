@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -67,7 +67,7 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
 	currentVersion := meta.(*Client).ApplianceVersion
-	provider := &openapi.IdentityProvider{}
+	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderLdapCertificate
 	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
@@ -75,6 +75,11 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	}
 
 	args := openapi.NewLdapCertificateProviderWithDefaults()
+
+	if currentVersion.LessThan(Appliance55Version) {
+		args.DeviceLimitPerUser = nil
+	}
+
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())
@@ -103,19 +108,19 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 		args.SetUserScripts(provider.GetUserScripts())
 	}
 	if provider.DnsServers != nil {
-		args.SetDnsServers(*provider.DnsServers)
+		args.SetDnsServers(provider.GetDnsServers())
 	}
 	if provider.DnsSearchDomains != nil {
-		args.SetDnsSearchDomains(*provider.DnsSearchDomains)
+		args.SetDnsSearchDomains(provider.GetDnsSearchDomains())
 	}
 	if provider.BlockLocalDnsRequests != nil {
 		args.SetBlockLocalDnsRequests(*provider.BlockLocalDnsRequests)
 	}
 	if provider.ClaimMappings != nil {
-		args.SetClaimMappings(*provider.ClaimMappings)
+		args.SetClaimMappings(provider.GetClaimMappings())
 	}
 	if provider.OnDemandClaimMappings != nil {
-		args.SetOnDemandClaimMappings(*provider.OnDemandClaimMappings)
+		args.SetOnDemandClaimMappings(provider.GetOnDemandClaimMappings())
 	}
 	if v, ok := d.GetOk("hostnames"); ok {
 		hostnames, err := readArrayOfStringsFromConfig(v.([]interface{}))
@@ -174,11 +179,11 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 		args.SetSkipX509ExternalChecks(v.(bool))
 	}
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
+	p, _, err := request.Body(*args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderLdapCertificate, prettyPrintAPIError(err))
 	}
-	d.SetId(p.Id)
+	d.SetId(p.GetId())
 	return resourceAppgateLdapCertificateProviderRuleRead(d, meta)
 }
 
@@ -203,9 +208,9 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 	}
 	d.Set("type", identityProviderLdapCertificate)
 	// base attributes
-	d.Set("name", ldap.Name)
-	d.Set("notes", ldap.Notes)
-	d.Set("tags", ldap.Tags)
+	d.Set("name", ldap.GetName())
+	d.Set("notes", ldap.GetNotes())
+	d.Set("tags", ldap.GetTags())
 
 	// identity provider attributes
 	d.Set("admin_provider", ldap.GetAdminProvider())
@@ -231,12 +236,12 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 	d.Set("dns_search_domains", ldap.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", ldap.GetBlockLocalDnsRequests())
 	if v, ok := ldap.GetClaimMappingsOk(); ok {
-		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(*v)); err != nil {
+		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
 	if v, ok := ldap.GetOnDemandClaimMappingsOk(); ok {
-		if err := d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v)); err != nil {
+		if err := d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
@@ -426,7 +431,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 		originalLdapCertificateProvider.SetSkipX509ExternalChecks(d.Get("skip_x509_external_checks").(bool))
 	}
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
-	req = req.IdentityProvider(originalLdapCertificateProvider)
+	req = req.Body(*originalLdapCertificateProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderLdapCertificate, prettyPrintAPIError(err))

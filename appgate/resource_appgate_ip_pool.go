@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -119,8 +119,8 @@ func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Could not create Ip pool %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(IPPool.Id)
-	d.Set("ip_pool_id", IPPool.Id)
+	d.SetId(IPPool.GetId())
+	d.Set("ip_pool_id", IPPool.GetId())
 
 	return resourceAppgateIPPoolRead(d, meta)
 }
@@ -162,15 +162,15 @@ func resourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		return fmt.Errorf("Failed to read Ip pool, %w", err)
 	}
-	d.SetId(IPPool.Id)
-	d.Set("ip_pool_id", IPPool.Id)
-	d.Set("name", IPPool.Name)
-	d.Set("notes", IPPool.Notes)
-	d.Set("tags", IPPool.Tags)
+	d.SetId(IPPool.GetId())
+	d.Set("ip_pool_id", IPPool.GetId())
+	d.Set("name", IPPool.GetName())
+	d.Set("notes", IPPool.GetNotes())
+	d.Set("tags", IPPool.GetTags())
 	d.Set("ip_version6", IPPool.IpVersion6)
 	d.Set("lease_time_days", IPPool.LeaseTimeDays)
 	if ranges, o := IPPool.GetRangesOk(); o {
-		if err = d.Set("ranges", flattenIPPoolRanges(*ranges)); err != nil {
+		if err = d.Set("ranges", flattenIPPoolRanges(ranges)); err != nil {
 			return fmt.Errorf("Failed to read ip pool ranges %w", err)
 		}
 	}
@@ -239,7 +239,7 @@ func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	req := api.IpPoolsIdPut(ctx, d.Id())
-	_, _, err = req.IpPool(originalIPPool).Authorization(token).Execute()
+	_, _, err = req.IpPool(*originalIPPool).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Ip pool %w", prettyPrintAPIError(err))
 	}

@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -98,7 +98,7 @@ func resourceAppgatePolicy() *schema.Resource {
 
 			"tamper_proofing": {
 				Type:     schema.TypeBool,
-				Default:  true,
+				Computed: true,
 				Optional: true,
 			},
 
@@ -285,7 +285,7 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	}
 	api := meta.(*Client).API.PoliciesApi
 	currentVersion := meta.(*Client).ApplianceVersion
-	args := openapi.NewPolicyWithDefaults()
+	args := openapi.Policy{}
 
 	if v, ok := d.GetOk("policy_id"); ok {
 		args.SetId(v.(string))
@@ -324,6 +324,9 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
 		if v, ok := d.GetOk("type"); ok {
 			args.SetType(v.(string))
+		}
+		if args.GetType() == "Dns" {
+			args.SetTamperProofing(false)
 		}
 		if v, ok := d.GetOk("override_site_claim"); ok {
 			args.SetOverrideSiteClaim(v.(string))
@@ -371,9 +374,8 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 		}
 		args.SetRingfenceRuleLinks(ringfenceRuleLinks)
 	}
-
-	if c, ok := d.GetOk("tamper_proofing"); ok {
-		args.SetTamperProofing(c.(bool))
+	if v, ok := d.GetOkExists("tamper_proofing"); ok {
+		args.SetTamperProofing(v.(bool))
 	}
 
 	if c, ok := d.GetOk("override_site"); ok {
@@ -399,13 +401,13 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	request := api.PoliciesPost(ctx)
-	request = request.Policy(*args)
+	request = request.Policy(args)
 	policy, _, err := request.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create policy %w", prettyPrintAPIError(err))
 	}
 
-	d.SetId(policy.Id)
+	d.SetId(policy.GetId())
 	return resourceAppgatePolicyRead(d, meta)
 }
 
@@ -531,7 +533,7 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		return fmt.Errorf("Failed to read policy, %w", err)
 	}
-	d.Set("policy_id", policy.Id)
+	d.Set("policy_id", policy.GetId())
 	d.Set("name", policy.GetName())
 	d.Set("notes", policy.GetNotes())
 	d.Set("disabled", policy.GetDisabled())
@@ -648,7 +650,7 @@ func flattenPolicyDnsSettings(dnsSettings []openapi.PolicyAllOfDnsSettings) (*sc
 			m["domain"] = *v
 		}
 		if v, ok := dnsSetting.GetServersOk(); ok {
-			m["servers"] = schema.NewSet(schema.HashString, convertStringArrToInterface(*v))
+			m["servers"] = schema.NewSet(schema.HashString, convertStringArrToInterface(v))
 		}
 		out = append(out, m)
 	}
@@ -783,7 +785,7 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 	req := api.PoliciesIdPut(ctx, d.Id())
 
-	_, _, err = req.Policy(orginalPolicy).Authorization(token).Execute()
+	_, _, err = req.Policy(*orginalPolicy).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update policy %w", prettyPrintAPIError(err))
 	}

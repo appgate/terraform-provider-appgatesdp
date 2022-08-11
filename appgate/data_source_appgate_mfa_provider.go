@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -54,9 +54,9 @@ func dataSourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) 
 	}
 	log.Printf("[DEBUG] Got MFA provider: %+v", provider.Id)
 
-	d.SetId(provider.Id)
-	d.Set("mfa_provider_name", provider.Name)
-	d.Set("mfa_provider_id", provider.Id)
+	d.SetId(provider.GetId())
+	d.Set("mfa_provider_name", provider.GetName())
+	d.Set("mfa_provider_id", provider.GetId())
 	return nil
 }
 
@@ -65,7 +65,7 @@ func findMfaProviderByUUID(api *openapi.MFAProvidersApiService, id string, token
 	if err != nil {
 		return nil, err
 	}
-	return &provider, nil
+	return provider, nil
 }
 
 func findMfaProviderByName(api *openapi.MFAProvidersApiService, name string, token string) (*openapi.MfaProvider, error) {

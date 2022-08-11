@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -97,7 +97,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 	}
 
 	retryErr := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(appliance).Authorization(token).Execute()
+		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(prettyPrintAPIError(err))
 		}
@@ -117,7 +117,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 	if retryErr != nil {
 		return diag.FromErr(retryErr)
 	}
-	d.SetId(appliance.Id)
+	d.SetId(appliance.GetId())
 	resourceAppgateApplianceControllerActivationRead(ctx, d, meta)
 	return diags
 }
@@ -139,7 +139,7 @@ func resourceAppgateApplianceControllerActivationRead(ctx context.Context, d *sc
 		}
 		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %w", err))
 	}
-	d.SetId(appliance.Id)
+	d.SetId(appliance.GetId())
 	if v, ok := appliance.GetControllerOk(); ok {
 		ctrl := make(map[string]interface{})
 		ctrl["enabled"] = v.GetEnabled()
@@ -209,7 +209,7 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 		state = ApplianceStateControllerReady
 	}
 	retryErr := resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(appliance).Authorization(token).Execute()
+		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance %w", prettyPrintAPIError(err)))
 		}
@@ -253,7 +253,7 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 	appliance.SetController(c)
 
 	retryErr := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
-		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(appliance).Authorization(token).Execute()
+		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance when disable controller on %s %w", appliance.Name, prettyPrintAPIError(err)))
 		}

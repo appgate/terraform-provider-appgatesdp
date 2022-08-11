@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -63,7 +63,7 @@ func dataSourceAppgateCertificateAuthorityRead(ctx context.Context, d *schema.Re
 	log.Printf("[DEBUG] Data source CA Certificate.")
 
 	var diags diag.Diagnostics
-	api := meta.(*Client).API.CAApi
+	api := meta.(*Client).API.CertificateAuthorityApi
 
 	if pem, ok := d.GetOk("pem"); pem.(bool) && ok {
 		cert, _, err := api.CertificateAuthorityCaPemGet(ctx).Execute()
@@ -82,7 +82,7 @@ func dataSourceAppgateCertificateAuthorityRead(ctx context.Context, d *schema.Re
 	return diags
 }
 
-func setCertificate(d *schema.ResourceData, cert openapi.CaConfig) {
+func setCertificate(d *schema.ResourceData, cert *openapi.CaConfig) {
 	d.Set("version", int(cert.GetVersion()))
 	d.Set("serial", cert.GetSerial())
 	d.Set("issuer", cert.GetIssuer())

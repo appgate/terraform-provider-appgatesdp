@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -58,7 +58,7 @@ func resourceAppgateClientProfile() *schema.Resource {
 	}
 }
 
-func getIdFromProfile(profile openapi.ClientConnectionsProfiles) string {
+func getIdFromProfile(profile openapi.ClientConnectionsProfilesInner) string {
 	// names are case sensitive and the controller only allows 1 per case type.
 	// so it will be suitable as the identitfer.
 	return profile.GetName()
@@ -67,7 +67,7 @@ func getIdFromProfile(profile openapi.ClientConnectionsProfiles) string {
 func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create Client Profile %s", d.Get("name"))
 	ctx := context.Background()
-	api := meta.(*Client).API.ClientConnectionsApi
+	api := meta.(*Client).API.ClientProfilesApi
 
 	err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		rand.Seed(time.Now().UnixNano())
@@ -88,7 +88,7 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 		}
 		existingProfiles := clientConnections.GetProfiles()
 
-		profile := openapi.ClientConnectionsProfiles{}
+		profile := openapi.ClientConnectionsProfilesInner{}
 		if v, ok := d.GetOk("name"); ok {
 			profile.SetName(v.(string))
 		}
@@ -103,7 +103,7 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 
 		existingProfiles = append(existingProfiles, profile)
 		clientConnections.SetProfiles(existingProfiles)
-		_, _, err = api.ClientConnectionsPut(ctx).ClientConnections(clientConnections).Authorization(token).Execute()
+		_, _, err = api.ClientConnectionsPut(ctx).ClientConnections(*clientConnections).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Error updating client connection profile %s: %w", d.Id(), err))
 		}
@@ -143,14 +143,14 @@ func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-	api := meta.(*Client).API.ClientConnectionsApi
+	api := meta.(*Client).API.ClientProfilesApi
 	ctx := context.Background()
 	clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not read Client Connections %w", prettyPrintAPIError(err))
 	}
 	existingProfiles := clientConnections.GetProfiles()
-	var p *openapi.ClientConnectionsProfiles
+	var p *openapi.ClientConnectionsProfilesInner
 	for _, profile := range existingProfiles {
 		log.Printf("[DEBUG] Reading Found profile %q - Looking for %s", profile.GetName(), d.Id())
 		if strings.EqualFold(profile.GetName(), d.Id()) && profile.GetName() == d.Id() {
@@ -172,7 +172,7 @@ func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) 
 func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete client profile %+v", d.Id())
 	ctx := context.Background()
-	api := meta.(*Client).API.ClientConnectionsApi
+	api := meta.(*Client).API.ClientProfilesApi
 
 	err := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		rand.Seed(time.Now().UnixNano())
@@ -191,8 +191,8 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 			return resource.RetryableError(fmt.Errorf("Could not read Client Connections during delete %w", prettyPrintAPIError(err)))
 		}
 		existingProfiles := clientConnections.GetProfiles()
-		var p *openapi.ClientConnectionsProfiles
-		var newProfiles []openapi.ClientConnectionsProfiles
+		var p *openapi.ClientConnectionsProfilesInner
+		var newProfiles []openapi.ClientConnectionsProfilesInner
 		for i, profile := range existingProfiles {
 			if strings.EqualFold(profile.GetName(), d.Id()) && profile.GetName() == d.Id() {
 				p = &profile
@@ -205,7 +205,7 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 			diag.FromErr(fmt.Errorf("could not find client profile %s during delete", d.Id()))
 		}
 		clientConnections.SetProfiles(newProfiles)
-		_, _, err = api.ClientConnectionsPut(ctx).ClientConnections(clientConnections).Authorization(token).Execute()
+		_, _, err = api.ClientConnectionsPut(ctx).ClientConnections(*clientConnections).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}

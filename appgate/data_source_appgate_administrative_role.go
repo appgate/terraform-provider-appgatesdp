@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,7 +35,7 @@ func dataSourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Reso
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	api := meta.(*Client).API.AdministrativeRolesApi
+	api := meta.(*Client).API.AdminRolesApi
 
 	adminID, iok := d.GetOk("administrative_role_id")
 	adminName, nok := d.GetOk("administrative_role_name")
@@ -55,22 +55,22 @@ func dataSourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Reso
 	}
 	log.Printf("[DEBUG] Got Administrative role: %+v", admin)
 
-	d.SetId(admin.Id)
-	d.Set("administrative_role_name", admin.Name)
-	d.Set("administrative_role_id", admin.Id)
+	d.SetId(admin.GetId())
+	d.Set("administrative_role_name", admin.GetName())
+	d.Set("administrative_role_id", admin.GetId())
 	return nil
 }
 
-func findAdministrativeRoleByUUID(api *openapi.AdministrativeRolesApiService, id string, token string) (*openapi.AdministrativeRole, error) {
+func findAdministrativeRoleByUUID(api *openapi.AdminRolesApiService, id string, token string) (*openapi.AdministrativeRole, error) {
 	log.Printf("[DEBUG] Data source Administrative role get by UUID %s", id)
 	admin, _, err := api.AdministrativeRolesIdGet(context.Background(), id).Authorization(token).Execute()
 	if err != nil {
 		return nil, err
 	}
-	return &admin, nil
+	return admin, nil
 }
 
-func findAdministrativeRoleByName(api *openapi.AdministrativeRolesApiService, name string, token string) (*openapi.AdministrativeRole, error) {
+func findAdministrativeRoleByName(api *openapi.AdminRolesApiService, name string, token string) (*openapi.AdministrativeRole, error) {
 	log.Printf("[DEBUG] Data Administrative role get by name %s", name)
 	request := api.AdministrativeRolesGet(context.Background())
 

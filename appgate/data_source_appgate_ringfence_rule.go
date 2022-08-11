@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -62,10 +62,10 @@ func dataSourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}
 	}
 	log.Printf("[DEBUG] Got Ringfence Rule: %+v", ringfenceRule)
 
-	d.SetId(ringfenceRule.Id)
-	d.Set("ringfence_rule_id", ringfenceRule.Id)
-	d.Set("name", ringfenceRule.Name)
-	d.Set("tags", ringfenceRule.Tags)
+	d.SetId(ringfenceRule.GetId())
+	d.Set("ringfence_rule_id", ringfenceRule.GetId())
+	d.Set("name", ringfenceRule.GetName())
+	d.Set("tags", ringfenceRule.GetTags())
 
 	return nil
 }
@@ -76,7 +76,7 @@ func findRingfenceRuleByUUID(ctx context.Context, api *openapi.RingfenceRulesApi
 	if err != nil {
 		return nil, err
 	}
-	return &ringfenceRule, nil
+	return ringfenceRule, nil
 }
 
 func findRingfenceRuleByName(ctx context.Context, api *openapi.RingfenceRulesApiService, name string, token string) (*openapi.RingfenceRule, error) {

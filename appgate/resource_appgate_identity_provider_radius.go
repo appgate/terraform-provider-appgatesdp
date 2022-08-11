@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -76,7 +76,7 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
 	currentVersion := meta.(*Client).ApplianceVersion
-	provider := &openapi.IdentityProvider{}
+	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderRadius
 	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
@@ -84,6 +84,9 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	}
 	args := openapi.NewRadiusProviderWithDefaults()
 	// base
+	if currentVersion.LessThan(Appliance55Version) {
+		args.DeviceLimitPerUser = nil
+	}
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())
@@ -113,19 +116,19 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 		args.SetUserScripts(provider.GetUserScripts())
 	}
 	if provider.DnsServers != nil {
-		args.SetDnsServers(*provider.DnsServers)
+		args.SetDnsServers(provider.GetDnsServers())
 	}
 	if provider.DnsSearchDomains != nil {
-		args.SetDnsSearchDomains(*provider.DnsSearchDomains)
+		args.SetDnsSearchDomains(provider.GetDnsSearchDomains())
 	}
 	if provider.BlockLocalDnsRequests != nil {
 		args.SetBlockLocalDnsRequests(*provider.BlockLocalDnsRequests)
 	}
 	if provider.ClaimMappings != nil {
-		args.SetClaimMappings(*provider.ClaimMappings)
+		args.SetClaimMappings(provider.GetClaimMappings())
 	}
 	if provider.OnDemandClaimMappings != nil {
-		args.SetOnDemandClaimMappings(*provider.OnDemandClaimMappings)
+		args.SetOnDemandClaimMappings(provider.GetOnDemandClaimMappings())
 	}
 	// radius
 	if v, ok := d.GetOk("hostnames"); ok {
@@ -146,11 +149,11 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	}
 
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
+	p, _, err := request.Body(*args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderRadius, prettyPrintAPIError(err))
 	}
-	d.SetId(p.Id)
+	d.SetId(p.GetId())
 	return resourceAppgateRadiusProviderRuleRead(d, meta)
 }
 
@@ -201,20 +204,20 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 	d.Set("dns_search_domains", radius.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", radius.GetBlockLocalDnsRequests())
 	if v, ok := radius.GetClaimMappingsOk(); ok {
-		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(*v)); err != nil {
+		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
 
 	if v, ok := radius.GetOnDemandClaimMappingsOk(); ok {
-		if err := d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v)); err != nil {
+		if err := d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
 
 	// radius attributes
 	if v, ok := radius.GetHostnamesOk(); ok {
-		d.Set("hostnames", *v)
+		d.Set("hostnames", v)
 	}
 	if v, ok := radius.GetPortOk(); ok {
 		d.Set("port", *v)
@@ -335,7 +338,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	originalRadiusProvider.SetSharedSecret(d.Get("shared_secret").(string))
 
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
-	req = req.IdentityProvider(originalRadiusProvider)
+	req = req.Body(*originalRadiusProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderRadius, prettyPrintAPIError(err))

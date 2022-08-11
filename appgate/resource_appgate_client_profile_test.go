@@ -54,7 +54,7 @@ func testAccCheckClientProfileDestroy(s *terraform.State) error {
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.ClientConnectionsApi
+		api := testAccProvider.Meta().(*Client).API.ClientProfilesApi
 		clientConnections, _, err := api.ClientConnectionsGet(context.Background()).Authorization(token).Execute()
 		if err != nil {
 			return err
@@ -75,7 +75,7 @@ func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.ClientConnectionsApi
+		api := testAccProvider.Meta().(*Client).API.ClientProfilesApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {

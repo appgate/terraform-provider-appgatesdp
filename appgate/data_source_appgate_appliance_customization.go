@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -54,9 +54,9 @@ func dataSourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta in
 	}
 	log.Printf("[DEBUG] Got appliance customization: %+v", appliance)
 
-	d.SetId(appliance.Id)
-	d.Set("appliance_customization_name", appliance.Name)
-	d.Set("appliance_customization_id", appliance.Id)
+	d.SetId(appliance.GetId())
+	d.Set("appliance_customization_name", appliance.GetName())
+	d.Set("appliance_customization_id", appliance.GetId())
 	return nil
 }
 
@@ -66,7 +66,7 @@ func findApplianceCustomizationByUUID(api *openapi.ApplianceCustomizationsApiSer
 	if err != nil {
 		return nil, err
 	}
-	return &appliance, nil
+	return appliance, nil
 }
 
 func findApplianceCustomizationByName(api *openapi.ApplianceCustomizationsApiService, name string, token string) (*openapi.ApplianceCustomization, error) {

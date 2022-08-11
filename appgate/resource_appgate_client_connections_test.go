@@ -57,7 +57,7 @@ func testAccCheckClientConnectionsExists(resource string) resource.TestCheckFunc
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.ClientConnectionsApi
+		api := testAccProvider.Meta().(*Client).API.ClientProfilesApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {

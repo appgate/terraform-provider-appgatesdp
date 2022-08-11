@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -46,7 +46,7 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	api := meta.(*Client).API.LdapIdentityProvidersApi
 	ctx := context.TODO()
 	currentVersion := meta.(*Client).ApplianceVersion
-	provider := &openapi.IdentityProvider{}
+	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderLdap
 	provider, err = readProviderFromConfig(d, *provider, currentVersion)
 	if err != nil {
@@ -54,6 +54,11 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	}
 
 	args := openapi.NewLdapProviderWithDefaults()
+
+	if currentVersion.LessThan(Appliance55Version) {
+		args.DeviceLimitPerUser = nil
+	}
+
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())
@@ -79,19 +84,19 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 		args.SetIpPoolV6(*provider.IpPoolV6)
 	}
 	if provider.DnsServers != nil {
-		args.SetDnsServers(*provider.DnsServers)
+		args.SetDnsServers(provider.GetDnsServers())
 	}
 	if provider.DnsSearchDomains != nil {
-		args.SetDnsSearchDomains(*provider.DnsSearchDomains)
+		args.SetDnsSearchDomains(provider.GetDnsSearchDomains())
 	}
 	if provider.BlockLocalDnsRequests != nil {
 		args.SetBlockLocalDnsRequests(*provider.BlockLocalDnsRequests)
 	}
 	if provider.ClaimMappings != nil {
-		args.SetClaimMappings(*provider.ClaimMappings)
+		args.SetClaimMappings(provider.GetClaimMappings())
 	}
 	if provider.OnDemandClaimMappings != nil {
-		args.SetOnDemandClaimMappings(*provider.OnDemandClaimMappings)
+		args.SetOnDemandClaimMappings(provider.GetOnDemandClaimMappings())
 	}
 	if v, ok := d.GetOk("hostnames"); ok {
 		hostnames, err := readArrayOfStringsFromConfig(v.([]interface{}))
@@ -133,11 +138,11 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	}
 
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.IdentityProvider(*args).Authorization(token).Execute()
+	p, _, err := request.Body(*args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderLdap, prettyPrintAPIError(err))
 	}
-	d.SetId(p.Id)
+	d.SetId(p.GetId())
 	return resourceAppgateLdapProviderRuleRead(d, meta)
 }
 
@@ -188,12 +193,12 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("dns_search_domains", ldap.GetDnsSearchDomains())
 	d.Set("block_local_dns_requests", ldap.GetBlockLocalDnsRequests())
 	if v, ok := ldap.GetClaimMappingsOk(); ok {
-		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(*v)); err != nil {
+		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
 	if v, ok := ldap.GetOnDemandClaimMappingsOk(); ok {
-		if err := d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v)); err != nil {
+		if err := d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
@@ -381,7 +386,7 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		originalLdapProvider.SetPasswordWarning(pw)
 	}
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
-	req = req.IdentityProvider(originalLdapProvider)
+	req = req.Body(*originalLdapProvider)
 	_, _, err = req.Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderLdap, prettyPrintAPIError(err))

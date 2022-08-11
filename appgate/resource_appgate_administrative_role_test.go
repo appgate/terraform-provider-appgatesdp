@@ -149,7 +149,7 @@ func testAccCheckadministrativeRoleExists(resource string) resource.TestCheckFun
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.AdministrativeRolesApi
+		api := testAccProvider.Meta().(*Client).API.AdminRolesApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -177,7 +177,7 @@ func testAccCheckadministrativeRoleDestroy(s *terraform.State) error {
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.AdministrativeRolesApi
+		api := testAccProvider.Meta().(*Client).API.AdminRolesApi
 
 		if _, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
 			return fmt.Errorf("Administrative Role still exists, %+v", err)

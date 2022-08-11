@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -110,13 +110,14 @@ func resourceAppgateConnectorProviderRuleRead(d *schema.ResourceData, meta inter
 	}
 
 	if v, ok := connectorIP.GetClaimMappingsOk(); ok {
-		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(*v)); err != nil {
+		if err := d.Set("claim_mappings", flattenIdentityProviderClaimsMappning(v)); err != nil {
 			return err
 		}
 	}
-	if v, ok := connectorIP.GetOnDemandClaimMappingsOk(); ok {
-		d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v))
-	}
+	// TODO ?? is this need
+	// if v, ok := connectorIP.GetOnDemandClaimMappingsOk(); ok {
+	// 	d.Set("on_demand_claim_mappings", flattenIdentityProviderOnDemandClaimsMappning(*v))
+	// }
 
 	return nil
 }
@@ -159,15 +160,14 @@ func resourceAppgateConnectorProviderRuleUpdate(d *schema.ResourceData, meta int
 		claims := readIdentityProviderClaimMappingFromConfig(v.([]interface{}))
 		originalConnectorProvider.SetClaimMappings(claims)
 	}
-	if d.HasChange("on_demand_claim_mappings") {
-		_, v := d.GetChange("on_demand_claim_mappings")
-		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.([]interface{}))
-		originalConnectorProvider.SetOnDemandClaimMappings(claims)
-	}
+	// TODO is this needed?
+	// if d.HasChange("on_demand_claim_mappings") {
+	// 	_, v := d.GetChange("on_demand_claim_mappings")
+	// 	claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.([]interface{}))
+	// 	originalConnectorProvider.SetOnDemandClaimMappings(claims)
+	// }
 
-	req := api.IdentityProvidersIdPut(ctx, d.Id())
-	req = req.IdentityProvider(originalConnectorProvider)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = api.IdentityProvidersIdPut(ctx, d.Id()).Body(*originalConnectorProvider).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderConnector, prettyPrintAPIError(err))
 	}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v16/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -80,12 +80,12 @@ func dataSourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Got Site: %+v", site)
 
-	d.SetId(site.Id)
-	d.Set("site_name", site.Name)
-	d.Set("short_name", site.ShortName)
-	d.Set("site_id", site.Id)
-	d.Set("notes", site.Notes)
-	d.Set("tags", site.Tags)
+	d.SetId(site.GetId())
+	d.Set("site_name", site.GetName())
+	d.Set("short_name", site.GetShortName())
+	d.Set("site_id", site.GetId())
+	d.Set("notes", site.GetNotes())
+	d.Set("tags", site.GetTags())
 
 	return nil
 }
@@ -96,7 +96,7 @@ func findSiteByUUID(api *openapi.SitesApiService, id string, token string) (*ope
 	if err != nil {
 		return nil, err
 	}
-	return &site, nil
+	return site, nil
 }
 
 func findSiteByName(api *openapi.SitesApiService, name string, token string) (*openapi.Site, error) {

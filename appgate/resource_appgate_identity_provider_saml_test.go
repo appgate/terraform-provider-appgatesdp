@@ -58,32 +58,32 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.attribute_name", "givenName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.claim_name", "firstName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.attribute_name", "mail"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.claim_name", "emails"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.attribute_name", "memberOf"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.claim_name", "groups"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.attribute_name", "objectGUID"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.claim_name", "userId"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.attribute_name", "sAMAccountName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.claim_name", "username"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.attribute_name", "sn"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.claim_name", "lastName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.claim_name", "antiVirusIsRunning"),
@@ -137,37 +137,37 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.attribute_name", "givenName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.claim_name", "firstName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.attribute_name", "mail"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.claim_name", "emails"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.attribute_name", "memberOf"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.claim_name", "groups"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.attribute_name", "objectGUID"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.claim_name", "userId"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.attribute_name", "sAMAccountName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.claim_name", "username"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.attribute_name", "sn"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.claim_name", "lastName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.attribute_name", "test"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.claim_name", "test"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.6.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.%", "4"),
@@ -229,27 +229,27 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.attribute_name", "givenName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.claim_name", "firstName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.attribute_name", "mail"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.claim_name", "emails"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.attribute_name", "sAMAccountName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.claim_name", "username"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.attribute_name", "sn"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.claim_name", "lastName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.attribute_name", "test"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.claim_name", "test"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypted", "true"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypt", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.%", "4"),
@@ -347,37 +347,37 @@ func testAccCheckSamlIdentityProviderBasic(rName string) string {
 	claim_mappings {
 		attribute_name = "objectGUID"
 		claim_name     = "userId"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "sAMAccountName"
 		claim_name     = "username"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "givenName"
 		claim_name     = "firstName"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "sn"
 		claim_name     = "lastName"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "mail"
 		claim_name     = "emails"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	}
 	claim_mappings {
 		attribute_name = "memberOf"
 		claim_name     = "groups"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	}
 
@@ -459,43 +459,43 @@ func testAccCheckSamlIdentityProviderUpdates(rName string) string {
 	claim_mappings {
 		attribute_name = "objectGUID"
 		claim_name     = "userId"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "sAMAccountName"
 		claim_name     = "username"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "givenName"
 		claim_name     = "firstName"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "sn"
 		claim_name     = "lastName"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "mail"
 		claim_name     = "emails"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	}
 	claim_mappings {
 		attribute_name = "memberOf"
 		claim_name     = "groups"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	}
 		claim_mappings {
 		attribute_name = "test"
 		claim_name     = "test"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	on_demand_claim_mappings {
@@ -583,31 +583,31 @@ func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
     claim_mappings {
       attribute_name = "sn"
       claim_name     = "lastName"
-      encrypted      = false
+      encrypt      = false
       list           = false
     }
     claim_mappings {
       attribute_name = "sAMAccountName"
       claim_name     = "username"
-      encrypted      = false
+      encrypt      = false
       list           = false
     }
     claim_mappings {
       attribute_name = "mail"
       claim_name     = "emails"
-      encrypted      = false
+      encrypt      = false
       list           = true
     }
       claim_mappings {
       attribute_name = "test"
       claim_name     = "test"
-      encrypted      = true
+      encrypt      = true
       list           = false
     }
     claim_mappings {
       attribute_name = "givenName"
       claim_name     = "firstName"
-      encrypted      = false
+      encrypt      = false
       list           = false
     }
     on_demand_claim_mappings {
@@ -687,31 +687,31 @@ func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
 	claim_mappings {
 		attribute_name = "mail"
 		claim_name     = "emails"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	  }
 	claim_mappings {
 		attribute_name = "test"
 		claim_name     = "test"
-		encrypted      = true
+		encrypt      = true
 		list           = false
 	}
     claim_mappings {
       attribute_name = "sn"
       claim_name     = "lastName"
-      encrypted      = false
+      encrypt      = false
       list           = false
     }
     claim_mappings {
       attribute_name = "sAMAccountName"
       claim_name     = "username"
-      encrypted      = false
+      encrypt      = false
       list           = false
     }
     claim_mappings {
       attribute_name = "givenName"
       claim_name     = "firstName"
-      encrypted      = false
+      encrypt      = false
       list           = false
     }
     on_demand_claim_mappings {
@@ -795,37 +795,37 @@ func testAccCheckSamlIdentityProviderBasic55OrGreater(rName string) string {
 	claim_mappings {
 		attribute_name = "objectGUID"
 		claim_name     = "userId"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "sAMAccountName"
 		claim_name     = "username"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "givenName"
 		claim_name     = "firstName"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "sn"
 		claim_name     = "lastName"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "mail"
 		claim_name     = "emails"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	}
 	claim_mappings {
 		attribute_name = "memberOf"
 		claim_name     = "groups"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	}
 
@@ -889,32 +889,32 @@ func TestAccSamlIdentityProviderBasic55OrGreater(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.attribute_name", "givenName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.claim_name", "firstName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.attribute_name", "mail"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.claim_name", "emails"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.attribute_name", "memberOf"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.claim_name", "groups"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.attribute_name", "objectGUID"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.claim_name", "userId"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.attribute_name", "sAMAccountName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.claim_name", "username"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.attribute_name", "sn"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.claim_name", "lastName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.claim_name", "antiVirusIsRunning"),
@@ -937,6 +937,7 @@ func TestAccSamlIdentityProviderBasic55OrGreater(t *testing.T) {
 	})
 }
 
+// TestAccSamlIdentityProviderUserScripts55OrGreater tests https://github.com/appgate/terraform-provider-appgatesdp/issues/246
 func TestAccSamlIdentityProviderUserScripts55OrGreater(t *testing.T) {
 	resourceName := "appgatesdp_saml_identity_provider.saml_test_resource"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
@@ -986,32 +987,32 @@ func TestAccSamlIdentityProviderUserScripts55OrGreater(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.attribute_name", "givenName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.claim_name", "firstName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.attribute_name", "mail"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.claim_name", "emails"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.1.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.attribute_name", "memberOf"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.claim_name", "groups"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.2.list", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.attribute_name", "objectGUID"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.claim_name", "userId"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.3.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.attribute_name", "sAMAccountName"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.claim_name", "username"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.4.list", "false"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.attribute_name", "sn"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.claim_name", "lastName"),
-					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypted", "false"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.5.encrypt", "false"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.claim_name", "antiVirusIsRunning"),
@@ -1114,37 +1115,37 @@ resource "appgatesdp_saml_identity_provider" "saml_test_resource" {
 	claim_mappings {
 		attribute_name = "objectGUID"
 		claim_name     = "userId"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "sAMAccountName"
 		claim_name     = "username"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "givenName"
 		claim_name     = "firstName"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "sn"
 		claim_name     = "lastName"
-		encrypted      = false
+		encrypt      = false
 		list           = false
 	}
 	claim_mappings {
 		attribute_name = "mail"
 		claim_name     = "emails"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	}
 	claim_mappings {
 		attribute_name = "memberOf"
 		claim_name     = "groups"
-		encrypted      = false
+		encrypt      = false
 		list           = true
 	}
 
