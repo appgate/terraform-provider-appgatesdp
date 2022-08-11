@@ -88,10 +88,6 @@ VPN configuration for this Site.
 * `dtls`:  (Optional) VPN over DTLS protocol configuration.
 * `route_via`:  (Optional) Override routing for tunnel traffic.
 * `url_access_enabled`:  (Optional) Whether to enable URL Access feature or not.
-* `web_proxy_enabled`:  (Optional) Flag for manipulating web proxy p12 file. Setting this false will delete the existing p12 file from database.
-* `web_proxy_key_store`:  (Optional) The PKCS12 package to be used for web proxy. The file must be with no password and must include the full certificate chain and a private key. In Base64 format.
-* `web_proxy_verify_upstream_certificate`:  (Optional)  default value `true` Gateway will verify the certificate of the endpoints.
-* `web_proxy_certificate_subject_name`:  (Optional) The subject name of the certificate with private key in the PKCS12 file for web proxy assigned to this site.
 * `url_access_p12s`:  (Optional) P12 files for proxying traffic for URL Access feature.
 * `ip_access_log_interval_seconds`:  (Optional)  default value `120` Frequency configuration for generating IP Access audit logs for a connection.
 #### tls
