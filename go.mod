@@ -8,6 +8,6 @@ require (
 	github.com/denisbrodbeck/machineid v1.0.1
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-version v1.6.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.19.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
 	github.com/imdario/mergo v0.3.13
 )
