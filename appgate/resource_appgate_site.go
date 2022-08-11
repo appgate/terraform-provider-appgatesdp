@@ -480,6 +480,11 @@ func resourceAppgateSite() *schema.Resource {
 											},
 										},
 									},
+									"default_ttl_seconds": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
 								},
 							},
 						},
@@ -867,6 +872,8 @@ func flattenSiteDnsForwading(in openapi.SiteAllOfNameResolutionDnsForwarding) ([
 		return nil, err
 	}
 	m["allow_destinations"] = ad
+	m["default_ttl_seconds"] = in.GetDefaultTtlSeconds()
+
 	return []map[string]interface{}{m}, nil
 }
 
@@ -1177,7 +1184,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 			result.SetGcpResolvers(gcpResolvers)
 		}
 		if v, ok := raw["dns_forwarding"]; ok {
-			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(v.(*schema.Set).List())
+			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(currentVersion, v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
@@ -1398,7 +1405,7 @@ func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNa
 	return result, nil
 }
 
-func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
+func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
 	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
 	for _, dnsForwarding := range dnsForwardingConfig {
 		raw := dnsForwarding.(map[string]interface{})
@@ -1421,6 +1428,11 @@ func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (op
 				return result, err
 			}
 			result.SetAllowDestinations(destinations)
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
+				result.SetDefaultTtlSeconds(int32(v))
+			}
 		}
 	}
 	return result, nil
