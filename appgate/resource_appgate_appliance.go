@@ -1026,6 +1026,11 @@ func resourceAppgateAppliance() *schema.Resource {
 										Optional:    true,
 										Description: "Changes the text color on the sign-in page. In hexadecimal format.",
 									},
+									"auto_redirect": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
 								},
 							},
 						},
@@ -1825,6 +1830,7 @@ func flattenAppliancePortalSignInCustomziation(d *schema.ResourceData, local map
 	raw["logo_checksum"] = customization.GetLogo()
 	raw["text"] = customization.GetText()
 	raw["text_color"] = customization.GetTextColor()
+	raw["auto_redirect"] = customization.GetAutoRedirect()
 	result = append(result, raw)
 	return result, nil
 }
@@ -3192,6 +3198,15 @@ func readAppliancePortalFromConfig(d *schema.ResourceData, portals []interface{}
 			if v, ok := raw["text_color"].(string); ok && len(v) > 0 {
 				customization.SetTextColor(v)
 			}
+
+			if v, ok := raw["auto_redirect"].(bool); ok {
+				if currentVersion.LessThan(Appliance60Version) && v {
+					return p, fmt.Errorf("portal.sign_in_customization.auto_redirect is not allowed in %s", currentVersion.String())
+				} else if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+					customization.SetAutoRedirect(v)
+				}
+			}
+
 			p.SetSignInCustomization(customization)
 		}
 
