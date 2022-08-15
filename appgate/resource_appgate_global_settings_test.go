@@ -134,3 +134,93 @@ resource "appgatesdp_global_settings" "test_global_settings_profile_hostname" {
 }
 `
 }
+
+func TestAccGlobalSettings6AndAbove(t *testing.T) {
+	resourceName := "appgatesdp_global_settings.test_global_settings"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor6AndAbove(t)
+				},
+				Config: `
+				resource "appgatesdp_global_settings" "test_global_settings" {
+					message_of_the_day           = "hello world"
+					entitlement_token_expiration = 500
+					login_banner_message         = "Welcome"
+					collective_name              = "Tardis"
+					spa_time_window_seconds      = 200
+					spa_mode                     = "TCP"
+				}
+				`,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGlobalSettingsExists(resourceName),
+					resource.TestCheckResourceAttrSet(resourceName, "administration_token_expiration"),
+					resource.TestCheckResourceAttrSet(resourceName, "app_discovery_domains.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "audit_log_persistence_mode"),
+					resource.TestCheckResourceAttrSet(resourceName, "backup_api_enabled"),
+					resource.TestCheckResourceAttrSet(resourceName, "claims_token_expiration"),
+					resource.TestCheckResourceAttrSet(resourceName, "collective_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "fips"),
+					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpn_certificate_expiration"),
+
+					resource.TestCheckResourceAttr(resourceName, "entitlement_token_expiration", "500"),
+					resource.TestCheckResourceAttr(resourceName, "login_banner_message", "Welcome"),
+					resource.TestCheckResourceAttr(resourceName, "message_of_the_day", "hello world"),
+					resource.TestCheckResourceAttr(resourceName, "collective_name", "Tardis"),
+					resource.TestCheckResourceAttr(resourceName, "spa_time_window_seconds", "200"),
+					resource.TestCheckResourceAttr(resourceName, "spa_mode", "TCP"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccGlobalSettingsImportStateCheckFunc(1),
+			},
+			{
+				PreConfig: func() {
+					testFor6AndAbove(t)
+				},
+				Config: `
+				resource "appgatesdp_global_settings" "test_global_settings" {
+					message_of_the_day           = "Welcome to appgate sdp"
+					entitlement_token_expiration = 400
+					login_banner_message         = "Hello world"
+					collective_name              = "Who"
+					spa_time_window_seconds      = 233
+					spa_mode                     = "UDP-TCP"
+				}
+				`,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGlobalSettingsExists(resourceName),
+					// testAccCheckExampleWidgetExists(resourceName),
+					resource.TestCheckResourceAttrSet(resourceName, "administration_token_expiration"),
+					resource.TestCheckResourceAttrSet(resourceName, "app_discovery_domains.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "audit_log_persistence_mode"),
+					resource.TestCheckResourceAttrSet(resourceName, "backup_api_enabled"),
+					resource.TestCheckResourceAttrSet(resourceName, "claims_token_expiration"),
+					resource.TestCheckResourceAttrSet(resourceName, "collective_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "fips"),
+					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
+					resource.TestCheckResourceAttrSet(resourceName, "vpn_certificate_expiration"),
+
+					resource.TestCheckResourceAttr(resourceName, "entitlement_token_expiration", "400"),
+					resource.TestCheckResourceAttr(resourceName, "login_banner_message", "Hello world"),
+					resource.TestCheckResourceAttr(resourceName, "message_of_the_day", "Welcome to appgate sdp"),
+					resource.TestCheckResourceAttr(resourceName, "collective_name", "Who"),
+					resource.TestCheckResourceAttr(resourceName, "spa_time_window_seconds", "233"),
+					resource.TestCheckResourceAttr(resourceName, "spa_mode", "UDP-TCP"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccGlobalSettingsImportStateCheckFunc(1),
+			},
+		},
+	})
+}

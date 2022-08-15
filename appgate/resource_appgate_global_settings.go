@@ -119,16 +119,16 @@ func resourceGlobalSettings() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"spa_mode": { // 5.5
+			"spa_mode": {
 				Type:        schema.TypeString,
 				Description: "SPA Mode.",
 				Optional:    true,
 				Computed:    true,
 				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 					// controller validation error message is wrong:
-					// spaMode UDP_TCP was not one of [TCP, UDP_TCP]
+					// spaMode FOO was not one of [TCP, UDP_TCP]
 					// should be
-					// spaMode UDP_TCP was not one of [TCP, UDP-TCP]
+					// spaMode FOO was not one of [TCP, UDP-TCP]
 					// so will validate here first.
 					s := v.(string)
 					list := []string{
@@ -144,13 +144,13 @@ func resourceGlobalSettings() *schema.Resource {
 					return
 				},
 			},
-			"spa_time_window_seconds": { // 6.0
+			"spa_time_window_seconds": {
 				Type:        schema.TypeInt,
 				Description: "Number of seconds the time skew SPA will allow.",
 				Optional:    true,
 				Computed:    true,
 			},
-			"collective_name": { // 6.0
+			"collective_name": {
 				Type:        schema.TypeString,
 				Description: "Friendly name for the Collective.",
 				Optional:    true,
@@ -166,10 +166,7 @@ func resourceGlobalSettings() *schema.Resource {
 }
 
 func resourceGlobalSettingsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-	resourceGlobalSettingsUpdate(ctx, d, meta)
-	return diags
+	return resourceGlobalSettingsUpdate(ctx, d, meta)
 }
 
 func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -305,7 +302,6 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 			originalsettings.SetCollectiveName(d.Get("collective_name").(string))
 		}
 	}
-
 	log.Printf("[DEBUG] Updating Global settings %+v", originalsettings)
 	req := api.GlobalSettingsPut(ctx)
 	_, err = req.GlobalSettings(*originalsettings).Authorization(token).Execute()
