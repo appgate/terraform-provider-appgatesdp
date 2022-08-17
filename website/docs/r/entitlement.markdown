@@ -10,7 +10,7 @@ description: |-
 
 Create a new Entitlement.
 
-~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.0.0
 Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
 
 
@@ -60,8 +60,8 @@ resource "appgatesdp_entitlement" "ping_entitlement" {
 }
 
 
-```
 
+```
 
 ## Argument Reference
 
@@ -71,12 +71,13 @@ The following arguments are supported:
 * `disabled`: (Optional) If true, the Entitlement will be disregarded during authorization.
 * `site`: (Required) ID of the Site for this Entitlement.
 * `site_name`: (Optional) Name of the Site for this Entitlement. For convenience only.
+* `risk_sensitivity`: (Optional) Generate Conditions for the Entitlement based on the Risk Model. Cannot be combined with other Conditions.
 * `condition_logic`: (Optional) Whether all the Conditions must succeed to have access to this Entitlement or just one.
 * `conditions`: (Required) List of Condition IDs applies to this Entitlement.
 * `actions`: (Required) List of all IP Access actions in this Entitlement.
 * `app_shortcuts`: (Optional) Array of App Shortcuts.
 * `app_shortcut_scripts`: (Optional) List of Entitlement Script IDs used for creating App Shortcuts dynamically.
-* `entitlement_id`: (Optional) ID of the object.
+* `entitlement_id`: (Optional) Computed if empty -  ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
@@ -88,8 +89,8 @@ List of Condition IDs applies to this Entitlement.
 ### actions
 List of all IP Access actions in this Entitlement.
 
-* `subtype`: (Required)  Enum values: `icmp_up,icmp_down,icmpv6_up,icmpv6_down,udp_up,udp_down,tcp_up,tcp_down,ah_up,ah_down,esp_up,esp_down,gre_up,gre_down,http_up`Type of the IP Access action.
-* `action`: (Required)  Enum values: `allow,block,alert`Applied action to the traffic.
+* `subtype`:  (Optional)  Enum values: `icmp_up,icmp_down,icmpv6_up,icmpv6_down,udp_up,udp_down,tcp_up,tcp_down,ah_up,ah_down,esp_up,esp_down,gre_up,gre_down,http_up`Type of the IP Access action. Required the action is exclude.
+* `action`: (Required)  Enum values: `allow,block,alert,exclude`Applied action to the traffic.
 * `hosts`: (Required) Hosts to apply the action to. See admin manual for possible values.
 * `ports`:  (Optional) Destination port. Multiple ports can be entered comma separated. Port ranges can be entered dash separated. Only valid for tcp and udp subtypes
 * `types`:  (Optional) ICMP type. Only valid for icmp subtypes.
