@@ -572,6 +572,13 @@ PKCS12 object with X.509 certificate and private key.
 Ports that can be proxied via Portal.
 #### proxy_p12s
 P12 files for proxying traffic to HTTPS endpoints.
+
+* `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
+* `content`: (Optional) Contents of the P12 file in Base64 format.
+* `password`: (Optional) Password for the P12 file.
+* `subject_name`: (Optional) Subject name of the certificate in the file.
+* `verify_upstream`: (Optional) Portal will verify upstream certificate of the endpoints.
+
 #### profiles
 Names of the profiles in this Collective to use in the Portal.
 #### external_profiles
@@ -587,6 +594,7 @@ Visual customizations to make on the Portal sign-in page.
 * `logo`: (Optional) Changes the logo on the sign-in page. Must be in PNG, JPEG or GIF format.
 * `text`: (Optional) Adds a text to the sign-in page.
 * `text_color`: (Optional) Changes the text color on the sign-in page. In hexadecimal format. Example: #123456.
+* `auto_redirect`: (Optional) If enabled and the user lands on the Portal sign-in page by entering an endpoint URL on the browser, it will be redirected to the endpoint automatically after successfully signing in instead of the Portal Client overview page.
 ### rsyslog_destinations
 Rsyslog destination settings to forward appliance logs.
 
