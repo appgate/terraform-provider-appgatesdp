@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
@@ -60,6 +61,15 @@ func resourceAppgateEntitlement() *schema.Resource {
 			"site": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+
+			"risk_sensitivity": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				StateFunc: func(val interface{}) string {
+					return strings.Title(strings.ToLower(val.(string)))
+				},
 			},
 
 			"condition_logic": {
@@ -260,6 +270,7 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.EntitlementsApi
+	currentVersion := meta.(*Client).ApplianceVersion
 
 	args := openapi.NewEntitlementWithDefaults()
 	if v, ok := d.GetOk("entitlement_id"); ok {
@@ -270,6 +281,14 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))
 	args.SetDisabled(d.Get("disabled").(bool))
+
+	if v, ok := d.GetOk("risk_sensitivity"); ok {
+		if currentVersion.LessThan(Appliance60Version) {
+			diags = append(diags, diag.Errorf("entitlement.risk_sensitivity is not supported on your version %s", currentVersion.String())...)
+		} else if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			args.SetRiskSensitivity(v.(string))
+		}
+	}
 
 	if v, ok := d.GetOk("condition_logic"); ok {
 		args.SetConditionLogic(v.(string))
@@ -347,6 +366,10 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 	d.Set("notes", entitlement.GetNotes())
 	d.Set("conditions", entitlement.GetConditions())
 	d.Set("condition_logic", entitlement.GetConditionLogic())
+	if v, ok := entitlement.GetRiskSensitivityOk(); ok {
+		d.Set("risk_sensitivity", *v)
+	}
+
 	d.Set("tags", entitlement.GetTags())
 	d.Set("site", entitlement.GetSite())
 	if entitlement.AppShortcuts != nil {
@@ -463,6 +486,10 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 
 	if d.HasChange("site") {
 		orginalEntitlment.SetSite(d.Get("site").(string))
+	}
+
+	if d.HasChange("risk_sensitivity") {
+		orginalEntitlment.SetRiskSensitivity(d.Get("risk_sensitivity").(string))
 	}
 
 	if d.HasChange("condition_logic") {
