@@ -10,7 +10,7 @@ description: |-
 
 Create a new Site.
 
-~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.0.0
 Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
 
 
@@ -41,8 +41,8 @@ resource "appgatesdp_site" "gbg_site" {
 }
 
 
-```
 
+```
 
 ## Argument Reference
 
@@ -57,7 +57,7 @@ The following arguments are supported:
 * `entitlement_based_routing`: (Optional) When enabled, the routes are sent to the Client by the Gateways according to the user's Entitlements "networkSubnets" should be left be empty if it's enabled.
 * `vpn`: (Optional) VPN configuration for this Site.
 * `name_resolution`: (Optional) Settings for asset name resolution.
-* `site_id`: (Optional) ID of the object.
+* `site_id`: (Optional) Computed if empty -  ID of the object.
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
@@ -76,9 +76,9 @@ Default Gateway configuration.
 
 * `enabled_v4`:  (Optional)  default value `false` When enabled, the Client uses this Site as the Default Default for all IPV4 traffic.
 * `enabled_v6`:  (Optional)  default value `false` When enabled, the Client uses this Site as the Default Default for all IPv6 traffic.
-* `excluded_subnets`:  (Optional) Network subnets to exclude when Default Gateway is enabled. The traffic for these subnets will not go through the Gateway in this Site.
+* `excluded_subnets`:  (Optional) Network subnets to exclude when Default Gateway is enabled. The traffic for these subnets will not go through the Gateway in this Site. Deprecated as of 6.0. Use action type 'exclude' in Entitlements instead.
 #### excluded_subnets
-Network subnets to exclude when Default Gateway is enabled. The traffic for these subnets will not go through the Gateway in this Site.
+Network subnets to exclude when Default Gateway is enabled. The traffic for these subnets will not go through the Gateway in this Site. Deprecated as of 6.0. Use action type &#39;exclude&#39; in Entitlements instead.
 ### vpn
 VPN configuration for this Site.
 
@@ -92,16 +92,21 @@ VPN configuration for this Site.
 * `ip_access_log_interval_seconds`:  (Optional)  default value `120` Frequency configuration for generating IP Access audit logs for a connection.
 #### tls
 VPN over TLS protocol configuration.
-* `enabled`: (Optional)
+* `enabled`: (Optional) 
 #### dtls
 VPN over DTLS protocol configuration.
-* `enabled`: (Optional)
+* `enabled`: (Optional) 
 #### route_via
 Override routing for tunnel traffic.
 * `ipv4`: (Optional) IPv4 address for routing tunnel traffic. Example: 10.0.0.2.
 * `ipv6`: (Optional) IPv6 address for routing tunnel traffic. Example: 2001:db8:0:0:0:ff00:42:8329.
 #### url_access_p12s
 P12 files for proxying traffic for URL Access feature.
+* `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
+* `content`: (Optional) Contents of the P12 file in Base64 format.
+* `password`: (Optional) Password for the P12 file.
+* `subject_name`: (Optional) Subject name of the certificate in the file.
+* `verify_upstream`: (Optional) Gateway will verify upstream certificate of the endpoints.
 ### name_resolution
 Settings for asset name resolution.
 
@@ -116,6 +121,8 @@ Settings for asset name resolution.
 Resolver to resolve hostnames using DNS servers.
 * `name`: (Required) Identifier name. Has no functional effect. Example: DNS Resolver 1.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
+* `query_aaaa`: (Optional) Perform AAAA lookups.
+* `default_ttl_seconds`: (Optional) This will apply whenever Gateway gets a DNS response which has no TTL set.
 * `servers`: (Required) DNS Server addresses that will be used to resolve hostnames within the Site.
 * `search_domains`: (Optional) DNS search domains that will be used to resolve hostnames within the Site.
 * `match_domains`: (Optional) The DNS resolver will only attempt to resolve names matching the match domains. If match domains are not specified the DNS resolver will attempt to resolve all hostnames.
@@ -160,6 +167,7 @@ Enable DNS Forwarding feature.
 * `site_ipv6`: (Optional) DNS Forwarder Site IPv6 address. Example: 2001:db8:0:0:0:ff00:42:8329.
 * `dns_servers`: (Required) DNS Servers to use for resolving endpoints. Example: 172.17.18.19,192.100.111.31.
 * `allow_destinations`: (Required) A list of subnets to allow access.
+* `default_ttl_seconds`: (Optional) This will apply whenever Gateway gets a DNS response which has no TTL set.
 ### tags
 Array of tags.
 
