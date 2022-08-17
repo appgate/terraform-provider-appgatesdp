@@ -119,6 +119,43 @@ func resourceGlobalSettings() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"spa_mode": {
+				Type:        schema.TypeString,
+				Description: "SPA Mode.",
+				Optional:    true,
+				Computed:    true,
+				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+					// controller validation error message is wrong:
+					// spaMode FOO was not one of [TCP, UDP_TCP]
+					// should be
+					// spaMode FOO was not one of [TCP, UDP-TCP]
+					// so will validate here first.
+					s := v.(string)
+					list := []string{
+						"TCP",
+						"UDP-TCP",
+					}
+					for _, x := range list {
+						if s == x {
+							return
+						}
+					}
+					errs = append(errs, fmt.Errorf("type must be on of %v, got %s", list, s))
+					return
+				},
+			},
+			"spa_time_window_seconds": {
+				Type:        schema.TypeInt,
+				Description: "Number of seconds the time skew SPA will allow.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"collective_name": {
+				Type:        schema.TypeString,
+				Description: "Friendly name for the Collective.",
+				Optional:    true,
+				Computed:    true,
+			},
 			"collective_id": {
 				Type:        schema.TypeString,
 				Description: "A randomly generated ID during first installation to identify the Collective.",
@@ -129,10 +166,7 @@ func resourceGlobalSettings() *schema.Resource {
 }
 
 func resourceGlobalSettingsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// Warning or errors can be collected in a slice type
-	var diags diag.Diagnostics
-	resourceGlobalSettingsUpdate(ctx, d, meta)
-	return diags
+	return resourceGlobalSettingsUpdate(ctx, d, meta)
 }
 
 func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -173,6 +207,10 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	d.Set("app_discovery_domains", settings.GetAppDiscoveryDomains())
 	d.Set("collective_id", settings.GetCollectiveId())
 
+	d.Set("collective_name", settings.GetCollectiveName())
+	d.Set("spa_time_window_seconds", settings.GetSpaTimeWindowSeconds())
+	d.Set("spa_mode", settings.GetSpaMode())
+
 	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
 		ccAPI := meta.(*Client).API.ClientProfilesApi
 		request := ccAPI.ClientConnectionsGet(ctx)
@@ -195,6 +233,7 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 	api := meta.(*Client).API.GlobalSettingsApi
 	currentVersion := meta.(*Client).ApplianceVersion
+
 	request := api.GlobalSettingsGet(ctx)
 	originalsettings, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -242,6 +281,27 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 		originalsettings.SetAppDiscoveryDomains(domains)
 	}
+	if d.HasChange("spa_mode") {
+		if currentVersion.LessThan(Appliance55Version) {
+			return diag.Errorf("spa_mode is not supported on %s", currentVersion.String())
+		} else if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+			originalsettings.SetSpaMode(d.Get("spa_mode").(string))
+		}
+	}
+	if d.HasChange("spa_time_window_seconds") {
+		if currentVersion.LessThan(Appliance60Version) {
+			return diag.Errorf("spa_time_window_seconds is not supported on %s", currentVersion.String())
+		} else if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			originalsettings.SetSpaTimeWindowSeconds(float32(d.Get("spa_time_window_seconds").(int)))
+		}
+	}
+	if d.HasChange("collective_name") {
+		if currentVersion.LessThan(Appliance60Version) {
+			return diag.Errorf("collective_name is not supported on %s", currentVersion.String())
+		} else if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			originalsettings.SetCollectiveName(d.Get("collective_name").(string))
+		}
+	}
 	log.Printf("[DEBUG] Updating Global settings %+v", originalsettings)
 	req := api.GlobalSettingsPut(ctx)
 	_, err = req.GlobalSettings(*originalsettings).Authorization(token).Execute()
@@ -264,7 +324,6 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Could not update Client Connections %w", prettyPrintAPIError(err)))
 		}
-
 	}
 	return resourceGlobalSettingsRead(ctx, d, meta)
 }
