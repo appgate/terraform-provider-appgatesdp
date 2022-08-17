@@ -185,25 +185,7 @@ func resourceAppgateSite() *schema.Resource {
 								},
 							},
 						},
-						"web_proxy_enabled": {
-							Type:        schema.TypeBool,
-							Description: "Flag for manipulating web proxy p12 file. Setting this false will delete the existing p12 file from database.",
-							Deprecated:  "Deprecated in 5.4",
-							Optional:    true,
-							Computed:    true,
-						},
-						"web_proxy_key_store": {
-							Type:        schema.TypeString,
-							Description: "The PKCS12 package to be used for web proxy. The file must be with no password and must include the full certificate chain and a private key. In Base64 format.",
-							Deprecated:  "Deprecated in 5.4",
-							Optional:    true,
-						},
-						"web_proxy_verify_upstream_certificate": {
-							Type:        schema.TypeBool,
-							Description: "Gateway will verify the certificate of the endpoints.",
-							Optional:    true,
-							Deprecated:  "Deprecated in 5.4",
-						},
+
 						"ip_access_log_interval_seconds": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -241,6 +223,16 @@ func resourceAppgateSite() *schema.Resource {
 									"update_interval": {
 										Type:     schema.TypeInt,
 										Optional: true,
+									},
+									"query_aaaa": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"default_ttl_seconds": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
 									},
 									"servers": {
 										Type:     schema.TypeList,
@@ -470,6 +462,11 @@ func resourceAppgateSite() *schema.Resource {
 											},
 										},
 									},
+									"default_ttl_seconds": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
 								},
 							},
 						},
@@ -675,19 +672,7 @@ func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []
 		}
 		m["route_via"] = []interface{}{routeVia}
 	}
-	// TODO patch Spec
-	// if currentVersion.Equal(Appliance53Version) {
-	// 	if v, ok := in.GetWebProxyEnabledOk(); ok {
-	// 		m["web_proxy_enabled"] = *v
-	// 	}
-	// }
 
-	// if v, ok := in.GetWebProxyKeyStoreOk(); ok {
-	// 	m["web_proxy_key_store"] = *v
-	// }
-	// if v, ok := in.GetWebProxyVerifyUpstreamCertificateOk(); ok {
-	// 	m["web_proxy_verify_upstream_certificate"] = *v
-	// }
 	m["ip_access_log_interval_seconds"] = in.IpAccessLogIntervalSeconds
 
 	return []interface{}{m}
@@ -837,6 +822,8 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 		m := make(map[string]interface{})
 		m["name"] = v.GetName()
 		m["update_interval"] = v.GetUpdateInterval()
+		m["query_aaaa"] = v.GetQueryAAAA()
+		m["default_ttl_seconds"] = v.GetDefaultTtlSeconds()
 		m["servers"] = v.GetServers()
 		m["search_domains"] = v.GetSearchDomains()
 
@@ -855,6 +842,8 @@ func flattenSiteDnsForwading(in openapi.SiteAllOfNameResolutionDnsForwarding) ([
 		return nil, err
 	}
 	m["allow_destinations"] = ad
+	m["default_ttl_seconds"] = in.GetDefaultTtlSeconds()
+
 	return []map[string]interface{}{m}, nil
 }
 
@@ -1079,20 +1068,6 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 			result.SetRouteVia(routeVia)
 		}
 
-		// TODO Patch Spec
-		// if v, ok := raw["web_proxy_key_store"]; ok && len(v.(string)) > 0 {
-		// 	result.SetWebProxyKeyStore(v.(string))
-		// }
-		// // webProxyVerifyUpstreamCertificate is only present in 5.3
-		// if currentVersion.Equal(Appliance53Version) {
-		// 	if v, ok := raw["web_proxy_enabled"]; ok {
-		// 		result.SetWebProxyEnabled(v.(bool))
-		// 	}
-		// 	if v, ok := raw["web_proxy_verify_upstream_certificate"]; ok {
-		// 		result.SetWebProxyVerifyUpstreamCertificate(v.(bool))
-		// 	}
-		// }
-
 		if v, ok := raw["ip_access_log_interval_seconds"]; ok {
 			result.SetIpAccessLogIntervalSeconds(float32(v.(int)))
 		}
@@ -1130,7 +1105,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 		}
 		if v, ok := raw["dns_resolvers"]; ok {
 			dnss := v.(*schema.Set).List()
-			dnsResolvers, err := readDNSResolversFromConfig(dnss)
+			dnsResolvers, err := readDNSResolversFromConfig(currentVersion, dnss)
 			if err != nil {
 				return result, err
 			}
@@ -1165,7 +1140,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 			result.SetGcpResolvers(gcpResolvers)
 		}
 		if v, ok := raw["dns_forwarding"]; ok {
-			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(v.(*schema.Set).List())
+			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(currentVersion, v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
@@ -1180,7 +1155,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 	return result, nil
 }
 
-func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
+func readDNSResolversFromConfig(currentVersion *version.Version, dnsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionDnsResolvers, 0)
 	for _, dns := range dnsConfigs {
 		raw := dns.(map[string]interface{})
@@ -1190,6 +1165,14 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		}
 		if v, ok := raw["update_interval"]; ok {
 			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			if v, ok := raw["query_aaaa"]; ok {
+				row.SetQueryAAAA(v.(bool))
+			}
+			if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
+				row.SetDefaultTtlSeconds(int32(v))
+			}
 		}
 		if v := raw["servers"]; len(v.([]interface{})) > 0 {
 			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
@@ -1378,7 +1361,7 @@ func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNa
 	return result, nil
 }
 
-func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
+func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
 	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
 	for _, dnsForwarding := range dnsForwardingConfig {
 		raw := dnsForwarding.(map[string]interface{})
@@ -1401,6 +1384,11 @@ func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (op
 				return result, err
 			}
 			result.SetAllowDestinations(destinations)
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
+				result.SetDefaultTtlSeconds(int32(v))
+			}
 		}
 	}
 	return result, nil
