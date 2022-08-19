@@ -14,18 +14,36 @@ You need to specify the `client_version` if you are not running the latest suppo
 The `client_version` tries to maintain backwards compatibility 2 versions back all the time.
 
 
-|                         	|  client version 12 	| client version 13 	    | client version 14     | client version 15     |**client version 16** |
-|-------------------------	|--------------------	|-------------------	    |-------------------	|-------------------   |-------------------   |
-| Appgate SDP 5.1.*     	| **Full support**     	| Partial support       	| Partial support      	| Partial support      | Partial support      |
-| Appgate SDP 5.2.*  	    | Partial support    	| **Full support**     	    | Partial support      	| Partial support      | Partial support      |
-| Appgate SDP 5.3.*     	| Partial support   	| Partial support           | **Full support**     	| Partial support      | Partial support      |
-| Appgate SDP 5.4.*     	| Partial support   	| Partial support   	    | Partial support      	  | **Full support**     | Partial support      |
-| **Appgate SDP 5.5.***   	| Partial support   	| Partial support   	    | Partial support      	| **Full support**     | **Full support**       |
+|                         	|  client version 14 	| client version 15 	    | client version 16   | **client version 17**     |
+|-------------------------	|--------------------	|-------------------	    |-------------------	|-------------------   |
+| Appgate SDP 5.3.*     	| Full support  	|    |      	  |      |
+| Appgate SDP 5.4.*     	| Partial support   	| Full support  	      |    |  |
+| *Appgate SDP 5.5.*   	  | Partial support   	| Partial support   	    | Full support    |    |
+| **Appgate SDP 6.0.***   | Partial support   	| Partial support   	    | Partial support     | **Full support**     |
 
 
 
 
 ####  Terraform 0.13+
+
+##### Example configuration for `6.0.X`
+
+```hcl
+terraform {
+  required_version = ">= 0.13"
+  required_providers {
+    appgatesdp = {
+      source = "appgate/appgatesdp"
+      version = "0.9.0"
+    }
+  }
+}
+
+provider "appgatesdp" {
+  provider = "local"
+  client_version = 17
+}
+```
 
 ##### Example configuration for `5.5.X`
 
@@ -42,6 +60,7 @@ terraform {
 
 provider "appgatesdp" {
   provider = "local"
+  client_version = 16
 }
 ```
 

@@ -10,7 +10,7 @@ description: |-
 
 Create a new inactive Appliance.
 
-~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.0.0
 Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
 
 
@@ -520,7 +520,7 @@ AWS Kinesis endpoints to connect and send the audit logs with the given format.
 * `aws_id`: (Optional) AWS access key id for the IAM Role. In the admin ui, this is the "Access Key ID" field when the "Use AWS Access Key" radio button is selected. Should be used in conjunction with "aws_secret" and "aws_region". Not to be set when `use_instance_credentials` is set.
 * `aws_secret` : (Optional) AWS secret access key for the access id for the IAM Role. In the admin ui, this is the "AWS Secret Access Key" field when the "Use AWS Access Key" radio button is selected. Should be used in conjunction with "aws_id" and "aws_region". Not to be set when `use_instance_credentials` is set.
 * `aws_region`: (Optional) AWS region where the kinesis resource resides. In the admin ui, this is the "AWS Region" field when the "Use AWS Access Key" radio button is selected. Should be used in conjunction with "aws_id" and "aws_secret". Not to be set when `use_instance_credentials` is set.
-* `use_instance_credentials`: (Optional) Boolean value. `True` means that the credentials associated with the appliance will be used to access the kinesis reosurce. In the admin ui, this is equivalent to the "Use AWS IAM Role" radio button being selected. Not to be set when `aws_id`, `aws_secret`, and `aws_region` are set.
+* `use_instance_credentials`: (Optional) Boolean value. `True` means that the credentials associated with the appliance will be used to access the kinesis resource. In the admin ui, this is equivalent to the "Use AWS IAM Role" radio button being selected. Not to be set when `aws_id`, `aws_secret`, and `aws_region` are set.
 * `type`: (Required) Denotes the type of kinesis resource to use. Valid options are 'Stream' or 'Firehose'.
 * `stream_name`: (Required) The name of the kinesis resource.
 * `batch_size`: (Optional) The number of records to send to the function in each batch, up to 10,000.
@@ -572,6 +572,13 @@ PKCS12 object with X.509 certificate and private key.
 Ports that can be proxied via Portal.
 #### proxy_p12s
 P12 files for proxying traffic to HTTPS endpoints.
+
+* `id`: (Optional) Identifier to track the object on update since all the other fields are write-only. A random one will be assigned if left empty.
+* `content`: (Optional) Contents of the P12 file in Base64 format.
+* `password`: (Optional) Password for the P12 file.
+* `subject_name`: (Optional) Subject name of the certificate in the file.
+* `verify_upstream`: (Optional) Portal will verify upstream certificate of the endpoints.
+
 #### profiles
 Names of the profiles in this Collective to use in the Portal.
 #### external_profiles
@@ -587,6 +594,7 @@ Visual customizations to make on the Portal sign-in page.
 * `logo`: (Optional) Changes the logo on the sign-in page. Must be in PNG, JPEG or GIF format.
 * `text`: (Optional) Adds a text to the sign-in page.
 * `text_color`: (Optional) Changes the text color on the sign-in page. In hexadecimal format. Example: #123456.
+* `auto_redirect`: (Optional) If enabled and the user lands on the Portal sign-in page by entering an endpoint URL on the browser, it will be redirected to the endpoint automatically after successfully signing in instead of the Portal Client overview page.
 ### rsyslog_destinations
 Rsyslog destination settings to forward appliance logs.
 

@@ -13,7 +13,7 @@ Update all Global Settings.
 ~> **NOTE:**  Global settings are a singleton resource to allow us to update global settings for the collective.
 
 
-~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.0.0
 Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
 
 

@@ -11,7 +11,7 @@ description: |-
 ~> **NOTE:** Local database Identity Provider is a builtin default singleton resource, that cannot be deleted. But we can modify the existing one, import the default state from the collective with terraform import.
 
 
-~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 5.5.0
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.0.0
 Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
 
 
