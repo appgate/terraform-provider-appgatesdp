@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -80,6 +82,7 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 								return out, nil
 							},
 							DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
@@ -120,6 +123,15 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 							},
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
+
+						"functions": {
+							Type:     schema.TypeList,
+							Optional: true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								return strings.EqualFold(old, new)
+							},
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -136,6 +148,7 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	if err != nil {
 		return diag.FromErr(err)
 	}
+	currentVersion := meta.(*Client).ApplianceVersion
 	api := meta.(*Client).API.AdminRolesApi
 	args := openapi.NewAdministrativeRoleWithDefaults()
 	if v, ok := d.GetOk("administrative_role_id"); ok {
@@ -146,7 +159,7 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	args.SetTags(schemaExtractTags(d))
 
 	if v, ok := d.GetOk("privileges"); ok {
-		privileges, err := readAdminIstrativeRolePrivileges(v.([]interface{}))
+		privileges, err := readAdminIstrativeRolePrivileges(v.([]interface{}), currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -166,7 +179,7 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	return diags
 }
 
-func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.AdministrativePrivilege, error) {
+func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *version.Version) ([]openapi.AdministrativePrivilege, error) {
 	result := make([]openapi.AdministrativePrivilege, 0)
 	for _, privilege := range privileges {
 		if privilege == nil {
@@ -183,12 +196,8 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 
 		if v, ok := raw["scope"]; ok {
 			rawScopes := v.([]interface{})
-			emptyList := make([]string, 0)
-			scope := openapi.NewAdministrativePrivilegeScopeWithDefaults()
-			scope.SetIds(emptyList)
-			scope.SetTags(emptyList)
-			scope.SetAll(false)
 			if len(rawScopes) > 0 {
+				scope := openapi.NewAdministrativePrivilegeScopeWithDefaults()
 				for _, v := range rawScopes {
 					rawScope := v.(map[string]interface{})
 					if v, ok := rawScope["all"]; ok {
@@ -210,8 +219,8 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 						scope.SetTags(tags)
 					}
 				}
+				a.SetScope(*scope)
 			}
-			a.SetScope(*scope)
 		}
 
 		if v, ok := raw["default_tags"]; ok {
@@ -222,10 +231,46 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}) ([]openapi.Admin
 			// The items in this list would be added automatically to the newly created objects' tags.
 			// Only applicable on "Create" type and targets with tagging capability.
 			// This field must be omitted if not applicable.
-			if a.GetType() != "Create" && len(tags) > 0 {
-				return result, fmt.Errorf("You used %s, %w", a.GetType(), errDefaultTagsError)
+			if len(tags) > 0 {
+				if a.GetType() != "Create" {
+					return result, fmt.Errorf("You used %s, %w", a.GetType(), errDefaultTagsError)
+				}
+				a.SetDefaultTags(tags)
 			}
-			a.SetDefaultTags(tags)
+
+		}
+		// client side validation since the controller API does not yet validate it.
+		functionAllowedTargets := []string{"Appliance", "All"}
+		// lowercase, server side validation does not care about letter case
+		allowedFuncs := []string{"controller", "gateway", "logserver", "logforwarder", "connector", "portal"}
+		if v, ok := raw["functions"].([]interface{}); ok && len(v) > 0 {
+			if currentVersion.LessThan(Appliance60Version) {
+				return result, fmt.Errorf("privileges.functions is only supported on >= 6")
+			}
+			if a.GetType() != "AssignFunction" {
+				return result, fmt.Errorf(
+					"functions only applicable on \"AssignFunction\" type with target \"Appliance\" or \"All\"."+
+						" Got type %s", a.GetType())
+			}
+			if !inArray(a.GetTarget(), functionAllowedTargets) {
+				return result, fmt.Errorf(
+					"functions only applicable on \"AssignFunction\" type with target \"Appliance\" or \"All\"."+
+						" Got target %s %+v", a.GetTarget(), v)
+			}
+			for _, f := range v {
+				if !inArray(strings.ToLower(f.(string)), allowedFuncs) {
+					return result, fmt.Errorf("function must be one of %s, got %s", allowedFuncs, f)
+				}
+			}
+			if _, ok := a.GetScopeOk(); ok {
+				return result, fmt.Errorf("Scope is not applicable in combination with privliges.functions")
+			}
+			funcs, err := readArrayOfStringsFromConfig(v)
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve privileges functions %w", err)
+			}
+
+			a.SetFunctions(funcs)
 		}
 		result = append(result, *a)
 	}
@@ -289,6 +334,9 @@ func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePriv
 			}
 			m["default_tags"] = val
 		}
+		if val, ok := v.GetFunctionsOk(); ok {
+			m["functions"] = val
+		}
 		out[i] = m
 	}
 	return out, nil
@@ -315,6 +363,7 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AdminRolesApi
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
 	originalAdministrativeRole, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -334,7 +383,7 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 
 	if d.HasChange("privileges") {
 		_, v := d.GetChange("privileges")
-		privileges, err := readAdminIstrativeRolePrivileges(v.([]interface{}))
+		privileges, err := readAdminIstrativeRolePrivileges(v.([]interface{}), currentVersion)
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Failed to administrative role privileges %w", err))
 		}
