@@ -79,6 +79,17 @@ Administrative privilege list.
 * `target`: (Required)  Enum values: `All,Appliance,Condition,CriteriaScript,Entitlement,AdministrativeRole,IdentityProvider,MfaProvider,IpPool,LocalUser,Policy,Site,DeviceClaimScript,EntitlementScript,RingfenceRule,ApplianceCustomization,TrustedCertificate,UserClaimScript,OtpSeed,Fido2Device,TokenRecord,Blacklist,License,UserLicense,RegisteredDevice,AllocatedIp,SessionInfo,AuditLog,AdminMessage,GlobalSetting,CaCertificate,File,FailedAuthentication,AutoUpdate,ClientConnection`The target of the Privilege defines the possible target objects for that type.
 * `scope`:  (Optional) The scope of the Privilege. Only applicable to certain type-target combinations. Some types depends on the IdP/MFA type, such as GetUserAttributes. This field must be omitted if not applicable.
 * `default_tags`:  (Optional) The items in this list would be added automatically to the newly created objects' tags. Only applicable on "Create" type and targets with tagging capability. This field must be omitted if not applicable.
+* `functions`:  (Optional) Privilege for changing Appliance Functions. Only applicable on "`AssignFunction`" type with Appliance or All target. This field must be omitted if not applicable.
+
+#### scope
+
+The scope of the Privilege. Only applicable to certain type-target combinations. Some types depend on the IdP/MFA type, such as GetUserAttributes. This field must be omitted if not applicable.
+
+* `all`:  (Computed) 'If "true", all objects are accessible. For example, "type: Edit - target: Condition - scope.all: true" means the administrator can edit all Conditions in the system.'
+* `ids`:  (Optional) Specific object IDs this Privilege would have access to.
+* `tags`:  (Optional) Object tags this privilege would have access to.
+
+
 ### tags
 Array of tags.
 
