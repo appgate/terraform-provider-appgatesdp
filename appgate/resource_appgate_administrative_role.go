@@ -1,14 +1,17 @@
 package appgate
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
+	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -52,8 +55,9 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 			"tags": tagsSchema(),
 
 			"privileges": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
+				Set:      resourceAdministrativeRolePrivilegesHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 
@@ -71,57 +75,34 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 							Type:     schema.TypeList,
 							MaxItems: 1,
 							Optional: true,
-							DefaultFunc: func() (interface{}, error) {
-								var out = make([]map[string]interface{}, 0, 0)
-								m := make(map[string]interface{})
-								m["all"] = false
-								emptyList := make([]string, 0)
-								m["ids"] = emptyList
-								m["tags"] = emptyList
-								out = append(out, m)
-								return out, nil
-							},
-							DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
-
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 
 									"all": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Computed: true,
 									},
 
 									"ids": {
 										Type:     schema.TypeList,
 										Optional: true,
-										DefaultFunc: func() (interface{}, error) {
-											emptyList := make([]string, 0)
-											return emptyList, nil
-										},
-										Elem: &schema.Schema{Type: schema.TypeString},
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 
 									"tags": {
 										Type:     schema.TypeList,
 										Optional: true,
-										DefaultFunc: func() (interface{}, error) {
-											emptyList := make([]string, 0)
-											return emptyList, nil
-										},
-										Elem: &schema.Schema{Type: schema.TypeString},
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 								},
 							},
 						},
 
 						"default_tags": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
-							DefaultFunc: func() (interface{}, error) {
-								return nil, nil
-							},
-							Elem: &schema.Schema{Type: schema.TypeString},
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
 						"functions": {
@@ -137,6 +118,72 @@ func resourceAppgateAdministrativeRole() *schema.Resource {
 			},
 		},
 	}
+}
+
+func resourceAdministrativeRolePrivilegesHash(v interface{}) int {
+	raw, ok := v.(map[string]interface{})
+	if !ok {
+		return 0
+	}
+	// modifying raw actually modifies the values passed to the provider.
+	// Use a copy to avoid that.
+	copy := make((map[string]interface{}))
+	for key, value := range raw {
+		copy[key] = value
+	}
+	var buf bytes.Buffer
+	privType := copy["type"].(string)
+	buf.WriteString(fmt.Sprintf("%s-", privType))
+	buf.WriteString(fmt.Sprintf("%s-", copy["target"].(string)))
+
+	// scope is special case, its a Optional attribute, only applicable for certain 'type' and 'target' combinations
+	// it can be included in the response body with computed values.
+	// we will only compute hash diff if the list values has changed or 'all' is explicit set to true
+	if v, ok := copy["scope"].([]interface{}); ok && len(v) > 0 {
+		if val, ok := v[0].(map[string]interface{}); ok {
+			var (
+				all      = false
+				idcount  = 0
+				tagcount = 0
+			)
+			if x, ok := val["all"].(bool); ok {
+				all = x
+			}
+			if x, ok := val["ids"].([]interface{}); ok {
+				idcount = len(x)
+			}
+			if x, ok := val["tags"].([]interface{}); ok {
+				tagcount = len(x)
+			}
+			if tagcount != 0 && idcount != 0 && !all {
+				buf.WriteString(fmt.Sprintf("%v-", v))
+			} else if all {
+				buf.WriteString(fmt.Sprintf("%v-", all))
+			}
+		}
+
+	}
+
+	if v, ok := copy["default_tags"]; ok {
+		if val, ok := v.([]interface{}); ok {
+			for _, k := range val {
+				buf.WriteString(fmt.Sprintf("%d-", schema.HashString(k)))
+			}
+		}
+	}
+	if v, ok := copy["functions"]; ok {
+		vs := v.([]interface{})
+		s := make([]string, len(vs))
+		for i, raw := range vs {
+			s[i] = strings.ToLower(raw.(string))
+		}
+		sort.Strings(s)
+
+		for _, v := range s {
+			buf.WriteString(fmt.Sprintf("%s-", v))
+		}
+	}
+	return hashcode.String(buf.String())
 }
 
 func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -159,7 +206,7 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	args.SetTags(schemaExtractTags(d))
 
 	if v, ok := d.GetOk("privileges"); ok {
-		privileges, err := readAdminIstrativeRolePrivileges(v.([]interface{}), currentVersion)
+		privileges, err := readAdminIstrativeRolePrivileges(v.(*schema.Set).List(), currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -203,7 +250,6 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 					if v, ok := rawScope["all"]; ok {
 						scope.SetAll(v.(bool))
 					}
-
 					if v, ok := rawScope["ids"]; ok {
 						ids, err := readArrayOfStringsFromConfig(v.([]interface{}))
 						if err != nil {
@@ -224,7 +270,7 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 		}
 
 		if v, ok := raw["default_tags"]; ok {
-			tags, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+			tags, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
 				return result, fmt.Errorf("Failed to resolve privileges default tags: %w", err)
 			}
@@ -263,14 +309,14 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 				}
 			}
 			if _, ok := a.GetScopeOk(); ok {
-				return result, fmt.Errorf("Scope is not applicable in combination with privliges.functions")
+				return result, fmt.Errorf("Scope is not applicable in combination with privileges.functions")
 			}
 			funcs, err := readArrayOfStringsFromConfig(v)
 			if err != nil {
 				return result, fmt.Errorf("Failed to resolve privileges functions %w", err)
 			}
 
-			a.SetFunctions(funcs)
+			a.SetFunctions(sliceToLowercase(funcs))
 		}
 		result = append(result, *a)
 	}
@@ -301,7 +347,7 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 	d.Set("notes", administrativeRole.GetNotes())
 	d.Set("tags", administrativeRole.GetTags())
 
-	privileges, err := flattenAdministrativeRolePrivileges(administrativeRole.Privileges)
+	privileges, err := flattenAdministrativeRolePrivileges(administrativeRole.GetPrivileges())
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -312,9 +358,9 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 	return diags
 }
 
-func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePrivilege) ([]map[string]interface{}, error) {
-	var out = make([]map[string]interface{}, len(privileges), len(privileges))
-	for i, v := range privileges {
+func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePrivilege) (*schema.Set, error) {
+	out := []interface{}{}
+	for _, v := range privileges {
 		m := make(map[string]interface{})
 		if val, ok := v.GetTypeOk(); ok {
 			m["type"] = *val
@@ -330,29 +376,25 @@ func flattenAdministrativeRolePrivileges(privileges []openapi.AdministrativePriv
 			// Only applicable on "Create" type and targets with tagging capability.
 			// This field must be omitted if not applicable.
 			if m["type"] != "Create" {
-				return out, fmt.Errorf("You used %s, %w", m["type"], errDefaultTagsError)
+				return nil, fmt.Errorf("You used %s, %w", m["type"], errDefaultTagsError)
 			}
 			m["default_tags"] = val
 		}
-		if val, ok := v.GetFunctionsOk(); ok {
-			m["functions"] = val
+		if _, ok := v.GetFunctionsOk(); ok {
+			m["functions"] = convertStringArrToInterface(sliceToLowercase(v.GetFunctions()))
 		}
-		out[i] = m
+		out = append(out, m)
 	}
-	return out, nil
+	return schema.NewSet(resourceAdministrativeRolePrivilegesHash, out), nil
+
 }
 
 func flattenAdministrativeRolePrivilegesScope(scope openapi.AdministrativePrivilegeScope) []interface{} {
 	m := make(map[string]interface{})
-	if val, ok := scope.GetAllOk(); ok {
-		m["all"] = *val
-	}
-	if val, ok := scope.GetIdsOk(); ok {
-		m["ids"] = val
-	}
-	if val, ok := scope.GetTagsOk(); ok {
-		m["tags"] = val
-	}
+	m["all"] = scope.GetAll()
+	m["ids"] = convertStringArrToInterface(scope.GetIds())
+	m["tags"] = convertStringArrToInterface(scope.GetTags())
+
 	return []interface{}{m}
 }
 
@@ -383,16 +425,14 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 
 	if d.HasChange("privileges") {
 		_, v := d.GetChange("privileges")
-		privileges, err := readAdminIstrativeRolePrivileges(v.([]interface{}), currentVersion)
+		privileges, err := readAdminIstrativeRolePrivileges(v.(*schema.Set).List(), currentVersion)
 		if err != nil {
-			return diag.FromErr(fmt.Errorf("Failed to administrative role privileges %w", err))
+			return diag.FromErr(fmt.Errorf("Failed to update administrative role privileges %w", err))
 		}
 		originalAdministrativeRole.SetPrivileges(privileges)
 	}
 
-	req := api.AdministrativeRolesIdPut(ctx, d.Id())
-	req = req.AdministrativeRole(*originalAdministrativeRole)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = api.AdministrativeRolesIdPut(ctx, d.Id()).AdministrativeRole(*originalAdministrativeRole).Authorization(token).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Administrative role %w", prettyPrintAPIError(err)))
 	}
