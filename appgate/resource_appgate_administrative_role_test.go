@@ -327,3 +327,142 @@ resource "appgatesdp_administrative_role" "test_administrative_role_129" {
 }
 `, context)
 }
+
+func TestAccadministrativeRoleWtihAssignFunction(t *testing.T) {
+	resourceName := "appgatesdp_administrative_role.test_administrative_role"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name": rName,
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckadministrativeRoleDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor6AndAbove(t)
+				},
+				Config: testAccCheckadministrativeRoleWtihAssignFunction(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckadministrativeRoleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "notes", "hello"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.0", "cc"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.1", "dd"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.all", "false"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "Entitlement"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "Create"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.default_tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.functions.#", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.functions.0", "connector"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.functions.1", "controller"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.functions.2", "gateway"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.functions.3", "logserver"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.target", "All"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.type", "AssignFunction"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.default_tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.functions.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.all", "true"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.target", "TokenRecord"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.type", "Revoke"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccadministrativeRoleImportStateCheckFunc(1),
+			},
+			{
+
+				Config: testAccCheckadministrativeRoleWtihAssignFunctionUpdated(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckadministrativeRoleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "notes", "hello"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.#", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.0", "connector"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.1", "controller"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.2", "gateway"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.3", "logserver"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "All"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "AssignFunction"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccadministrativeRoleImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckadministrativeRoleWtihAssignFunction(context map[string]interface{}) string {
+	return Nprintf(`
+resource "appgatesdp_administrative_role" "test_administrative_role" {
+	name  = "%{name}"
+	notes =  "hello"
+	tags = [
+	  "terraform"
+	]
+	privileges {
+	  type   = "Revoke"
+	  target = "TokenRecord"
+	  scope {
+		all = true
+	  }
+	}
+	privileges {
+	  type         = "Create"
+	  target       = "Entitlement"
+	  default_tags = ["cc", "dd"]
+	}
+	privileges {
+	  type      = "AssignFunction"
+	  target    = "All"
+	  functions = ["Connector", "Controller", "GateWAY", "logserver"]
+	}
+}
+`, context)
+}
+
+func testAccCheckadministrativeRoleWtihAssignFunctionUpdated(context map[string]interface{}) string {
+	return Nprintf(`
+resource "appgatesdp_administrative_role" "test_administrative_role" {
+	name  = "%{name}"
+	notes =  "hello"
+	tags = [
+	  "terraform"
+	]
+	privileges {
+	  type      = "AssignFunction"
+	  target    = "All"
+	  functions = ["Connector", "Controller", "GateWAY", "logserver"]
+	}
+}
+`, context)
+}
