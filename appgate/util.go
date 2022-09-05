@@ -168,6 +168,14 @@ func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {
 	return result, nil
 }
 
+func sliceToLowercase(l []string) []string {
+	result := make([]string, 0, len(l))
+	for _, s := range l {
+		result = append(result, strings.ToLower(s))
+	}
+	return result
+}
+
 // validateIPaddress validate both IPv4 and IPv6 addresses.
 func validateIPaddress(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
