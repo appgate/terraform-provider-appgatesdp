@@ -394,8 +394,9 @@ func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, s
 		if appliance.GetId() != applianceID {
 			return fmt.Errorf("could not find appliance %q in stats list", applianceID)
 		}
-		if appliance.GetState() == state {
-			log.Printf("[DEBUG] Appliance %q reached expected state %s", applianceID, state)
+		got := appliance.GetState()
+		log.Printf("[DEBUG] Appliance %s state is %s want state %s", applianceID, got, state)
+		if got == state {
 			return nil
 		}
 		return fmt.Errorf("appliance %q is in state %s expected %s", applianceID, appliance.GetState(), state)
