@@ -96,7 +96,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 		appliance.SetAdminInterface(ainterface)
 	}
 
-	retryErr := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(prettyPrintAPIError(err))
@@ -208,7 +208,7 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 	if ctrl.GetEnabled() == true {
 		state = ApplianceStateControllerReady
 	}
-	retryErr := resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance %w", prettyPrintAPIError(err)))
@@ -252,7 +252,7 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 	c.SetEnabled(false)
 	appliance.SetController(c)
 
-	retryErr := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance when disable controller on %s %w", appliance.Name, prettyPrintAPIError(err)))
