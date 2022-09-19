@@ -16,6 +16,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+var durationPadding, _ = time.ParseDuration("-30s")
+
 func resourceAppgateApplianceControllerActivation() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppgateApplianceControllerActivationCreate,
@@ -101,16 +103,8 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 		if err != nil {
 			return resource.NonRetryableError(prettyPrintAPIError(err))
 		}
-		b := &backoff.ExponentialBackOff{
-			InitialInterval:     10 * time.Second,
-			RandomizationFactor: 0.7,
-			Multiplier:          2,
-			MaxInterval:         d.Timeout(schema.TimeoutCreate),
-			Stop:                backoff.Stop,
-			Clock:               backoff.SystemClock,
-		}
-		if err := waitForApplianceState(ctx, meta, id, ApplianceStateControllerReady, b); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after enabling controller on %s: %w", appliance.GetName(), err))
+		b := backoff.NewExponentialBackOff()
+		b.MaxElapsedTime = d.Timeout(schema.TimeoutCreate) - durationPadding
 		}
 		return nil
 	})
@@ -213,14 +207,11 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance %w", prettyPrintAPIError(err)))
 		}
-		b := &backoff.ExponentialBackOff{
-			InitialInterval:     10 * time.Second,
-			RandomizationFactor: 0.7,
-			Multiplier:          2,
-			MaxInterval:         d.Timeout(schema.TimeoutUpdate),
-			Stop:                backoff.Stop,
-			Clock:               backoff.SystemClock,
-		}
+		// initial sleep; give it a moment for the state to change/update
+		time.Sleep(5 * time.Second)
+		b := backoff.NewExponentialBackOff()
+		b.MaxElapsedTime = d.Timeout(schema.TimeoutUpdate) - durationPadding
+
 		if err := waitForApplianceState(ctx, meta, id, state, b); err != nil {
 			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %w", appliance.GetName(), err))
 		}
@@ -257,14 +248,10 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance when disable controller on %s %w", appliance.Name, prettyPrintAPIError(err)))
 		}
-		b := &backoff.ExponentialBackOff{
-			InitialInterval:     10 * time.Second,
-			RandomizationFactor: 0.7,
-			Multiplier:          2,
-			MaxInterval:         d.Timeout(schema.TimeoutUpdate),
-			Stop:                backoff.Stop,
-			Clock:               backoff.SystemClock,
-		}
+		// initial sleep; give it a moment for the state to change/update
+		time.Sleep(5 * time.Second)
+		b := backoff.NewExponentialBackOff()
+		b.MaxElapsedTime = d.Timeout(schema.TimeoutDelete) - durationPadding
 		if err := waitForApplianceState(ctx, meta, id, ApplianceStateApplianceReady, b); err != nil {
 			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %w", appliance.GetName(), err))
 		}
