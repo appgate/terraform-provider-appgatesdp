@@ -34,7 +34,7 @@ terraform {
   required_providers {
     appgatesdp = {
       source = "appgate/appgatesdp"
-      version = "0.9.0"
+      version = "1.0.1"
     }
   }
 }
