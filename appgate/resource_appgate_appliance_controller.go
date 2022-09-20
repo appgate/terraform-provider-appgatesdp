@@ -16,6 +16,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+var durationPadding, _ = time.ParseDuration("-30s")
+
 func resourceAppgateApplianceControllerActivation() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppgateApplianceControllerActivationCreate,
@@ -24,9 +26,9 @@ func resourceAppgateApplianceControllerActivation() *schema.Resource {
 		DeleteContext: resourceAppgateApplianceControllerActivationDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(15 * time.Minute),
-			Update: schema.DefaultTimeout(15 * time.Minute),
-			Delete: schema.DefaultTimeout(15 * time.Minute),
+			Create: schema.DefaultTimeout(45 * time.Minute),
+			Update: schema.DefaultTimeout(45 * time.Minute),
+			Delete: schema.DefaultTimeout(45 * time.Minute),
 		},
 		Schema: func() map[string]*schema.Schema {
 			s := map[string]*schema.Schema{
@@ -66,7 +68,7 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 	}
 
 	id := d.Get("appliance_id").(string)
-	log.Printf("[DEBUG] Creating Appliance Controller activation with name: %s", id)
+	log.Printf("[DEBUG] Creating appgatesdp_appliance_controller_activation: %s", id)
 	api := meta.(*Client).API.AppliancesApi
 	request := api.AppliancesIdGet(ctx, id)
 	appliance, res, err := request.Authorization(token).Execute()
@@ -96,29 +98,40 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 		appliance.SetAdminInterface(ainterface)
 	}
 
-	retryErr := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	d.SetId(appliance.GetId())
+	// if we disable the controller, we want another state.
+	state := ApplianceStateApplianceReady
+	ctrl := appliance.GetController()
+	if ctrl.GetEnabled() {
+		state = ApplianceStateControllerReady
+	}
+	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(prettyPrintAPIError(err))
 		}
-		b := &backoff.ExponentialBackOff{
-			InitialInterval:     10 * time.Second,
-			RandomizationFactor: 0.7,
-			Multiplier:          2,
-			MaxInterval:         d.Timeout(schema.TimeoutCreate),
-			Stop:                backoff.Stop,
-			Clock:               backoff.SystemClock,
-		}
-		if err := waitForApplianceState(ctx, meta, id, ApplianceStateControllerReady, b); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after enabling controller on %s: %w", appliance.GetName(), err))
+		b := backoff.NewExponentialBackOff()
+		b.MaxElapsedTime = d.Timeout(schema.TimeoutCreate) - durationPadding
+		// initial sleep; give it a moment for the state to change/update
+		time.Sleep(5 * time.Second)
+		if err := waitForApplianceState(ctx, meta, id, state, b); err != nil {
+			message := fmt.Sprintf("1 or more controller never reached a healthy state after updating controller on %s: %s", appliance.GetName(), err)
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  message,
+			})
+			return nil
 		}
 		return nil
 	})
 	if retryErr != nil {
-		return diag.FromErr(retryErr)
+		if errors.Is(retryErr, context.DeadlineExceeded) {
+			return diags
+		}
+		diags = append(diags, diag.FromErr(retryErr)...)
 	}
-	d.SetId(appliance.GetId())
-	resourceAppgateApplianceControllerActivationRead(ctx, d, meta)
+
+	diags = append(diags, resourceAppgateApplianceControllerActivationRead(ctx, d, meta)...)
 	return diags
 }
 
@@ -162,8 +175,10 @@ func resourceAppgateApplianceControllerActivationRead(ctx context.Context, d *sc
 }
 
 func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
 	id := d.Get("appliance_id").(string)
-	log.Printf("[DEBUG] Updating Appliance controller: %s", id)
+	log.Printf("[DEBUG] Updating appgatesdp_appliance_controller_activation: %s", id)
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return diag.FromErr(err)
@@ -208,36 +223,41 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 	if ctrl.GetEnabled() == true {
 		state = ApplianceStateControllerReady
 	}
-	retryErr := resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
+	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance %w", prettyPrintAPIError(err)))
 		}
-		b := &backoff.ExponentialBackOff{
-			InitialInterval:     10 * time.Second,
-			RandomizationFactor: 0.7,
-			Multiplier:          2,
-			MaxInterval:         d.Timeout(schema.TimeoutUpdate),
-			Stop:                backoff.Stop,
-			Clock:               backoff.SystemClock,
-		}
+		// initial sleep; give it a moment for the state to change/update
+		time.Sleep(5 * time.Second)
+		b := backoff.NewExponentialBackOff()
+		b.MaxElapsedTime = d.Timeout(schema.TimeoutUpdate) - durationPadding
+
 		if err := waitForApplianceState(ctx, meta, id, state, b); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %w", appliance.GetName(), err))
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("1 or more controller never reached a healthy state after updating controller on %s: %s", appliance.GetName(), err),
+			})
+			return resource.NonRetryableError(err)
 		}
 		return nil
 	})
 	if retryErr != nil {
-		return diag.FromErr(retryErr)
+		if errors.Is(retryErr, context.DeadlineExceeded) {
+			return diags
+		}
+		diags = append(diags, diag.FromErr(retryErr)...)
 	}
 
-	return resourceAppgateApplianceControllerActivationRead(ctx, d, meta)
+	diags = append(diags, resourceAppgateApplianceControllerActivationRead(ctx, d, meta)...)
+	return diags
 }
 
 func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// Warning or errors can be collected in a slice type  var diags diag.Diagnostics
 	var diags diag.Diagnostics
 	id := d.Get("appliance_id").(string)
-	log.Printf("[DEBUG] Updating Appliance controller: %s", id)
+	log.Printf("[DEBUG] Deleting appgatesdp_appliance_controller_activation: %s", id)
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return diag.FromErr(err)
@@ -252,25 +272,27 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 	c.SetEnabled(false)
 	appliance.SetController(c)
 
-	retryErr := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
+	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance when disable controller on %s %w", appliance.Name, prettyPrintAPIError(err)))
 		}
-		b := &backoff.ExponentialBackOff{
-			InitialInterval:     10 * time.Second,
-			RandomizationFactor: 0.7,
-			Multiplier:          2,
-			MaxInterval:         d.Timeout(schema.TimeoutUpdate),
-			Stop:                backoff.Stop,
-			Clock:               backoff.SystemClock,
-		}
+		// initial sleep; give it a moment for the state to change/update
+		time.Sleep(5 * time.Second)
+		b := backoff.NewExponentialBackOff()
+		b.MaxElapsedTime = d.Timeout(schema.TimeoutDelete) - durationPadding
 		if err := waitForApplianceState(ctx, meta, id, ApplianceStateApplianceReady, b); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("1 or more controller never reached a healthy state after updating controller on %s: %w", appliance.GetName(), err))
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("1 or more controller never reached a healthy state after updating controller on %s: %s", appliance.GetName(), err),
+			})
 		}
 		return nil
 	})
 	if retryErr != nil {
+		if errors.Is(retryErr, context.DeadlineExceeded) {
+			return diags
+		}
 		return diag.FromErr(retryErr)
 	}
 	return diags
