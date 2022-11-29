@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -125,13 +125,13 @@ func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error
 	return resourceAppgateIPPoolRead(d, meta)
 }
 
-func readIPPoolRangesFromConfig(ranges []interface{}) ([]openapi.IpPoolAllOfRanges, error) {
-	result := make([]openapi.IpPoolAllOfRanges, 0)
+func readIPPoolRangesFromConfig(ranges []interface{}) ([]openapi.IpPoolRangeInner, error) {
+	result := make([]openapi.IpPoolRangeInner, 0)
 	for _, ipRange := range ranges {
 		if ipRange == nil {
 			continue
 		}
-		r := openapi.IpPoolAllOfRanges{}
+		r := openapi.IpPoolRangeInner{}
 		raw := ipRange.(map[string]interface{})
 		if v, ok := raw["first"]; ok {
 			r.SetFirst(v.(string))
@@ -178,7 +178,7 @@ func resourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func flattenIPPoolRanges(in []openapi.IpPoolAllOfRanges) []map[string]interface{} {
+func flattenIPPoolRanges(in []openapi.IpPoolRangeInner) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})

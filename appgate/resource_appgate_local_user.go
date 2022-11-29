@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -78,7 +78,7 @@ func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	args := openapi.NewLocalUserWithDefaults()
+	args := openapi.LocalUsersGetRequest{}
 	if v, ok := d.GetOk("local_user_id"); ok {
 		args.SetId(v.(string))
 	}
@@ -113,10 +113,8 @@ func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) er
 		}
 		args.SetLockStart(*t)
 	}
-	request := api.LocalUsersPost(context.TODO())
-	request = request.LocalUser(*args)
 
-	localUser, _, err := request.Authorization(token).Execute()
+	localUser, _, err := api.LocalUsersPost(context.Background()).LocalUsersGetRequest(args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create Local user %w", prettyPrintAPIError(err))
 	}
