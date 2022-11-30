@@ -76,7 +76,7 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderSaml, err)
 	}
 
-	args := openapi.NewSamlProviderWithDefaults()
+	args := openapi.SamlProvider{}
 	if currentVersion.LessThan(Appliance55Version) {
 		args.DeviceLimitPerUser = nil
 	}
@@ -142,7 +142,7 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 		args.SetForceAuthn(v.(bool))
 	}
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(*args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderSaml, prettyPrintAPIError(err))
 	}

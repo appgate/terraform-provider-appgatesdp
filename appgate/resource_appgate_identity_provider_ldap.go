@@ -53,7 +53,7 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderLdap, err)
 	}
 
-	args := openapi.NewLdapProviderWithDefaults()
+	args := openapi.LdapProvider{}
 
 	if currentVersion.LessThan(Appliance55Version) {
 		args.DeviceLimitPerUser = nil
@@ -138,7 +138,7 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	}
 
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(*args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderLdap, prettyPrintAPIError(err))
 	}
