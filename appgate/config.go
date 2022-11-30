@@ -158,6 +158,8 @@ func guessVersion(clientVersion int) (*version.Version, error) {
 		return version.NewVersion("5.5.0+estimated")
 	case Version17:
 		return version.NewVersion("6.0.0+estimated")
+	case Version18:
+		return version.NewVersion("6.1.0+estimated")
 
 	}
 	return nil, fmt.Errorf("could not determine appliance version with client version %d", clientVersion)

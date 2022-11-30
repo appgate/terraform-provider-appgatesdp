@@ -23,6 +23,7 @@ const (
 	Version15 = 15
 	Version16 = 16
 	Version17 = 17
+	Version18 = 18
 	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
 	// its not recommended to change this value.
 	DefaultClientVersion = Version17
@@ -37,6 +38,7 @@ var (
 		Version15: "5.4.0",
 		Version16: "5.5.0",
 		Version17: "6.0.0",
+		Version18: "6.1.0",
 	}
 
 	Appliance53Version, _ = version.NewVersion(ApplianceVersionMap[Version14])
