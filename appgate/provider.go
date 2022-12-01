@@ -45,6 +45,7 @@ var (
 	Appliance54Version, _ = version.NewVersion(ApplianceVersionMap[Version15])
 	Appliance55Version, _ = version.NewVersion(ApplianceVersionMap[Version16])
 	Appliance60Version, _ = version.NewVersion(ApplianceVersionMap[Version17])
+	Appliance61Version, _ = version.NewVersion(ApplianceVersionMap[Version18])
 )
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
