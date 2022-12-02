@@ -242,7 +242,29 @@ func resourceAppgatePolicy() *schema.Resource {
 					},
 				},
 			},
-
+			"client_profile_settings": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"profiles": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+			"custom_client_help_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"administrative_roles": {
 				Type:             schema.TypeSet,
 				Optional:         true,
