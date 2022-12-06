@@ -548,3 +548,110 @@ resource "appgatesdp_policy" "dns_policy_with_dns_settings" {
 }
 `, context)
 }
+
+func TestAccPolicyClientProfileSettings61(t *testing.T) {
+	resourceName := "appgatesdp_policy.dns_policy_with_dns_settings"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":         rName,
+		"updated_name": "updated" + rName,
+		"expression": `<<-EOF
+		var result = false;
+		return result;
+		EOF`,
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor61AndAbove(t)
+				},
+				Config: testAccCheckPolicyClientProfileSettings(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPolicyExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "administrative_roles.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.profiles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.%", "10"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.add_remove_profiles", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.attention_level", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.auto_start", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.entitlements_list", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.keep_me_signed_in", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.quit", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.saml_auto_sign_in", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.sign_out", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.suspend", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "custom_client_help_url", "https://help.appgate.com"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "dns_settings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_links.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "entitlements.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"_policy"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "override_site_claim", ""),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.persist", "false"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.url", ""),
+					resource.TestCheckResourceAttr(resourceName, "ringfence_rule_links.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ringfence_rules.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "tamper_proofing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.dns_suffix", ""),
+					resource.TestCheckResourceAttr(resourceName, "trusted_network_check.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "type", "Device"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckPolicyClientProfileSettings(context map[string]interface{}) string {
+	return Nprintf(`
+resource "appgatesdp_client_profile" "portal" {
+	name                   = "%{name}_profile"
+	spa_key_name           = "development-portal"
+	identity_provider_name = "local"
+}
+resource "appgatesdp_policy" "dns_policy_with_dns_settings" {
+		name = "%{name}_policy"
+		type = "Device"
+		tags = [
+			"terraform",
+			"api-created"
+		]
+		tamper_proofing = false
+		disabled        = false
+		expression = <<-EOF
+		  var result = false;
+		  return result;
+		EOF
+
+		custom_client_help_url = "https://help.appgate.com"
+		client_profile_settings {
+			enabled = true
+			profiles = [
+			appgatesdp_client_profile.portal.id
+		  ]
+		}
+}
+`, context)
+}
