@@ -76,7 +76,7 @@ func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
 			return err
 		}
 		api := testAccProvider.Meta().(*Client).API.ClientProfilesApi
-
+		currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
 			return fmt.Errorf("Not found: %s", resource)
@@ -85,18 +85,24 @@ func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
 		if id == "" {
 			return fmt.Errorf("No Record ID is set")
 		}
-
-		clientConnections, _, err := api.ClientConnectionsGet(context.Background()).Authorization(token).Execute()
-		if err != nil {
-			return fmt.Errorf("error fetching ClientConnections with resource %s. %s", resource, err)
-		}
-
-		for _, profile := range clientConnections.GetProfiles() {
-			if strings.EqualFold(profile.GetName(), id) && profile.GetName() == id {
-				return nil
+		ctx := context.Background()
+		if currentVersion.LessThan(Appliance61Version) {
+			clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
+			if err != nil {
+				return fmt.Errorf("error fetching ClientConnections with resource %s. %s", resource, err)
 			}
 
+			for _, profile := range clientConnections.GetProfiles() {
+				if strings.EqualFold(profile.GetName(), id) && profile.GetName() == id {
+					return nil
+				}
+			}
 		}
+
+		if _, _, err := api.ClientProfilesIdGet(ctx, id).Authorization(token).Execute(); err == nil {
+			return nil
+		}
+
 		return fmt.Errorf("Could not find client connection.profile with name %s", id)
 	}
 }
@@ -108,4 +114,46 @@ func testAccClientProfileImportStateCheckFunc(expectedStates int) resource.Impor
 		}
 		return nil
 	}
+}
+
+func TestAccClientProfileBasic61(t *testing.T) {
+	resourceName := "appgatesdp_client_profile.acme"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckClientProfileDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor61AndAbove(t)
+				},
+				Config: testAccCheckClientProfileBasic61(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClientProfileExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", "acme"),
+					resource.TestCheckResourceAttr(resourceName, "spa_key_name", "development-acme"),
+					resource.TestCheckResourceAttr(resourceName, "identity_provider_name", "local"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccClientProfileImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckClientProfileBasic61() string {
+	return `
+resource "appgatesdp_client_profile" "acme" {
+	name                   = "acme"
+	spa_key_name           = "development-acme"
+	identity_provider_name = "local"
+	hostname               = "acme.com"
+	notes                  = "hello world"
+	tags                   = ["dd", "ee"]
+}
+
+`
 }

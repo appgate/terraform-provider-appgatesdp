@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"strings"
 	"time"
 
@@ -17,10 +18,10 @@ import (
 
 func resourceAppgateClientProfile() *schema.Resource {
 	return &schema.Resource{
-
-		Create: resourceAppgateClientProfileCreate,
-		Read:   resourceAppgateClientProfileRead,
-		Delete: resourceAppgateClientProfileDelete,
+		CreateContext: resourceAppgateClientProfileCreate,
+		ReadContext:   resourceAppgateClientProfileRead,
+		UpdateContext: resourceAppgateClientProfileUpdate,
+		DeleteContext: resourceAppgateClientProfileDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -32,12 +33,25 @@ func resourceAppgateClientProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				ForceNew: true,
+			},
 
 			"name": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Required: true,
 			},
+
+			"notes": {
+				Type:        schema.TypeString,
+				Description: "Notes for the object. Used for documentation purposes.",
+				Optional:    true,
+			},
+
+			"tags": tagsSchema(),
 
 			"spa_key_name": {
 				Type:     schema.TypeString,
@@ -54,6 +68,15 @@ func resourceAppgateClientProfile() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"hostname": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"exported": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -64,9 +87,7 @@ func getIdFromProfile(profile openapi.ClientConnectionsProfilesInner) string {
 	return profile.GetName()
 }
 
-func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Create Client Profile %s", d.Get("name"))
-	ctx := context.Background()
+func resourceAppgateClientProfileCreateLegacy(ctx context.Context, d *schema.ResourceData, meta interface{}, token string) diag.Diagnostics {
 	api := meta.(*Client).API.ClientProfilesApi
 
 	err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
@@ -77,10 +98,6 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 		// before we create a profile, make sure the controllers are in a healthy state
 		if err := applianceStatsRetryable(ctx, meta); err != nil {
 			return err
-		}
-		token, err := meta.(*Client).GetToken()
-		if err != nil {
-			return resource.RetryableError(err)
 		}
 		clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 		if err != nil {
@@ -132,22 +149,56 @@ func resourceAppgateClientProfileCreate(d *schema.ResourceData, meta interface{}
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("Error create: %w", err)
+		return diag.Errorf("Error create: %s", err)
 	}
-	return resourceAppgateClientProfileRead(d, meta)
+	return resourceAppgateClientProfileRead(ctx, d, meta)
 }
 
-func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Reading Client Profile id: %+v", d.Id())
+func resourceAppgateClientProfileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
+	currentVersion := meta.(*Client).ApplianceVersion
+	// starting from 6.1 we will use
+	// /admin/client-profiles
+	// instead of
+	// /admin/client-connections
+	if currentVersion.LessThan(Appliance61Version) {
+		log.Printf("[DEBUG] Create Client Profile Legacy %s", d.Get("name"))
+		return resourceAppgateClientProfileCreateLegacy(ctx, d, meta, token)
+	}
+	log.Printf("[DEBUG] Create Client Profile %s", d.Get("name"))
 	api := meta.(*Client).API.ClientProfilesApi
-	ctx := context.Background()
+	args := openapi.ClientProfile{}
+	args.SetName(d.Get("name").(string))
+	args.SetNotes(d.Get("notes").(string))
+	args.SetTags(schemaExtractTags(d))
+	if v, ok := d.GetOk("spa_key_name"); ok {
+		args.SetSpaKeyName(v.(string))
+	}
+	if v, ok := d.GetOk("identity_provider_name"); ok {
+		args.SetIdentityProviderName(v.(string))
+	}
+	if _, ok := d.GetOk("url"); ok {
+		return diag.Errorf("url is not supported on your appliance version, use hostname instead")
+	}
+	if v, ok := d.GetOk("hostname"); ok {
+		args.SetHostname(v.(string))
+	}
+	profile, _, err := api.ClientProfilesPost(ctx).Authorization(token).ClientProfile(args).Execute()
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("Could not create client profile %s", prettyPrintAPIError(err)))
+	}
+	d.SetId(profile.GetId())
+	return resourceAppgateClientProfileRead(ctx, d, meta)
+}
+
+func resourceAppgateClientProfileReadLegacy(ctx context.Context, d *schema.ResourceData, meta interface{}, token string) diag.Diagnostics {
+	api := meta.(*Client).API.ClientProfilesApi
 	clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not read Client Connections %w", prettyPrintAPIError(err))
+		return diag.Errorf("Could not read Client Connections %s", prettyPrintAPIError(err))
 	}
 	existingProfiles := clientConnections.GetProfiles()
 	var p *openapi.ClientConnectionsProfilesInner
@@ -169,9 +220,43 @@ func resourceAppgateClientProfileRead(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Delete client profile %+v", d.Id())
-	ctx := context.Background()
+func resourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	currentVersion := meta.(*Client).ApplianceVersion
+	if currentVersion.LessThan(Appliance61Version) {
+		log.Printf("[DEBUG] Reading Client Profile Legacy id: %+v", d.Id())
+		return resourceAppgateClientProfileReadLegacy(ctx, d, meta, token)
+	}
+	log.Printf("[DEBUG] Reading Client Profile id: %+v", d.Id())
+	api := meta.(*Client).API.ClientProfilesApi
+	profile, res, err := api.ClientProfilesIdGet(ctx, d.Id()).Authorization(token).Execute()
+	if err != nil {
+		d.SetId("")
+		if res != nil && res.StatusCode == http.StatusNotFound {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "profile has been removed remote",
+			})
+			return diags
+		}
+		return diag.FromErr(fmt.Errorf("Failed to read client profile, %s", err))
+	}
+	d.Set("id", profile.GetId())
+	d.Set("name", profile.GetName())
+	d.Set("notes", profile.GetNotes())
+	d.Set("spa_key_name", profile.GetSpaKeyName())
+	d.Set("identity_provider_name", profile.GetIdentityProviderName())
+	d.Set("hostname", profile.GetHostname())
+	d.Set("exported", profile.GetExported().String())
+
+	return nil
+}
+
+func resourceAppgateClientProfileDeleteLegacy(ctx context.Context, d *schema.ResourceData, meta interface{}, token string) diag.Diagnostics {
 	api := meta.(*Client).API.ClientProfilesApi
 
 	err := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
@@ -182,10 +267,7 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 		if err := applianceStatsRetryable(ctx, meta); err != nil {
 			return err
 		}
-		token, err := meta.(*Client).GetToken()
-		if err != nil {
-			return resource.RetryableError(err)
-		}
+
 		clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
 		if err != nil {
 			return resource.RetryableError(fmt.Errorf("Could not read Client Connections during delete %w", prettyPrintAPIError(err)))
@@ -217,9 +299,72 @@ func resourceAppgateClientProfileDelete(d *schema.ResourceData, meta interface{}
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("Could not delete Client profile %s after retry %w", d.Id(), err)
+		return diag.Errorf("Could not delete Client profile %s after retry %s", d.Id(), err)
 	}
 
+	d.SetId("")
+	return nil
+}
+
+func resourceAppgateClientProfileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	currentVersion := meta.(*Client).ApplianceVersion
+	if currentVersion.LessThan(Appliance61Version) {
+		return nil
+	}
+	log.Printf("[DEBUG] Updating client profile id: %+v", d.Id())
+	var diags diag.Diagnostics
+
+	api := meta.(*Client).API.ClientProfilesApi
+	orginalProfile, _, err := api.ClientProfilesIdGet(ctx, d.Id()).Authorization(token).Execute()
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("Failed to read profile while updating, %w", err))
+	}
+
+	if d.HasChange("name") {
+		orginalProfile.SetName(d.Get("name").(string))
+	}
+	if d.HasChange("notes") {
+		orginalProfile.SetNotes(d.Get("notes").(string))
+	}
+
+	if d.HasChange("tags") {
+		orginalProfile.SetTags(schemaExtractTags(d))
+	}
+	if d.HasChange("spa_key_name") {
+		orginalProfile.SetSpaKeyName(d.Get("spa_key_name").(string))
+	}
+	if d.HasChange("identity_provider_name") {
+		orginalProfile.SetIdentityProviderName(d.Get("identity_provider_name").(string))
+	}
+	if d.HasChange("hostname") {
+		orginalProfile.SetHostname(d.Get("hostname").(string))
+	}
+	if _, _, err := api.ClientProfilesIdPut(ctx, d.Id()).Authorization(token).ClientProfile(*orginalProfile).Execute(); err != nil {
+		return diag.FromErr(fmt.Errorf("Could not update client profile %w", prettyPrintAPIError(err)))
+
+	}
+	return diags
+}
+
+func resourceAppgateClientProfileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	token, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	currentVersion := meta.(*Client).ApplianceVersion
+	if currentVersion.LessThan(Appliance61Version) {
+		log.Printf("[DEBUG] Delete client profile Legacy %+v", d.Id())
+		return resourceAppgateClientProfileDeleteLegacy(ctx, d, meta, token)
+	}
+	log.Printf("[DEBUG] Delete client profile %+v", d.Id())
+	api := meta.(*Client).API.ClientProfilesApi
+	if _, err := api.ClientProfilesIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
+		return diag.FromErr(fmt.Errorf("Could not delete client profile %w", prettyPrintAPIError(err)))
+	}
 	d.SetId("")
 	return nil
 }
