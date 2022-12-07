@@ -76,6 +76,27 @@ func tagsSchema() *schema.Schema {
 	}
 }
 
+func ipPoolRange() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+
+				"first": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+
+				"last": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+			},
+		},
+	}
+}
+
 func readBaseEntityFromConfig(d *schema.ResourceData) (*openapi.BaseEntity, error) {
 	base := &openapi.BaseEntity{}
 	base.SetId(uuid.New().String())
