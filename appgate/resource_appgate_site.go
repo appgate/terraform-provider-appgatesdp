@@ -85,6 +85,11 @@ func resourceAppgateSite() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+
+						"type": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -652,8 +657,9 @@ func flattenSiteIPpoolmappning(in []openapi.SiteAllOfIpPoolMappings) []map[strin
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
-		m["from"] = v.From
-		m["to"] = v.To
+		m["from"] = v.GetFrom()
+		m["to"] = v.GetTo()
+		m["type"] = v.GetType()
 
 		out[i] = m
 	}
@@ -1045,6 +1051,9 @@ func readIPPoolMappingsFromConfig(maps []interface{}) ([]openapi.SiteAllOfIpPool
 		}
 		if v, ok := raw["to"]; ok {
 			r.SetTo(v.(string))
+		}
+		if v, ok := raw["type"]; ok {
+			r.SetType(v.(string))
 		}
 
 		result = append(result, r)
