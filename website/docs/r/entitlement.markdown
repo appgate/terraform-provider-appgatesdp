@@ -94,7 +94,8 @@ List of all IP Access actions in this Entitlement.
 * `hosts`: (Required) Hosts to apply the action to. See admin manual for possible values.
 * `ports`:  (Optional) Destination port. Multiple ports can be entered comma separated. Port ranges can be entered dash separated. Only valid for tcp and udp subtypes
 * `types`:  (Optional) ICMP type. Only valid for icmp subtypes.
-* `monitor`:  (Optional) Only available for tcp_up subtype. If enabled, Gateways will monitor this action for responsiveness and act accordingly. See admin manual for more details.
+* `methods`:  (Optional) HTTP method. Only valid for http subtypes. Leave it empty to allow all types.
+* `monitor`:  (Optional) Only available for tcp_up and http_up subtypes. If enabled, Gateways will monitor this action for responsiveness and act accordingly. See admin manual for more details.
 ### app_shortcuts
 Array of App Shortcuts.
 

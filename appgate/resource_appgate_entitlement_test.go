@@ -301,7 +301,6 @@ func TestAccEntitlementUpdateActionOrder(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "192.168.2.255/32"),
@@ -313,7 +312,6 @@ func TestAccEntitlementUpdateActionOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.0", "53"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
@@ -465,7 +463,6 @@ func TestAccEntitlementUpdateActionHostOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "103.15.3.254/32"),
@@ -479,7 +476,6 @@ func TestAccEntitlementUpdateActionHostOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.0", "53"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
@@ -514,7 +510,6 @@ func TestAccEntitlementUpdateActionHostOrder(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "103.15.3.254/32"),
@@ -528,7 +523,6 @@ func TestAccEntitlementUpdateActionHostOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.0", "53"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
@@ -671,7 +665,6 @@ func TestAccEntitlementUpdateActionPortsSetOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "103.15.3.254/32"),
@@ -687,7 +680,6 @@ func TestAccEntitlementUpdateActionPortsSetOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.2", "53"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
@@ -722,7 +714,6 @@ func TestAccEntitlementUpdateActionPortsSetOrder(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "103.15.3.254/32"),
@@ -738,7 +729,6 @@ func TestAccEntitlementUpdateActionPortsSetOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.2", "53"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
@@ -882,7 +872,6 @@ func TestAccEntitlementRiskSensitivity(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "192.168.2.255/32"),
@@ -894,7 +883,6 @@ func TestAccEntitlementRiskSensitivity(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.0", "53"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
@@ -933,7 +921,6 @@ func TestAccEntitlementRiskSensitivity(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckEntitlementExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "192.168.2.255/32"),
@@ -945,7 +932,6 @@ func TestAccEntitlementRiskSensitivity(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.0", "53"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "tcp_up"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "actions.1.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.action", "allow"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.1.hosts.0", "192.168.2.255/32"),
@@ -1062,4 +1048,220 @@ resource "appgatesdp_entitlement" "risk" {
 	}
 }
 `, rName, rName)
+}
+
+func TestAccEntitlementActionHTTPMethods(t *testing.T) {
+	resourceName := "appgatesdp_entitlement.http_methods"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name": rName,
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckItemDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor61AndAbove(t)
+				},
+				Config: testAccCheckEntitlementHTTPMethods(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckEntitlementExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "http://10.0.5.160"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.methods.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.methods.0", "GET"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.methods.1", "HEAD"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.methods.2", "PUT"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "http_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "18"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.description", ""),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", rName),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "http://10.0.5.160"),
+					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccEntitlementImportStateCheckFunc(1),
+			},
+			{
+				Config: testAccCheckEntitlementHTTPMethodsUpdated(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckEntitlementExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "http://10.0.5.160"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.methods.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.methods.0", "POST"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "http_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "18"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.description", ""),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", rName),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "http://10.0.5.160"),
+					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccEntitlementImportStateCheckFunc(1),
+			},
+			{
+				Config: testAccCheckEntitlementHTTPMethodsDeleted(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckEntitlementExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "http://10.0.5.160"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.methods.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.monitor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "http_up"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.types.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "18"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.description", ""),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", rName),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "http://10.0.5.160"),
+					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccEntitlementImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckEntitlementHTTPMethods(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+resource "appgatesdp_entitlement" "http_methods" {
+	condition_logic = "and"
+
+	name = "%{name}"
+	site = data.appgatesdp_site.default_site.id
+	tags = []
+	conditions = []
+	actions {
+		action = "allow"
+		hosts = [
+		"http://10.0.5.160",
+		]
+		methods = [
+			"GET",
+			"HEAD",
+			"PUT",
+		]
+		ports   = []
+		subtype = "http_up"
+		types   = []
+	}
+
+	app_shortcuts {
+		color_code = 18
+		name       = "%{name}"
+		url        = "http://10.0.5.160"
+	}
+}
+
+`, context)
+}
+
+func testAccCheckEntitlementHTTPMethodsUpdated(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+resource "appgatesdp_entitlement" "http_methods" {
+	condition_logic = "and"
+
+	name = "%{name}"
+	site = data.appgatesdp_site.default_site.id
+	tags = []
+	conditions = []
+	actions {
+		action = "allow"
+		hosts = [
+		"http://10.0.5.160",
+		]
+		methods = [
+			"POST",
+		]
+		ports   = []
+		subtype = "http_up"
+		types   = []
+	}
+
+	app_shortcuts {
+		color_code = 18
+		name       = "%{name}"
+		url        = "http://10.0.5.160"
+	}
+}
+
+`, context)
+}
+func testAccCheckEntitlementHTTPMethodsDeleted(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+resource "appgatesdp_entitlement" "http_methods" {
+	condition_logic = "and"
+
+	name = "%{name}"
+	site = data.appgatesdp_site.default_site.id
+	tags = []
+	conditions = []
+	actions {
+		action = "allow"
+		hosts = [
+		"http://10.0.5.160",
+		]
+		methods = []
+		ports   = []
+		subtype = "http_up"
+		types   = []
+	}
+
+	app_shortcuts {
+		color_code = 18
+		name       = "%{name}"
+		url        = "http://10.0.5.160"
+	}
+}
+
+`, context)
 }

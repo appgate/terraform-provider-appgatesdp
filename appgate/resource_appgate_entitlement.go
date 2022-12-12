@@ -13,6 +13,7 @@ import (
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -133,6 +134,15 @@ func resourceAppgateEntitlement() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
+						"methods": {
+							Type:             schema.TypeSet,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
+							Set:              schema.HashString,
+							Elem:             &schema.Schema{Type: schema.TypeString},
+						},
+
 						"monitor": {
 							Type:             schema.TypeList,
 							MaxItems:         1,
@@ -224,6 +234,10 @@ func resourceAppgateEntitlementActionHash(v interface{}) int {
 		}
 	}
 
+	if v, ok := copy["methods"]; ok {
+		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
+	}
+
 	// monitor is only valid if subtype is tcp_up
 	if copy["subtype"].(string) == "tcp_up" {
 		if v, ok := copy["monitor"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
@@ -303,7 +317,7 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 	}
 
 	if v, ok := d.GetOk("actions"); ok {
-		actions, _, err := readEntitlmentActionsFromConfig(v.(*schema.Set).List(), diags)
+		actions, _, err := readEntitlmentActionsFromConfig(v.(*schema.Set).List(), diags, currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -421,18 +435,19 @@ func flattenEntitlementActions(actions []openapi.EntitlementAllOfActions, d *sch
 		if types != nil && inArray(act.GetSubtype(), icmpTypes()) {
 			action["types"] = convertStringArrToInterface(act.GetTypes())
 		}
+		if v, ok := act.GetMethodsOk(); ok {
+			action["methods"] = schema.NewSet(schema.HashString, convertStringArrToInterface(v))
+		}
 		if act.Monitor != nil && act.GetSubtype() == "tcp_up" {
 			action["monitor"] = flattenEntitlementActionMonitor(act.GetMonitor())
 			dataActions := d.Get("actions")
 			hash := resourceAppgateEntitlementActionHash(action)
 
 			for _, k := range dataActions.(*schema.Set).List() {
-				log.Printf("[DEBUG] flattenEntitlementActions action list OLD %+v", k)
 				oldHash := resourceAppgateEntitlementActionHash(k)
 				if oldHash == hash {
 					oldV := k.(map[string]interface{})
 					if v, ok := oldV["monitor"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
-						log.Printf("[DEBUG] flattenEntitlementActions OLD MONITOR %+v", v)
 						action["monitor"] = v
 					}
 				}
@@ -444,7 +459,6 @@ func flattenEntitlementActions(actions []openapi.EntitlementAllOfActions, d *sch
 }
 
 func flattenEntitlementActionMonitor(monitor openapi.EntitlementAllOfMonitor) []interface{} {
-	log.Printf("[DEBUG] flattenEntitlementActionMonitor %+v", monitor)
 	m := make(map[string]interface{})
 	m["enabled"] = monitor.GetEnabled()
 	m["timeout"] = int(monitor.GetTimeout())
@@ -461,10 +475,14 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.EntitlementsApi
-
+	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.EntitlementsIdGet(ctx, d.Id())
-	orginalEntitlment, _, err := request.Authorization(token).Execute()
+	orginalEntitlment, response, err := request.Authorization(token).Execute()
 	if err != nil {
+		d.SetId("")
+		if response != nil && response.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return diag.FromErr(fmt.Errorf("Failed to read Entitlement while updating, %w", err))
 	}
 
@@ -507,7 +525,7 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 
 	if d.HasChange("actions") {
 		_, v := d.GetChange("actions")
-		actions, _, err := readEntitlmentActionsFromConfig(v.(*schema.Set).List(), diags)
+		actions, _, err := readEntitlmentActionsFromConfig(v.(*schema.Set).List(), diags, currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -560,7 +578,7 @@ func resourceAppgateEntitlementRuleDelete(ctx context.Context, d *schema.Resourc
 	return diags
 }
 
-func readEntitlmentActionsFromConfig(actions []interface{}, diags diag.Diagnostics) ([]openapi.EntitlementAllOfActions, diag.Diagnostics, error) {
+func readEntitlmentActionsFromConfig(actions []interface{}, diags diag.Diagnostics, current *version.Version) ([]openapi.EntitlementAllOfActions, diag.Diagnostics, error) {
 	result := make([]openapi.EntitlementAllOfActions, 0)
 	for _, action := range actions {
 		if action == nil {
@@ -598,11 +616,20 @@ func readEntitlmentActionsFromConfig(actions []interface{}, diags diag.Diagnosti
 			}
 			types, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, diags, fmt.Errorf("Failed to resolve entitlment action types: %w", err)
+				return result, diags, fmt.Errorf("Failed to resolve entitlement action types: %w", err)
 			}
 			a.SetTypes(types)
 		}
+		if current.GreaterThanOrEqual(Appliance61Version) {
+			if v, ok := raw["methods"]; ok {
+				methods, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+				if err != nil {
+					return result, diags, fmt.Errorf("Failed to resolve entitlement action hosts: %w", err)
+				}
+				a.SetMethods(methods)
+			}
 
+		}
 		if v, ok := raw["monitor"].([]interface{}); ok && len(v) > 0 {
 			monitor := openapi.NewEntitlementAllOfMonitorWithDefaults()
 			rawMonitors := v
