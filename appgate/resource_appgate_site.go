@@ -85,6 +85,11 @@ func resourceAppgateSite() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+
+						"type": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -470,6 +475,41 @@ func resourceAppgateSite() *schema.Resource {
 								},
 							},
 						},
+
+						"illumio_resolvers": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"update_interval": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"hostname": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"port": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"username": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"password": {
+										Type:      schema.TypeString,
+										Required:  true,
+										Sensitive: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -618,8 +658,9 @@ func flattenSiteIPpoolmappning(in []openapi.SiteAllOfIpPoolMappings) []map[strin
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
-		m["from"] = v.From
-		m["to"] = v.To
+		m["from"] = v.GetFrom()
+		m["to"] = v.GetTo()
+		m["type"] = v.GetType()
 
 		out[i] = m
 	}
@@ -711,6 +752,11 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 			m["dns_forwarding"] = dnsfwd
 		}
 	}
+	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+		if v, ok := in.GetIllumioResolversOk(); ok {
+			m["illumio_resolvers"] = flattenSiteIllumioResolvers(v, getNSLocalChanges(local, "illumio_resolvers"))
+		}
+	}
 	return []interface{}{m}, nil
 }
 
@@ -731,6 +777,25 @@ func flattenSiteGCPResolvers(in []openapi.SiteAllOfNameResolutionGcpResolvers) [
 		m["update_interval"] = v.GetUpdateInterval()
 		m["project_filter"] = v.GetProjectFilter()
 		m["instance_filter"] = v.GetInstanceFilter()
+		out[i] = m
+	}
+	return out
+}
+
+func flattenSiteIllumioResolvers(in []openapi.SiteAllOfNameResolutionIllumioResolvers, local map[string]interface{}) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(in), len(in))
+	for i, v := range in {
+		m := make(map[string]interface{})
+		m["name"] = v.GetName()
+		m["update_interval"] = v.GetUpdateInterval()
+		m["hostname"] = v.GetHostname()
+		m["port"] = v.GetPort()
+		m["username"] = v.GetUsername()
+		if val, ok := local["password"]; ok {
+			m["password"] = val
+		} else {
+			m["password"] = v.GetPassword()
+		}
 		out[i] = m
 	}
 	return out
@@ -988,6 +1053,9 @@ func readIPPoolMappingsFromConfig(maps []interface{}) ([]openapi.SiteAllOfIpPool
 		if v, ok := raw["to"]; ok {
 			r.SetTo(v.(string))
 		}
+		if v, ok := raw["type"]; ok {
+			r.SetType(v.(string))
+		}
 
 		result = append(result, r)
 	}
@@ -1150,6 +1218,13 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 				}
 				result.SetDnsForwarding(dnsForwardingResolvers)
 			}
+		}
+		if v, ok := raw["illumio_resolvers"]; ok {
+			resolvers, err := readIllumioResolversFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetIllumioResolvers(resolvers)
 		}
 	}
 	return result, nil
@@ -1390,6 +1465,34 @@ func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsFo
 				result.SetDefaultTtlSeconds(int32(v))
 			}
 		}
+	}
+	return result, nil
+}
+
+func readIllumioResolversFromConfig(resolvers []interface{}) ([]openapi.SiteAllOfNameResolutionIllumioResolvers, error) {
+	result := make([]openapi.SiteAllOfNameResolutionIllumioResolvers, 0)
+	for _, illumio := range resolvers {
+		raw := illumio.(map[string]interface{})
+		row := openapi.SiteAllOfNameResolutionIllumioResolvers{}
+		if v, ok := raw["name"]; ok {
+			row.SetName(v.(string))
+		}
+		if v, ok := raw["update_interval"]; ok {
+			row.SetUpdateInterval(int32(v.(int)))
+		}
+		if v, ok := raw["hostname"]; ok {
+			row.SetHostname(v.(string))
+		}
+		if v, ok := raw["port"]; ok {
+			row.SetPort(int32(v.(int)))
+		}
+		if v, ok := raw["username"]; ok {
+			row.SetUsername(v.(string))
+		}
+		if v, ok := raw["password"]; ok {
+			row.SetPassword(v.(string))
+		}
+		result = append(result, row)
 	}
 	return result, nil
 }

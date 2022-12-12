@@ -71,6 +71,8 @@ List of IP Pool mappings for this specific Site. When IPs are allocated this Sit
 
 * `from`:  (Optional) IP Pool ID to map from. If a user is authorizing with this IP Pool via Identity Provider assignment and has access to this Site, mapping will occur for that user.
 * `to`:  (Optional) IP Pool ID to map to.
+* `type`:  (Optional) Mapping type.  Enum values: `Translation,Allocation`
+
 ### default_gateway
 Default Gateway configuration.
 
@@ -92,10 +94,10 @@ VPN configuration for this Site.
 * `ip_access_log_interval_seconds`:  (Optional)  default value `120` Frequency configuration for generating IP Access audit logs for a connection.
 #### tls
 VPN over TLS protocol configuration.
-* `enabled`: (Optional) 
+* `enabled`: (Optional)
 #### dtls
 VPN over DTLS protocol configuration.
-* `enabled`: (Optional) 
+* `enabled`: (Optional)
 #### route_via
 Override routing for tunnel traffic.
 * `ipv4`: (Optional) IPv4 address for routing tunnel traffic. Example: 10.0.0.2.
@@ -168,6 +170,16 @@ Enable DNS Forwarding feature.
 * `dns_servers`: (Required) DNS Servers to use for resolving endpoints. Example: 172.17.18.19,192.100.111.31.
 * `allow_destinations`: (Required) A list of subnets to allow access.
 * `default_ttl_seconds`: (Optional) This will apply whenever Gateway gets a DNS response which has no TTL set.
+
+#### illumio_resolvers
+Resolvers to resolve names by querying Appgate Illumio Resolver.
+* `name`: (Required) Identifier name. Has no functional effect.
+* `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
+* `hostname`: (Required) Hostname of the Illumio Resolver.
+* `port`: (Required) Port number of the Illumio Resolver.
+* `username`: (Required) Username with access to the Illumio Resolver.
+* `password`: (Optional) Password for the username.
+
 ### tags
 Array of tags.
 

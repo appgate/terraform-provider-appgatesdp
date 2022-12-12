@@ -10,32 +10,38 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-var applianceTestForFiveFive = func(t *testing.T) {
+var applianceConstraintCheck = func(t *testing.T, constraint string) {
 	c := testAccProvider.Meta().(*Client)
-	c.GetToken()
-	currentVersion := c.ApplianceVersion
-	constraints, err := version.NewConstraint(">= 5.5, < 6.0")
+	_, err := c.GetToken()
 	if err != nil {
-		t.Fatalf("could not parse version constraint %s", err)
+		t.Fatalf("Could not initiate the version control %s", err)
+		return
+	}
+	currentVersion := c.ApplianceVersion
+	constraints, err := version.NewConstraint(constraint)
+	if err != nil {
+		t.Fatalf("could not parse version constraint %s %s", constraint, err)
+		return
+	}
+	if currentVersion == nil {
+		t.Fatalf("could not determine current version for %s", constraint)
 		return
 	}
 	if !constraints.Check(currentVersion) {
-		t.Skip("Test is only for 5.5")
+		t.Skipf("Test is only for %s", constraint)
 	}
 }
 
+var applianceTestForFiveFive = func(t *testing.T) {
+	applianceConstraintCheck(t, ">= 5.5, < 6.0")
+}
+
 var testFor6AndAbove = func(t *testing.T) {
-	c := testAccProvider.Meta().(*Client)
-	c.GetToken()
-	currentVersion := c.ApplianceVersion
-	constraints, err := version.NewConstraint(">= 6.0")
-	if err != nil {
-		t.Fatalf("could not parse version constraint %s", err)
-		return
-	}
-	if !constraints.Check(currentVersion) {
-		t.Skip("Test is only for >= 6.0")
-	}
+	applianceConstraintCheck(t, ">= 6.0")
+}
+
+var testFor61AndAbove = func(t *testing.T) {
+	applianceConstraintCheck(t, ">= 6.1")
 }
 
 func TestAccApplianceBasicController(t *testing.T) {
