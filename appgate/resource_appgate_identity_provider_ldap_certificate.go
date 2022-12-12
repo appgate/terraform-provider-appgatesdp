@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -74,7 +74,7 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderLdapCertificate, err)
 	}
 
-	args := openapi.NewLdapCertificateProviderWithDefaults()
+	args := openapi.LdapCertificateProvider{}
 
 	if currentVersion.LessThan(Appliance55Version) {
 		args.DeviceLimitPerUser = nil
@@ -179,7 +179,7 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 		args.SetSkipX509ExternalChecks(v.(bool))
 	}
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(*args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderLdapCertificate, prettyPrintAPIError(err))
 	}

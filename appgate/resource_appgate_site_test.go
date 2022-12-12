@@ -12,7 +12,7 @@ import (
 func TestAccSiteBasic(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSiteDestroy,
@@ -606,7 +606,7 @@ func TestAccSiteBasicAwsResolverWithoutSecret(t *testing.T) {
 	context := map[string]interface{}{
 		"name": rName,
 	}
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSiteDestroy,
@@ -706,7 +706,7 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 	context := map[string]interface{}{
 		"name": rName,
 	}
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSiteDestroy,
@@ -976,7 +976,7 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentialsUpdated(context map[st
 func TestAccSite55Attributes(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSiteDestroy,
@@ -1729,7 +1729,7 @@ resource "appgatesdp_site" "d_test_site" {
 func TestAccSiteNameResolver6(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSiteDestroy,

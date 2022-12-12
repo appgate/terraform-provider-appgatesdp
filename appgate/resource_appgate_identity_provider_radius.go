@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v17/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -82,7 +82,7 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderRadius, err)
 	}
-	args := openapi.NewRadiusProviderWithDefaults()
+	args := openapi.RadiusProvider{}
 	// base
 	if currentVersion.LessThan(Appliance55Version) {
 		args.DeviceLimitPerUser = nil
@@ -149,7 +149,7 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	}
 
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(*args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderRadius, prettyPrintAPIError(err))
 	}
