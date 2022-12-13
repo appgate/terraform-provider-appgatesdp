@@ -242,7 +242,29 @@ func resourceAppgatePolicy() *schema.Resource {
 					},
 				},
 			},
-
+			"client_profile_settings": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"profiles": {
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+			"custom_client_help_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"administrative_roles": {
 				Type:             schema.TypeSet,
 				Optional:         true,
@@ -319,6 +341,18 @@ func resourceAppgatePolicyCreate(d *schema.ResourceData, meta interface{}) error
 				return err
 			}
 			args.SetClientSettings(settings)
+		}
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+		if v, ok := d.GetOk("client_profile_settings"); ok {
+			settings, err := readPolicyClientProfileSettingsFromConfig(v.([]interface{}))
+			if err != nil {
+				return err
+			}
+			args.SetClientProfileSettings(settings)
+		}
+		if v, ok := d.GetOk("custom_client_help_url"); ok {
+			args.SetCustomClientHelpUrl(v.(string))
 		}
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
@@ -426,6 +460,28 @@ func readTrustedNetworkCheckFromConfig(trustedNetworks []interface{}) openapi.Po
 		}
 	}
 	return result
+}
+
+func readPolicyClientProfileSettingsFromConfig(settings []interface{}) (openapi.PolicyAllOfClientProfileSettings, error) {
+	result := openapi.PolicyAllOfClientProfileSettings{}
+	for _, r := range settings {
+		if r == nil {
+			continue
+		}
+		raw := r.(map[string]interface{})
+		if v, ok := raw["enabled"]; ok {
+			result.SetEnabled(v.(bool))
+		}
+		if v, ok := raw["profiles"]; ok {
+			profiles, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetProfiles(profiles)
+		}
+
+	}
+	return result, nil
 }
 
 func readPolicyClientSettingsFromConfig(settings []interface{}) (openapi.PolicyAllOfClientSettings, error) {
@@ -578,6 +634,14 @@ func resourceAppgatePolicyRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		d.Set("dns_settings", dnsSettings)
 	}
+	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+		clientProfileSettings, err := flattenPolicyClientProfileSettings(policy.GetClientProfileSettings())
+		if err != nil {
+			return err
+		}
+		d.Set("client_profile_settings", clientProfileSettings)
+		d.Set("custom_client_help_url", policy.GetCustomClientHelpUrl())
+	}
 	return nil
 }
 
@@ -603,6 +667,17 @@ func flattenTrustedNetworkCheck(in openapi.PolicyAllOfTrustedNetworkCheck) ([]in
 	}
 	if v, o := in.GetDnsSuffixOk(); o != false {
 		m["dns_suffix"] = v
+	}
+	return []interface{}{m}, nil
+}
+
+func flattenPolicyClientProfileSettings(clientSettings openapi.PolicyAllOfClientProfileSettings) ([]interface{}, error) {
+	m := make(map[string]interface{})
+	if v, ok := clientSettings.GetEnabledOk(); ok {
+		m["enabled"] = *v
+	}
+	if v, ok := clientSettings.GetProfilesOk(); ok {
+		m["profiles"] = v
 	}
 	return []interface{}{m}, nil
 }
@@ -781,6 +856,19 @@ func resourceAppgatePolicyUpdate(d *schema.ResourceData, meta interface{}) error
 				return err
 			}
 			orginalPolicy.SetDnsSettings(dnsSettings)
+		}
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+		if d.HasChange("client_profile_settings") {
+			_, v := d.GetChange("client_profile_settings")
+			clientProfileSettings, err := readPolicyClientProfileSettingsFromConfig(v.([]interface{}))
+			if err != nil {
+				return err
+			}
+			orginalPolicy.SetClientProfileSettings(clientProfileSettings)
+		}
+		if d.HasChange("custom_client_help_url") {
+			orginalPolicy.SetCustomClientHelpUrl(d.Get("custom_client_help_url").(string))
 		}
 	}
 	req := api.PoliciesIdPut(ctx, d.Id())
