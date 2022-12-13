@@ -819,8 +819,9 @@ func resourceAppgateAppliance() *schema.Resource {
 										Required: true,
 									},
 									"token": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Type:      schema.TypeString,
+										Optional:  true,
+										Sensitive: true,
 									},
 								},
 							},
@@ -1979,23 +1980,24 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 
-		if v, ok := in.GetSumoLogicOk(); ok {
+		if v, ok := in.GetSumoLogicClientsOk(); ok {
 			sumoList := make([]map[string]interface{}, 0)
 			for _, sumo := range v {
 				sumoList = append(sumoList, map[string]interface{}{"url": sumo.GetUrl()})
 			}
 			logforward["sumo_logic"] = sumoList
 		}
-		if v, ok := in.GetSplunkOk(); ok {
+		if v, ok := in.GetSplunkClientsOk(); ok {
 			splunkList := make([]map[string]interface{}, 0)
-			for _, sumo := range v {
-				splunkList = append(splunkList, map[string]interface{}{
-					"url": sumo.GetUrl(),
-					// TODO; Verify if the api provides this in response
-					// body, otherwise grab it from state
-					// same as aws
-					"token": sumo.GetToken(),
-				})
+			for index, splunk := range v {
+				s := map[string]interface{}{
+					"url":   splunk.GetUrl(),
+					"token": splunk.GetToken(),
+				}
+				if state := d.Get(fmt.Sprintf("log_forwarder.0.splunk.%d.token", index)).(string); len(state) > 0 {
+					s["token"] = state
+				}
+				splunkList = append(splunkList, s)
 			}
 			logforward["splunk"] = splunkList
 		}
@@ -3028,7 +3030,7 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 				}
 				sumologics = append(sumologics, sumologic)
 			}
-			val.SetSumoLogic(sumologics)
+			val.SetSumoLogicClients(sumologics)
 		}
 
 		if v := raw["splunk"]; len(v.([]interface{})) > 0 {
@@ -3044,7 +3046,7 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 				}
 				splunks = append(splunks, splunk)
 			}
-			val.SetSplunk(splunks)
+			val.SetSplunkClients(splunks)
 		}
 
 		sites := make([]string, 0)
