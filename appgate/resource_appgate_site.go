@@ -525,7 +525,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
-	args := openapi.NewSiteWithDefaults()
+	args := openapi.Site{}
 	if v, ok := d.GetOk("site_id"); ok {
 		args.SetId(v.(string))
 	}
@@ -579,9 +579,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 		args.SetNameResolution(nameResolution)
 	}
 
-	request := api.SitesPost(context.Background())
-	request = request.Site(*args)
-	site, _, err := request.Authorization(token).Execute()
+	site, _, err := api.SitesPost(context.Background()).Site(args).Authorization(token).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create site %w", prettyPrintAPIError(err))
 	}
@@ -1219,12 +1217,14 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 				result.SetDnsForwarding(dnsForwardingResolvers)
 			}
 		}
-		if v, ok := raw["illumio_resolvers"]; ok {
-			resolvers, err := readIllumioResolversFromConfig(v.(*schema.Set).List())
-			if err != nil {
-				return result, err
+		if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+			if v, ok := raw["illumio_resolvers"]; ok {
+				resolvers, err := readIllumioResolversFromConfig(v.(*schema.Set).List())
+				if err != nil {
+					return result, err
+				}
+				result.SetIllumioResolvers(resolvers)
 			}
-			result.SetIllumioResolvers(resolvers)
 		}
 	}
 	return result, nil
