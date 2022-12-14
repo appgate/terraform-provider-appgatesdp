@@ -12,7 +12,7 @@ import (
 func TestAccPolicyBasic(t *testing.T) {
 	resourceName := "appgatesdp_policy.test_policy"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPolicyDestroy,
@@ -139,12 +139,7 @@ func TestAccPolicyClientSettings55(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					c := testAccProvider.Meta().(*Client)
-					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					if currentVersion.LessThan(Appliance55Version) {
-						t.Skip("Test only for 5.5 and above, appliance.portal is only supported in 5.4 and above.")
-					}
+					applianceTestForFiveFive(t)
 				},
 				Config: testAccCheckPolicyClientSettings(context),
 				Check: resource.ComposeTestCheckFunc(
