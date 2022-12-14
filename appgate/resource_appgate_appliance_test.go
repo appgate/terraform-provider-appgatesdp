@@ -2501,7 +2501,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.0.password", ""),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.0.subject_name", "CN=test.devops"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.0", "portal"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.0", "portal_"+context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.content", "test-fixtures/test_devops.crt"),
@@ -2594,7 +2594,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.0.password", ""),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.0.subject_name", "CN=test.devops"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.0", "portal"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.0", "portal_"+context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.0.content", "test-fixtures/test_devops.crt"),
@@ -2636,7 +2636,7 @@ data "appgatesdp_site" "default_site" {
 	site_name = "Default site"
 }
 resource "appgatesdp_client_profile" "portal" {
-	name                   = "portal"
+	name                   = "portal_%{name}"
 	spa_key_name           = "development-portal"
 	identity_provider_name = "local"
 }
@@ -2702,7 +2702,7 @@ data "appgatesdp_site" "default_site" {
 	site_name = "Default site"
 }
 resource "appgatesdp_client_profile" "portal" {
-	name                   = "portal"
+	name                   = "portal_%{name}"
 	spa_key_name           = "development-portal"
 	identity_provider_name = "local"
 }
