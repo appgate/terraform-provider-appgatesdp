@@ -2421,7 +2421,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 		"name":     rName,
 		"hostname": fmt.Sprintf("%s.devops", rName),
 	}
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckApplianceDestroy,
