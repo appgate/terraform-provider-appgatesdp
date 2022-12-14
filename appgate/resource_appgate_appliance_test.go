@@ -3845,3 +3845,265 @@ resource "appgatesdp_appliance" "log_forwarder_elasticsearch" {
 }
 `, context)
 }
+
+func TestAccApplianceLogForwarderSplunkSumo61(t *testing.T) {
+	resourceName := "appgatesdp_appliance.log_forwarder_splunk_sumo"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckApplianceDestroy,
+
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor61AndAbove(t)
+				},
+				Config: testAccCheckApplianceLogforwarderSplunkSumo(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "Disabled"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
+					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "false"),
+					resource.TestCheckResourceAttr(resourceName, "connector.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.advanced_clients.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "controller.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "controller.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "customization", ""),
+					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.0.port", "5555"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.aws_kineses.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.elasticsearch.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.sites.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.sites.0", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.splunk.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.splunk.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.splunk.0.token", "secretTokenValue"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.splunk.0.url", "https://splunk.com/asdaxllkmda64"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.splunk.1.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.splunk.1.token", "AnotherSplunkToken"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.splunk.1.url", "https://second.com/splunk"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.sumo_logic.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.sumo_logic.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.sumo_logic.0.url", "https://sum-logic.com"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "log_server.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa.com"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "8.8.8.8"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.virtual_ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.virtual_ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.mtu", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.#", "4"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.0.hostname", "0.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.0.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.0.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.1.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.1.hostname", "1.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.1.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.1.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.2.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.2.hostname", "2.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.2.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.2.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.hostname", "3.ubuntu.pool.ntp.org"),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key", ""),
+					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key_type", ""),
+					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "portal.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.external_profiles.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.https_p12.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.%", "8"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.auto_redirect", "false"),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.background_color", ""),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.background_image", ""),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.background_image_checksum", ""),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.logo", ""),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.logo_checksum", ""),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text", ""),
+					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text_color", ""),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "5556"),
+					resource.TestCheckResourceAttr(resourceName, "rsyslog_destinations.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "site", ""),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.snmpd_conf", ""),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.tcp_port", "0"),
+					resource.TestCheckResourceAttr(resourceName, "snmp_server.0.udp_port", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.allow_sources.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.password_authentication", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ssh_server.0.port", "22"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-test-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckApplianceLogforwarderSplunkSumo(context map[string]interface{}) string {
+	return Nprintf(`
+
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+resource "appgatesdp_appliance" "log_forwarder_splunk_sumo" {
+	name     = "%{name}"
+	hostname = "%{hostname}"
+	client_interface {
+	  hostname = "%{hostname}"
+	}
+	tags = [
+	  "terraform",
+	  "api-test-created"
+	]
+	ntp {
+	  servers {
+		hostname = "0.ubuntu.pool.ntp.org"
+	  }
+	  servers {
+		hostname = "1.ubuntu.pool.ntp.org"
+	  }
+	  servers {
+		hostname = "2.ubuntu.pool.ntp.org"
+	  }
+	  servers {
+		hostname = "3.ubuntu.pool.ntp.org"
+	  }
+	}
+	networking {
+	  hosts {
+		hostname = "%{hostname}"
+		address  = "0.0.0.0"
+	  }
+	  nics {
+		enabled = true
+		name    = "eth0"
+		ipv4 {
+		  dhcp {
+			enabled = true
+			dns     = true
+			routers = true
+			ntp     = true
+		  }
+		}
+		ipv6 {
+		  dhcp {
+			enabled = false
+			dns     = true
+			ntp     = false
+		  }
+		}
+	  }
+	  dns_servers = [
+		"8.8.8.8",
+		"1.1.1.1",
+	  ]
+	  dns_domains = [
+		"aa.com"
+	  ]
+	}
+	log_forwarder {
+	  enabled = true
+	  splunk {
+		url   = "https://splunk.com/asdaxllkmda64"
+		token = "secretTokenValue"
+	  }
+	  splunk {
+		url   = "https://second.com/splunk"
+		token = "AnotherSplunkToken"
+	  }
+	  sumo_logic {
+		url = "https://sum-logic.com"
+	  }
+	  sites = [
+		data.appgatesdp_site.default_site.id
+	  ]
+	}
+}
+
+`, context)
+}

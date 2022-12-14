@@ -797,6 +797,35 @@ func resourceAppgateAppliance() *schema.Resource {
 								},
 							},
 						},
+						"sumo_logic": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"url": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"splunk": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"url": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"token": {
+										Type:      schema.TypeString,
+										Optional:  true,
+										Sensitive: true,
+									},
+								},
+							},
+						},
 						"sites": {
 							Type:        schema.TypeSet,
 							Description: "Array of sites.",
@@ -1948,6 +1977,32 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 		}
 		logforward["aws_kineses"] = kinesesList
 	}
+
+	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+
+		if v, ok := in.GetSumoLogicClientsOk(); ok {
+			sumoList := make([]map[string]interface{}, 0)
+			for _, sumo := range v {
+				sumoList = append(sumoList, map[string]interface{}{"url": sumo.GetUrl()})
+			}
+			logforward["sumo_logic"] = sumoList
+		}
+		if v, ok := in.GetSplunkClientsOk(); ok {
+			splunkList := make([]map[string]interface{}, 0)
+			for index, splunk := range v {
+				s := map[string]interface{}{
+					"url":   splunk.GetUrl(),
+					"token": splunk.GetToken(),
+				}
+				if state := d.Get(fmt.Sprintf("log_forwarder.0.splunk.%d.token", index)).(string); len(state) > 0 {
+					s["token"] = state
+				}
+				splunkList = append(splunkList, s)
+			}
+			logforward["splunk"] = splunkList
+		}
+
+	}
 	logforward["sites"] = in.GetSites()
 
 	logforwarders = append(logforwarders, logforward)
@@ -2960,9 +3015,40 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 				if v, ok := row["filter"]; ok {
 					kinesis.SetFilter(v.(string))
 				}
+				awsKineses = append(awsKineses, kinesis)
 			}
 			val.SetAwsKineses(awsKineses)
 		}
+
+		if v := raw["sumo_logic"]; len(v.([]interface{})) > 0 {
+			sumologics := make([]openapi.SumoLogic, 0)
+			for _, awsk := range v.([]interface{}) {
+				sumologic := openapi.SumoLogic{}
+				row := awsk.(map[string]interface{})
+				if v, ok := row["url"]; ok {
+					sumologic.SetUrl(v.(string))
+				}
+				sumologics = append(sumologics, sumologic)
+			}
+			val.SetSumoLogicClients(sumologics)
+		}
+
+		if v := raw["splunk"]; len(v.([]interface{})) > 0 {
+			splunks := make([]openapi.Splunk, 0)
+			for _, awsk := range v.([]interface{}) {
+				splunk := openapi.Splunk{}
+				row := awsk.(map[string]interface{})
+				if v, ok := row["url"]; ok {
+					splunk.SetUrl(v.(string))
+				}
+				if v, ok := row["token"]; ok {
+					splunk.SetToken(v.(string))
+				}
+				splunks = append(splunks, splunk)
+			}
+			val.SetSplunkClients(splunks)
+		}
+
 		sites := make([]string, 0)
 		if v := raw["sites"].(*schema.Set); v.Len() > 0 {
 			for _, s := range v.List() {
