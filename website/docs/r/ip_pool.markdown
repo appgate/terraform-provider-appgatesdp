@@ -39,6 +39,7 @@ The following arguments are supported:
 
 * `ip_version6`: (Optional) Whether the IP pool is for v4 or v6.
 * `ranges`: (Optional) List of (non-conflicting) IP address ranges to allocate IPs in order.
+* `excluded_ranges`: (Optional) List of IP address ranges to exclude from the IP pool.
 * `lease_time_days`: (Optional) Number of days Allocated IPs will be reserved for device&users before they are reclaimable by others.
 * `total`: (Optional) The total size of the IP Pool.
 * `currently_used`: (Optional) Number of IPs in the pool are currently in use by device&users.
@@ -52,9 +53,9 @@ The following arguments are supported:
 ### ranges
 List of (non-conflicting) IP address ranges to allocate IPs in order.
 
-* `cidr`:  (Optional) IP subnet in CIDR format.
 * `first`:  (Optional) The beginning of the IP range.
 * `last`:  (Optional) The end of the IP range.
+
 ### tags
 Array of tags.
 

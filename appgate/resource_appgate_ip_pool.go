@@ -53,24 +53,8 @@ func resourceAppgateIPPool() *schema.Resource {
 				Optional: true,
 			},
 
-			"ranges": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-
-						"first": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-
-						"last": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
+			"ranges":          ipPoolRange(),
+			"excluded_ranges": ipPoolRange(),
 
 			"lease_time_days": {
 				Type:     schema.TypeInt,
@@ -87,7 +71,8 @@ func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	api := meta.(*Client).API.IPPoolsApi
-	args := openapi.NewIpPoolWithDefaults()
+	currentVersion := meta.(*Client).ApplianceVersion
+	args := openapi.IpPool{}
 	if v, ok := d.GetOk("ip_pool_id"); ok {
 		args.SetId(v.(string))
 	}
@@ -109,10 +94,20 @@ func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error
 		args.SetRanges(ranges)
 	}
 
+	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+		if v, ok := d.GetOk("excluded_ranges"); ok {
+			excludedRanges, err := readIPPoolRangesFromConfig(v.([]interface{}))
+			if err != nil {
+				return fmt.Errorf("Failed to read ip pool excluded ranges %w", err)
+			}
+			args.SetExcludedRanges(excludedRanges)
+		}
+	}
+
 	args.SetTags(schemaExtractTags(d))
 
 	request := api.IpPoolsPost(context.TODO())
-	request = request.IpPool(*args)
+	request = request.IpPool(args)
 
 	IPPool, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -169,9 +164,14 @@ func resourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("tags", IPPool.GetTags())
 	d.Set("ip_version6", IPPool.IpVersion6)
 	d.Set("lease_time_days", IPPool.LeaseTimeDays)
-	if ranges, o := IPPool.GetRangesOk(); o {
+	if ranges, ok := IPPool.GetRangesOk(); ok {
 		if err = d.Set("ranges", flattenIPPoolRanges(ranges)); err != nil {
 			return fmt.Errorf("Failed to read ip pool ranges %w", err)
+		}
+	}
+	if ranges, ok := IPPool.GetExcludedRangesOk(); ok {
+		if err = d.Set("excluded_ranges", flattenIPPoolRanges(ranges)); err != nil {
+			return fmt.Errorf("Failed to read ip pool excluded ranges %w", err)
 		}
 	}
 
@@ -236,6 +236,15 @@ func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("Failed to read ip pool ranges %w", err)
 		}
 		originalIPPool.SetRanges(ranges)
+	}
+
+	if d.HasChange("excluded_ranges") {
+		_, n := d.GetChange("excluded_ranges")
+		ranges, err := readIPPoolRangesFromConfig(n.([]interface{}))
+		if err != nil {
+			return fmt.Errorf("Failed to read ip pool excluded ranges %w", err)
+		}
+		originalIPPool.SetExcludedRanges(ranges)
 	}
 
 	req := api.IpPoolsIdPut(ctx, d.Id())

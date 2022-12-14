@@ -162,3 +162,61 @@ func testAccIPPoolImportStateCheckFunc(expectedStates int) resource.ImportStateC
 		return nil
 	}
 }
+
+func TestAccIPPoolBasic61(t *testing.T) {
+	resourceName := "appgatesdp_ip_pool.test_ip_pool_v4"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIPPoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor61AndAbove(t)
+				},
+				Config: testAccCheckIPPoolBasic61(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIPPoolExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "ip_version6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "lease_time_days", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "ranges.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ranges.0.first", "10.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "ranges.0.last", "10.0.0.254"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccIPPoolImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckIPPoolBasic61(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_ip_pool" "test_ip_pool_v4" {
+    name            = "%s"
+    lease_time_days = 5
+    ranges {
+      first = "10.0.0.1"
+      last  = "10.0.0.254"
+    }
+	excluded_ranges {
+		first = "10.0.0.10"
+		last  = "10.0.0.20"
+	}
+
+    tags = [
+      "terraform",
+      "api-created"
+    ]
+}
+`, rName)
+}
