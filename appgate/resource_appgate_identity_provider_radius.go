@@ -106,6 +106,12 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	if provider.InactivityTimeoutMinutes != nil {
 		args.SetInactivityTimeoutMinutes(*provider.InactivityTimeoutMinutes)
 	}
+	if provider.NetworkInactivityTimeoutEnabled != nil {
+		if currentVersion.LessThan(Appliance61Version) {
+			return ErrNetworkInactivityTimeoutEnabled
+		}
+		args.SetNetworkInactivityTimeoutEnabled(provider.GetNetworkInactivityTimeoutEnabled())
+	}
 	if provider.IpPoolV4 != nil {
 		args.SetIpPoolV4(*provider.IpPoolV4)
 	}
@@ -192,6 +198,7 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 	}
 
 	d.Set("inactivity_timeout_minutes", radius.GetInactivityTimeoutMinutes())
+	d.Set("network_inactivity_timeout_enabled", radius.GetNetworkInactivityTimeoutEnabled())
 	if v, ok := radius.GetIpPoolV4Ok(); ok {
 		d.Set("ip_pool_v4", *v)
 	}
@@ -276,6 +283,9 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 
 	if d.HasChange("inactivity_timeout_minutes") {
 		originalRadiusProvider.SetInactivityTimeoutMinutes(int32(d.Get("inactivity_timeout_minutes").(int)))
+	}
+	if d.HasChange("network_inactivity_timeout_enabled") {
+		originalRadiusProvider.SetNetworkInactivityTimeoutEnabled(d.Get("network_inactivity_timeout_enabled").(bool))
 	}
 	if d.HasChange("ip_pool_v4") {
 		originalRadiusProvider.SetIpPoolV4(d.Get("ip_pool_v4").(string))

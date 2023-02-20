@@ -3,6 +3,7 @@ package appgate
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -22,6 +23,10 @@ const (
 	identityProviderConnector       = "Connector"
 	builtinProviderLocal            = "local"
 	builtinProviderConnector        = "Connector"
+)
+
+var (
+	ErrNetworkInactivityTimeoutEnabled = errors.New("network_inactivity_timeout_enabled is only available in 6.1 or higher")
 )
 
 func identityProviderSchema() map[string]*schema.Schema {
@@ -96,6 +101,11 @@ func identityProviderSchema() map[string]*schema.Schema {
 
 			"inactivity_timeout_minutes": {
 				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+			},
+			"network_inactivity_timeout_enabled": {
+				Type:     schema.TypeBool,
 				Computed: true,
 				Optional: true,
 			},
@@ -445,6 +455,9 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.Configurabl
 
 	if v, ok := d.GetOk("inactivity_timeout_minutes"); ok {
 		provider.SetInactivityTimeoutMinutes(int32(v.(int)))
+	}
+	if v, ok := d.GetOk("network_inactivity_timeout_enabled"); ok {
+		provider.SetNetworkInactivityTimeoutEnabled(v.(bool))
 	}
 	if v, ok := d.GetOk("ip_pool_v4"); ok {
 		provider.SetIpPoolV4(v.(string))
