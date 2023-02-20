@@ -98,6 +98,12 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	if provider.InactivityTimeoutMinutes != nil {
 		args.SetInactivityTimeoutMinutes(*provider.InactivityTimeoutMinutes)
 	}
+	if provider.NetworkInactivityTimeoutEnabled != nil {
+		if currentVersion.LessThan(Appliance61Version) {
+			return ErrNetworkInactivityTimeoutEnabled
+		}
+		args.SetNetworkInactivityTimeoutEnabled(provider.GetNetworkInactivityTimeoutEnabled())
+	}
 	if provider.IpPoolV4 != nil {
 		args.SetIpPoolV4(*provider.IpPoolV4)
 	}
@@ -224,6 +230,7 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 	}
 
 	d.Set("inactivity_timeout_minutes", ldap.GetInactivityTimeoutMinutes())
+	d.Set("network_inactivity_timeout_enabled", ldap.GetNetworkInactivityTimeoutEnabled())
 	if v, ok := ldap.GetIpPoolV4Ok(); ok {
 		d.Set("ip_pool_v4", *v)
 	}
@@ -324,6 +331,9 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 
 	if d.HasChange("inactivity_timeout_minutes") {
 		originalLdapCertificateProvider.SetInactivityTimeoutMinutes(int32(d.Get("inactivity_timeout_minutes").(int)))
+	}
+	if d.HasChange("network_inactivity_timeout_enabled") {
+		originalLdapCertificateProvider.SetNetworkInactivityTimeoutEnabled(d.Get("network_inactivity_timeout_enabled").(bool))
 	}
 	if d.HasChange("ip_pool_v4") {
 		originalLdapCertificateProvider.SetIpPoolV4(d.Get("ip_pool_v4").(string))

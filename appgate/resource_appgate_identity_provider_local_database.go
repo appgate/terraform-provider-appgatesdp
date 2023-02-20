@@ -116,6 +116,7 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 	}
 
 	d.Set("inactivity_timeout_minutes", localDatabase.GetInactivityTimeoutMinutes())
+	d.Set("network_inactivity_timeout_enabled", localDatabase.GetNetworkInactivityTimeoutEnabled())
 	if v, ok := localDatabase.GetIpPoolV4Ok(); ok {
 		d.Set("ip_pool_v4", *v)
 	}
@@ -185,6 +186,9 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 
 	if d.HasChange("inactivity_timeout_minutes") {
 		originalLocalDatabaseProvider.SetInactivityTimeoutMinutes(int32(d.Get("inactivity_timeout_minutes").(int)))
+	}
+	if d.HasChange("network_inactivity_timeout_enabled") {
+		originalLocalDatabaseProvider.SetNetworkInactivityTimeoutEnabled(d.Get("network_inactivity_timeout_enabled").(bool))
 	}
 	if d.HasChange("ip_pool_v4") {
 		originalLocalDatabaseProvider.SetIpPoolV4(d.Get("ip_pool_v4").(string))

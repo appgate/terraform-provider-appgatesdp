@@ -98,6 +98,12 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	if provider.InactivityTimeoutMinutes != nil {
 		args.SetInactivityTimeoutMinutes(*provider.InactivityTimeoutMinutes)
 	}
+	if provider.NetworkInactivityTimeoutEnabled != nil {
+		if currentVersion.LessThan(Appliance61Version) {
+			return ErrNetworkInactivityTimeoutEnabled
+		}
+		args.SetNetworkInactivityTimeoutEnabled(provider.GetNetworkInactivityTimeoutEnabled())
+	}
 	if provider.IpPoolV4 != nil {
 		args.SetIpPoolV4(*provider.IpPoolV4)
 	}
@@ -184,6 +190,7 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("inactivity_timeout_minutes", saml.GetInactivityTimeoutMinutes())
+	d.Set("network_inactivity_timeout_enabled", saml.GetNetworkInactivityTimeoutEnabled())
 	if v, ok := saml.GetIpPoolV4Ok(); ok {
 		d.Set("ip_pool_v4", *v)
 	}
@@ -259,6 +266,9 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("inactivity_timeout_minutes") {
 		originalSamlProvider.SetInactivityTimeoutMinutes(int32(d.Get("inactivity_timeout_minutes").(int)))
+	}
+	if d.HasChange("network_inactivity_timeout_enabled") {
+		originalSamlProvider.SetNetworkInactivityTimeoutEnabled(d.Get("network_inactivity_timeout_enabled").(bool))
 	}
 	if d.HasChange("ip_pool_v4") {
 		originalSamlProvider.SetIpPoolV4(d.Get("ip_pool_v4").(string))
