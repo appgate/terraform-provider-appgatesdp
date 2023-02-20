@@ -124,11 +124,12 @@ The following arguments are supported:
 * `name`: (Required) Name of the object.
 * `notes`: (Optional) Notes for the object. Used for documentation purposes.
 * `tags`: (Optional) Array of tags.
-* `type`: (Required) The type of the Identity Provider.
+* `type`: (Computed) The type of the Identity Provider.
 * `admin_provider`: (Optional) Whether the provider will be listed in the Admin UI or not.
 * `device_limit_per_user`: (Optional) The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.
-* `on_boarding2_fa`: (Optional) On-boarding two-factor authentication settings. Leave it empty keep it disabled.
+* `on_boarding_two_factor`: (Optional) On-boarding two-factor authentication settings. Leave it empty keep it disabled.
 * `inactivity_timeout_minutes`: (Optional) (Desktop) clients will sign out automatically after the user has been inactive on the device for the configured duration. Set it to 0 to disable.
+* `network_inactivity_timeout_enabled`: (Optional) Whether or not to take network inactivity into account when measuring client inactivity timeout.
 * `ip_pool_v4`: (Optional) The IPv4 Pool ID the users in this Identity Provider are going to use to allocate IP addresses for the tunnels.
 * `ip_pool_v6`: (Optional) The IPv6 Pool ID the users in this Identity Provider are going to use to allocate IP addresses for the tunnels.
 * `dns_servers`: (Optional) The DNS servers to be assigned to the Clients of the users in this Identity Provider.
@@ -160,7 +161,7 @@ The following arguments are supported:
 ### tags
 Array of tags.
 
-### on_boarding2_fa
+### on_boarding_two_factor
 On-boarding two-factor authentication settings. Leave it empty keep it disabled.
 
 * `mfa_provider_id`: (Required) MFA provider ID to use for the authentication.
@@ -168,6 +169,8 @@ On-boarding two-factor authentication settings. Leave it empty keep it disabled.
 * `claim_suffix`:  (Optional)  default value `onBoarding` Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled.
 * `always_required`:  (Optional) If enabled, MFA will be required on every authentication.
 * `device_limit_per_user`:  (Optional) The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded. Deprecated. Use root level field instead.
+
+
 ### dns_servers
 The DNS servers to be assigned to the Clients of the users in this Identity Provider.
 
