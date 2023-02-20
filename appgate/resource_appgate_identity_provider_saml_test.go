@@ -1213,3 +1213,188 @@ func testAccSamlIdentityProviderImportStateCheckFunc(expectedStates int) resourc
 		return nil
 	}
 }
+
+func TestAccSamlIdentityProvider61(t *testing.T) {
+	resourceName := "appgatesdp_saml_identity_provider.saml_test_resource"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSamlIdentityProviderDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor61AndAbove(t)
+				},
+				Config: testAccCheckSamlIdentityProvider61(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSamlIdentityProviderExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "admin_provider", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_v4", "f572b4ab-7963-4a90-9e5a-3bf033bfe2cc"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_v6", "6935b379-205d-4fdd-847f-a0b5f14aff53"),
+					resource.TestCheckResourceAttr(resourceName, "dns_servers.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "dns_servers.0", "172.17.18.19"),
+					resource.TestCheckResourceAttr(resourceName, "dns_servers.1", "192.100.111.31"),
+					resource.TestCheckResourceAttr(resourceName, "dns_servers.2", "192.100.111.32"),
+					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.0", "internal.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "redirect_url", "https://saml.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "issuer", "http://adfs-test.company.com/adfs/services/trust"),
+					resource.TestCheckResourceAttr(resourceName, "audience", "Company Appgate SDP"),
+					resource.TestCheckResourceAttrSet(resourceName, "provider_certificate"),
+					resource.TestCheckResourceAttr(resourceName, "decryption_key", ""),
+					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "false"),
+					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "99"),
+					resource.TestCheckResourceAttr(resourceName, "network_inactivity_timeout_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "type", "Saml"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.#", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccSamlIdentityProviderImportStateCheckFunc(1),
+			},
+			{
+				Config: testAccCheckSamlIdentityProvider61Updated(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSamlIdentityProviderExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "admin_provider", "true"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_v4", "f572b4ab-7963-4a90-9e5a-3bf033bfe2cc"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_v6", "6935b379-205d-4fdd-847f-a0b5f14aff53"),
+					resource.TestCheckResourceAttr(resourceName, "dns_servers.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "dns_servers.0", "172.17.18.19"),
+					resource.TestCheckResourceAttr(resourceName, "dns_servers.1", "192.100.111.31"),
+					resource.TestCheckResourceAttr(resourceName, "dns_servers.2", "192.100.111.32"),
+					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "dns_search_domains.0", "internal.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "redirect_url", "https://saml.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "issuer", "http://adfs-test.company.com/adfs/services/trust"),
+					resource.TestCheckResourceAttr(resourceName, "audience", "Company Appgate SDP"),
+					resource.TestCheckResourceAttrSet(resourceName, "provider_certificate"),
+					resource.TestCheckResourceAttr(resourceName, "decryption_key", ""),
+					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "false"),
+					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "5"),
+					resource.TestCheckResourceAttr(resourceName, "network_inactivity_timeout_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "type", "Saml"),
+					resource.TestCheckResourceAttr(resourceName, "claim_mappings.#", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccSamlIdentityProviderImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckSamlIdentityProvider61(rName string) string {
+	return fmt.Sprintf(`
+data "appgatesdp_ip_pool" "ip_v6_pool" {
+	ip_pool_name = "default pool v6"
+}
+
+data "appgatesdp_ip_pool" "ip_v4_pool" {
+	ip_pool_name = "default pool v4"
+}
+
+resource "appgatesdp_saml_identity_provider" "saml_test_resource" {
+	name = "%s"
+
+	admin_provider = true
+	ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
+	ip_pool_v6     = data.appgatesdp_ip_pool.ip_v6_pool.id
+	dns_servers = [
+		"172.17.18.19",
+		"192.100.111.31",
+		"192.100.111.32",
+	]
+	dns_search_domains = [
+		"internal.company.com"
+	]
+	redirect_url = "https://saml.company.com"
+	issuer       = "http://adfs-test.company.com/adfs/services/trust"
+	audience     = "Company Appgate SDP"
+
+	provider_certificate = <<-EOF
+		-----BEGIN CERTIFICATE-----
+		MIICZjCCAc+gAwIBAgIUT0AsBLRI7aKjaMTnH1N9J6eS+7EwDQYJKoZIhvcNAQEL
+		BQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
+		GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yMDA5MjIxNDQ5MTZaFw0yMTA5
+		MjIxNDQ5MTZaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
+		HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwgZ8wDQYJKoZIhvcNAQEB
+		BQADgY0AMIGJAoGBAOWp5CnfLvNpjeESzTg/B/1kG1BRdXtM00q59WPj7adZ5gq+
+		+Hr0mWEQ5GldgmXRE3HsXfv7hiq4RwX9h+qtRinwhSvtLquM54/Fpw+TYZl5N27m
+		ov8a04qqlo8c3BqXR5Vp+ohPVcXs2I21k5bUTh5XwHj4uiv8uxmKzk42WETbAgMB
+		AAGjUzBRMB0GA1UdDgQWBBSpc1YN7rgPiBrVPn0roGV+1B4ETDAfBgNVHSMEGDAW
+		gBSpc1YN7rgPiBrVPn0roGV+1B4ETDAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3
+		DQEBCwUAA4GBAMgxxBlfgH98ME7Es9xlV3HrurwG1p2gBvrrEACMtFNgtZE1vgck
+		jmhbc3t+Af9Dv9KBkaI6ZDl16uiptdpAv59wLgbVFgEPUJboRjhIaw5mPcMCeSDE
+		eIE/AV/qHWNEiLIMP5JO2FUbjpDCYtHkCOFDmv01e6rs86L3MQ8zF76T
+		-----END CERTIFICATE-----
+		EOF
+
+	inactivity_timeout_minutes         = 99
+	network_inactivity_timeout_enabled = true
+}`, rName)
+}
+
+func testAccCheckSamlIdentityProvider61Updated(rName string) string {
+	return fmt.Sprintf(`
+data "appgatesdp_ip_pool" "ip_v6_pool" {
+	ip_pool_name = "default pool v6"
+}
+
+data "appgatesdp_ip_pool" "ip_v4_pool" {
+	ip_pool_name = "default pool v4"
+}
+
+resource "appgatesdp_saml_identity_provider" "saml_test_resource" {
+	name = "%s"
+
+	admin_provider = true
+	ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
+	ip_pool_v6     = data.appgatesdp_ip_pool.ip_v6_pool.id
+	dns_servers = [
+		"172.17.18.19",
+		"192.100.111.31",
+		"192.100.111.32",
+	]
+	dns_search_domains = [
+		"internal.company.com"
+	]
+	redirect_url = "https://saml.company.com"
+	issuer       = "http://adfs-test.company.com/adfs/services/trust"
+	audience     = "Company Appgate SDP"
+
+	provider_certificate = <<-EOF
+		-----BEGIN CERTIFICATE-----
+		MIICZjCCAc+gAwIBAgIUT0AsBLRI7aKjaMTnH1N9J6eS+7EwDQYJKoZIhvcNAQEL
+		BQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
+		GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yMDA5MjIxNDQ5MTZaFw0yMTA5
+		MjIxNDQ5MTZaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
+		HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwgZ8wDQYJKoZIhvcNAQEB
+		BQADgY0AMIGJAoGBAOWp5CnfLvNpjeESzTg/B/1kG1BRdXtM00q59WPj7adZ5gq+
+		+Hr0mWEQ5GldgmXRE3HsXfv7hiq4RwX9h+qtRinwhSvtLquM54/Fpw+TYZl5N27m
+		ov8a04qqlo8c3BqXR5Vp+ohPVcXs2I21k5bUTh5XwHj4uiv8uxmKzk42WETbAgMB
+		AAGjUzBRMB0GA1UdDgQWBBSpc1YN7rgPiBrVPn0roGV+1B4ETDAfBgNVHSMEGDAW
+		gBSpc1YN7rgPiBrVPn0roGV+1B4ETDAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3
+		DQEBCwUAA4GBAMgxxBlfgH98ME7Es9xlV3HrurwG1p2gBvrrEACMtFNgtZE1vgck
+		jmhbc3t+Af9Dv9KBkaI6ZDl16uiptdpAv59wLgbVFgEPUJboRjhIaw5mPcMCeSDE
+		eIE/AV/qHWNEiLIMP5JO2FUbjpDCYtHkCOFDmv01e6rs86L3MQ8zF76T
+		-----END CERTIFICATE-----
+		EOF
+
+	inactivity_timeout_minutes         = 5
+	network_inactivity_timeout_enabled = false
+}`, rName)
+}
