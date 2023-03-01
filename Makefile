@@ -10,9 +10,10 @@ NAMESPACE=appgate
 NAME=appgatesdp
 VERSION=1.0.4
 
+commit=$$(git rev-parse HEAD)
 
 build:
-	go build -o $(BIN_NAME)
+	go build -o $(BIN_NAME) -ldflags="-X github.com/appgate/terraform-provider-appgatesdp/version.ProviderVersion=${commit}"
 
 fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
