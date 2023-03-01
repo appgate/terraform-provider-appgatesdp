@@ -371,14 +371,6 @@ func TestClient(t *testing.T) {
 			if !appgateClient.ApplianceVersion.Equal(tt.expectedVersion) {
 				t.Fatalf("Expected %s, got %s", tt.expectedVersion, appgateClient.ApplianceVersion)
 			}
-
-			latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
-			if err != nil {
-				t.Fatalf("unable to parse latest supported version")
-			}
-			if !appgateClient.LatestSupportedVersion.Equal(latestSupportedVersion) {
-				t.Fatalf("Expected Latest Version%s, got %s", tt.expectedVersion, appgateClient.ApplianceVersion)
-			}
 			if token != "Bearer very-long-string" {
 				t.Fatalf("Expected token Bearer very-long-string, got %s", appgateClient.Token)
 			}

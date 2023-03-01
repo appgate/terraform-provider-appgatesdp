@@ -26,7 +26,7 @@ const (
 	Version18 = 18
 	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
 	// its not recommended to change this value.
-	DefaultClientVersion = Version17
+	DefaultClientVersion = Version18
 )
 
 var (
@@ -87,7 +87,7 @@ func Provider() *schema.Provider {
 			"client_version": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", DefaultClientVersion),
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", 0),
 			},
 			"config_path": {
 				Type:        schema.TypeString,

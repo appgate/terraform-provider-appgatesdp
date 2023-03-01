@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	pkgversion "github.com/appgate/terraform-provider-appgatesdp/version"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 )
@@ -58,25 +59,18 @@ func (c *Config) Validate(usingFile bool) error {
 	} else if len(c.Username) < 1 && len(c.Password) < 1 {
 		return fmt.Errorf("username and password required if appgate bearer token is empty")
 	}
-	keys := make([]int, 0, len(ApplianceVersionMap))
-	for k := range ApplianceVersionMap {
-		keys = append(keys, k)
-	}
-	if !contains(keys, c.Version) {
-		return fmt.Errorf("appgate client version invalid, got %d, default is %d", c.Version, DefaultClientVersion)
-	}
+
 	return nil
 }
 
 // Client is the appgate API client.
 type Client struct {
-	Token                  string
-	UUID                   string
-	ApplianceVersion       *version.Version
-	LatestSupportedVersion *version.Version
-	ClientVersion          int
-	API                    *openapi.APIClient
-	Config                 *Config
+	Token            string
+	UUID             string
+	ApplianceVersion *version.Version
+	ClientVersion    int
+	API              *openapi.APIClient
+	Config           *Config
 }
 
 // Client creates
@@ -118,11 +112,9 @@ func (c *Config) Client() (*Client, error) {
 		Timeout:   ((timeoutDuration * 2) * time.Second),
 	}
 	clientCfg := &openapi.Configuration{
-		DefaultHeader: map[string]string{
-			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", c.Version),
-		},
-		UserAgent: "Appgate-TerraformProvider/1.0.0/go",
-		Debug:     c.Debug,
+		DefaultHeader: map[string]string{},
+		UserAgent:     fmt.Sprintf("terraform-provider-appgatesdp/%s", pkgversion.ProviderVersion),
+		Debug:         c.Debug,
 		Servers: []openapi.ServerConfiguration{
 			{
 				URL: c.URL,
@@ -173,21 +165,37 @@ func (c *Client) GetToken() (string, error) {
 		c.Token = fmt.Sprintf("Bearer %s", c.Config.BearerToken)
 	}
 	cfg := c.Config
-	latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
-	if err != nil {
-		return "", err
+
+	if cfg.Version == 0 {
+		var minMaxErr *minMaxError
+		_, err := c.login(context.WithValue(
+			context.Background(),
+			openapi.ContextAcceptHeader,
+			fmt.Sprintf("application/vnd.appgate.peer-v%d+json", 5),
+		))
+		if errors.As(err, &minMaxErr) {
+			log.Printf("[DEBUG] retrieved client version %d to use from login error response", minMaxErr.Max)
+			cfg.Version = int(minMaxErr.Max)
+		} else {
+			log.Printf("[DEBUG] could not compute client version API support, fallback %d", DefaultClientVersion)
+			cfg.Version = DefaultClientVersion
+		}
+	} else {
+		log.Printf("[DEBUG] client version resolved to %d", cfg.Version)
 	}
+
+	c.API.GetConfig().DefaultHeader["Accept"] = fmt.Sprintf("application/vnd.appgate.peer-v%d+json", cfg.Version)
+
 	currentVersion, err := guessVersion(cfg.Version)
 	if err != nil {
 		return "", err
 	}
 	c.ApplianceVersion = currentVersion
-	c.LatestSupportedVersion = latestSupportedVersion
 
 	if len(c.Token) > 0 {
 		return c.Token, nil
 	}
-	response, err := c.login()
+	response, err := c.login(context.Background())
 	if err != nil {
 		return "", err
 	}
@@ -213,8 +221,16 @@ func (c *Client) loginTimoutDuration() time.Duration {
 	return 5 * time.Minute
 }
 
-func (c *Client) login() (*openapi.LoginResponse, error) {
-	ctx := context.Background()
+type minMaxError struct {
+	Err      error
+	Min, Max int32
+}
+
+func (e *minMaxError) Error() string {
+	return e.Err.Error()
+}
+
+func (c *Client) login(ctx context.Context) (*openapi.LoginResponse, error) {
 	loginOpts := openapi.LoginRequest{
 		ProviderName: c.Config.Provider,
 		Username:     openapi.PtrString(c.Config.Username),
@@ -250,15 +266,12 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 		}
 		if err != nil {
 			if err, ok := err.(*openapi.GenericOpenAPIError); ok {
-				if err, ok := err.Model().(openapi.LoginPost406Response); ok {
-					return &backoff.PermanentError{
-						Err: fmt.Errorf(
-							"You are using the wrong client_version (peer api version) for you appgate sdp collective, you are using %d; min: %d max: %d",
-							c.Config.Version,
-							err.GetMinSupportedVersion(),
-							err.GetMaxSupportedVersion(),
-						),
-					}
+				if responseErr, ok := err.Model().(openapi.LoginPost406Response); ok {
+					return &backoff.PermanentError{Err: &minMaxError{
+						Err: err,
+						Min: responseErr.GetMinSupportedVersion(),
+						Max: responseErr.GetMaxSupportedVersion(),
+					}}
 				}
 			}
 			log.Printf("[DEBUG] Login failed permanently, got HTTP %d", response.StatusCode)
@@ -266,7 +279,7 @@ func (c *Client) login() (*openapi.LoginResponse, error) {
 		}
 		loginResponse = login
 		return nil
-	}, &exponentialBackOff)
+	}, backoff.WithContext(&exponentialBackOff, ctx))
 	if err != nil {
 		return nil, prettyPrintAPIError(err)
 	}
