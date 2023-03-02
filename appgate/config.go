@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
@@ -65,6 +66,7 @@ func (c *Config) Validate(usingFile bool) error {
 
 // Client is the appgate API client.
 type Client struct {
+	mu               sync.Mutex
 	Token            string
 	UUID             string
 	ApplianceVersion *version.Version
@@ -113,7 +115,7 @@ func (c *Config) Client() (*Client, error) {
 	}
 	clientCfg := &openapi.Configuration{
 		DefaultHeader: map[string]string{
-			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", MinimumSupportedVersion),
+			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", c.Version),
 		},
 		UserAgent: c.UserAgent,
 		Debug:     c.Debug,
@@ -162,13 +164,27 @@ func guessVersion(clientVersion int) (*version.Version, error) {
 // GetToken makes first login and initiate the client towards the controller.
 // this is always the first request made
 func (c *Client) GetToken() (string, error) {
-	if len(c.Config.BearerToken) > 0 {
-		log.Printf("[DEBUG] Authenticate with Bearer token provided as APPGATE_BEARER_TOKEN")
-		c.Token = fmt.Sprintf("Bearer %s", c.Config.BearerToken)
-	}
+	// we will do a lock here to avoid concurrent race condition if we need to update the root
+	// client default header values and only authenticate if we haven't already cached a bearer token.
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	cfg := c.Config
 
-	if cfg.Version == 0 {
+	if len(cfg.BearerToken) > 0 {
+		log.Printf("[DEBUG] Authenticate with Bearer token provided as APPGATE_BEARER_TOKEN")
+		c.Token = fmt.Sprintf("Bearer %s", cfg.BearerToken)
+		return c.Token, nil
+	}
+	if len(c.Token) > 0 {
+		log.Printf("[DEBUG] Using existing token")
+		return c.Token, nil
+	}
+
+	// if the client_version is set to the default minimum value, we will do
+	// a error request to login to determine the maximum allowed version for the current
+	// controller to use.
+	// This only happens if the provisioner has omitted the client_version from their provider configuration.
+	if cfg.Version == MinimumSupportedVersion {
 		var minMaxErr *minMaxError
 		_, err := c.login(context.WithValue(
 			context.Background(),
@@ -182,11 +198,8 @@ func (c *Client) GetToken() (string, error) {
 			log.Printf("[DEBUG] could not compute client version API support, fallback %d", DefaultClientVersion)
 			cfg.Version = DefaultClientVersion
 		}
-	} else {
-		log.Printf("[DEBUG] client version resolved to %d", cfg.Version)
+		c.API.GetConfig().DefaultHeader["Accept"] = fmt.Sprintf("application/vnd.appgate.peer-v%d+json", cfg.Version)
 	}
-
-	c.API.GetConfig().DefaultHeader["Accept"] = fmt.Sprintf("application/vnd.appgate.peer-v%d+json", cfg.Version)
 
 	currentVersion, err := guessVersion(cfg.Version)
 	if err != nil {

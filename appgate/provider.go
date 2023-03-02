@@ -18,16 +18,17 @@ import (
 )
 
 const (
-	Version12 = 12
-	Version13 = 13
-	Version14 = 14
-	Version15 = 15
-	Version16 = 16
-	Version17 = 17
-	Version18 = 18
+	Version12 int = 12
+	Version13 int = 13
+	Version14 int = 14
+	Version15 int = 15
+	Version16 int = 16
+	Version17 int = 17
+	Version18 int = 18
 	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
 	// its not recommended to change this value.
-	DefaultClientVersion = Version18
+	DefaultClientVersion    = Version18
+	MinimumSupportedVersion = Version13
 )
 
 var (
@@ -86,9 +87,11 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_HTTP_DEBUG", false),
 			},
 			"client_version": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", 0),
+				Type:     schema.TypeInt,
+				Optional: true,
+				// lowest supported version available. This will be overwritten
+				// if the provisioner do not explcit overwrite it in their config
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", MinimumSupportedVersion),
 			},
 			"config_path": {
 				Type:        schema.TypeString,
