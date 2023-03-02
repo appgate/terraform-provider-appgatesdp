@@ -283,7 +283,7 @@ func (c *Client) login(ctx context.Context) (*openapi.LoginResponse, error) {
 			if err, ok := err.(*openapi.GenericOpenAPIError); ok {
 				if responseErr, ok := err.Model().(openapi.LoginPost406Response); ok {
 					return &backoff.PermanentError{Err: &minMaxError{
-						Err: err,
+						Err: fmt.Errorf("Invalid appgatesdp.client_version for your collective %w", err),
 						Min: responseErr.GetMinSupportedVersion(),
 						Max: responseErr.GetMaxSupportedVersion(),
 					}}
