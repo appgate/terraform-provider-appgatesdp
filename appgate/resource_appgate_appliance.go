@@ -53,8 +53,7 @@ func resourceAppgateAppliance() *schema.Resource {
 
 			"hostname": {
 				Type:        schema.TypeString,
-				Deprecated:  "appliance hostname is deprecated as of 5.4.",
-				Description: "Name of the object.",
+				Description: "Hostname of the Appliance. It's used by other Appliances to communicate with and identify this Appliances.",
 				Required:    true,
 			},
 
