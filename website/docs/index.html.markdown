@@ -90,7 +90,7 @@ the following keys are allowed within the config file, all keys are optional.
     "appgate_password": "string",
     "appgate_provider": "string",
     "appgate_bearer_token": "string",
-    "appgate_client_version": 17,
+    "appgate_client_version": 18,
 }
 
 ```
@@ -102,7 +102,7 @@ example config file format,
     "appgate_username": "admin",
     "appgate_password": "admin",
     "appgate_provider": "local",
-    "appgate_client_version": 17
+    "appgate_client_version": 18
 }
 
 ```
@@ -156,7 +156,7 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 * `provider` - (Optional) This is the Appgate provider. It must be provided, but
   it can also be sourced from the `APPGATE_PROVIDER` environment variables.
 
-* `client_version` - (Optional) This reference the appgate client SDK version, it can also be sourced from the `APPGATE_CLIENT_VERSION` environment variables. Defaults to `17`, Its not recommended to change this unless you know what you are doing.
+* `client_version` - (Optional) This reference the appgate client SDK version, it can also be sourced from the `APPGATE_CLIENT_VERSION` environment variables. Defaults to `18`, Its not recommended to change this unless you know what you are doing.
 
 * `pem_filepath` - (Optional) Path to the controller's CA cert file in PEM format.
 
