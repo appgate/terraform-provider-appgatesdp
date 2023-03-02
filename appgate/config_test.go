@@ -143,7 +143,6 @@ func TestLoginNotAcceptable(t *testing.T) {
 }
 
 var (
-	version52Test, _         = version.NewVersion("5.2.0+estimated")
 	computed54TestVersion, _ = version.NewVersion("5.4.0+estimated")
 
 	loginResponse54 = `
@@ -169,37 +168,6 @@ var (
 }
 `
 
-	loginResponsePrior53 = `
-{
-	"version": "4.3.0-20000",
-	"user": {
-		"name": "admin",
-		"needTwoFactorAuth": false,
-		"canAccessAuditLogs": true,
-		"privileges": [
-		{
-			"type": "All",
-			"target": "All",
-			"scope": {
-			"all": true,
-			"ids": [
-				"4c07bc67-57ea-42dd-b702-c2d6c45419fc"
-			],
-			"tags": [
-				"tag"
-			]
-			},
-			"defaultTags": [
-			"api-created"
-			]
-		}
-		]
-	},
-	"token": "very-long-string",
-	"expires": "2020-01-27T08:50:34Z",
-	"messageOfTheDay": "Welcome to Appgate SDP."
-}
-`
 	loginResponse406 = `
 {
 	"id": "string",
@@ -225,23 +193,6 @@ func TestClient(t *testing.T) {
 		config          *Config
 		wantInsecure    bool
 	}{
-		{
-			name: "test before 5.4",
-			fields: fields{
-				ResponseBody: loginResponsePrior53,
-			},
-			wantErr:         false,
-			expectedVersion: version52Test,
-			statusCode:      http.StatusOK,
-			config: &Config{
-				Username:     "admin",
-				Password:     "admin",
-				Version:      13,
-				LoginTimeout: 1,
-				Insecure:     true,
-			},
-			wantInsecure: true,
-		},
 		{
 			name: "test 5.4 login",
 			fields: fields{
