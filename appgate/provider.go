@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	pkgversion "github.com/appgate/terraform-provider-appgatesdp/version"
 	"github.com/denisbrodbeck/machineid"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
@@ -50,7 +51,7 @@ var (
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
 func Provider() *schema.Provider {
-	return &schema.Provider{
+	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"url": {
 				Type:        schema.TypeString,
@@ -169,14 +170,20 @@ func Provider() *schema.Provider {
 			"appgatesdp_connector_identity_provider":        resourceAppgateConnectorProvider(),
 			"appgatesdp_client_profile":                     resourceAppgateClientProfile(),
 		},
-		ConfigureContextFunc: providerConfigure,
 	}
+
+	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		return providerConfigure(ctx, d, provider.UserAgent("appgatesdp", pkgversion.ProviderVersion))
+	}
+	return provider
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData, ua string) (interface{}, diag.Diagnostics) {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
-	config := Config{}
+	config := Config{
+		UserAgent: ua,
+	}
 	config.Timeout = 20
 	configFile := Config{}
 	usingFile := false

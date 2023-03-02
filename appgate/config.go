@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
-	pkgversion "github.com/appgate/terraform-provider-appgatesdp/version"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 )
@@ -39,6 +38,7 @@ type Config struct {
 	BearerToken  string `json:"appgate_bearer_token,omitempty"`
 	PemFilePath  string `json:"appgate_pem_filepath,omitempty"`
 	DeviceID     string `json:"appgate_device_id,omitempty"`
+	UserAgent    string
 }
 
 // Validate makes sure we have minimum required configuration values to authenticate against the controller.
@@ -112,9 +112,11 @@ func (c *Config) Client() (*Client, error) {
 		Timeout:   ((timeoutDuration * 2) * time.Second),
 	}
 	clientCfg := &openapi.Configuration{
-		DefaultHeader: map[string]string{},
-		UserAgent:     fmt.Sprintf("terraform-provider-appgatesdp/%s", pkgversion.ProviderVersion),
-		Debug:         c.Debug,
+		DefaultHeader: map[string]string{
+			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", MinimumSupportedVersion),
+		},
+		UserAgent: c.UserAgent,
+		Debug:     c.Debug,
 		Servers: []openapi.ServerConfiguration{
 			{
 				URL: c.URL,
