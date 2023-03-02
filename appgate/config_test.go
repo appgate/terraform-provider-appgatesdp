@@ -2,6 +2,7 @@ package appgate
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -90,6 +91,54 @@ func TestLoginInternalServerError(t *testing.T) {
 	}
 	if *m.Message != "An unexpected error occurred." {
 		t.Fatalf("Expected error message 'An unexpected error occurred.', got %s", *m.Message)
+	}
+}
+
+func TestLoginNotAcceptable(t *testing.T) {
+	_, _, mux, _, port, teardown := setup()
+	defer teardown()
+	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		fmt.Fprint(w, `{
+			"id": "not acceptable",
+			"maxSupportedVersion": 17,
+			"message": "Invalid 'Accept' header. Current version: application/vnd.appgate.peer-v17+json, Received: application/vnd.appgate.peer-v5+json",
+			"minSupportedVersion": 13
+		}`)
+		testMethod(t, r, http.MethodPost)
+
+	})
+	c := &Config{
+		Username:     "admin",
+		Password:     "admin",
+		Version:      0,
+		LoginTimeout: 1,
+		Insecure:     false,
+		PemFilePath:  "test-fixtures/cert.pem",
+	}
+	c.URL = fmt.Sprintf("http://localhost:%d", port)
+	appgateClient, err := c.Client()
+	if err != nil {
+		t.Fatalf("got err %s expected nil", err)
+	}
+	if appgateClient == nil {
+		t.Fatal("did not expected client to be nil")
+	}
+	_, err = appgateClient.login(context.WithValue(
+		context.Background(),
+		openapi.ContextAcceptHeader,
+		fmt.Sprintf("application/vnd.appgate.peer-v%d+json", 5),
+	))
+	var minMaxErr *minMaxError
+	if !errors.As(err, &minMaxErr) {
+		t.Fatalf("expected a minMaxErr, got %+v", err)
+	}
+	if minMaxErr.Max != 17 {
+		t.Errorf("expected max 17 got %d", minMaxErr.Max)
+	}
+	if minMaxErr.Min != 13 {
+		t.Errorf("expected min 13 got %d", minMaxErr.Min)
 	}
 }
 
@@ -433,16 +482,6 @@ func TestConfigValidate(t *testing.T) {
 				Version:     DefaultClientVersion,
 			},
 			wantErr: false,
-		},
-		{
-			name: "invalid client version",
-			fields: fields{
-				URL:      "http://appgate.controller.com/admin",
-				Username: "admin",
-				Password: "admin",
-				Version:  35,
-			},
-			wantErr: true,
 		},
 		{
 			name: "invalid username password",
