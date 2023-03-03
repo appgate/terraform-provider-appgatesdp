@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiService, id string, token string) (*openapi.Entitlement, diag.Diagnostics) {
+func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiService, id, token string) (*openapi.Entitlement, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source Entitlement get by UUID %s", id)
 	resource, _, err := api.EntitlementsIdGet(ctx, id).Authorization(token).Execute()
 	if err != nil {
@@ -18,7 +18,7 @@ func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiServ
 	return resource, nil
 }
 
-func findEntitlementByName(ctx context.Context, api *openapi.EntitlementsApiService, name string, token string) (*openapi.Entitlement, diag.Diagnostics) {
+func findEntitlementByName(ctx context.Context, api *openapi.EntitlementsApiService, name, token string) (*openapi.Entitlement, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source Entitlement get by name %s", name)
 
@@ -43,14 +43,9 @@ func ResolveEntitlementFromResourceData(ctx context.Context, d *schema.ResourceD
 	if !iok && !nok {
 		return nil, AppendErrorf(diags, "please provide one of entitlement_id or entitlement_name attributes")
 	}
-	var (
-		reqErr   diag.Diagnostics
-		resource *openapi.Entitlement
-	)
+
 	if iok {
-		resource, reqErr = findEntitlementByUUID(ctx, api, resourceID.(string), token)
-	} else {
-		resource, reqErr = findEntitlementByName(ctx, api, resourceName.(string), token)
+		return findEntitlementByUUID(ctx, api, resourceID.(string), token)
 	}
-	return resource, reqErr
+	return findEntitlementByName(ctx, api, resourceName.(string), token)
 }
