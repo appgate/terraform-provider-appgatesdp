@@ -1,3 +1,4 @@
+//go:generate go run gen/gen-accessors.go
 package main
 
 import (
