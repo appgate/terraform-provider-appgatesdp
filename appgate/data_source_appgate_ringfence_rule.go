@@ -2,17 +2,15 @@ package appgate
 
 import (
 	"context"
-	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceAppgateRingfenceRule() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAppgateRingfenceRuleRead,
+		ReadContext: dataSourceAppgateRingfenceRuleRead,
 		Schema: map[string]*schema.Schema{
 
 			"ringfence_rule_id": {
@@ -36,60 +34,22 @@ func dataSourceAppgateRingfenceRule() *schema.Resource {
 	}
 }
 
-func dataSourceAppgateRingfenceRuleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAppgateRingfenceRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Data source Ringfence Rules")
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.RingfenceRulesApi
-	ctx := context.Background()
-	ringfenceID, iok := d.GetOk("ringfence_rule_id")
-	ringfenceName, nok := d.GetOk("ringfence_rule_name")
-
-	if !iok && !nok {
-		return fmt.Errorf("please provide one of ringfence_rule_id or ringfence_rule_name attributes")
+	ringfenceRule, diags := ResolveRingfenceRuleFromResourceData(ctx, d, api, token)
+	if diags != nil {
+		return diags
 	}
-	var reqErr error
-	var ringfenceRule *openapi.RingfenceRule
-	if iok {
-		ringfenceRule, reqErr = findRingfenceRuleByUUID(ctx, api, ringfenceID.(string), token)
-	} else {
-		ringfenceRule, reqErr = findRingfenceRuleByName(ctx, api, ringfenceName.(string), token)
-	}
-	if reqErr != nil {
-		return reqErr
-	}
-	log.Printf("[DEBUG] Got Ringfence Rule: %+v", ringfenceRule)
 
 	d.SetId(ringfenceRule.GetId())
 	d.Set("ringfence_rule_id", ringfenceRule.GetId())
-	d.Set("name", ringfenceRule.GetName())
+	d.Set("ringfence_rule_name", ringfenceRule.GetName())
 	d.Set("tags", ringfenceRule.GetTags())
 
 	return nil
-}
-
-func findRingfenceRuleByUUID(ctx context.Context, api *openapi.RingfenceRulesApiService, id string, token string) (*openapi.RingfenceRule, error) {
-	log.Printf("[DEBUG] Data source Ringfence Rule get by UUID %s", id)
-	ringfenceRule, _, err := api.RingfenceRulesIdGet(ctx, id).Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return ringfenceRule, nil
-}
-
-func findRingfenceRuleByName(ctx context.Context, api *openapi.RingfenceRulesApiService, name string, token string) (*openapi.RingfenceRule, error) {
-	log.Printf("[DEBUG] Data source Ringfence Rule get by name %s", name)
-	request := api.RingfenceRulesGet(ctx)
-
-	ringfenceRule, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, r := range ringfenceRule.GetData() {
-		return &r, nil
-	}
-	return nil, fmt.Errorf("Failed to find Ringfence rule %s", name)
 }

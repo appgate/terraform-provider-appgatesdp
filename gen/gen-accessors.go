@@ -72,6 +72,9 @@ var (
 			Name:   "Policy",
 			Plural: "Policies",
 		},
+		{
+			Name: "RingfenceRule",
+		},
 	}
 )
 

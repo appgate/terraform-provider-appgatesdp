@@ -459,3 +459,44 @@ func ResolvePolicyFromResourceData(ctx context.Context, d *schema.ResourceData, 
 	}
 	return findPolicyByName(ctx, api, resourceName.(string), token)
 }
+
+func findRingfenceRuleByUUID(ctx context.Context, api *openapi.RingfenceRulesApiService, id, token string) (*openapi.RingfenceRule, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source RingfenceRule get by UUID %s", id)
+	resource, _, err := api.RingfenceRulesIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findRingfenceRuleByName(ctx context.Context, api *openapi.RingfenceRulesApiService, name, token string) (*openapi.RingfenceRule, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source RingfenceRule get by name %s", name)
+
+	resource, _, err := api.RingfenceRulesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple RingfenceRule matched; use additional constraints to reduce matches to a single RingfenceRule")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find RingfenceRule %s", name)
+}
+
+func ResolveRingfenceRuleFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.RingfenceRulesApiService, token string) (*openapi.RingfenceRule, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("ringfence_rule_id")
+	resourceName, nok := d.GetOk("ringfence_rule_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of ringfence_rule_id or ringfence_rule_name attributes")
+	}
+
+	if iok {
+		return findRingfenceRuleByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findRingfenceRuleByName(ctx, api, resourceName.(string), token)
+}
