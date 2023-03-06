@@ -377,3 +377,44 @@ func ResolveIpPoolFromResourceData(ctx context.Context, d *schema.ResourceData, 
 	}
 	return findIpPoolByName(ctx, api, resourceName.(string), token)
 }
+
+func findLocalUserByUUID(ctx context.Context, api *openapi.LocalUsersApiService, id, token string) (*openapi.LocalUser, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source LocalUser get by UUID %s", id)
+	resource, _, err := api.LocalUsersIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findLocalUserByName(ctx context.Context, api *openapi.LocalUsersApiService, name, token string) (*openapi.LocalUser, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source LocalUser get by name %s", name)
+
+	resource, _, err := api.LocalUsersGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple LocalUser matched; use additional constraints to reduce matches to a single LocalUser")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find LocalUser %s", name)
+}
+
+func ResolveLocalUserFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.LocalUsersApiService, token string) (*openapi.LocalUser, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("local_user_id")
+	resourceName, nok := d.GetOk("local_user_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of local_user_id or local_user_name attributes")
+	}
+
+	if iok {
+		return findLocalUserByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findLocalUserByName(ctx, api, resourceName.(string), token)
+}

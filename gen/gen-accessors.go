@@ -61,6 +61,9 @@ var (
 		{
 			Name: "IpPool",
 		},
+		{
+			Name: "LocalUser",
+		},
 	}
 )
 
