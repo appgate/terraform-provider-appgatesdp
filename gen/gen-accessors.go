@@ -81,6 +81,10 @@ var (
 		{
 			Name: "TrustedCertificate",
 		},
+		{
+			Name:    "UserScript",
+			Service: "UserClaimScriptsApi",
+		},
 	}
 )
 
