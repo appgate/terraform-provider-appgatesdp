@@ -541,3 +541,44 @@ func ResolveSiteFromResourceData(ctx context.Context, d *schema.ResourceData, ap
 	}
 	return findSiteByName(ctx, api, resourceName.(string), token)
 }
+
+func findTrustedCertificateByUUID(ctx context.Context, api *openapi.TrustedCertificatesApiService, id, token string) (*openapi.TrustedCertificate, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source TrustedCertificate get by UUID %s", id)
+	resource, _, err := api.TrustedCertificatesIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findTrustedCertificateByName(ctx context.Context, api *openapi.TrustedCertificatesApiService, name, token string) (*openapi.TrustedCertificate, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source TrustedCertificate get by name %s", name)
+
+	resource, _, err := api.TrustedCertificatesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple TrustedCertificate matched; use additional constraints to reduce matches to a single TrustedCertificate")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find TrustedCertificate %s", name)
+}
+
+func ResolveTrustedCertificateFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.TrustedCertificatesApiService, token string) (*openapi.TrustedCertificate, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("trusted_certificate_id")
+	resourceName, nok := d.GetOk("trusted_certificate_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of trusted_certificate_id or trusted_certificate_name attributes")
+	}
+
+	if iok {
+		return findTrustedCertificateByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findTrustedCertificateByName(ctx, api, resourceName.(string), token)
+}

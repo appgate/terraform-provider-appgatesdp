@@ -78,6 +78,9 @@ var (
 		{
 			Name: "Site",
 		},
+		{
+			Name: "TrustedCertificate",
+		},
 	}
 )
 
