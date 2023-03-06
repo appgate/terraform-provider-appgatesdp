@@ -295,3 +295,44 @@ func ResolveDeviceScriptFromResourceData(ctx context.Context, d *schema.Resource
 	}
 	return findDeviceScriptByName(ctx, api, resourceName.(string), token)
 }
+
+func findEntitlementScriptByUUID(ctx context.Context, api *openapi.EntitlementScriptsApiService, id, token string) (*openapi.EntitlementScript, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source EntitlementScript get by UUID %s", id)
+	resource, _, err := api.EntitlementScriptsIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findEntitlementScriptByName(ctx context.Context, api *openapi.EntitlementScriptsApiService, name, token string) (*openapi.EntitlementScript, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source EntitlementScript get by name %s", name)
+
+	resource, _, err := api.EntitlementScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple EntitlementScript matched; use additional constraints to reduce matches to a single EntitlementScript")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find EntitlementScript %s", name)
+}
+
+func ResolveEntitlementScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.EntitlementScriptsApiService, token string) (*openapi.EntitlementScript, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("entitlement_script_id")
+	resourceName, nok := d.GetOk("entitlement_script_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of entitlement_script_id or entitlement_script_name attributes")
+	}
+
+	if iok {
+		return findEntitlementScriptByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findEntitlementScriptByName(ctx, api, resourceName.(string), token)
+}

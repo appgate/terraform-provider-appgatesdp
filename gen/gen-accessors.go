@@ -55,6 +55,9 @@ var (
 			Name:    "DeviceScript",
 			Service: "DeviceClaimScriptsApi",
 		},
+		{
+			Name: "EntitlementScript",
+		},
 	}
 )
 
