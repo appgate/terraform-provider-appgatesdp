@@ -213,3 +213,44 @@ func ResolveConditionFromResourceData(ctx context.Context, d *schema.ResourceDat
 	}
 	return findConditionByName(ctx, api, resourceName.(string), token)
 }
+
+func findCriteriaScriptByUUID(ctx context.Context, api *openapi.CriteriaScriptsApiService, id, token string) (*openapi.CriteriaScript, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source CriteriaScript get by UUID %s", id)
+	resource, _, err := api.CriteriaScriptsIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findCriteriaScriptByName(ctx context.Context, api *openapi.CriteriaScriptsApiService, name, token string) (*openapi.CriteriaScript, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source CriteriaScript get by name %s", name)
+
+	resource, _, err := api.CriteriaScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple CriteriaScript matched; use additional constraints to reduce matches to a single CriteriaScript")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find CriteriaScript %s", name)
+}
+
+func ResolveCriteriaScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.CriteriaScriptsApiService, token string) (*openapi.CriteriaScript, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("criteriascript_id")
+	resourceName, nok := d.GetOk("criteriascript_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of criteriascript_id or criteriascript_name attributes")
+	}
+
+	if iok {
+		return findCriteriaScriptByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findCriteriaScriptByName(ctx, api, resourceName.(string), token)
+}

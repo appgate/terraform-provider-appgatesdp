@@ -47,6 +47,9 @@ var (
 		{
 			Name: "Condition",
 		},
+		{
+			Name: "CriteriaScript",
+		},
 	}
 )
 
