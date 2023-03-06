@@ -51,6 +51,10 @@ var (
 		{
 			Name: "CriteriaScript",
 		},
+		{
+			Name:    "DeviceScript",
+			Service: "DeviceClaimScriptsApi",
+		},
 	}
 )
 

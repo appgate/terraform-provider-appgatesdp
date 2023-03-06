@@ -78,11 +78,11 @@ func findAdministrativeRoleByName(ctx context.Context, api *openapi.AdminRolesAp
 
 func ResolveAdministrativeRoleFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.AdminRolesApiService, token string) (*openapi.AdministrativeRole, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	resourceID, iok := d.GetOk("administrativerole_id")
-	resourceName, nok := d.GetOk("administrativerole_name")
+	resourceID, iok := d.GetOk("administrative_role_id")
+	resourceName, nok := d.GetOk("administrative_role_name")
 
 	if !iok && !nok {
-		return nil, AppendErrorf(diags, "please provide one of administrativerole_id or administrativerole_name attributes")
+		return nil, AppendErrorf(diags, "please provide one of administrative_role_id or administrative_role_name attributes")
 	}
 
 	if iok {
@@ -119,11 +119,11 @@ func findApplianceCustomizationByName(ctx context.Context, api *openapi.Applianc
 
 func ResolveApplianceCustomizationFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.ApplianceCustomizationsApiService, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	resourceID, iok := d.GetOk("appliancecustomization_id")
-	resourceName, nok := d.GetOk("appliancecustomization_name")
+	resourceID, iok := d.GetOk("appliance_customization_id")
+	resourceName, nok := d.GetOk("appliance_customization_name")
 
 	if !iok && !nok {
-		return nil, AppendErrorf(diags, "please provide one of appliancecustomization_id or appliancecustomization_name attributes")
+		return nil, AppendErrorf(diags, "please provide one of appliance_customization_id or appliance_customization_name attributes")
 	}
 
 	if iok {
@@ -242,15 +242,56 @@ func findCriteriaScriptByName(ctx context.Context, api *openapi.CriteriaScriptsA
 
 func ResolveCriteriaScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.CriteriaScriptsApiService, token string) (*openapi.CriteriaScript, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	resourceID, iok := d.GetOk("criteriascript_id")
-	resourceName, nok := d.GetOk("criteriascript_name")
+	resourceID, iok := d.GetOk("criteria_script_id")
+	resourceName, nok := d.GetOk("criteria_script_name")
 
 	if !iok && !nok {
-		return nil, AppendErrorf(diags, "please provide one of criteriascript_id or criteriascript_name attributes")
+		return nil, AppendErrorf(diags, "please provide one of criteria_script_id or criteria_script_name attributes")
 	}
 
 	if iok {
 		return findCriteriaScriptByUUID(ctx, api, resourceID.(string), token)
 	}
 	return findCriteriaScriptByName(ctx, api, resourceName.(string), token)
+}
+
+func findDeviceScriptByUUID(ctx context.Context, api *openapi.DeviceClaimScriptsApiService, id, token string) (*openapi.DeviceScript, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source DeviceScript get by UUID %s", id)
+	resource, _, err := api.DeviceScriptsIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findDeviceScriptByName(ctx context.Context, api *openapi.DeviceClaimScriptsApiService, name, token string) (*openapi.DeviceScript, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source DeviceScript get by name %s", name)
+
+	resource, _, err := api.DeviceScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple DeviceScript matched; use additional constraints to reduce matches to a single DeviceScript")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find DeviceScript %s", name)
+}
+
+func ResolveDeviceScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.DeviceClaimScriptsApiService, token string) (*openapi.DeviceScript, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("device_script_id")
+	resourceName, nok := d.GetOk("device_script_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of device_script_id or device_script_name attributes")
+	}
+
+	if iok {
+		return findDeviceScriptByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findDeviceScriptByName(ctx, api, resourceName.(string), token)
 }
