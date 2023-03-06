@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -57,6 +58,15 @@ func logf(fmt string, args ...interface{}) {
 	if *verbose {
 		log.Printf(fmt, args...)
 	}
+}
+
+var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
+
+func ToSnakeCase(str string) string {
+	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
+	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
+	return strings.ToLower(snake)
 }
 
 func main() {
@@ -113,6 +123,7 @@ func main() {
 	funcs := map[string]any{
 		"Title":     strings.Title,
 		"Lowercase": strings.ToLower,
+		"Snakecase": ToSnakeCase,
 	}
 
 	goTemplate, err := template.New("").Funcs(funcs).Parse(packageTemplate)
@@ -187,11 +198,11 @@ func find{{ .Name | Title }}ByName(ctx context.Context, api *{{ .Service }}, nam
 
 func Resolve{{ .Name | Title}}FromResourceData(ctx context.Context, d *schema.ResourceData, api *{{ .Service }}, token string) (*{{ .Model }}, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	resourceID, iok := d.GetOk("{{ .Name | Lowercase }}_id")
-	resourceName, nok := d.GetOk("{{ .Name | Lowercase }}_name")
+	resourceID, iok := d.GetOk("{{ .Name | Snakecase }}_id")
+	resourceName, nok := d.GetOk("{{ .Name | Snakecase }}_name")
 
 	if !iok && !nok {
-		return nil, AppendErrorf(diags, "please provide one of {{ .Name | Lowercase }}_id or {{ .Name | Lowercase }}_name attributes")
+		return nil, AppendErrorf(diags, "please provide one of {{ .Name | Snakecase }}_id or {{ .Name | Snakecase }}_name attributes")
 	}
 
 	if iok {
