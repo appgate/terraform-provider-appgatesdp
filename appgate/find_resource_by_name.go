@@ -611,11 +611,11 @@ func findUserScriptByName(ctx context.Context, api *openapi.UserClaimScriptsApiS
 
 func ResolveUserScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.UserClaimScriptsApiService, token string) (*openapi.UserScript, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	resourceID, iok := d.GetOk("user_script_id")
-	resourceName, nok := d.GetOk("user_script_name")
+	resourceID, iok := d.GetOk("user_claim_script_id")
+	resourceName, nok := d.GetOk("user_claim_script_name")
 
 	if !iok && !nok {
-		return nil, AppendErrorf(diags, "please provide one of user_script_id or user_script_name attributes")
+		return nil, AppendErrorf(diags, "please provide one of user_claim_script_id or user_claim_script_name attributes")
 	}
 
 	if iok {

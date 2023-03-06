@@ -11,15 +11,15 @@ func dataSourceUserClaimScript() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAppgateUserClaimScriptRead,
 		Schema: map[string]*schema.Schema{
-			"user_script_id": {
+			"user_claim_script_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"user_script_name"},
+				ConflictsWith: []string{"user_claim_script_name"},
 			},
-			"user_script_name": {
+			"user_claim_script_name": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"user_script_id"},
+				ConflictsWith: []string{"user_claim_script_id"},
 			},
 		},
 	}
@@ -37,8 +37,8 @@ func dataSourceAppgateUserClaimScriptRead(ctx context.Context, d *schema.Resourc
 	}
 
 	d.SetId(userClaimScript.GetId())
-	d.Set("user_script_name", userClaimScript.GetName())
-	d.Set("user_script_id", userClaimScript.GetId())
+	d.Set("user_claim_script_name", userClaimScript.GetName())
+	d.Set("user_claim_script_id", userClaimScript.GetId())
 
 	return nil
 }

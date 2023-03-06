@@ -19,7 +19,7 @@ import (
 )
 
 type Resource struct {
-	Name, Service, Model, ServiceGetMethod, ServiceIDGetMethod, Plural string
+	Name, Service, Model, ServiceGetMethod, ServiceIDGetMethod, Plural, AccessorName string
 }
 
 type templateStub struct {
@@ -82,8 +82,9 @@ var (
 			Name: "TrustedCertificate",
 		},
 		{
-			Name:    "UserScript",
-			Service: "UserClaimScriptsApi",
+			Name:         "UserScript",
+			Service:      "UserClaimScriptsApi",
+			AccessorName: "user_claim_script",
 		},
 	}
 )
@@ -113,6 +114,9 @@ func main() {
 			guess := plural + "Api"
 			if len(generator.Service) > 0 {
 				guess = generator.Service
+			}
+			if len(generator.AccessorName) == 0 {
+				generator.AccessorName = generator.Name
 			}
 
 			if strings.ToLower(guess) == strings.ToLower(reflectType.Field(i).Name) {
@@ -231,11 +235,11 @@ func find{{ .Name | Title }}ByName(ctx context.Context, api *{{ .Service }}, nam
 
 func Resolve{{ .Name | Title}}FromResourceData(ctx context.Context, d *schema.ResourceData, api *{{ .Service }}, token string) (*{{ .Model }}, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	resourceID, iok := d.GetOk("{{ .Name | Snakecase }}_id")
-	resourceName, nok := d.GetOk("{{ .Name | Snakecase }}_name")
+	resourceID, iok := d.GetOk("{{ .AccessorName | Snakecase }}_id")
+	resourceName, nok := d.GetOk("{{ .AccessorName | Snakecase }}_name")
 
 	if !iok && !nok {
-		return nil, AppendErrorf(diags, "please provide one of {{ .Name | Snakecase }}_id or {{ .Name | Snakecase }}_name attributes")
+		return nil, AppendErrorf(diags, "please provide one of {{ .AccessorName | Snakecase }}_id or {{ .AccessorName | Snakecase }}_name attributes")
 	}
 
 	if iok {
