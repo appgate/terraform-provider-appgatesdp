@@ -34,6 +34,10 @@ var (
 		{
 			Name: "Entitlement",
 		},
+		{
+			Name:    "AdministrativeRole",
+			Service: "AdminRolesApi",
+		},
 	}
 )
 

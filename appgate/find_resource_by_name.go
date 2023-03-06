@@ -49,3 +49,44 @@ func ResolveEntitlementFromResourceData(ctx context.Context, d *schema.ResourceD
 	}
 	return findEntitlementByName(ctx, api, resourceName.(string), token)
 }
+
+func findAdministrativeRoleByUUID(ctx context.Context, api *openapi.AdminRolesApiService, id, token string) (*openapi.AdministrativeRole, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source AdministrativeRole get by UUID %s", id)
+	resource, _, err := api.AdministrativeRolesIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findAdministrativeRoleByName(ctx context.Context, api *openapi.AdminRolesApiService, name, token string) (*openapi.AdministrativeRole, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source AdministrativeRole get by name %s", name)
+
+	resource, _, err := api.AdministrativeRolesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple AdministrativeRole matched; use additional constraints to reduce matches to a single AdministrativeRole")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find AdministrativeRole %s", name)
+}
+
+func ResolveAdministrativeRoleFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.AdminRolesApiService, token string) (*openapi.AdministrativeRole, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("administrativerole_id")
+	resourceName, nok := d.GetOk("administrativerole_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of administrativerole_id or administrativerole_name attributes")
+	}
+
+	if iok {
+		return findAdministrativeRoleByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findAdministrativeRoleByName(ctx, api, resourceName.(string), token)
+}
