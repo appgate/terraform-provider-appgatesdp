@@ -34,7 +34,7 @@ func TestAccAppgateApplianceSeedDataSource(t *testing.T) {
 func testAccSeedTest(rName string) string {
 	return fmt.Sprintf(`
 data "appgatesdp_site" "default_site" {
-  site_name = "Default site"
+  site_name = "Default Site"
 }
 
 resource "appgatesdp_appliance" "new_test_gateway" {

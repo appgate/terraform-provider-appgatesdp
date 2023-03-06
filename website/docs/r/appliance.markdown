@@ -21,7 +21,7 @@ Some attributes may not be available if you are running an older version, if you
 
 
 data "appgatesdp_site" "default_site" {
-  site_name = "Default site"
+  site_name = "Default Site"
 }
 
 resource "appgatesdp_appliance" "new_gateway" {
