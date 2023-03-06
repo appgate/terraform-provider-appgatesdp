@@ -2,17 +2,15 @@ package appgate
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceAppgateIPPool() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAppgateIPPoolRead,
+		ReadContext: dataSourceAppgateIPPoolRead,
 		Schema: map[string]*schema.Schema{
 			"ip_pool_id": {
 				Type:     schema.TypeString,
@@ -44,28 +42,15 @@ func dataSourceAppgateIPPool() *schema.Resource {
 	}
 }
 
-func dataSourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAppgateIPPoolRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.IPPoolsApi
-
-	ippoolID, iok := d.GetOk("ip_pool_id")
-	ippoolName, nok := d.GetOk("ip_pool_name")
-
-	if !iok && !nok {
-		return fmt.Errorf("please provide one of ip_pool_id or ip_pool_name attributes")
-	}
-	var reqErr error
-	var ippool *openapi.IpPool
-	if iok {
-		ippool, reqErr = findIPPoolByUUID(api, ippoolID.(string), token)
-	} else {
-		ippool, reqErr = findIPPoolByName(api, ippoolName.(string), token)
-	}
-	if reqErr != nil {
-		return reqErr
+	ippool, diags := ResolveIpPoolFromResourceData(ctx, d, api, token)
+	if diags != nil {
+		return diags
 	}
 
 	d.SetId(ippool.GetId())
@@ -76,26 +61,4 @@ func dataSourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("reserved", strconv.FormatInt(ippool.GetReserved(), 10))
 
 	return nil
-}
-
-func findIPPoolByUUID(api *openapi.IPPoolsApiService, id string, token string) (*openapi.IpPool, error) {
-	ippool, _, err := api.IpPoolsIdGet(context.Background(), id).Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return ippool, nil
-}
-
-func findIPPoolByName(api *openapi.IPPoolsApiService, name string, token string) (*openapi.IpPool, error) {
-	request := api.IpPoolsGet(context.Background())
-
-	ippool, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, c := range ippool.GetData() {
-		return &c, nil
-	}
-	return nil, fmt.Errorf("Failed to find ippool %s", name)
 }

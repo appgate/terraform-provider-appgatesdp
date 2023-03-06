@@ -58,6 +58,9 @@ var (
 		{
 			Name: "EntitlementScript",
 		},
+		{
+			Name: "IpPool",
+		},
 	}
 )
 
@@ -93,7 +96,7 @@ func main() {
 				guess = generator.Service
 			}
 
-			if guess == t.Field(i).Name {
+			if strings.ToLower(guess) == strings.ToLower(t.Field(i).Name) {
 				child := t.Field(i)
 				generator.Service = fmt.Sprintf("%s", child.Type.Elem())
 

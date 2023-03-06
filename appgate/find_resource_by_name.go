@@ -336,3 +336,44 @@ func ResolveEntitlementScriptFromResourceData(ctx context.Context, d *schema.Res
 	}
 	return findEntitlementScriptByName(ctx, api, resourceName.(string), token)
 }
+
+func findIpPoolByUUID(ctx context.Context, api *openapi.IPPoolsApiService, id, token string) (*openapi.IpPool, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source IpPool get by UUID %s", id)
+	resource, _, err := api.IpPoolsIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findIpPoolByName(ctx context.Context, api *openapi.IPPoolsApiService, name, token string) (*openapi.IpPool, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source IpPool get by name %s", name)
+
+	resource, _, err := api.IpPoolsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple IpPool matched; use additional constraints to reduce matches to a single IpPool")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find IpPool %s", name)
+}
+
+func ResolveIpPoolFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.IPPoolsApiService, token string) (*openapi.IpPool, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("ip_pool_id")
+	resourceName, nok := d.GetOk("ip_pool_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of ip_pool_id or ip_pool_name attributes")
+	}
+
+	if iok {
+		return findIpPoolByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findIpPoolByName(ctx, api, resourceName.(string), token)
+}
