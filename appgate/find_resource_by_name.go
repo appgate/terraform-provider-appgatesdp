@@ -26,11 +26,13 @@ func findEntitlementByName(ctx context.Context, api *openapi.EntitlementsApiServ
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Entitlement matched; use additional constraints to reduce matches to a single Entitlement")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find Entitlement %s", name)
 }
@@ -67,11 +69,13 @@ func findAdministrativeRoleByName(ctx context.Context, api *openapi.AdminRolesAp
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple AdministrativeRole matched; use additional constraints to reduce matches to a single AdministrativeRole")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find AdministrativeRole %s", name)
 }
@@ -108,11 +112,13 @@ func findApplianceCustomizationByName(ctx context.Context, api *openapi.Applianc
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple ApplianceCustomization matched; use additional constraints to reduce matches to a single ApplianceCustomization")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find ApplianceCustomization %s", name)
 }
@@ -149,11 +155,13 @@ func findApplianceByName(ctx context.Context, api *openapi.AppliancesApiService,
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Appliance matched; use additional constraints to reduce matches to a single Appliance")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find Appliance %s", name)
 }
@@ -190,11 +198,13 @@ func findConditionByName(ctx context.Context, api *openapi.ConditionsApiService,
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Condition matched; use additional constraints to reduce matches to a single Condition")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find Condition %s", name)
 }
@@ -231,11 +241,13 @@ func findCriteriaScriptByName(ctx context.Context, api *openapi.CriteriaScriptsA
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple CriteriaScript matched; use additional constraints to reduce matches to a single CriteriaScript")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find CriteriaScript %s", name)
 }
@@ -272,11 +284,13 @@ func findDeviceScriptByName(ctx context.Context, api *openapi.DeviceClaimScripts
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple DeviceScript matched; use additional constraints to reduce matches to a single DeviceScript")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find DeviceScript %s", name)
 }
@@ -313,11 +327,13 @@ func findEntitlementScriptByName(ctx context.Context, api *openapi.EntitlementSc
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple EntitlementScript matched; use additional constraints to reduce matches to a single EntitlementScript")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find EntitlementScript %s", name)
 }
@@ -354,11 +370,13 @@ func findIpPoolByName(ctx context.Context, api *openapi.IPPoolsApiService, name,
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple IpPool matched; use additional constraints to reduce matches to a single IpPool")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find IpPool %s", name)
 }
@@ -395,11 +413,13 @@ func findLocalUserByName(ctx context.Context, api *openapi.LocalUsersApiService,
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple LocalUser matched; use additional constraints to reduce matches to a single LocalUser")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find LocalUser %s", name)
 }
@@ -436,11 +456,13 @@ func findPolicyByName(ctx context.Context, api *openapi.PoliciesApiService, name
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Policy matched; use additional constraints to reduce matches to a single Policy")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find Policy %s", name)
 }
@@ -477,11 +499,13 @@ func findRingfenceRuleByName(ctx context.Context, api *openapi.RingfenceRulesApi
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple RingfenceRule matched; use additional constraints to reduce matches to a single RingfenceRule")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find RingfenceRule %s", name)
 }
@@ -518,11 +542,13 @@ func findSiteByName(ctx context.Context, api *openapi.SitesApiService, name, tok
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Site matched; use additional constraints to reduce matches to a single Site")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find Site %s", name)
 }
@@ -559,11 +585,13 @@ func findTrustedCertificateByName(ctx context.Context, api *openapi.TrustedCerti
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple TrustedCertificate matched; use additional constraints to reduce matches to a single TrustedCertificate")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find TrustedCertificate %s", name)
 }
@@ -600,11 +628,13 @@ func findUserScriptByName(ctx context.Context, api *openapi.UserClaimScriptsApiS
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple UserScript matched; use additional constraints to reduce matches to a single UserScript")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find UserScript %s", name)
 }

@@ -223,11 +223,13 @@ func find{{ .Name | Title }}ByName(ctx context.Context, api *{{ .Service }}, nam
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple {{ .Name }} matched; use additional constraints to reduce matches to a single {{ .Name }}")
-	}
-	for _, r := range resource.GetData() {
-		return &r, nil
 	}
 	return nil, AppendErrorf(diags, "Failed to find {{ .Name }} %s", name)
 }
