@@ -41,6 +41,9 @@ var (
 		{
 			Name: "ApplianceCustomization",
 		},
+		{
+			Name: "Appliance",
+		},
 	}
 )
 

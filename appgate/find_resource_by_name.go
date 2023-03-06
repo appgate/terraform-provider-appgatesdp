@@ -131,3 +131,44 @@ func ResolveApplianceCustomizationFromResourceData(ctx context.Context, d *schem
 	}
 	return findApplianceCustomizationByName(ctx, api, resourceName.(string), token)
 }
+
+func findApplianceByUUID(ctx context.Context, api *openapi.AppliancesApiService, id, token string) (*openapi.Appliance, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source Appliance get by UUID %s", id)
+	resource, _, err := api.AppliancesIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findApplianceByName(ctx context.Context, api *openapi.AppliancesApiService, name, token string) (*openapi.Appliance, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source Appliance get by name %s", name)
+
+	resource, _, err := api.AppliancesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple Appliance matched; use additional constraints to reduce matches to a single Appliance")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find Appliance %s", name)
+}
+
+func ResolveApplianceFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.AppliancesApiService, token string) (*openapi.Appliance, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("appliance_id")
+	resourceName, nok := d.GetOk("appliance_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of appliance_id or appliance_name attributes")
+	}
+
+	if iok {
+		return findApplianceByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findApplianceByName(ctx, api, resourceName.(string), token)
+}
