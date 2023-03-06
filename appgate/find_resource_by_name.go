@@ -172,3 +172,44 @@ func ResolveApplianceFromResourceData(ctx context.Context, d *schema.ResourceDat
 	}
 	return findApplianceByName(ctx, api, resourceName.(string), token)
 }
+
+func findConditionByUUID(ctx context.Context, api *openapi.ConditionsApiService, id, token string) (*openapi.Condition, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source Condition get by UUID %s", id)
+	resource, _, err := api.ConditionsIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findConditionByName(ctx context.Context, api *openapi.ConditionsApiService, name, token string) (*openapi.Condition, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source Condition get by name %s", name)
+
+	resource, _, err := api.ConditionsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple Condition matched; use additional constraints to reduce matches to a single Condition")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find Condition %s", name)
+}
+
+func ResolveConditionFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.ConditionsApiService, token string) (*openapi.Condition, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("condition_id")
+	resourceName, nok := d.GetOk("condition_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of condition_id or condition_name attributes")
+	}
+
+	if iok {
+		return findConditionByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findConditionByName(ctx, api, resourceName.(string), token)
+}

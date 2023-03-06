@@ -44,6 +44,9 @@ var (
 		{
 			Name: "Appliance",
 		},
+		{
+			Name: "Condition",
+		},
 	}
 )
 
