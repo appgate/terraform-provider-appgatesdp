@@ -30,6 +30,10 @@ type templateStub struct {
 var (
 	verbose = flag.Bool("v", false, "Print verbose log messages")
 
+	// regex used to convert string to snake_case
+	matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+	matchAllCap   = regexp.MustCompile("([a-z0-9])([A-Z])")
+
 	stub       = templateStub{}
 	generators = []Resource{
 		{
@@ -77,24 +81,15 @@ func logf(fmt string, args ...interface{}) {
 	}
 }
 
-var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
-var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
-
-func ToSnakeCase(str string) string {
-	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
-	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
-	return strings.ToLower(snake)
-}
-
 func main() {
 	flag.Parse()
 
 	client := openapi.APIClient{}
-	val := reflect.ValueOf(client)
-	stub.Imports = append(stub.Imports, val.Type().PkgPath())
-	t := reflect.TypeOf(client)
 
-	for i := 0; i < t.NumField(); i++ {
+	stub.Imports = append(stub.Imports, reflect.ValueOf(client).Type().PkgPath())
+	reflectType := reflect.TypeOf(client)
+
+	for i := 0; i < reflectType.NumField(); i++ {
 		for k, generator := range generators {
 			plural := generator.Name + "s"
 			if len(generator.Plural) > 0 {
@@ -107,8 +102,8 @@ func main() {
 				guess = generator.Service
 			}
 
-			if strings.ToLower(guess) == strings.ToLower(t.Field(i).Name) {
-				child := t.Field(i)
+			if strings.ToLower(guess) == strings.ToLower(reflectType.Field(i).Name) {
+				child := reflectType.Field(i)
 				generator.Service = fmt.Sprintf("%s", child.Type.Elem())
 
 				// TODO get reflect | go analysis to get the exact method name and return value
@@ -144,7 +139,11 @@ func main() {
 	funcs := map[string]any{
 		"Title":     strings.Title,
 		"Lowercase": strings.ToLower,
-		"Snakecase": ToSnakeCase,
+		"Snakecase": func(str string) string {
+			snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
+			snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
+			return strings.ToLower(snake)
+		},
 	}
 
 	goTemplate, err := template.New("").Funcs(funcs).Parse(packageTemplate)
@@ -233,5 +232,4 @@ func Resolve{{ .Name | Title}}FromResourceData(ctx context.Context, d *schema.Re
 }
 
 {{- end }}
-
 `
