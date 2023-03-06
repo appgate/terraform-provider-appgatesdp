@@ -653,3 +653,46 @@ func ResolveUserScriptFromResourceData(ctx context.Context, d *schema.ResourceDa
 	}
 	return findUserScriptByName(ctx, api, resourceName.(string), token)
 }
+
+func findMfaProviderByUUID(ctx context.Context, api *openapi.MFAProvidersApiService, id, token string) (*openapi.MfaProvider, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source MfaProvider get by UUID %s", id)
+	resource, _, err := api.MfaProvidersIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findMfaProviderByName(ctx context.Context, api *openapi.MFAProvidersApiService, name, token string) (*openapi.MfaProvider, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source MfaProvider get by name %s", name)
+
+	resource, _, err := api.MfaProvidersGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple MfaProvider matched; use additional constraints to reduce matches to a single MfaProvider")
+	}
+	return nil, AppendErrorf(diags, "Failed to find MfaProvider %s", name)
+}
+
+func ResolveMfaProviderFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.MFAProvidersApiService, token string) (*openapi.MfaProvider, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("mfa_provider_id")
+	resourceName, nok := d.GetOk("mfa_provider_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of mfa_provider_id or mfa_provider_name attributes")
+	}
+
+	if iok {
+		return findMfaProviderByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findMfaProviderByName(ctx, api, resourceName.(string), token)
+}

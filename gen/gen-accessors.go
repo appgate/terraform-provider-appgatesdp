@@ -86,6 +86,9 @@ var (
 			Service:      "UserClaimScriptsApi",
 			AccessorName: "user_claim_script",
 		},
+		{
+			Name: "MfaProvider",
+		},
 	}
 )
 
