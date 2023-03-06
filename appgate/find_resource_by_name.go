@@ -418,3 +418,44 @@ func ResolveLocalUserFromResourceData(ctx context.Context, d *schema.ResourceDat
 	}
 	return findLocalUserByName(ctx, api, resourceName.(string), token)
 }
+
+func findPolicyByUUID(ctx context.Context, api *openapi.PoliciesApiService, id, token string) (*openapi.Policy, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source Policy get by UUID %s", id)
+	resource, _, err := api.PoliciesIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findPolicyByName(ctx context.Context, api *openapi.PoliciesApiService, name, token string) (*openapi.Policy, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source Policy get by name %s", name)
+
+	resource, _, err := api.PoliciesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple Policy matched; use additional constraints to reduce matches to a single Policy")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find Policy %s", name)
+}
+
+func ResolvePolicyFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.PoliciesApiService, token string) (*openapi.Policy, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("policy_id")
+	resourceName, nok := d.GetOk("policy_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of policy_id or policy_name attributes")
+	}
+
+	if iok {
+		return findPolicyByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findPolicyByName(ctx, api, resourceName.(string), token)
+}

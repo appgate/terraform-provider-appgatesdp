@@ -19,7 +19,7 @@ import (
 )
 
 type Resource struct {
-	Name, Service, Model, ServiceGetMethod, ServiceIDGetMethod string
+	Name, Service, Model, ServiceGetMethod, ServiceIDGetMethod, Plural string
 }
 
 type templateStub struct {
@@ -64,6 +64,10 @@ var (
 		{
 			Name: "LocalUser",
 		},
+		{
+			Name:   "Policy",
+			Plural: "Policies",
+		},
 	}
 )
 
@@ -93,6 +97,10 @@ func main() {
 	for i := 0; i < t.NumField(); i++ {
 		for k, generator := range generators {
 			plural := generator.Name + "s"
+			if len(generator.Plural) > 0 {
+				plural = generator.Plural
+			}
+
 			// If we have already defined a service, its likely a alias
 			guess := plural + "Api"
 			if len(generator.Service) > 0 {
