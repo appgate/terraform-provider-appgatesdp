@@ -90,3 +90,44 @@ func ResolveAdministrativeRoleFromResourceData(ctx context.Context, d *schema.Re
 	}
 	return findAdministrativeRoleByName(ctx, api, resourceName.(string), token)
 }
+
+func findApplianceCustomizationByUUID(ctx context.Context, api *openapi.ApplianceCustomizationsApiService, id, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source ApplianceCustomization get by UUID %s", id)
+	resource, _, err := api.ApplianceCustomizationsIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findApplianceCustomizationByName(ctx context.Context, api *openapi.ApplianceCustomizationsApiService, name, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source ApplianceCustomization get by name %s", name)
+
+	resource, _, err := api.ApplianceCustomizationsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple ApplianceCustomization matched; use additional constraints to reduce matches to a single ApplianceCustomization")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find ApplianceCustomization %s", name)
+}
+
+func ResolveApplianceCustomizationFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.ApplianceCustomizationsApiService, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("appliancecustomization_id")
+	resourceName, nok := d.GetOk("appliancecustomization_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of appliancecustomization_id or appliancecustomization_name attributes")
+	}
+
+	if iok {
+		return findApplianceCustomizationByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findApplianceCustomizationByName(ctx, api, resourceName.(string), token)
+}

@@ -38,6 +38,9 @@ var (
 			Name:    "AdministrativeRole",
 			Service: "AdminRolesApi",
 		},
+		{
+			Name: "ApplianceCustomization",
+		},
 	}
 )
 
