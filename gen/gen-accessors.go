@@ -54,7 +54,12 @@ func main() {
 	for i := 0; i < t.NumField(); i++ {
 		for k, generator := range generators {
 			plural := generator.Name + "s"
+			// If we have already defined a service, its likely a alias
 			guess := plural + "Api"
+			if len(generator.Service) > 0 {
+				guess = generator.Service
+			}
+
 			if guess == t.Field(i).Name {
 				child := t.Field(i)
 				generator.Service = fmt.Sprintf("%s", child.Type.Elem())
@@ -71,6 +76,13 @@ func main() {
 	// sanity check; make sure all generators has a Method
 	for _, generator := range generators {
 		if len(generator.Service) < 1 {
+			fmt.Printf("Name: %s\nService: %s\nnServiceGetMethod: %s\nServiceIDGetMethod: %s\nModel: %s",
+				generator.Name,
+				generator.Service,
+				generator.ServiceGetMethod,
+				generator.ServiceIDGetMethod,
+				generator.Model,
+			)
 			die(fmt.Errorf("generator %s did not get correctly mapped", generator.Name))
 		}
 	}
