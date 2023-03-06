@@ -75,6 +75,9 @@ var (
 		{
 			Name: "RingfenceRule",
 		},
+		{
+			Name: "Site",
+		},
 	}
 )
 

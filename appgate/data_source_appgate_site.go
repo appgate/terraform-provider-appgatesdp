@@ -2,17 +2,15 @@ package appgate
 
 import (
 	"context"
-	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceAppgateSite() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAppgateSiteRead,
+		ReadContext: dataSourceAppgateSiteRead,
 		Schema: map[string]*schema.Schema{
 			"site_id": {
 				Type:          schema.TypeString,
@@ -54,31 +52,17 @@ func dataSourceAppgateSite() *schema.Resource {
 	}
 }
 
-func dataSourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAppgateSiteRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Data source Site")
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.SitesApi
-
-	siteID, iok := d.GetOk("site_id")
-	siteName, nok := d.GetOk("site_name")
-
-	if !iok && !nok {
-		return fmt.Errorf("please provide one of site_id or site_name attributes")
+	site, diags := ResolveSiteFromResourceData(ctx, d, api, token)
+	if diags != nil {
+		return diags
 	}
-	var reqErr error
-	var site *openapi.Site
-	if iok {
-		site, reqErr = findSiteByUUID(api, siteID.(string), token)
-	} else {
-		site, reqErr = findSiteByName(api, siteName.(string), token)
-	}
-	if reqErr != nil {
-		return reqErr
-	}
-	log.Printf("[DEBUG] Got Site: %+v", site)
 
 	d.SetId(site.GetId())
 	d.Set("site_name", site.GetName())
@@ -88,28 +72,4 @@ func dataSourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("tags", site.GetTags())
 
 	return nil
-}
-
-func findSiteByUUID(api *openapi.SitesApiService, id string, token string) (*openapi.Site, error) {
-	log.Printf("[DEBUG] Data source Site get by UUID %s", id)
-	site, _, err := api.SitesIdGet(context.Background(), id).Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return site, nil
-}
-
-func findSiteByName(api *openapi.SitesApiService, name string, token string) (*openapi.Site, error) {
-	log.Printf("[DEBUG] Data source Site get by name %s", name)
-	request := api.SitesGet(context.Background())
-
-	site, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, s := range site.GetData() {
-		return &s, nil
-	}
-	return nil, fmt.Errorf("Failed to find site %s", name)
 }

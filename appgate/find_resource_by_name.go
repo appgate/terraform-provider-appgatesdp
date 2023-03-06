@@ -500,3 +500,44 @@ func ResolveRingfenceRuleFromResourceData(ctx context.Context, d *schema.Resourc
 	}
 	return findRingfenceRuleByName(ctx, api, resourceName.(string), token)
 }
+
+func findSiteByUUID(ctx context.Context, api *openapi.SitesApiService, id, token string) (*openapi.Site, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source Site get by UUID %s", id)
+	resource, _, err := api.SitesIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findSiteByName(ctx context.Context, api *openapi.SitesApiService, name, token string) (*openapi.Site, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source Site get by name %s", name)
+
+	resource, _, err := api.SitesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple Site matched; use additional constraints to reduce matches to a single Site")
+	}
+	for _, r := range resource.GetData() {
+		return &r, nil
+	}
+	return nil, AppendErrorf(diags, "Failed to find Site %s", name)
+}
+
+func ResolveSiteFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.SitesApiService, token string) (*openapi.Site, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("site_id")
+	resourceName, nok := d.GetOk("site_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of site_id or site_name attributes")
+	}
+
+	if iok {
+		return findSiteByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findSiteByName(ctx, api, resourceName.(string), token)
+}
