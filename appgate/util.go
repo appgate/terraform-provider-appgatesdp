@@ -234,15 +234,6 @@ func isUrl(str string) bool {
 	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
-func contains(s []int, e int) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
 // getResourceFileContent gets content from key "file" filepath schema.ResourceData or string payload "content".
 func getResourceFileContent(d *schema.ResourceData, key string) ([]byte, error) {
 	var content []byte

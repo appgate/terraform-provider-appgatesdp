@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	pkgversion "github.com/appgate/terraform-provider-appgatesdp/version"
 	"github.com/denisbrodbeck/machineid"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
@@ -17,16 +18,17 @@ import (
 )
 
 const (
-	Version12 = 12
-	Version13 = 13
-	Version14 = 14
-	Version15 = 15
-	Version16 = 16
-	Version17 = 17
-	Version18 = 18
+	Version12 int = 12
+	Version13 int = 13
+	Version14 int = 14
+	Version15 int = 15
+	Version16 int = 16
+	Version17 int = 17
+	Version18 int = 18
 	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
 	// its not recommended to change this value.
-	DefaultClientVersion = Version17
+	DefaultClientVersion    = Version18
+	MinimumSupportedVersion = Version13
 )
 
 var (
@@ -50,7 +52,7 @@ var (
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
 func Provider() *schema.Provider {
-	return &schema.Provider{
+	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"url": {
 				Type:        schema.TypeString,
@@ -85,9 +87,11 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_HTTP_DEBUG", false),
 			},
 			"client_version": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", DefaultClientVersion),
+				Type:     schema.TypeInt,
+				Optional: true,
+				// lowest supported version available. This will be overwritten
+				// if the provisioner do not explcit overwrite it in their config
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", MinimumSupportedVersion),
 			},
 			"config_path": {
 				Type:        schema.TypeString,
@@ -169,14 +173,20 @@ func Provider() *schema.Provider {
 			"appgatesdp_connector_identity_provider":        resourceAppgateConnectorProvider(),
 			"appgatesdp_client_profile":                     resourceAppgateClientProfile(),
 		},
-		ConfigureContextFunc: providerConfigure,
 	}
+
+	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		return providerConfigure(ctx, d, provider.UserAgent("appgatesdp", pkgversion.ProviderVersion))
+	}
+	return provider
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData, ua string) (interface{}, diag.Diagnostics) {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
-	config := Config{}
+	config := Config{
+		UserAgent: ua,
+	}
 	config.Timeout = 20
 	configFile := Config{}
 	usingFile := false

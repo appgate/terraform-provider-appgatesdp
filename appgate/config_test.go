@@ -2,6 +2,7 @@ package appgate
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -93,8 +94,55 @@ func TestLoginInternalServerError(t *testing.T) {
 	}
 }
 
+func TestLoginNotAcceptable(t *testing.T) {
+	_, _, mux, _, port, teardown := setup()
+	defer teardown()
+	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotAcceptable)
+		fmt.Fprint(w, `{
+			"id": "not acceptable",
+			"maxSupportedVersion": 17,
+			"message": "Invalid 'Accept' header. Current version: application/vnd.appgate.peer-v17+json, Received: application/vnd.appgate.peer-v5+json",
+			"minSupportedVersion": 13
+		}`)
+		testMethod(t, r, http.MethodPost)
+
+	})
+	c := &Config{
+		Username:     "admin",
+		Password:     "admin",
+		Version:      0,
+		LoginTimeout: 1,
+		Insecure:     false,
+		PemFilePath:  "test-fixtures/cert.pem",
+	}
+	c.URL = fmt.Sprintf("http://localhost:%d", port)
+	appgateClient, err := c.Client()
+	if err != nil {
+		t.Fatalf("got err %s expected nil", err)
+	}
+	if appgateClient == nil {
+		t.Fatal("did not expected client to be nil")
+	}
+	_, err = appgateClient.login(context.WithValue(
+		context.Background(),
+		openapi.ContextAcceptHeader,
+		fmt.Sprintf("application/vnd.appgate.peer-v%d+json", 5),
+	))
+	var minMaxErr *minMaxError
+	if !errors.As(err, &minMaxErr) {
+		t.Fatalf("expected a minMaxErr, got %+v", err)
+	}
+	if minMaxErr.Max != 17 {
+		t.Errorf("expected max 17 got %d", minMaxErr.Max)
+	}
+	if minMaxErr.Min != 13 {
+		t.Errorf("expected min 13 got %d", minMaxErr.Min)
+	}
+}
+
 var (
-	version52Test, _         = version.NewVersion("5.2.0+estimated")
 	computed54TestVersion, _ = version.NewVersion("5.4.0+estimated")
 
 	loginResponse54 = `
@@ -120,37 +168,6 @@ var (
 }
 `
 
-	loginResponsePrior53 = `
-{
-	"version": "4.3.0-20000",
-	"user": {
-		"name": "admin",
-		"needTwoFactorAuth": false,
-		"canAccessAuditLogs": true,
-		"privileges": [
-		{
-			"type": "All",
-			"target": "All",
-			"scope": {
-			"all": true,
-			"ids": [
-				"4c07bc67-57ea-42dd-b702-c2d6c45419fc"
-			],
-			"tags": [
-				"tag"
-			]
-			},
-			"defaultTags": [
-			"api-created"
-			]
-		}
-		]
-	},
-	"token": "very-long-string",
-	"expires": "2020-01-27T08:50:34Z",
-	"messageOfTheDay": "Welcome to Appgate SDP."
-}
-`
 	loginResponse406 = `
 {
 	"id": "string",
@@ -176,23 +193,6 @@ func TestClient(t *testing.T) {
 		config          *Config
 		wantInsecure    bool
 	}{
-		{
-			name: "test before 5.4",
-			fields: fields{
-				ResponseBody: loginResponsePrior53,
-			},
-			wantErr:         false,
-			expectedVersion: version52Test,
-			statusCode:      http.StatusOK,
-			config: &Config{
-				Username:     "admin",
-				Password:     "admin",
-				Version:      13,
-				LoginTimeout: 1,
-				Insecure:     true,
-			},
-			wantInsecure: true,
-		},
 		{
 			name: "test 5.4 login",
 			fields: fields{
@@ -371,14 +371,6 @@ func TestClient(t *testing.T) {
 			if !appgateClient.ApplianceVersion.Equal(tt.expectedVersion) {
 				t.Fatalf("Expected %s, got %s", tt.expectedVersion, appgateClient.ApplianceVersion)
 			}
-
-			latestSupportedVersion, err := version.NewVersion(ApplianceVersionMap[DefaultClientVersion])
-			if err != nil {
-				t.Fatalf("unable to parse latest supported version")
-			}
-			if !appgateClient.LatestSupportedVersion.Equal(latestSupportedVersion) {
-				t.Fatalf("Expected Latest Version%s, got %s", tt.expectedVersion, appgateClient.ApplianceVersion)
-			}
 			if token != "Bearer very-long-string" {
 				t.Fatalf("Expected token Bearer very-long-string, got %s", appgateClient.Token)
 			}
@@ -441,16 +433,6 @@ func TestConfigValidate(t *testing.T) {
 				Version:     DefaultClientVersion,
 			},
 			wantErr: false,
-		},
-		{
-			name: "invalid client version",
-			fields: fields{
-				URL:      "http://appgate.controller.com/admin",
-				Username: "admin",
-				Password: "admin",
-				Version:  35,
-			},
-			wantErr: true,
 		},
 		{
 			name: "invalid username password",

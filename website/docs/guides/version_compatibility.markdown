@@ -14,12 +14,18 @@ You need to specify the `client_version` if you are not running the latest suppo
 The `client_version` tries to maintain backwards compatibility 2 versions back all the time.
 
 
-|                         	|  client version 14 	| client version 15 	    | client version 16   | **client version 17**     |
-|-------------------------	|--------------------	|-------------------	    |-------------------	|-------------------   |
-| Appgate SDP 5.3.*     	| Full support  	|    |      	  |      |
-| Appgate SDP 5.4.*     	| Partial support   	| Full support  	      |    |  |
-| *Appgate SDP 5.5.*   	  | Partial support   	| Partial support   	    | Full support    |    |
-| **Appgate SDP 6.0.***   | Partial support   	| Partial support   	    | Partial support     | **Full support**     |
+~> **NOTE:**  The `client_version` can be omitted from the provider `"appgatesdp" { }` configuration block. If its not set by either environment variable or configuration block, the provider will use the highest available version that the controller allows by default.
+
+
+
+
+|                         	|  client version 14 	| client version 15 	    | client version 16   | client version 17     |**client version 18**     |
+|-------------------------	|--------------------	|-------------------	    |-------------------	|-------------------   |-------------------   |
+| Appgate SDP 5.3.*     	| Full support  	|    |      	  |      |      |
+| Appgate SDP 5.4.*     	| Partial support   	| Full support  	      |    |  | | |
+| *Appgate SDP 5.5.*   	  | Partial support   	| Partial support   	    | Full support    |    | |
+| **Appgate SDP 6.0.***   | Partial support   	| Partial support   	    | Partial support     | **Full support**     | |
+| **Appgate SDP 6.1.***   | Partial support   	| Partial support   	    | Partial support     |   Full support  | **Full support**|
 
 
 

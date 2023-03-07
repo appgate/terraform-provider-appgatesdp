@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/rand"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -64,25 +65,37 @@ func TestProvider_impl(t *testing.T) {
 	var _ *schema.Provider = Provider()
 }
 
-func testAccPreCheck(t *testing.T) {
-	if v := os.Getenv("APPGATE_CONFIG_PATH"); v != "" {
-		if _, err := os.Stat(v); os.IsNotExist(err) {
-			t.Fatal("APPGATE_CONFIG_PATH is set, but file not found")
-		}
-	} else {
-		if v := os.Getenv("APPGATE_ADDRESS"); v == "" {
-			t.Fatal("APPGATE_ADDRESS must be set for acceptance tests")
-		}
-		if v := os.Getenv("APPGATE_USERNAME"); v == "" {
-			t.Fatal("APPGATE_USERNAME must be set for acceptance tests")
-		}
-		if v := os.Getenv("APPGATE_PASSWORD"); v == "" {
-			t.Fatal("APPGATE_PASSWORD must be set for acceptance tests")
-		}
-	}
+// testAccProviderConfigure ensures Provider is only configured once
+//
+// The PreCheck(t) function is invoked for every test and this prevents
+// extraneous reconfiguration to the same values each time. However, this does
+// not prevent reconfiguration that may happen should the address of
+// Provider be errantly reused in ProviderFactories.
+var testAccProviderConfigure sync.Once
 
-	err := testAccProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(nil))
-	if err != nil {
-		t.Fatalf("err: %v", err)
-	}
+func testAccPreCheck(t *testing.T) {
+	// Since we are outside the scope of the Terraform configuration we must
+	// call Configure() to properly initialize the provider configuration.
+	testAccProviderConfigure.Do(func() {
+		if v := os.Getenv("APPGATE_CONFIG_PATH"); v != "" {
+			if _, err := os.Stat(v); os.IsNotExist(err) {
+				t.Fatal("APPGATE_CONFIG_PATH is set, but file not found")
+			}
+		} else {
+			if v := os.Getenv("APPGATE_ADDRESS"); v == "" {
+				t.Fatal("APPGATE_ADDRESS must be set for acceptance tests")
+			}
+			if v := os.Getenv("APPGATE_USERNAME"); v == "" {
+				t.Fatal("APPGATE_USERNAME must be set for acceptance tests")
+			}
+			if v := os.Getenv("APPGATE_PASSWORD"); v == "" {
+				t.Fatal("APPGATE_PASSWORD must be set for acceptance tests")
+			}
+		}
+
+		err := testAccProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(nil))
+		if err != nil {
+			t.Fatalf("err: %v", err)
+		}
+	})
 }
