@@ -2,16 +2,14 @@ package appgate
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceAppgateCondition() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAppgateConditionRead,
+		ReadContext: dataSourceAppgateConditionRead,
 		Schema: map[string]*schema.Schema{
 			"condition_id": {
 				Type:          schema.TypeString,
@@ -27,55 +25,20 @@ func dataSourceAppgateCondition() *schema.Resource {
 	}
 }
 
-func dataSourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAppgateConditionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.ConditionsApi
 
-	conditionID, iok := d.GetOk("condition_id")
-	conditionName, nok := d.GetOk("condition_name")
-
-	if !iok && !nok {
-		return fmt.Errorf("please provide one of condition_id or condition_name attributes")
+	condition, diags := ResolveConditionFromResourceData(ctx, d, api, token)
+	if diags != nil {
+		return diags
 	}
-	var reqErr error
-	var condition *openapi.Condition
-	if iok {
-		condition, reqErr = findConditionByUUID(api, conditionID.(string), token)
-	} else {
-		condition, reqErr = findConditionByName(api, conditionName.(string), token)
-	}
-	if reqErr != nil {
-		return reqErr
-	}
-
 	d.SetId(condition.GetId())
 	d.Set("condition_id", condition.GetId())
 	d.Set("condition_name", condition.GetName())
 
 	return nil
-}
-
-func findConditionByUUID(api *openapi.ConditionsApiService, id string, token string) (*openapi.Condition, error) {
-	condition, _, err := api.ConditionsIdGet(context.Background(), id).Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return condition, nil
-}
-
-func findConditionByName(api *openapi.ConditionsApiService, name string, token string) (*openapi.Condition, error) {
-	request := api.ConditionsGet(context.Background())
-
-	condition, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, c := range condition.GetData() {
-		return &c, nil
-	}
-	return nil, fmt.Errorf("Failed to find condition %s", name)
 }

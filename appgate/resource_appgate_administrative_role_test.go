@@ -75,7 +75,7 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 func testAccCheckadministrativeRoleWithScope(rName string) string {
 	return fmt.Sprintf(`
 data "appgatesdp_site" "default_site" {
-  site_name = "Default site"
+  site_name = "Default Site"
 }
 resource "appgatesdp_administrative_role" "administrative_role_with_scope" {
   name = "%s"

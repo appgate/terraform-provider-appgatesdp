@@ -2,16 +2,14 @@ package appgate
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceEntitlementScript() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAppgateEntitlementScriptRead,
+		ReadContext: dataSourceAppgateEntitlementScriptRead,
 		Schema: map[string]*schema.Schema{
 			"entitlement_script_id": {
 				Type:          schema.TypeString,
@@ -27,54 +25,20 @@ func dataSourceEntitlementScript() *schema.Resource {
 	}
 }
 
-func dataSourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAppgateEntitlementScriptRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.EntitlementScriptsApi
-
-	entitlementScriptID, iok := d.GetOk("entitlement_script_id")
-	entitlementScriptName, nok := d.GetOk("entitlement_script_name")
-
-	if !iok && !nok {
-		return fmt.Errorf("please provide one of entitlement_script_id or entitlement_script_name attributes")
-	}
-	var reqErr error
-	var entitlementScript *openapi.EntitlementScript
-	if iok {
-		entitlementScript, reqErr = findEntitlementScriptByUUID(api, entitlementScriptID.(string), token)
-	} else {
-		entitlementScript, reqErr = findEntitlementScriptByName(api, entitlementScriptName.(string), token)
-	}
-	if reqErr != nil {
-		return reqErr
+	entitlementScript, diags := ResolveEntitlementScriptFromResourceData(ctx, d, api, token)
+	if diags != nil {
+		return diags
 	}
 
 	d.SetId(entitlementScript.GetId())
-	d.Set("name", entitlementScript.GetName())
+	d.Set("entitlement_script_id", entitlementScript.GetId())
+	d.Set("entitlement_script_name", entitlementScript.GetName())
 
 	return nil
-}
-
-func findEntitlementScriptByUUID(api *openapi.EntitlementScriptsApiService, id string, token string) (*openapi.EntitlementScript, error) {
-	entitlementScript, _, err := api.EntitlementScriptsIdGet(context.Background(), id).Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return entitlementScript, nil
-}
-
-func findEntitlementScriptByName(api *openapi.EntitlementScriptsApiService, name string, token string) (*openapi.EntitlementScript, error) {
-	request := api.EntitlementScriptsGet(context.Background())
-
-	entitlementScript, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, c := range entitlementScript.GetData() {
-		return &c, nil
-	}
-	return nil, fmt.Errorf("Failed to find Criteria script %s", name)
 }

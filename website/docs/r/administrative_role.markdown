@@ -39,7 +39,7 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 ## Example with data source
 
 data "appgatesdp_site" "default_site" {
-  site_name = "Default site"
+  site_name = "Default Site"
 }
 resource "appgatesdp_administrative_role" "administrative_role_with_scope" {
   name = "tf-admin-with-scope"

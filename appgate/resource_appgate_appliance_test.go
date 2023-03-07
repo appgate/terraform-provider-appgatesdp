@@ -1002,7 +1002,7 @@ resource "appgatesdp_appliance" "test_controller" {
 func testAccCheckApplianceBasicControllerDisableDelete(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-  site_name = "Default site"
+  site_name = "Default Site"
 }
 
 resource "appgatesdp_appliance" "test_controller" {
@@ -1214,7 +1214,7 @@ func TestAccApplianceConnector(t *testing.T) {
 func testAccCheckApplianceBasicConnector(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-    site_name = "Default site"
+    site_name = "Default Site"
 }
 resource "appgatesdp_appliance" "connector" {
     name     = "%{name}"
@@ -1386,7 +1386,7 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 func testAccCheckApplianceBasicGateway(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-  site_name = "Default site"
+  site_name = "Default Site"
 }
 
 resource "appgatesdp_appliance" "test_gateway" {
@@ -2342,7 +2342,7 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 func testAccCheckAppliancePortalConfig(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-	site_name = "Default site"
+	site_name = "Default Site"
 }
 resource "appgatesdp_client_profile" "portal" {
 	name                   = "portal"
@@ -2633,7 +2633,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 func testAccCheckAppliancePortalConfig6(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-	site_name = "Default site"
+	site_name = "Default Site"
 }
 resource "appgatesdp_client_profile" "portal" {
 	name                   = "portal_%{name}"
@@ -2699,7 +2699,7 @@ resource "appgatesdp_appliance" "test_portal" {
 func testAccCheckAppliancePortalConfig6Updated(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-	site_name = "Default site"
+	site_name = "Default Site"
 }
 resource "appgatesdp_client_profile" "portal" {
 	name                   = "portal_%{name}"
@@ -2897,7 +2897,7 @@ func TestAccApplianceAdminInterfaceAddRemove(t *testing.T) {
 func testAccApplianceWithAdminInterface(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-  site_name = "Default site"
+  site_name = "Default Site"
 }
 resource "appgatesdp_appliance" "appliance_one" {
 	depends_on = [
@@ -2958,7 +2958,7 @@ resource "appgatesdp_appliance" "appliance_one" {
 func testAccApplianceWithoutAdminInterface(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-  site_name = "Default site"
+  site_name = "Default Site"
 }
 resource "appgatesdp_appliance" "appliance_one" {
 	depends_on = [
@@ -3290,7 +3290,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 func testAccApplianceWithLogServer(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-	site_name = "Default site"
+	site_name = "Default Site"
 }
 resource "appgatesdp_appliance" "log_server" {
 	name     = "%{name}"
@@ -3353,7 +3353,7 @@ resource "appgatesdp_appliance" "log_server" {
 func testAccApplianceWithOutLogServer(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
-	site_name = "Default site"
+	site_name = "Default Site"
 }
 resource "appgatesdp_appliance" "log_server" {
 	name     = "%{name}"

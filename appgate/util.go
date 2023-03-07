@@ -20,10 +20,22 @@ import (
 	"github.com/cenkalti/backoff/v4"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+func AppendErrorf(diags diag.Diagnostics, format string, a ...any) diag.Diagnostics {
+	return append(diags, diag.Errorf(format, a...)...)
+}
+
+func AppendFromErr(diags diag.Diagnostics, err error) diag.Diagnostics {
+	if err == nil {
+		return diags
+	}
+	return append(diags, diag.FromErr(err)...)
+}
 
 func mergeSchemaMaps(maps ...map[string]*schema.Schema) map[string]*schema.Schema {
 	result := make(map[string]*schema.Schema)
