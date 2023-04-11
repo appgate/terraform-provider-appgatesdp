@@ -3,6 +3,7 @@ package appgate
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -133,6 +134,9 @@ func TestAccClientProfileBasic61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", "acme"),
 					resource.TestCheckResourceAttr(resourceName, "spa_key_name", "development-acme"),
 					resource.TestCheckResourceAttr(resourceName, "identity_provider_name", "local"),
+					resource.TestCheckResourceAttrSet(resourceName, "url"),
+					// https://github.com/appgate/terraform-provider-appgatesdp/issues/288
+					resource.TestMatchResourceAttr(resourceName, "url", regexp.MustCompile(`(appgate\:\/\/acme.com/)(\w+)`)),
 				),
 			},
 			{
