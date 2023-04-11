@@ -696,3 +696,46 @@ func ResolveMfaProviderFromResourceData(ctx context.Context, d *schema.ResourceD
 	}
 	return findMfaProviderByName(ctx, api, resourceName.(string), token)
 }
+
+func findClientProfileByUUID(ctx context.Context, api *openapi.ClientProfilesApiService, id, token string) (*openapi.ClientProfile, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source ClientProfile get by UUID %s", id)
+	resource, _, err := api.ClientProfilesIdGet(ctx, id).Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findClientProfileByName(ctx context.Context, api *openapi.ClientProfilesApiService, name, token string) (*openapi.ClientProfile, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source ClientProfile get by name %s", name)
+
+	resource, _, err := api.ClientProfilesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple ClientProfile matched; use additional constraints to reduce matches to a single ClientProfile")
+	}
+	return nil, AppendErrorf(diags, "Failed to find ClientProfile %s", name)
+}
+
+func ResolveClientProfileFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.ClientProfilesApiService, token string) (*openapi.ClientProfile, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("client_profile_id")
+	resourceName, nok := d.GetOk("client_profile_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of client_profile_id or client_profile_name attributes")
+	}
+
+	if iok {
+		return findClientProfileByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findClientProfileByName(ctx, api, resourceName.(string), token)
+}
