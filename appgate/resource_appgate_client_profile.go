@@ -253,6 +253,13 @@ func resourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("hostname", profile.GetHostname())
 	d.Set("exported", profile.GetExported().String())
 
+	url, _, err := api.ClientProfilesIdUrlGet(ctx, profile.GetId()).Authorization(token).Execute()
+	if err != nil {
+		diags = AppendFromErr(diags, err)
+		return diags
+	}
+	d.Set("url", url.GetUrl())
+
 	return nil
 }
 
