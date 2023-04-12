@@ -40,6 +40,29 @@ func TestAccLocalUserBasic(t *testing.T) {
 				ImportState:      true,
 				ImportStateCheck: testAccLocalUserImportStateCheckFunc(1),
 			},
+			{
+				Config: testAccCheckLocalUserBasicUpdated(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLocalUserExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "email", "jane.silly@example.com"),
+					resource.TestCheckResourceAttr(resourceName, "failed_login_attempts", "30"),
+					resource.TestCheckResourceAttr(resourceName, "first_name", "Jane"),
+					resource.TestCheckResourceAttr(resourceName, "last_name", "Silly"),
+					resource.TestCheckResourceAttr(resourceName, "lock_start", "2020-04-27T09:51:03Z"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "password", "password_is_hunter2"),
+					resource.TestCheckResourceAttr(resourceName, "phone", "+1-202-555-0172"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccLocalUserImportStateCheckFunc(1),
+			},
 		},
 	})
 }
@@ -52,6 +75,24 @@ resource "appgatesdp_local_user" "test_local_user" {
     last_name             = "doe"
     password              = "password_is_hunter2"
     email                 = "john.doe@test.com"
+    phone                 = "+1-202-555-0172"
+    failed_login_attempts = 30
+    lock_start            = "2020-04-27T09:51:03Z"
+    tags = [
+      "terraform",
+      "api-created"
+    ]
+}
+`, rName)
+}
+func testAccCheckLocalUserBasicUpdated(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_local_user" "test_local_user" {
+    name                  = "%s"
+    first_name            = "Jane"
+    last_name             = "Silly"
+    password              = "password_is_hunter2"
+    email                 = "jane.silly@example.com"
     phone                 = "+1-202-555-0172"
     failed_login_attempts = 30
     lock_start            = "2020-04-27T09:51:03Z"

@@ -46,7 +46,7 @@ func resourceAppgateLocalUser() *schema.Resource {
 				},
 				"password": {
 					Type:      schema.TypeString,
-					Required:  true,
+					Optional:  true,
 					Sensitive: true,
 				},
 				"email": {
@@ -112,12 +112,12 @@ func resourceAppgateLocalUserCreate(ctx context.Context, d *schema.ResourceData,
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Failed to read lock start timestamp %w", err))
 		}
-		args.SetLockStart(*t)
+		args.SetLockStart(t)
 	}
 
 	localUser, _, err := api.LocalUsersPost(context.Background()).LocalUsersGetRequest(args).Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.FromErr(prettyPrintAPIError(err))
 	}
 
 	d.SetId(localUser.GetId())
@@ -126,12 +126,8 @@ func resourceAppgateLocalUserCreate(ctx context.Context, d *schema.ResourceData,
 	return resourceAppgateLocalUserRead(ctx, d, meta)
 }
 
-func parseDateTimeString(input string) (*time.Time, error) {
-	t, err := time.Parse(iso8601Format, input)
-	if err != nil {
-		return nil, fmt.Errorf("Failed resolve datetime %w", err)
-	}
-	return &t, nil
+func parseDateTimeString(input string) (time.Time, error) {
+	return time.Parse(iso8601Format, input)
 }
 
 func resourceAppgateLocalUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -141,11 +137,10 @@ func resourceAppgateLocalUserRead(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	request := api.LocalUsersIdGet(ctx, d.Id())
-	localUser, _, err := request.Authorization(token).Execute()
+	localUser, _, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		return diag.FromErr(err)
+		return diag.FromErr(prettyPrintAPIError(err))
 	}
 	d.SetId(localUser.GetId())
 	d.Set("local_user_id", localUser.GetId())
@@ -158,7 +153,6 @@ func resourceAppgateLocalUserRead(ctx context.Context, d *schema.ResourceData, m
 	d.Set("phone", localUser.GetPhone())
 	d.Set("failed_login_attempts", localUser.GetFailedLoginAttempts())
 
-	// TODO: determine if Casting lock_start to a string is enough
 	if v, ok := d.GetOk("lock_start"); ok {
 		d.Set("lock_start", v.(string))
 	}
@@ -173,54 +167,35 @@ func resourceAppgateLocalUserUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	originalLocalUser, _, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
+	user, _, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("Failed to read Local user while updating, %w", err))
-	}
-	updatedLocalUser := openapi.NewLocalUserWithDefaults()
-	updatedLocalUser.SetPassword(d.Get("password").(string))
-	updatedLocalUser.SetId(d.Id())
-	if d.HasChange("name") {
-		updatedLocalUser.SetName(d.Get("name").(string))
-	} else {
-		updatedLocalUser.SetName(originalLocalUser.GetName())
-	}
-	if d.HasChange("notes") {
-		updatedLocalUser.SetNotes(d.Get("notes").(string))
-	} else {
-		updatedLocalUser.SetNotes(originalLocalUser.GetNotes())
-	}
-	if d.HasChange("tags") {
-		updatedLocalUser.SetTags(schemaExtractTags(d))
-	} else {
-		updatedLocalUser.SetTags(originalLocalUser.GetTags())
-	}
-	if d.HasChange("first_name") {
-		updatedLocalUser.SetFirstName(d.Get("first_name").(string))
-	} else {
-		updatedLocalUser.SetFirstName(originalLocalUser.GetFirstName())
-	}
-	if d.HasChange("last_name") {
-		updatedLocalUser.SetLastName(d.Get("last_name").(string))
-	} else {
-		updatedLocalUser.SetLastName(originalLocalUser.GetLastName())
+		return diag.FromErr(prettyPrintAPIError(err))
 	}
 
+	if d.HasChange("name") {
+		user.SetName(d.Get("name").(string))
+	}
+	if d.HasChange("notes") {
+		user.SetNotes(d.Get("notes").(string))
+	}
+	if d.HasChange("tags") {
+		user.SetTags(schemaExtractTags(d))
+	}
+	if d.HasChange("first_name") {
+		user.SetFirstName(d.Get("first_name").(string))
+	}
+	if d.HasChange("last_name") {
+		user.SetLastName(d.Get("last_name").(string))
+	}
 	if d.HasChange("email") {
-		updatedLocalUser.SetEmail(d.Get("email").(string))
-	} else {
-		updatedLocalUser.SetEmail(originalLocalUser.GetEmail())
+		user.SetEmail(d.Get("email").(string))
 	}
 
 	if d.HasChange("phone") {
-		updatedLocalUser.SetPhone(d.Get("phone").(string))
-	} else {
-		updatedLocalUser.SetPhone(originalLocalUser.GetPhone())
+		user.SetPhone(d.Get("phone").(string))
 	}
 	if d.HasChange("failed_login_attempts") {
-		updatedLocalUser.SetFailedLoginAttempts(float32(d.Get("failed_login_attempts").(int)))
-	} else {
-		updatedLocalUser.SetFailedLoginAttempts(originalLocalUser.GetFailedLoginAttempts())
+		user.SetFailedLoginAttempts(float32(d.Get("failed_login_attempts").(int)))
 	}
 	if d.HasChange("lock_start") {
 		raw := d.Get("lock_start").(string)
@@ -229,13 +204,11 @@ func resourceAppgateLocalUserUpdate(ctx context.Context, d *schema.ResourceData,
 			if err != nil {
 				return diag.FromErr(fmt.Errorf("Failed to read lock start timestamp %w", err))
 			}
-			updatedLocalUser.SetLockStart(*t)
+			user.SetLockStart(t)
 		}
 	}
 
-	req := api.LocalUsersIdPut(ctx, d.Id())
-	req = req.LocalUser(*updatedLocalUser)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = api.LocalUsersIdPut(ctx, d.Id()).LocalUser(*user).Authorization(token).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("could not update Local user %w", prettyPrintAPIError(err)))
 	}
@@ -250,7 +223,7 @@ func resourceAppgateLocalUserDelete(ctx context.Context, d *schema.ResourceData,
 	}
 	api := meta.(*Client).API.LocalUsersApi
 
-	if _, err := api.LocalUsersIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.LocalUsersIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("could not delete Local user %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")
