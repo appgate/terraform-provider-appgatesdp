@@ -8,6 +8,7 @@ import (
 
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -17,10 +18,10 @@ const (
 
 func resourceAppgateLocalUser() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAppgateLocalUserCreate,
-		Read:   resourceAppgateLocalUserRead,
-		Update: resourceAppgateLocalUserUpdate,
-		Delete: resourceAppgateLocalUserDelete,
+		CreateContext: resourceAppgateLocalUserCreate,
+		ReadContext:   resourceAppgateLocalUserRead,
+		UpdateContext: resourceAppgateLocalUserUpdate,
+		DeleteContext: resourceAppgateLocalUserDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -45,7 +46,7 @@ func resourceAppgateLocalUser() *schema.Resource {
 				},
 				"password": {
 					Type:      schema.TypeString,
-					Required:  true,
+					Optional:  true,
 					Sensitive: true,
 				},
 				"email": {
@@ -71,11 +72,11 @@ func resourceAppgateLocalUser() *schema.Resource {
 	}
 }
 
-func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateLocalUserCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Creating Local user: %s", d.Get("name").(string))
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
 	args := openapi.LocalUsersGetRequest{}
@@ -109,43 +110,37 @@ func resourceAppgateLocalUserCreate(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("lock_start"); ok {
 		t, err := parseDateTimeString(v.(string))
 		if err != nil {
-			return fmt.Errorf("Failed to read lock start timestamp %w", err)
+			return diag.FromErr(fmt.Errorf("Failed to read lock start timestamp %w", err))
 		}
-		args.SetLockStart(*t)
+		args.SetLockStart(t)
 	}
 
 	localUser, _, err := api.LocalUsersPost(context.Background()).LocalUsersGetRequest(args).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not create Local user %w", prettyPrintAPIError(err))
+		return diag.FromErr(prettyPrintAPIError(err))
 	}
 
 	d.SetId(localUser.GetId())
 	d.Set("local_user_id", localUser.GetId())
 
-	return resourceAppgateLocalUserRead(d, meta)
+	return resourceAppgateLocalUserRead(ctx, d, meta)
 }
 
-func parseDateTimeString(input string) (*time.Time, error) {
-	t, err := time.Parse(iso8601Format, input)
-	if err != nil {
-		return nil, fmt.Errorf("Failed resolve datetime %w", err)
-	}
-	return &t, nil
+func parseDateTimeString(input string) (time.Time, error) {
+	return time.Parse(iso8601Format, input)
 }
 
-func resourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateLocalUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Reading Local user id: %+v", d.Id())
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	ctx := context.TODO()
-	request := api.LocalUsersIdGet(ctx, d.Id())
-	localUser, _, err := request.Authorization(token).Execute()
+	localUser, _, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Failed to read Local user, %w", err)
+		return diag.FromErr(prettyPrintAPIError(err))
 	}
 	d.SetId(localUser.GetId())
 	d.Set("local_user_id", localUser.GetId())
@@ -158,7 +153,6 @@ func resourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("phone", localUser.GetPhone())
 	d.Set("failed_login_attempts", localUser.GetFailedLoginAttempts())
 
-	// TODO: determine if Casting lock_start to a string is enough
 	if v, ok := d.GetOk("lock_start"); ok {
 		d.Set("lock_start", v.(string))
 	}
@@ -166,94 +160,71 @@ func resourceAppgateLocalUserRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceAppgateLocalUserUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateLocalUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Updating Local user: %s", d.Get("name").(string))
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	ctx := context.TODO()
-	request := api.LocalUsersIdGet(ctx, d.Id())
-	originalLocalUser, _, err := request.Authorization(token).Execute()
+	user, _, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Failed to read Local user while updating, %w", err)
-	}
-	updatedLocalUser := openapi.NewLocalUserWithDefaults()
-	updatedLocalUser.SetPassword(d.Get("password").(string))
-	updatedLocalUser.SetId(d.Id())
-	if d.HasChange("name") {
-		updatedLocalUser.SetName(d.Get("name").(string))
-	} else {
-		updatedLocalUser.SetName(originalLocalUser.GetName())
-	}
-	if d.HasChange("notes") {
-		updatedLocalUser.SetNotes(d.Get("notes").(string))
-	} else {
-		updatedLocalUser.SetNotes(originalLocalUser.GetNotes())
-	}
-	if d.HasChange("tags") {
-		updatedLocalUser.SetTags(schemaExtractTags(d))
-	} else {
-		updatedLocalUser.SetTags(originalLocalUser.GetTags())
-	}
-	if d.HasChange("first_name") {
-		updatedLocalUser.SetFirstName(d.Get("first_name").(string))
-	} else {
-		updatedLocalUser.SetFirstName(originalLocalUser.GetFirstName())
-	}
-	if d.HasChange("last_name") {
-		updatedLocalUser.SetLastName(d.Get("last_name").(string))
-	} else {
-		updatedLocalUser.SetLastName(originalLocalUser.GetLastName())
+		return diag.FromErr(prettyPrintAPIError(err))
 	}
 
+	if d.HasChange("name") {
+		user.SetName(d.Get("name").(string))
+	}
+	if d.HasChange("notes") {
+		user.SetNotes(d.Get("notes").(string))
+	}
+	if d.HasChange("tags") {
+		user.SetTags(schemaExtractTags(d))
+	}
+	if d.HasChange("first_name") {
+		user.SetFirstName(d.Get("first_name").(string))
+	}
+	if d.HasChange("last_name") {
+		user.SetLastName(d.Get("last_name").(string))
+	}
 	if d.HasChange("email") {
-		updatedLocalUser.SetEmail(d.Get("email").(string))
-	} else {
-		updatedLocalUser.SetEmail(originalLocalUser.GetEmail())
+		user.SetEmail(d.Get("email").(string))
 	}
 
 	if d.HasChange("phone") {
-		updatedLocalUser.SetPhone(d.Get("phone").(string))
-	} else {
-		updatedLocalUser.SetPhone(originalLocalUser.GetPhone())
+		user.SetPhone(d.Get("phone").(string))
 	}
 	if d.HasChange("failed_login_attempts") {
-		updatedLocalUser.SetFailedLoginAttempts(float32(d.Get("failed_login_attempts").(int)))
-	} else {
-		updatedLocalUser.SetFailedLoginAttempts(originalLocalUser.GetFailedLoginAttempts())
+		user.SetFailedLoginAttempts(float32(d.Get("failed_login_attempts").(int)))
 	}
 	if d.HasChange("lock_start") {
 		raw := d.Get("lock_start").(string)
 		if len(raw) > 0 {
 			t, err := parseDateTimeString(raw)
 			if err != nil {
-				return fmt.Errorf("Failed to read lock start timestamp %w", err)
+				return diag.FromErr(fmt.Errorf("Failed to read lock start timestamp %w", err))
 			}
-			updatedLocalUser.SetLockStart(*t)
+			user.SetLockStart(t)
 		}
 	}
 
-	req := api.LocalUsersIdPut(ctx, d.Id())
-	req = req.LocalUser(*updatedLocalUser)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = api.LocalUsersIdPut(ctx, d.Id()).LocalUser(*user).Authorization(token).Execute()
 	if err != nil {
-		return fmt.Errorf("Could not update Local user %w", prettyPrintAPIError(err))
+		return diag.FromErr(fmt.Errorf("could not update Local user %w", prettyPrintAPIError(err)))
 	}
-	return resourceAppgateLocalUserRead(d, meta)
+	return resourceAppgateLocalUserRead(ctx, d, meta)
 }
 
-func resourceAppgateLocalUserDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceAppgateLocalUserDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Reading Local user id: %+v", d.Id())
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
 
-	if _, err := api.LocalUsersIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
-		return fmt.Errorf("Could not delete Local user %w", prettyPrintAPIError(err))
+	if _, err := api.LocalUsersIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
+		return diag.FromErr(fmt.Errorf("could not delete Local user %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")
 	return nil
