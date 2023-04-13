@@ -1296,9 +1296,7 @@ the root of Appliance when this interface is removed.`,
 		args.SetHostnameAliases(hostnames)
 	}
 
-	request := api.AppliancesPost(ctx)
-	request = request.Appliance(*args)
-	appliance, _, err := request.Authorization(token).Execute()
+	appliance, _, err := api.AppliancesPost(ctx).Appliance(*args).Authorization(token).Execute()
 	if err != nil {
 		return diag.Errorf("Could not create appliance %s", prettyPrintAPIError(err))
 	}
@@ -2975,8 +2973,8 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 				if v, ok := r["use_tls"]; ok {
 					tcpClient.SetUseTLS(v.(bool))
 				}
-				if v, ok := r["filter"]; ok {
-					tcpClient.SetFilter(v.(string))
+				if v, ok := r["filter"].(string); ok && len(v) > 0 {
+					tcpClient.SetFilter(v)
 				}
 				tcpClients = append(tcpClients, tcpClient)
 			}
