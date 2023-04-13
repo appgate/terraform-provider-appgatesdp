@@ -89,6 +89,9 @@ var (
 		{
 			Name: "MfaProvider",
 		},
+		{
+			Name: "ClientProfile",
+		},
 	}
 )
 
