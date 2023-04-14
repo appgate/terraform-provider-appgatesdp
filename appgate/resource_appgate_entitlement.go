@@ -532,9 +532,9 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 		orginalEntitlment.SetActions(actions)
 	}
 
-	if d.HasChange("app_shortcut") {
-		_, n := d.GetChange("app_shortcut")
-		appShortcut, err := readAppShortcutFromConfig(n.(*schema.Set).List())
+	if d.HasChange("app_shortcuts") {
+		_, v := d.GetChange("app_shortcuts")
+		appShortcut, err := readAppShortcutFromConfig(v.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
