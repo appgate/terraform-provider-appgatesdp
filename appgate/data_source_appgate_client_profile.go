@@ -2,7 +2,7 @@ package appgate
 
 import (
 	"context"
-	"strings"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -36,6 +36,9 @@ func dataSourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 	currentVersion := meta.(*Client).ApplianceVersion
+	if currentVersion.LessThan(Appliance61Version) {
+		return diag.FromErr(errors.New("data source appgatesdp_client_profile is not avaliable on your version"))
+	}
 
 	api := meta.(*Client).API.ClientProfilesApi
 	clientProfile, diags := ResolveClientProfileFromResourceData(ctx, d, api, token)
@@ -47,19 +50,6 @@ func dataSourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceD
 	d.Set("client_profile_name", clientProfile.GetName())
 	d.Set("client_profile_id", clientProfile.GetId())
 
-	if currentVersion.LessThan(Appliance61Version) {
-		clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
-		if err != nil {
-			diags = AppendFromErr(diags, err)
-			return diags
-		}
-		for _, profile := range clientConnections.GetProfiles() {
-			if strings.EqualFold(profile.GetName(), clientProfile.GetName()) {
-				d.Set("url", profile.GetUrl())
-			}
-		}
-
-	}
 	url, _, err := api.ClientProfilesIdUrlGet(ctx, clientProfile.GetId()).Authorization(token).Execute()
 	if err != nil {
 		diags = AppendFromErr(diags, err)

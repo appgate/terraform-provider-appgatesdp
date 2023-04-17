@@ -12,6 +12,9 @@ func TestAccAppgateClientProfile(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					testFor61AndAbove(t)
+				},
 				Config: `
 				resource "appgatesdp_client_profile" "dev_resource" {
 					name                   = "dev_resource"
