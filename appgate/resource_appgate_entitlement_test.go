@@ -534,7 +534,7 @@ func TestAccEntitlementUpdateActionHostOrder(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "app_shortcut_scripts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.%", "4"),
-					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "19"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.description", ""),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", rName),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "https://www.google.com"),
@@ -644,7 +644,7 @@ resource "appgatesdp_entitlement" "test_action_order_hosts" {
 	app_shortcuts {
 		name       = "%s"
 		url        = "https://www.google.com"
-		color_code = 5
+		color_code = 19
 	}
 }
 	`, rName, rName)
