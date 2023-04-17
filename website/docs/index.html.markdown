@@ -72,6 +72,17 @@ $ export APPGATE_BEARER_TOKEN="" # optional, used instead of username and passwo
 $ terraform plan
 ```
 
+
+#### HTTP Proxy
+
+
+The provider support use of `HTTP_PROXY` and `NO_PROXY`.
+For backwards compatibility, `HTTP_PROXY` act as both `HTTP_PROXY` and `HTTPS_PROXY`. It will be used as the proxy URL for HTTP(s) requests unless overridden by NoProxy.
+
+
+`NO_PROXY` It specifies a string that contains comma-separated values specifying hosts that should be excluded from proxying. Each value is represented by an IP address prefix (1.2.3.4), an IP address prefix in CIDR notation (1.2.3.4/8), a domain name, or a special DNS label (*). An IP address prefix and domain name can also include a literal port number (1.2.3.4:80). A domain name matches that name and all subdomains. A domain name with a leading "." matches subdomains only. For example "foo.com" matches "foo.com" and "bar.foo.com"; ".y.com" matches "x.y.com" but not "y.com". A single asterisk (*) indicates that no proxying should be done. A best effort is made to parse the string and errors are ignored.
+
+
 ### Config file
 
 Configure appgatesdp with a config file, can be combined with environment variables, if an `APPGATE_` environment variable is set, they will merge with the config file, and the config file values take precedence over any existing values.
