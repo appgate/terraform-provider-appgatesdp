@@ -96,6 +96,10 @@ func proxyFromEnvironment(req *http.Request) (*url.URL, error) {
 		}
 		proxyFunc = proxyConfig.ProxyFunc()
 	}
+	if proxyFunc == nil {
+		proxyFunc = httpproxy.FromEnvironment().ProxyFunc()
+		log.Printf("[DEBUG] Using HTTP PROXY FromEnvironment")
+	}
 	return proxyFunc(req.URL)
 }
 
