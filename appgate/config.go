@@ -18,6 +18,7 @@ import (
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
+	"golang.org/x/net/http/httpproxy"
 )
 
 const (
@@ -75,7 +76,33 @@ type Client struct {
 	Config           *Config
 }
 
-// Client creates
+var proxyFunc func(*url.URL) (*url.URL, error)
+
+func proxyFromEnvironment(req *http.Request) (*url.URL, error) {
+	if key, ok := os.LookupEnv("HTTP_PROXY"); ok {
+		proxyURL, err := url.Parse(key)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("[DEBUG] Using HTTP PROXY %s", proxyURL)
+		proxyConfig := &httpproxy.Config{
+			// use the same Addr for both HTTPS_PROXY and HTTP_PROXY for backwards compatibility
+			HTTPProxy:  proxyURL.String(),
+			HTTPSProxy: proxyURL.String(),
+		}
+		if noProxy, ok := os.LookupEnv("NO_PROXY"); ok {
+			log.Printf("[DEBUG] Using NO_PROXY %s", noProxy)
+			proxyConfig.NoProxy = noProxy
+		}
+		proxyFunc = proxyConfig.ProxyFunc()
+	}
+	return proxyFunc(req.URL)
+}
+
+// Client creates the http client, APIClient, and setup configuration for
+// custom pem file
+// toggle tls verification based on config
+// setup http proxy based on environment variables
 func (c *Config) Client() (*Client, error) {
 	timeoutDuration := time.Duration(c.Timeout)
 
@@ -101,18 +128,14 @@ func (c *Config) Client() (*Client, error) {
 			Timeout: timeoutDuration * time.Second,
 		}).Dial,
 		TLSHandshakeTimeout: timeoutDuration * time.Second,
+		Proxy:               proxyFromEnvironment,
 	}
-	if key, ok := os.LookupEnv("HTTP_PROXY"); ok {
-		proxyURL, err := url.Parse(key)
-		if err != nil {
-			return nil, err
-		}
-		tr.Proxy = http.ProxyURL(proxyURL)
-	}
+
 	httpclient := &http.Client{
 		Transport: tr,
 		Timeout:   ((timeoutDuration * 2) * time.Second),
 	}
+
 	clientCfg := &openapi.Configuration{
 		DefaultHeader: map[string]string{
 			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", c.Version),
