@@ -2829,10 +2829,12 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 						ad := openapi.ApplianceAllOfGatewayVpnAllowDestinations{}
 						if v := raw["address"].(string); v != "" {
 							ad.SetAddress(v)
+							// we can only set netmask if a address is set.
+							if v, ok := raw["netmask"].(int); ok && v >= 0 {
+								ad.SetNetmask(int32(v))
+							}
 						}
-						if v, ok := raw["netmask"].(int); ok && v >= 0 {
-							ad.SetNetmask(int32(v))
-						}
+
 						if v := raw["nic"].(string); v != "" {
 							ad.SetNic(v)
 						}
