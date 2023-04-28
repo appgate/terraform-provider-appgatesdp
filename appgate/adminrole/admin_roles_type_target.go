@@ -28,9 +28,7 @@ func toRoleScopeMap(v map[string]interface{}) map[string][]RoleScope {
 					roleScopes[key] = append(roleScopes[key], rs)
 				}
 			}
-
 		}
-
 	}
 	return roleScopes
 }
@@ -40,7 +38,6 @@ func CanScopePrivlige(v map[string]interface{}, privilegeType, target string) bo
 	if list, ok := actionmap[privilegeType]; ok {
 		for _, item := range list {
 			if target == item.Name {
-
 				return item.CanUseScope()
 			}
 		}

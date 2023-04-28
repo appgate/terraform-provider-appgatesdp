@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	"github.com/appgate/terraform-provider-appgatesdp/appgate/adminrole"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/go-version"
@@ -206,7 +207,11 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	args.SetTags(schemaExtractTags(d))
 
 	if v, ok := d.GetOk("privileges"); ok {
-		privileges, err := readAdminIstrativeRolePrivileges(v.(*schema.Set).List(), currentVersion)
+		targetMap, _, err := api.AdministrativeRolesTypeTargetMapGet(ctx).Authorization(token).Execute()
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		privileges, err := readAdminIstrativeRolePrivileges(v.(*schema.Set).List(), currentVersion, targetMap)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -226,7 +231,7 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	return diags
 }
 
-func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *version.Version) ([]openapi.AdministrativePrivilege, error) {
+func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *version.Version, targetMap *openapi.AdministrativeRolesTypeTargetMapGet200Response) ([]openapi.AdministrativePrivilege, error) {
 	result := make([]openapi.AdministrativePrivilege, 0)
 	for _, privilege := range privileges {
 		if privilege == nil {
@@ -244,7 +249,10 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 		if v, ok := raw["scope"]; ok {
 			rawScopes := v.([]interface{})
 			if len(rawScopes) > 0 {
-				scope := openapi.NewAdministrativePrivilegeScopeWithDefaults()
+				scope := openapi.AdministrativePrivilegeScope{}
+				if !adminrole.CanScopePrivlige(targetMap.GetActionMatrixMap(), a.GetType(), a.GetTarget()) {
+					return nil, fmt.Errorf("scope is not allowed with type %s and target %s", a.GetType(), a.GetTarget())
+				}
 				for _, v := range rawScopes {
 					rawScope := v.(map[string]interface{})
 					if v, ok := rawScope["all"]; ok {
@@ -265,7 +273,7 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 						scope.SetTags(tags)
 					}
 				}
-				a.SetScope(*scope)
+				a.SetScope(scope)
 			}
 		}
 
@@ -425,7 +433,11 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 
 	if d.HasChange("privileges") {
 		_, v := d.GetChange("privileges")
-		privileges, err := readAdminIstrativeRolePrivileges(v.(*schema.Set).List(), currentVersion)
+		targetMap, _, err := api.AdministrativeRolesTypeTargetMapGet(ctx).Authorization(token).Execute()
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		privileges, err := readAdminIstrativeRolePrivileges(v.(*schema.Set).List(), currentVersion, targetMap)
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Failed to update administrative role privileges %w", err))
 		}
