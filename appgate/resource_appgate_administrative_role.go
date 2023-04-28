@@ -250,9 +250,6 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 			rawScopes := v.([]interface{})
 			if len(rawScopes) > 0 {
 				scope := openapi.AdministrativePrivilegeScope{}
-				if !adminrole.CanScopePrivlige(targetMap.GetActionMatrixMap(), a.GetType(), a.GetTarget()) {
-					return nil, fmt.Errorf("scope is not allowed with type %s and target %s", a.GetType(), a.GetTarget())
-				}
 				for _, v := range rawScopes {
 					rawScope := v.(map[string]interface{})
 					if v, ok := rawScope["all"]; ok {
@@ -271,6 +268,11 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 							return result, fmt.Errorf("Failed to resolve privileges scope tags: %w", err)
 						}
 						scope.SetTags(tags)
+					}
+				}
+				if !adminrole.CanScopePrivlige(targetMap.GetActionMatrixMap(), a.GetType(), a.GetTarget()) {
+					if len(scope.GetTags()) > 0 || len(scope.GetIds()) > 0 || scope.GetAll() {
+						return nil, fmt.Errorf("scope is not allowed with type %s and target %s", a.GetType(), a.GetTarget())
 					}
 				}
 				a.SetScope(scope)

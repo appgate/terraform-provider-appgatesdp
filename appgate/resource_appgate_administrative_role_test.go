@@ -3,6 +3,7 @@ package appgate
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -44,6 +45,69 @@ func TestAccadministrativeRoleBasic(t *testing.T) {
 				ImportState:      true,
 				ImportStateCheck: testAccadministrativeRoleImportStateCheckFunc(1),
 			},
+			{
+				Config: testAccCheckadministrativeRoleBasicUpdated(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckadministrativeRoleExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "privileges.#", "4"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.0", "cc"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.1", "dd"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.all", "false"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "Entitlement"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "Create"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.default_tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.functions.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.all", "false"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.0", "aa"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.1", "bb"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.target", "Appliance"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.type", "View"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.default_tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.functions.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.all", "false"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.target", "Ztp"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.type", "View"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.default_tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.functions.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.scope.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.scope.0.all", "true"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.scope.0.ids.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.scope.0.tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.target", "Appliance"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.3.type", "RenewCertificate"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccadministrativeRoleImportStateCheckFunc(1),
+			},
+			{
+				Config:      testAccCheckadministrativeRoleBasicInvalid(rName),
+				ExpectError: regexp.MustCompile("Failed to update administrative role privileges scope is not allowed with type View and target Ztp"),
+			},
 		},
 	})
 }
@@ -68,6 +132,81 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
         tags = ["aa", "bb"]
         }
     }
+}
+`, rName)
+}
+
+func testAccCheckadministrativeRoleBasicUpdated(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_administrative_role" "test_administrative_role" {
+    name  = "%s"
+    notes = "hello world"
+    tags = [
+        "terraform"
+    ]
+    privileges {
+        type         = "Create"
+        target       = "Entitlement"
+        default_tags = ["cc", "dd"]
+    }
+    privileges {
+        type   = "View"
+        target = "Appliance"
+        scope {
+        tags = ["aa", "bb"]
+        }
+    }
+	privileges {
+		type   = "View"
+		target = "Ztp"
+	  }
+	  privileges {
+		target = "Appliance"
+		type   = "RenewCertificate"
+
+		scope {
+		  all = true
+		}
+	  }
+}
+`, rName)
+}
+func testAccCheckadministrativeRoleBasicInvalid(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_administrative_role" "test_administrative_role" {
+    name  = "%s"
+    notes = "hello world"
+    tags = [
+        "terraform"
+    ]
+    privileges {
+        type         = "Create"
+        target       = "Entitlement"
+        default_tags = ["cc", "dd"]
+    }
+    privileges {
+        type   = "View"
+        target = "Appliance"
+        scope {
+        tags = ["aa", "bb"]
+        }
+    }
+	privileges {
+		type   = "View"
+		target = "Ztp"
+		// this should not be allowed
+		scope {
+			all = true
+		}
+	  }
+	  privileges {
+		target = "Appliance"
+		type   = "RenewCertificate"
+
+		scope {
+		  all = true
+		}
+	  }
 }
 `, rName)
 }
