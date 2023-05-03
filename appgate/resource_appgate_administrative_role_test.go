@@ -46,6 +46,9 @@ func TestAccadministrativeRoleBasic(t *testing.T) {
 				ImportStateCheck: testAccadministrativeRoleImportStateCheckFunc(1),
 			},
 			{
+				PreConfig: func() {
+					testFor6AndAbove(t)
+				},
 				Config: testAccCheckadministrativeRoleBasicUpdated(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckadministrativeRoleExists(resourceName),
