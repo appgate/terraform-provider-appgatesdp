@@ -4436,8 +4436,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					// this test include peer_interface which is not allowed on higher versions
-					applianceTestForFiveFiveOrHigher(t)
+					testFor6AndAbove(t)
 				},
 				Config: testAccApplianceGatewayVPN(context),
 				Check: resource.ComposeTestCheckFunc(
