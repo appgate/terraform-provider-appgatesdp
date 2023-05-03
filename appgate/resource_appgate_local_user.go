@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
@@ -137,9 +138,12 @@ func resourceAppgateLocalUserRead(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	localUser, _, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
+	localUser, response, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
 	if err != nil {
 		d.SetId("")
+		if response != nil && response.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		return diag.FromErr(prettyPrintAPIError(err))
 	}
 	d.SetId(localUser.GetId())
