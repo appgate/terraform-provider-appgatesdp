@@ -555,7 +555,7 @@ func TestAccPolicyClientProfileSettings61(t *testing.T) {
 		return result;
 		EOF`,
 	}
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPolicyDestroy,
