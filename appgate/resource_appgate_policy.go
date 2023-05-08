@@ -61,21 +61,17 @@ func resourceAppgatePolicy() *schema.Resource {
 			},
 
 			"entitlements": {
-				Type:             schema.TypeSet,
-				Optional:         true,
-				Computed:         true,
-				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
-				Set:              schema.HashString,
-				Elem:             &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeSet,
+				Optional: true,
+				Set:      schema.HashString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"entitlement_links": {
-				Type:             schema.TypeSet,
-				Optional:         true,
-				Computed:         true,
-				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
-				Set:              schema.HashString,
-				Elem:             &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeSet,
+				Optional: true,
+				Set:      schema.HashString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"ringfence_rules": {
