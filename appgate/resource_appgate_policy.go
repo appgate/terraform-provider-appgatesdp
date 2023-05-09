@@ -75,21 +75,17 @@ func resourceAppgatePolicy() *schema.Resource {
 			},
 
 			"ringfence_rules": {
-				Type:             schema.TypeSet,
-				Optional:         true,
-				Computed:         true,
-				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
-				Set:              schema.HashString,
-				Elem:             &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeSet,
+				Optional: true,
+				Set:      schema.HashString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"ringfence_rule_links": {
-				Type:             schema.TypeSet,
-				Computed:         true,
-				DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
-				Set:              schema.HashString,
-				Optional:         true,
-				Elem:             &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeSet,
+				Optional: true,
+				Set:      schema.HashString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"tamper_proofing": {
