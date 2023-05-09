@@ -151,6 +151,7 @@ func Provider() *schema.Provider {
 			"appgatesdp_ringfence_rule":                     resourceAppgateRingfenceRule(),
 			"appgatesdp_condition":                          resourceAppgateCondition(),
 			"appgatesdp_policy":                             resourceAppgatePolicy(),
+			"appgatesdp_device_policy":                      resourceAppgateDevicePolicy(),
 			"appgatesdp_criteria_script":                    resourceAppgateCriteriaScript(),
 			"appgatesdp_entitlement_script":                 resourceAppgateEntitlementScript(),
 			"appgatesdp_device_script":                      resourceAppgateDeviceScript(),
