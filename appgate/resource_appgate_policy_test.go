@@ -306,7 +306,7 @@ func TestAccPolicyClientSettings55(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					applianceTestForFiveFive(t)
+					applianceTestForFiveFiveOrHigher(t)
 				},
 				Config: testAccCheckPolicyClientSettings(context),
 				Check: resource.ComposeTestCheckFunc(
@@ -336,8 +336,10 @@ func TestAccPolicyClientSettings55(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.persist", "false"),
 					resource.TestCheckResourceAttr(resourceName, "proxy_auto_config.0.url", ""),
-					resource.TestCheckResourceAttr(resourceName, "ringfence_rule_links.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "ringfence_rules.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ringfence_rule_links.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ringfence_rule_links.0", "developer"),
+					resource.TestCheckResourceAttr(resourceName, "ringfence_rules.#", "1"),
+					resource.TestCheckTypeSetElemAttrPair(resourceName, "ringfence_rules.*", "data.appgatesdp_ringfence_rule.default_ringfence_rule", "id"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
@@ -407,6 +409,9 @@ func TestAccPolicyClientSettings55(t *testing.T) {
 
 func testAccCheckPolicyClientSettings(context map[string]interface{}) string {
 	return Nprintf(`
+data "appgatesdp_ringfence_rule" "default_ringfence_rule" {
+	ringfence_rule_name = "Block-in"
+}
 resource "appgatesdp_policy" "device_policy_with_client_settings" {
 	name = "%{name}"
 	type = "Device"
@@ -419,6 +424,10 @@ resource "appgatesdp_policy" "device_policy_with_client_settings" {
 		enabled           = true
 		entitlements_list = "Hide"
 	}
+	ringfence_rules = [
+		data.appgatesdp_ringfence_rule.default_ringfence_rule.id
+	]
+	ringfence_rule_links = ["developer"]
 	expression = <<-EOF
 	var result = false;
 	return result;
