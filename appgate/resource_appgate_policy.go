@@ -682,27 +682,34 @@ func resourceAppgatePolicyRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if v, o := policy.GetProxyAutoConfigOk(); o != false {
-		pac, err := flattenProxyAutoConfig(*v)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		if currentVersion.GreaterThanOrEqual(Appliance53Version) {
-			d.Set("proxy_auto_config", pac)
+		if ok := d.Get("proxy_auto_config"); ok != nil {
+			pac, err := flattenProxyAutoConfig(*v)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			if currentVersion.GreaterThanOrEqual(Appliance53Version) {
+				d.Set("proxy_auto_config", pac)
+			}
 		}
 	}
 	if v, o := policy.GetTrustedNetworkCheckOk(); o != false {
-		t, err := flattenTrustedNetworkCheck(*v)
-		if err != nil {
-			return diag.FromErr(err)
+		if ok := d.Get("trusted_network_check"); ok != nil {
+			t, err := flattenTrustedNetworkCheck(*v)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			d.Set("trusted_network_check", t)
 		}
-		d.Set("trusted_network_check", t)
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
-		clientSettings, err := flattenPolicyClientSettings(policy.GetClientSettings())
-		if err != nil {
-			return diag.FromErr(err)
+		if ok := d.Get("client_settings"); ok != nil {
+			clientSettings, err := flattenPolicyClientSettings(policy.GetClientSettings())
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			d.Set("client_settings", clientSettings)
 		}
-		d.Set("client_settings", clientSettings)
+
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
 		d.Set("type", policy.GetType())

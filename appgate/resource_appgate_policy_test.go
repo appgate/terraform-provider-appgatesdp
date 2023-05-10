@@ -272,6 +272,7 @@ func testAccCheckPolicyDestroy(s *terraform.State) error {
 	policyTypes := []string{
 		"appgatesdp_policy",
 		"appgatesdp_device_policy",
+		"appgatesdp_dns_policy",
 	}
 	for _, rs := range s.RootModule().Resources {
 		if !inArray(rs.Type, policyTypes) {
