@@ -17,7 +17,7 @@ func resourceAppgateAdminPolicy() *schema.Resource {
 			}
 			currentVersion := meta.(*Client).ApplianceVersion
 			if currentVersion.LessThan(Appliance55Version) {
-				return diag.Errorf("appgatesdp_dns_policy is not supported on your version")
+				return diag.Errorf("appgatesdp_admin_policy is not supported on your version")
 			}
 
 			return resourceAppgatePolicyCreate(context.WithValue(ctx, PolicyTypeCtx, PolicyTypeAdmin), rd, meta)
