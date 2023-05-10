@@ -93,12 +93,8 @@ func basePolicyAdminAttributes() map[string]*schema.Schema {
 		"administrative_roles": {
 			Type:     schema.TypeSet,
 			Optional: true,
-			// TODO remove
-			Computed: true,
-			// TODO Remove
-			DiffSuppressFunc: suppressMissingOptionalConfigurationBlock,
-			Set:              schema.HashString,
-			Elem:             &schema.Schema{Type: schema.TypeString},
+			Set:      schema.HashString,
+			Elem:     &schema.Schema{Type: schema.TypeString},
 		},
 	}
 }
