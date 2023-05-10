@@ -269,8 +269,12 @@ func testAccCheckPolicyExists(resource string) resource.TestCheckFunc {
 }
 
 func testAccCheckPolicyDestroy(s *terraform.State) error {
+	policyTypes := []string{
+		"appgatesdp_policy",
+		"appgatesdp_device_policy",
+	}
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgatesdp_policy" {
+		if !inArray(rs.Type, policyTypes) {
 			continue
 		}
 
@@ -281,7 +285,7 @@ func testAccCheckPolicyDestroy(s *terraform.State) error {
 		api := testAccProvider.Meta().(*Client).API.PoliciesApi
 
 		if _, _, err := api.PoliciesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
-			return fmt.Errorf("policy still exists, %+v", err)
+			return fmt.Errorf("policy %s still exists", rs.Primary.ID)
 		}
 	}
 	return nil
