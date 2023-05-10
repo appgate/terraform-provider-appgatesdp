@@ -894,10 +894,6 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		orginalPolicy.SetTamperProofing(d.Get("tamper_proofing").(bool))
 	}
 
-	if d.HasChange("override_site") {
-		orginalPolicy.SetOverrideSite(d.Get("override_site").(string))
-	}
-
 	if d.HasChange("proxy_auto_config") {
 		_, v := d.GetChange("proxy_auto_config")
 		orginalPolicy.SetProxyAutoConfig(readProxyAutoConfigFromConfig(v.([]interface{})))
@@ -926,12 +922,27 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 			orginalPolicy.SetClientSettings(clientSettings)
 		}
 	}
+
+	if d.HasChange("override_site") {
+		_, n := d.GetChange("override_site")
+		if new, ok := n.(string); ok && len(new) > 0 {
+			orginalPolicy.SetOverrideSite(new)
+		} else {
+			orginalPolicy.OverrideSite = nil
+		}
+	}
+
 	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
 		if d.HasChange("type") {
 			orginalPolicy.SetType(d.Get("type").(string))
 		}
 		if d.HasChange("override_site_claim") {
-			orginalPolicy.SetOverrideSiteClaim(d.Get("override_site_claim").(string))
+			_, n := d.GetChange("override_site_claim")
+			if new, ok := n.(string); ok && len(new) > 0 {
+				orginalPolicy.SetOverrideSiteClaim(new)
+			} else {
+				orginalPolicy.OverrideSiteClaim = nil
+			}
 		}
 		if d.HasChange("dns_settings") {
 			if orginalPolicy.GetType() != "Dns" {

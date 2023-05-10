@@ -153,6 +153,7 @@ func Provider() *schema.Provider {
 			"appgatesdp_policy":                             resourceAppgatePolicy(),
 			"appgatesdp_device_policy":                      resourceAppgateDevicePolicy(),
 			"appgatesdp_dns_policy":                         resourceAppgateDnsPolicy(),
+			"appgatesdp_access_policy":                      resourceAppgateAccessPolicy(),
 			"appgatesdp_admin_policy":                       resourceAppgateAdminPolicy(),
 			"appgatesdp_criteria_script":                    resourceAppgateCriteriaScript(),
 			"appgatesdp_entitlement_script":                 resourceAppgateEntitlementScript(),
