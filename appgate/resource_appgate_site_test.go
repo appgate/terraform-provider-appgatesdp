@@ -18,6 +18,13 @@ func TestAccSiteBasic(t *testing.T) {
 		CheckDestroy: testAccCheckSiteDestroy,
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					// TODO
+					// test includes
+					// name_resolution.0.dns_resolvers.0.search_domains.#
+					// which has been removed in 6.2
+					applianceConstraintCheck(t, ">= 5.5, < 6.2")
+				},
 				Config: testAccCheckSite(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
@@ -1170,6 +1177,13 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 
+				PreConfig: func() {
+					// TODO
+					// test includes
+					// name_resolution.0.dns_resolvers.0.search_domains.#
+					// which has been removed in 6.2
+					applianceConstraintCheck(t, ">= 5.5, < 6.2")
+				},
 				Config: testAccSiteVPNRouteVia(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),

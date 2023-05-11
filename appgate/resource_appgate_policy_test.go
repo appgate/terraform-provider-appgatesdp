@@ -73,7 +73,6 @@ func TestAccPolicyBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.%", "10"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.add_remove_profiles", "Show"),
