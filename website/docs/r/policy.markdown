@@ -10,8 +10,16 @@ description: |-
 
 Create a new Policy.
 
-~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.0.0
-Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
+https://sdphelp.appgate.com/adminguide/policy-controls.html?anchor=policy
+
+
+~> **NOTE:**  This resource is the base resource for policy, You can also use the fine grained resources for each specific type
+
+
+* `appgatesdp_access_policy` - [Access via Gateways based on Entitlements along with any related Conditions that apply](./access_policy.markdown)
+* `appgatesdp_admin_policy` - [Admin rights to perform one or more administrative roles (admin UI & APIs)](./admin_policy.markdown)
+* `appgatesdp_device_policy` - [Device controls which are pushed to the Client (Ringfence rules, Client profile settings, etc)](./device_policy.markdown)
+* `appgatesdp_dns_policy` - [DNS settings comprising match-domain DNS settings along with the required Entitlements for the DNS servers specified](./dns_policy.markdown)
 
 
 ## Example Usage
@@ -55,7 +63,7 @@ The following arguments are supported:
 
 * `disabled`: (Optional) If true, the Policy will be disregarded during authorization.
 * `expression`: (Required) A JavaScript expression that returns boolean. Criteria Scripts may be used by calling them as functions.
-* `type`: (Optional) Type of the Policy. It is informational and not enforced.
+* `type`: (Optional) Type of the Policy. It is informational and not enforced. Will result in a Mixed type if omitted. You can use the fine grained resources `appgatesdp_access_policy` `appgatesdp_admin_policy` `appgatesdp_device_policy` `appgatesdp_dns_policy` instead.
 * `entitlements`: (Optional) List of Entitlement IDs in this Policy.
 * `entitlement_links`: (Optional) List of Entitlement tags in this Policy.
 * `ringfence_rules`: (Optional) List of Ringfence Rule IDs in this Policy.
