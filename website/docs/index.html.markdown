@@ -167,7 +167,7 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 * `provider` - (Optional) This is the Appgate provider. It must be provided, but
   it can also be sourced from the `APPGATE_PROVIDER` environment variables.
 
-* `client_version` - (Optional) This reference the appgate client SDK version, it can also be sourced from the `APPGATE_CLIENT_VERSION` environment variables. Defaults to `18`, Its not recommended to change this unless you know what you are doing.
+* `client_version` - (Optional) This reference the appgate client SDK version, it can also be sourced from the `APPGATE_CLIENT_VERSION` environment variables. Defaults to `18`. Even though this is not mandatory to use, it's strongly recommended to set the client version to the same API version as your primary controller uses.
 
 * `pem_filepath` - (Optional) Path to the controller's CA cert file in PEM format.
 
