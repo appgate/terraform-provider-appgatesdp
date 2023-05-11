@@ -37,7 +37,7 @@ func dataSourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceD
 	}
 	currentVersion := meta.(*Client).ApplianceVersion
 	if currentVersion.LessThan(Appliance61Version) {
-		return diag.FromErr(errors.New("data source appgatesdp_client_profile is not avaliable on your version"))
+		return diag.FromErr(errors.New("data source appgatesdp_client_profile is not available on your version"))
 	}
 
 	api := meta.(*Client).API.ClientProfilesApi

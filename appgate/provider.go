@@ -90,7 +90,7 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeInt,
 				Optional: true,
 				// lowest supported version available. This will be overwritten
-				// if the provisioner do not explcit overwrite it in their config
+				// if the provisioner do not explicit overwrite it in their config
 				DefaultFunc: schema.EnvDefaultFunc("APPGATE_CLIENT_VERSION", MinimumSupportedVersion),
 			},
 			"config_path": {
