@@ -29,7 +29,7 @@ const (
 	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
 	// its not recommended to change this value.
 	DefaultClientVersion    = Version18
-	MinimumSupportedVersion = Version13
+	MinimumSupportedVersion = Version16
 )
 
 var (
