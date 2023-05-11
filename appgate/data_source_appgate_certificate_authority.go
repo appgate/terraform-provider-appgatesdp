@@ -61,8 +61,11 @@ func dataSourceAppgateCertificateAuthority() *schema.Resource {
 
 func dataSourceAppgateCertificateAuthorityRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Data source CA Certificate.")
-
 	var diags diag.Diagnostics
+	_, err := meta.(*Client).GetToken()
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	api := meta.(*Client).API.CertificateAuthorityApi
 
 	if pem, ok := d.GetOk("pem"); pem.(bool) && ok {
