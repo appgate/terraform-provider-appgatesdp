@@ -325,8 +325,24 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 			if err != nil {
 				return result, fmt.Errorf("Failed to resolve privileges functions %w", err)
 			}
+			specialCases := func(input []string) []string {
+				// the API in 6.2 is very strict with the format of the function,
+				// and the formatted string is not plain CamelCase, so we need to do our own custom logic here
+				// to format the function string. this is so we don't break backwards compatibility, since this attribute
+				// DiffSuppress string case
+				forcedFormated := []string{"Controller", "Gateway", "LogServer", "LogForwarder", "Connector", "Portal"}
+				result := make([]string, 0, len(input))
+				for _, s := range input {
+					for index, inner := range forcedFormated {
+						if strings.EqualFold(s, inner) {
+							result = append(result, forcedFormated[index])
+						}
+					}
 
-			a.SetFunctions(sliceToLowercase(funcs))
+				}
+				return result
+			}
+			a.SetFunctions(specialCases(sliceToLowercase(funcs)))
 		}
 		result = append(result, *a)
 	}
