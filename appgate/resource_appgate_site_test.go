@@ -1728,7 +1728,10 @@ func TestAccSiteNameResolver6(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor6AndAbove(t)
+					// test includes
+					// name_resolution.dns_resolvers.search_domains
+					// which has been removed in 6.2
+					applianceConstraintCheck(t, ">= 6.0, < 6.2")
 				},
 				Config: testAccSiteNameResolver6(rName),
 				Check: resource.ComposeTestCheckFunc(
