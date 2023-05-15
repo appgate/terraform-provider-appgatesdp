@@ -8,7 +8,7 @@ description: |-
 
 # appgatesdp_device_policy
 
-Create a new Device Policy.
+Device policy controls which are pushed to the Client (Ringfence rules, Client profile settings, etc).
 
 
 

@@ -8,7 +8,7 @@ description: |-
 
 # appgatesdp_dns_policy
 
-Create a new DNS Policy.
+DNS policy settings comprising match-domain DNS settings along with the required Entitlements for the DNS servers specified.
 
 
 

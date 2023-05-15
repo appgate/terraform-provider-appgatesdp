@@ -8,7 +8,7 @@ description: |-
 
 # appgatesdp_access_policy
 
-Create a new Access Policy.
+Access policy via Gateways based on Entitlements along with any related Conditions that apply.
 
 
 

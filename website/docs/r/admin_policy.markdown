@@ -8,8 +8,7 @@ description: |-
 
 # appgatesdp_admin_policy
 
-Create a new Admin Policy.
-
+Admin policy rights to perform one or more administrative roles (admin UI & APIs).
 
 
 ## Example Usage
