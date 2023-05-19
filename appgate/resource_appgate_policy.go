@@ -376,6 +376,9 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 	// - resource "appgatesdp_device_policy"
 	// - resource "appgatesdp_dns_policy"
 	if v, ok := ctx.Value(PolicyTypeCtx).(string); ok {
+		if currentVersion.LessThan(Appliance55Version) {
+			return diag.Errorf("appgatesdp_%s_policy is not supported on your version", v)
+		}
 		args.Type = openapi.PtrString(v)
 	}
 
