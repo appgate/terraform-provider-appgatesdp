@@ -237,7 +237,7 @@ func find{{ .Name | Title }}ByName(ctx context.Context, api *{{ .Service }}, nam
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple {{ .Name }} matched; use additional constraints to reduce matches to a single {{ .Name }}")
 	}
-	return nil, AppendErrorf(diags, "Failed to find {{ .Name }} %s", name)
+	return nil, AppendErrorf(diags, "could not find {{ .Name }} %s - please note that Names are case sensitive", name)
 }
 
 
