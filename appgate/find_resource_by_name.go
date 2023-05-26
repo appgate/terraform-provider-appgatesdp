@@ -34,7 +34,7 @@ func findEntitlementByName(ctx context.Context, api *openapi.EntitlementsApiServ
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Entitlement matched; use additional constraints to reduce matches to a single Entitlement")
 	}
-	return nil, AppendErrorf(diags, "Failed to find Entitlement %s", name)
+	return nil, AppendErrorf(diags, "could not find Entitlement %s - please note that Names are case sensitive", name)
 }
 
 func ResolveEntitlementFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.EntitlementsApiService, token string) (*openapi.Entitlement, diag.Diagnostics) {
@@ -77,7 +77,7 @@ func findAdministrativeRoleByName(ctx context.Context, api *openapi.AdminRolesAp
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple AdministrativeRole matched; use additional constraints to reduce matches to a single AdministrativeRole")
 	}
-	return nil, AppendErrorf(diags, "Failed to find AdministrativeRole %s", name)
+	return nil, AppendErrorf(diags, "could not find AdministrativeRole %s - please note that Names are case sensitive", name)
 }
 
 func ResolveAdministrativeRoleFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.AdminRolesApiService, token string) (*openapi.AdministrativeRole, diag.Diagnostics) {
@@ -120,7 +120,7 @@ func findApplianceCustomizationByName(ctx context.Context, api *openapi.Applianc
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple ApplianceCustomization matched; use additional constraints to reduce matches to a single ApplianceCustomization")
 	}
-	return nil, AppendErrorf(diags, "Failed to find ApplianceCustomization %s", name)
+	return nil, AppendErrorf(diags, "could not find ApplianceCustomization %s - please note that Names are case sensitive", name)
 }
 
 func ResolveApplianceCustomizationFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.ApplianceCustomizationsApiService, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
@@ -163,7 +163,7 @@ func findApplianceByName(ctx context.Context, api *openapi.AppliancesApiService,
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Appliance matched; use additional constraints to reduce matches to a single Appliance")
 	}
-	return nil, AppendErrorf(diags, "Failed to find Appliance %s", name)
+	return nil, AppendErrorf(diags, "could not find Appliance %s - please note that Names are case sensitive", name)
 }
 
 func ResolveApplianceFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.AppliancesApiService, token string) (*openapi.Appliance, diag.Diagnostics) {
@@ -206,7 +206,7 @@ func findConditionByName(ctx context.Context, api *openapi.ConditionsApiService,
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Condition matched; use additional constraints to reduce matches to a single Condition")
 	}
-	return nil, AppendErrorf(diags, "Failed to find Condition %s", name)
+	return nil, AppendErrorf(diags, "could not find Condition %s - please note that Names are case sensitive", name)
 }
 
 func ResolveConditionFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.ConditionsApiService, token string) (*openapi.Condition, diag.Diagnostics) {
@@ -249,7 +249,7 @@ func findCriteriaScriptByName(ctx context.Context, api *openapi.CriteriaScriptsA
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple CriteriaScript matched; use additional constraints to reduce matches to a single CriteriaScript")
 	}
-	return nil, AppendErrorf(diags, "Failed to find CriteriaScript %s", name)
+	return nil, AppendErrorf(diags, "could not find CriteriaScript %s - please note that Names are case sensitive", name)
 }
 
 func ResolveCriteriaScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.CriteriaScriptsApiService, token string) (*openapi.CriteriaScript, diag.Diagnostics) {
@@ -292,7 +292,7 @@ func findDeviceScriptByName(ctx context.Context, api *openapi.DeviceClaimScripts
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple DeviceScript matched; use additional constraints to reduce matches to a single DeviceScript")
 	}
-	return nil, AppendErrorf(diags, "Failed to find DeviceScript %s", name)
+	return nil, AppendErrorf(diags, "could not find DeviceScript %s - please note that Names are case sensitive", name)
 }
 
 func ResolveDeviceScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.DeviceClaimScriptsApiService, token string) (*openapi.DeviceScript, diag.Diagnostics) {
@@ -335,7 +335,7 @@ func findEntitlementScriptByName(ctx context.Context, api *openapi.EntitlementSc
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple EntitlementScript matched; use additional constraints to reduce matches to a single EntitlementScript")
 	}
-	return nil, AppendErrorf(diags, "Failed to find EntitlementScript %s", name)
+	return nil, AppendErrorf(diags, "could not find EntitlementScript %s - please note that Names are case sensitive", name)
 }
 
 func ResolveEntitlementScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.EntitlementScriptsApiService, token string) (*openapi.EntitlementScript, diag.Diagnostics) {
@@ -378,7 +378,7 @@ func findIpPoolByName(ctx context.Context, api *openapi.IPPoolsApiService, name,
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple IpPool matched; use additional constraints to reduce matches to a single IpPool")
 	}
-	return nil, AppendErrorf(diags, "Failed to find IpPool %s", name)
+	return nil, AppendErrorf(diags, "could not find IpPool %s - please note that Names are case sensitive", name)
 }
 
 func ResolveIpPoolFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.IPPoolsApiService, token string) (*openapi.IpPool, diag.Diagnostics) {
@@ -421,7 +421,7 @@ func findLocalUserByName(ctx context.Context, api *openapi.LocalUsersApiService,
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple LocalUser matched; use additional constraints to reduce matches to a single LocalUser")
 	}
-	return nil, AppendErrorf(diags, "Failed to find LocalUser %s", name)
+	return nil, AppendErrorf(diags, "could not find LocalUser %s - please note that Names are case sensitive", name)
 }
 
 func ResolveLocalUserFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.LocalUsersApiService, token string) (*openapi.LocalUser, diag.Diagnostics) {
@@ -464,7 +464,7 @@ func findPolicyByName(ctx context.Context, api *openapi.PoliciesApiService, name
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Policy matched; use additional constraints to reduce matches to a single Policy")
 	}
-	return nil, AppendErrorf(diags, "Failed to find Policy %s", name)
+	return nil, AppendErrorf(diags, "could not find Policy %s - please note that Names are case sensitive", name)
 }
 
 func ResolvePolicyFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.PoliciesApiService, token string) (*openapi.Policy, diag.Diagnostics) {
@@ -507,7 +507,7 @@ func findRingfenceRuleByName(ctx context.Context, api *openapi.RingfenceRulesApi
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple RingfenceRule matched; use additional constraints to reduce matches to a single RingfenceRule")
 	}
-	return nil, AppendErrorf(diags, "Failed to find RingfenceRule %s", name)
+	return nil, AppendErrorf(diags, "could not find RingfenceRule %s - please note that Names are case sensitive", name)
 }
 
 func ResolveRingfenceRuleFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.RingfenceRulesApiService, token string) (*openapi.RingfenceRule, diag.Diagnostics) {
@@ -550,7 +550,7 @@ func findSiteByName(ctx context.Context, api *openapi.SitesApiService, name, tok
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple Site matched; use additional constraints to reduce matches to a single Site")
 	}
-	return nil, AppendErrorf(diags, "Failed to find Site %s", name)
+	return nil, AppendErrorf(diags, "could not find Site %s - please note that Names are case sensitive", name)
 }
 
 func ResolveSiteFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.SitesApiService, token string) (*openapi.Site, diag.Diagnostics) {
@@ -593,7 +593,7 @@ func findTrustedCertificateByName(ctx context.Context, api *openapi.TrustedCerti
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple TrustedCertificate matched; use additional constraints to reduce matches to a single TrustedCertificate")
 	}
-	return nil, AppendErrorf(diags, "Failed to find TrustedCertificate %s", name)
+	return nil, AppendErrorf(diags, "could not find TrustedCertificate %s - please note that Names are case sensitive", name)
 }
 
 func ResolveTrustedCertificateFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.TrustedCertificatesApiService, token string) (*openapi.TrustedCertificate, diag.Diagnostics) {
@@ -636,7 +636,7 @@ func findUserScriptByName(ctx context.Context, api *openapi.UserClaimScriptsApiS
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple UserScript matched; use additional constraints to reduce matches to a single UserScript")
 	}
-	return nil, AppendErrorf(diags, "Failed to find UserScript %s", name)
+	return nil, AppendErrorf(diags, "could not find UserScript %s - please note that Names are case sensitive", name)
 }
 
 func ResolveUserScriptFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.UserClaimScriptsApiService, token string) (*openapi.UserScript, diag.Diagnostics) {
@@ -679,7 +679,7 @@ func findMfaProviderByName(ctx context.Context, api *openapi.MFAProvidersApiServ
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple MfaProvider matched; use additional constraints to reduce matches to a single MfaProvider")
 	}
-	return nil, AppendErrorf(diags, "Failed to find MfaProvider %s", name)
+	return nil, AppendErrorf(diags, "could not find MfaProvider %s - please note that Names are case sensitive", name)
 }
 
 func ResolveMfaProviderFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.MFAProvidersApiService, token string) (*openapi.MfaProvider, diag.Diagnostics) {
@@ -722,7 +722,7 @@ func findClientProfileByName(ctx context.Context, api *openapi.ClientProfilesApi
 	if len(resource.GetData()) > 1 {
 		return nil, AppendErrorf(diags, "multiple ClientProfile matched; use additional constraints to reduce matches to a single ClientProfile")
 	}
-	return nil, AppendErrorf(diags, "Failed to find ClientProfile %s", name)
+	return nil, AppendErrorf(diags, "could not find ClientProfile %s - please note that Names are case sensitive", name)
 }
 
 func ResolveClientProfileFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.ClientProfilesApiService, token string) (*openapi.ClientProfile, diag.Diagnostics) {
