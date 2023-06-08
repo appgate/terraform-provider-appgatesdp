@@ -15,7 +15,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
 )
 
 type Resource struct {

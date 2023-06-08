@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/go-version"
