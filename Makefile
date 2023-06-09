@@ -8,7 +8,7 @@ GOARCH=$(shell go env GOARCH)
 HOSTNAME=appgate.com
 NAMESPACE=appgate
 NAME=appgatesdp
-VERSION=1.4.0
+VERSION=1.4.1
 
 commit=$$(git rev-parse HEAD)
 
