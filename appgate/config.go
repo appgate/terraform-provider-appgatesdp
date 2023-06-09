@@ -261,7 +261,7 @@ func (c *Client) loginTimoutDuration() time.Duration {
 	if c.Config.LoginTimeout > 0 {
 		return time.Duration(c.Config.LoginTimeout) * time.Second
 	}
-	return 5 * time.Minute
+	return 10 * time.Minute
 }
 
 type minMaxError struct {
