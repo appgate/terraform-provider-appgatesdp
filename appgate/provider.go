@@ -260,6 +260,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, ua string) (
 	if v, ok := d.GetOk("device_id"); ok {
 		config.DeviceID = v.(string)
 	}
+	if v, ok := d.GetOk("login_timeout"); ok {
+		config.LoginTimeout = v.(int)
+	}
 
 	if usingFile {
 		// we do not allow bool config keys from the config file, since they will always default to false if omitted

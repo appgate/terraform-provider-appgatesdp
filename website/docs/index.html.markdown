@@ -177,3 +177,4 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `device_id` - (Optional) UUID to distinguish the Client device making the request. It is supposed to be same for every login request from the same server. Defaults to `/etc/machine-id` if omitted.
 
+* `login_timeout` - (Optional) Maximum amount of time in seconds to wait for a successful login request to the Controller upon startup. Defaults to 600 seconds.
