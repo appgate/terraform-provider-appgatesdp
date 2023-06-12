@@ -122,9 +122,9 @@ func Provider() *schema.Provider {
 				Description:  "UUID to distinguish the Client device making the request. It is supposed to be same for every login request from the same server.",
 			},
 			"login_timeout": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				DefaultFunc:  schema.EnvDefaultFunc("APPGATE_LOGIN_TIMEOUT", "10m"),
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_LOGIN_TIMEOUT", "10m"),
 				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
 					s, ok := v.(string)
 					if !ok {
@@ -138,7 +138,7 @@ func Provider() *schema.Provider {
 
 					return warns, errs
 				},
-				Description:  "Maximum amount of time in seconds to wait for a successful login request to the Controller upon startup.",
+				Description: "Maximum amount of time in seconds to wait for a successful login request to the Controller upon startup.",
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{

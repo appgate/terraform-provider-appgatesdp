@@ -28,18 +28,18 @@ const (
 
 // Config for appgate provider.
 type Config struct {
-	URL          string `json:"appgate_url,omitempty"`
-	Username     string `json:"appgate_username,omitempty"`
-	Password     string `json:"appgate_password,omitempty"`
-	Provider     string `json:"appgate_provider,omitempty"`
-	Insecure     bool   `json:"appgate_insecure,omitempty"`
-	Timeout      int    `json:"appgate_timeout,omitempty"`
+	URL          string        `json:"appgate_url,omitempty"`
+	Username     string        `json:"appgate_username,omitempty"`
+	Password     string        `json:"appgate_password,omitempty"`
+	Provider     string        `json:"appgate_provider,omitempty"`
+	Insecure     bool          `json:"appgate_insecure,omitempty"`
+	Timeout      int           `json:"appgate_timeout,omitempty"`
 	LoginTimeout time.Duration `json:"appgate_login_timeout,omitempty"`
-	Debug        bool   `json:"appgate_http_debug,omitempty"`
-	Version      int    `json:"appgate_client_version,omitempty"`
-	BearerToken  string `json:"appgate_bearer_token,omitempty"`
-	PemFilePath  string `json:"appgate_pem_filepath,omitempty"`
-	DeviceID     string `json:"appgate_device_id,omitempty"`
+	Debug        bool          `json:"appgate_http_debug,omitempty"`
+	Version      int           `json:"appgate_client_version,omitempty"`
+	BearerToken  string        `json:"appgate_bearer_token,omitempty"`
+	PemFilePath  string        `json:"appgate_pem_filepath,omitempty"`
+	DeviceID     string        `json:"appgate_device_id,omitempty"`
 	UserAgent    string
 }
 
