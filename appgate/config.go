@@ -256,14 +256,6 @@ var exponentialBackOff = backoff.ExponentialBackOff{
 	Clock:               backoff.SystemClock,
 }
 
-func (c *Client) loginTimoutDuration() time.Duration {
-	// This is just intend to be used within unit tests.
-	if c.Config.LoginTimeout > 0 {
-		return time.Duration(c.Config.LoginTimeout) * time.Second
-	}
-	return 10 * time.Minute
-}
-
 type minMaxError struct {
 	Err      error
 	Min, Max int32
@@ -286,7 +278,7 @@ func (c *Client) login(ctx context.Context) (*openapi.LoginResponse, error) {
 	// it might take awhile for the controller to startup and be responsive, so until its up it can return 500, 502, 503
 	// these status code is treated as retryable errors, during exponentialBackOff.MaxElapsedTime window.
 	// we will use this exponential backoff to retry until we get a 200-400 HTTP response from /login
-	exponentialBackOff.MaxElapsedTime = c.loginTimoutDuration()
+	exponentialBackOff.MaxElapsedTime = c.Config.LoginTimeout
 	loginResponse := &openapi.LoginResponse{}
 	err := backoff.Retry(func() error {
 		login, response, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
