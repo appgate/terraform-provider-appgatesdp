@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	pkgversion "github.com/appgate/terraform-provider-appgatesdp/version"
 	"github.com/denisbrodbeck/machineid"
@@ -261,7 +262,9 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, ua string) (
 		config.DeviceID = v.(string)
 	}
 	if v, ok := d.GetOk("login_timeout"); ok {
-		config.LoginTimeout = v.(int)
+		// validation is performed at Provider
+		duration, _ := time.ParseDuration(v.(string))
+		config.LoginTimeout = duration
 	}
 
 	if usingFile {

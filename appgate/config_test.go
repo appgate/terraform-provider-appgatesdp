@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
 	"github.com/google/uuid"
@@ -113,7 +114,7 @@ func TestLoginNotAcceptable(t *testing.T) {
 		Username:     "admin",
 		Password:     "admin",
 		Version:      0,
-		LoginTimeout: 1,
+		LoginTimeout: 1 * time.Minute,
 		Insecure:     false,
 		PemFilePath:  "test-fixtures/cert.pem",
 	}
@@ -386,7 +387,7 @@ func TestConfigValidate(t *testing.T) {
 		Provider     string
 		Insecure     bool
 		Timeout      int
-		LoginTimeout int
+		LoginTimeout time.Duration
 		Debug        bool
 		Version      int
 		BearerToken  string

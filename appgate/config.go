@@ -34,7 +34,7 @@ type Config struct {
 	Provider     string `json:"appgate_provider,omitempty"`
 	Insecure     bool   `json:"appgate_insecure,omitempty"`
 	Timeout      int    `json:"appgate_timeout,omitempty"`
-	LoginTimeout int    `json:"appgate_login_timeout,omitempty"`
+	LoginTimeout time.Duration `json:"appgate_login_timeout,omitempty"`
 	Debug        bool   `json:"appgate_http_debug,omitempty"`
 	Version      int    `json:"appgate_client_version,omitempty"`
 	BearerToken  string `json:"appgate_bearer_token,omitempty"`
