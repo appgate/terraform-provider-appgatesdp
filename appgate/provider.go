@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	pkgversion "github.com/appgate/terraform-provider-appgatesdp/version"
 	"github.com/denisbrodbeck/machineid"
@@ -119,6 +120,25 @@ func Provider() *schema.Provider {
 				DefaultFunc:  schema.EnvDefaultFunc("APPGATE_DEVICE_ID", nil),
 				ValidateFunc: validation.IsUUID,
 				Description:  "UUID to distinguish the Client device making the request. It is supposed to be same for every login request from the same server.",
+			},
+			"login_timeout": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_LOGIN_TIMEOUT", "10m"),
+				ValidateFunc: func(v interface{}, name string) (warns []string, errs []error) {
+					s, ok := v.(string)
+					if !ok {
+						errs = append(errs, fmt.Errorf("expected type of %q to be string", name))
+						return
+					}
+
+					if _, err := time.ParseDuration(s); err != nil {
+						errs = append(errs, fmt.Errorf("expected %q to be a valid duration, got %v", name, v))
+					}
+
+					return warns, errs
+				},
+				Description: "Maximum amount of time in seconds to wait for a successful login request to the Controller upon startup.",
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -259,6 +279,11 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, ua string) (
 	}
 	if v, ok := d.GetOk("device_id"); ok {
 		config.DeviceID = v.(string)
+	}
+	if v, ok := d.GetOk("login_timeout"); ok {
+		// validation is performed at Provider
+		duration, _ := time.ParseDuration(v.(string))
+		config.LoginTimeout = duration
 	}
 
 	if usingFile {
