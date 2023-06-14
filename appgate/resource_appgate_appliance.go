@@ -532,6 +532,58 @@ func resourceAppgateAppliance() *schema.Resource {
 						},
 
 						"allow_sources": allowSourcesSchema(),
+						"use_https": {
+							Type: schema.TypeBool,
+							Optional: true,
+							Default: false,
+						},
+						"https_p12": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"subject_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"content": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"password": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+						"basic_auth": {
+							Type: schema.TypeBool,
+							Optional: true,
+							Default: false,
+						},
+						"allowed_users": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"username": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"password": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1670,7 +1722,36 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 			return diag.FromErr(err)
 		}
 		exporter["allow_sources"] = as
+		exporter["use_https"] = v.GetUseHTTPS()
 
+		var localPrometheusExporter map[string]interface{}
+		localPrometheusExporterList := d.Get("prometheus_exporter").([]interface{})
+		for _, l := range localPrometheusExporterList {
+			localPrometheusExporter = l.(map[string]interface{})
+		}
+		httpsP12, err := flattenApplianceProxyp12s(localPrometheusExporter, v.GetHttpsP12())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		exporter["https_p12"] = httpsP12
+		exporter["basic_auth"] = v.GetBasicAuth()
+
+		allowedUsers := make([]map[string]interface{}, 0)
+		for _, s := range v.GetAllowedUsers() {
+			allowedUser := make(map[string]interface{})
+			allowedUser["username"] = s.GetUsername()
+			allowedUser["password"] = s.GetPassword()
+			if v, ok := localPrometheusExporter["allowed_users"].([]interface{}); ok && len(v) > 0 {
+				for _, thisUser := range v {
+					stateRow := thisUser.(map[string]interface{})
+					if s.GetUsername() == stateRow["username"] {
+						allowedUser["password"] = stateRow["password"].(string)
+					}
+				}
+			}
+			allowedUsers = append(allowedUsers, allowedUser)
+		}
+		exporter["allowed_users"] = allowedUsers
 		if err := d.Set("prometheus_exporter", []interface{}{exporter}); err != nil {
 			return diag.FromErr(err)
 		}
@@ -2849,8 +2930,8 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 	return val, nil
 }
 
-func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.ApplianceAllOfPrometheusExporter, error) {
-	val := openapi.ApplianceAllOfPrometheusExporter{}
+func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.PrometheusExporter, error) {
+	val := openapi.PrometheusExporter{}
 	for _, srv := range exporters {
 		if srv == nil {
 			continue
@@ -2869,6 +2950,26 @@ func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.Applianc
 				return val, err
 			}
 			val.SetAllowSources(allowSources)
+		}
+		if v, ok := rawServer["use_https"]; ok {
+			val.SetUseHTTPS(v.(bool))
+		}
+		if v, ok := rawServer["https_p12"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+			p12, err := readP12(v[0])
+			if err != nil {
+				return val, err
+			}
+			val.SetHttpsP12(p12)
+		}
+		if v, ok := rawServer["basic_auth"]; ok {
+			val.SetBasicAuth(v.(bool))
+		}
+		if v, ok := rawServer["allowed_users"].([]interface{}); ok && len(v) > 0 {
+			allowedUsers, err := readAllowedUsers(v)
+			if err != nil {
+				return val, err
+			}
+			val.SetAllowedUsers(allowedUsers)
 		}
 	}
 	return val, nil
@@ -3200,18 +3301,9 @@ func readAppliancePortalFromConfig(d *schema.ResourceData, portals []interface{}
 		}
 
 		if v, ok := raw["https_p12"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
-			p12 := openapi.P12{}
-			raw := v[0].(map[string]interface{})
-			p12.SetId(uuid.New().String())
-			if v, ok := raw["content"]; ok {
-				content, err := appliancePortalReadp12Content(v.(string))
-				if err != nil {
-					return p, fmt.Errorf("unable to read https_p12 file content %w", err)
-				}
-				p12.SetContent(content)
-			}
-			if v, ok := raw["password"]; ok {
-				p12.SetPassword(v.(string))
+			p12, err := readP12(v[0])
+			if err != nil {
+				return p, err
 			}
 			p.SetHttpsP12(p12)
 		}
