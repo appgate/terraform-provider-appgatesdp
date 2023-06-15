@@ -653,6 +653,10 @@ func resourceAppgateAppliance() *schema.Resource {
 										Optional: true,
 										Default:  100,
 									},
+									"local_weight": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
 									"allow_destinations": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -1957,6 +1961,9 @@ func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]in
 		if v, ok := v.GetWeightOk(); ok {
 			vpn["weight"] = *v
 		}
+		if v, ok := v.GetLocalWeightOk(); ok {
+			vpn["local_weight"] = *v
+		}
 		if v, ok := v.GetAllowDestinationsOk(); ok {
 			destinations := make([]map[string]interface{}, 0)
 			for _, d := range v {
@@ -2910,6 +2917,9 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 				raw := s.(map[string]interface{})
 				if v, ok := raw["weight"]; ok {
 					vpn.SetWeight(int32(v.(int)))
+				}
+				if v, ok := raw["local_weight"]; ok  {
+					vpn.SetLocalWeight(int32(v.(int)))
 				}
 				if v := raw["allow_destinations"]; len(v.([]interface{})) > 0 {
 					rawAllowedDestinations := v.([]interface{})

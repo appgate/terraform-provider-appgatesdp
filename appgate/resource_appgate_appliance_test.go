@@ -4947,7 +4947,7 @@ resource "appgatesdp_appliance" "gateway" {
 
 
 func TestAccAppliance62(t *testing.T) {
-	resourceName := "appgatesdp_appliance.prometheus_exporter"
+	resourceName := "appgatesdp_appliance.appliancev62"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	context := map[string]interface{}{
 		"name":     rName,
@@ -5036,6 +5036,14 @@ func TestAccAppliance62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allowed_users.1.username", "boo"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allowed_users.1.password", "boo123"),
 
+					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.local_weight", "100"),
 				),
 			},
 			{
@@ -5059,7 +5067,7 @@ func testAccAppliance62(context map[string]interface{}) string {
 data "appgatesdp_site" "default_site" {
 	site_name = "Default Site"
 }
-resource "appgatesdp_appliance" "prometheus_exporter" {
+resource "appgatesdp_appliance" "appliancev62" {
 	name             = "%{name}"
 	hostname         = "%{hostname}"
 	site  = data.appgatesdp_site.default_site.id
@@ -5111,6 +5119,18 @@ resource "appgatesdp_appliance" "prometheus_exporter" {
 		allowed_users { 
 			username = "boo"
 			password = "boo123"
+		}
+	}
+	gateway {
+		enabled = true
+		vpn {
+			weight = 100
+			local_weight = 100
+			allow_destinations {
+				nic     = "eth0"
+				address = "0.0.0.0"
+				netmask = 0
+			}
 		}
 	}
 }
