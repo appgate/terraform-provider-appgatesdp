@@ -2441,7 +2441,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					c := testAccProvider.Meta().(*Client)
 					c.GetToken()
 					currentVersion := c.ApplianceVersion
-					constraints, err := version.NewConstraint(">= 6.0")
+					constraints, err := version.NewConstraint(">= 6.0, < 6.2")
 					if err != nil {
 						t.Fatalf("could not parse version constraint %s", err)
 						return
@@ -3867,7 +3867,7 @@ func TestAccApplianceLogForwarderSplunkSumo61(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor61AndAbove(t)
+					applianceConstraintCheck(t, ">= 6.1, < 6.2")
 				},
 				Config: testAccCheckApplianceLogforwarderSplunkSumo(context),
 				Check: resource.ComposeTestCheckFunc(
@@ -4128,7 +4128,7 @@ func TestAccApplianceLogForwarderTcpClients(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor61AndAbove(t)
+					applianceConstraintCheck(t, ">= 6.1, < 6.2")
 				},
 				Config: testAccCheckApplianceLogforwarderTCPClients(context),
 				Check: resource.ComposeTestCheckFunc(
@@ -4440,7 +4440,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor6AndAbove(t)
+					applianceConstraintCheck(t, ">= 6.0, < 6.2")
 				},
 				Config: testAccApplianceGatewayVPN(context),
 				Check: resource.ComposeTestCheckFunc(
@@ -4946,7 +4946,7 @@ resource "appgatesdp_appliance" "gateway" {
 }
 
 
-func TestAccAppliancePrometheusExporter62(t *testing.T) {
+func TestAccAppliance62(t *testing.T) {
 	resourceName := "appgatesdp_appliance.prometheus_exporter"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	context := map[string]interface{}{
@@ -4962,7 +4962,7 @@ func TestAccAppliancePrometheusExporter62(t *testing.T) {
 				PreConfig: func() {
 					testFor62AndAbove(t)
 				},
-				Config: testAccPrometheusExporter(context),
+				Config: testAccAppliance62(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -4970,7 +4970,7 @@ func TestAccAppliancePrometheusExporter62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "0.0.0.0"),
@@ -4982,6 +4982,7 @@ func TestAccAppliancePrometheusExporter62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.nic", ""),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "443"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.local_hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "443"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "Disabled"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
@@ -5053,7 +5054,7 @@ func TestAccAppliancePrometheusExporter62(t *testing.T) {
 	})
 }
 
-func testAccPrometheusExporter(context map[string]interface{}) string {
+func testAccAppliance62(context map[string]interface{}) string {
 	return Nprintf(`
 data "appgatesdp_site" "default_site" {
 	site_name = "Default Site"
@@ -5064,6 +5065,7 @@ resource "appgatesdp_appliance" "prometheus_exporter" {
 	site  = data.appgatesdp_site.default_site.id
 	client_interface {
 		hostname = "%{hostname}"
+		local_hostname = "%{hostname}"
 
 		allow_sources {
 		address = "0.0.0.0"

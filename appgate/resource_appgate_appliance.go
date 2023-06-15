@@ -96,7 +96,10 @@ func resourceAppgateAppliance() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-
+						"local_hostname": {
+							Type: schema.TypeString,
+							Optional: true,
+						},
 						"https_port": {
 							Type:     schema.TypeInt,
 							Default:  443,
@@ -2143,6 +2146,9 @@ func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) (
 	if v, ok := in.GetHostnameOk(); ok {
 		m["hostname"] = *v
 	}
+	if v, ok := in.GetLocalHostnameOk(); ok {
+		m["local_hostname"] = *v
+	}
 	if v, ok := in.GetHttpsPortOk(); ok {
 		m["https_port"] = *v
 	}
@@ -2629,6 +2635,9 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 		}
 		if v, ok := raw["hostname"]; ok {
 			cinterface.SetHostname(v.(string))
+		}
+		if v, ok := raw["local_hostname"]; ok && v != "" {
+			cinterface.SetLocalHostname(v.(string))
 		}
 		if v, ok := raw["https_port"]; ok {
 			cinterface.SetHttpsPort(int32(v.(int)))
