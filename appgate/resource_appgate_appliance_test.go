@@ -4822,18 +4822,17 @@ resource "appgatesdp_appliance" "gateway" {
 	site  = data.appgatesdp_site.default_site.id
 	networking {
 		nics {
-		enabled = true
-		name    = "eth0"
-		ipv4 {
-			dhcp {
 			enabled = true
-			dns     = true
-			routers = true
-			ntp     = true
+			name    = "eth0"
+			ipv4 {
+				dhcp {
+					enabled = true
+					dns     = true
+					routers = true
+					ntp     = true
+				}
 			}
 		}
-		}
-	}
 	}
 	ssh_server {
 		enabled                 = true
