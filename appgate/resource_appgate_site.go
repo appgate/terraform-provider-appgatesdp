@@ -507,6 +507,10 @@ func resourceAppgateSite() *schema.Resource {
 										Required:  true,
 										Sensitive: true,
 									},
+									"org_id": {
+										Type:      schema.TypeString,
+										Required:  true,
+									},
 								},
 							},
 						},
@@ -789,6 +793,7 @@ func flattenSiteIllumioResolvers(in []openapi.SiteAllOfNameResolutionIllumioReso
 		m["hostname"] = v.GetHostname()
 		m["port"] = v.GetPort()
 		m["username"] = v.GetUsername()
+		m["org_id"] = v.GetOrgId()
 		if val, ok := local["password"]; ok {
 			m["password"] = val
 		} else {
@@ -1491,6 +1496,9 @@ func readIllumioResolversFromConfig(resolvers []interface{}) ([]openapi.SiteAllO
 		}
 		if v, ok := raw["password"]; ok {
 			row.SetPassword(v.(string))
+		}
+		if v, ok := raw["org_id"]; ok {
+			row.SetOrgId(v.(string))
 		}
 		result = append(result, row)
 	}

@@ -2025,13 +2025,14 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.hostname", "illumio.acme.com"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.name", "Illumio Resolver 1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.password", "adminadmin"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.port", "65530"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.update_interval", "5"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.username", "admin"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.org_id", "org12345"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
@@ -2077,13 +2078,14 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.hostname", "illumio.acme.com"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.name", "Illumio Resolver 99"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.password", "adminadmin"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.port", "1337"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.update_interval", "50"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.username", "acme"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.org_id", "org12345"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
@@ -2181,6 +2183,7 @@ resource "appgatesdp_site" "illumio_site" {
 		port     = 65530
 		username = "admin"
 		password = "adminadmin"
+		org_id = "org12345"
 	  }
 	}
 }`, rName)
@@ -2208,6 +2211,7 @@ resource "appgatesdp_site" "illumio_site" {
 		port     = 1337
 		username = "acme"
 		password = "adminadmin"
+		org_id = "org12345"
 	  }
 	}
 }`, rName)
