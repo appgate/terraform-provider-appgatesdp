@@ -199,11 +199,9 @@ func readAllowedUsers(in []interface{}) ([]openapi.PrometheusExporterAllowedUser
 	for _, source := range as {
 		row := openapi.NewPrometheusExporterAllowedUsersInner()
 		if v, ok := source["username"].(string); ok {
-			fmt.Println(fmt.Sprintf("%s", v))
 			row.SetUsername(v)
 		}
 		if v, ok := source["password"].(string); ok {
-			fmt.Println(fmt.Sprintf("%s", v))
 			row.SetPassword(v)
 		}
 		r = append(r, *row)
