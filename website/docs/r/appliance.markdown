@@ -544,6 +544,13 @@ Falcon Log Scale endpoints to connect and sent audit logs
 
 #### sites
 The sites to collect logs from and forward.
+
+### metrics aggregator
+Metrics Aggregator settings.
+* `enabled`: (Optional) Default boolean value `false`. Enable metrics aggregator on this appliance.
+* `prometheus_exporter`: (Optional) Prometheus exporter configuration
+* `sites`: (Optional) UUIDs of a site
+
 ### connector
 Connector settings.
 

@@ -949,6 +949,102 @@ func resourceAppgateAppliance() *schema.Resource {
 				},
 			},
 
+			"metrics_aggregator": {
+				Type: schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type: schema.TypeBool,
+							Optional: true,
+							Default: false,
+						},
+						"prometheus_exporter": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Computed: true,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+
+									"port": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+
+									"allow_sources": allowSourcesSchema(),
+									"use_https": {
+										Type: schema.TypeBool,
+										Optional: true,
+										Default: false,
+									},
+									"https_p12": {
+										Type:     schema.TypeList,
+										Optional: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"subject_name": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"content": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"password": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"basic_auth": {
+										Type: schema.TypeBool,
+										Optional: true,
+										Default: false,
+									},
+									"allowed_users": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"username": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"password": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"sites": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+
 			"connector": {
 				Type:          schema.TypeList,
 				MaxItems:      1,
@@ -1372,6 +1468,14 @@ the root of Appliance when this interface is removed.`,
 			return diag.FromErr(err)
 		}
 		args.SetLogForwarder(lf)
+	}
+
+	if v, ok := d.GetOk("metrics_aggregator"); ok {
+		metricsAggr, err := readApplianceMetricsAggregatorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		args.SetMetricsAggregator(metricsAggr)
 	}
 
 	if v, ok := d.GetOk("connector"); ok {
@@ -1873,6 +1977,16 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 			return diag.Errorf("Unable to read log fowarder %s", err)
 		}
 	}
+	
+	if v, ok := appliance.GetMetricsAggregatorOk(); ok {
+		metricsAggr, err := flattenApplianceMetricsAggregator(*v, currentVersion, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if err := d.Set("metrics_aggregator", metricsAggr); err != nil {
+			return diag.Errorf("Unable to read metrics aggregator %s", err)
+		}
+	}
 
 	if v, ok := appliance.GetConnectorOk(); ok {
 		connector, err := flatttenApplianceConnector(currentVersion, *v)
@@ -2183,6 +2297,65 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 
 	logforwarders = append(logforwarders, logforward)
 	return logforwarders, nil
+}
+
+func flattenApplianceMetricsAggregator(in openapi.ApplianceAllOfMetricsAggregator, currentVersion *version.Version, d *schema.ResourceData) ([]map[string]interface{}, error) {
+	var metricsAggrs []map[string]interface{}
+	metricsAggr := make(map[string]interface{})
+	if v, ok := in.GetEnabledOk(); ok {
+		metricsAggr["enabled"] = *v
+	}
+	if v, ok := in.GetSitesOk(); ok {
+		metricsAggr["sites"] = v
+	}
+	if v, ok := in.GetPrometheusExporterOk(); ok {
+		exporter := make(map[string]interface{})
+		exporter["enabled"] = v.GetEnabled()
+		exporter["port"] = v.GetPort()
+		as, err := flattenAllowSources(v.GetAllowSources())
+		if err != nil {
+			return nil, err
+		}
+		exporter["allow_sources"] = as
+		exporter["use_https"] = v.GetUseHTTPS()
+
+		var localPrometheusExporter map[string]interface{}
+		metricsAggrList := d.Get("metrics_aggregator").([]interface{})
+		for _, m := range metricsAggrList {
+			// OMG!!! This type conversion
+			for _, l := range  m.(map[string]interface{})["prometheus_exporter"].([]interface{}) {
+				localPrometheusExporter = l.(map[string]interface{})
+			}
+		}
+		httpsP12, err := flattenApplianceProxyp12s(localPrometheusExporter, v.GetHttpsP12())
+		if err != nil {
+			return nil, err
+		}
+		exporter["https_p12"] = httpsP12
+		exporter["basic_auth"] = v.GetBasicAuth()
+
+		allowedUsers := make([]map[string]interface{}, 0)
+		for _, s := range v.GetAllowedUsers() {
+			allowedUser := make(map[string]interface{})
+			allowedUser["username"] = s.GetUsername()
+			allowedUser["password"] = s.GetPassword()
+			if v, ok := localPrometheusExporter["allowed_users"].([]interface{}); ok && len(v) > 0 {
+				for _, thisUser := range v {
+					stateRow := thisUser.(map[string]interface{})
+					if s.GetUsername() == stateRow["username"] {
+						allowedUser["password"] = stateRow["password"].(string)
+					}
+				}
+			}
+			allowedUsers = append(allowedUsers, allowedUser)
+		}
+		exporter["allowed_users"] = allowedUsers
+
+		metricsAggr["prometheus_exporter"] = []interface{}{exporter}
+	}
+
+	metricsAggrs = append(metricsAggrs, metricsAggr)
+	return metricsAggrs, nil
 }
 
 func flatttenApplianceConnector(currentVersion *version.Version, in openapi.ApplianceAllOfConnector) ([]map[string]interface{}, error) {
@@ -2640,6 +2813,15 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 		originalAppliance.SetLogForwarder(lf)
 	}
 
+	if d.HasChange("metrics_aggregator") {
+		_, v := d.GetChange("metrics_aggregator")
+		ma, err := readApplianceMetricsAggregatorFromConfig(v.([]interface{}), currentVersion)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		originalAppliance.SetMetricsAggregator(ma)
+	}
+
 	if d.HasChange("connector") {
 		_, v := d.GetChange("connector")
 		iot, err := readApplianceConnectorFromConfig(currentVersion, v.([]interface{}))
@@ -3043,7 +3225,6 @@ func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.Promethe
 		if srv == nil {
 			continue
 		}
-
 		rawServer := srv.(map[string]interface{})
 		if v, ok := rawServer["enabled"]; ok {
 			val.SetEnabled(v.(bool))
@@ -3301,6 +3482,39 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 				falcons = append(falcons, falcon)
 			}
 			val.SetFalconLogScales(falcons)
+		}
+
+		sites := make([]string, 0)
+		if v := raw["sites"].(*schema.Set); v.Len() > 0 {
+			for _, s := range v.List() {
+				site := s.(string)
+				if len(site) > 0 {
+					sites = append(sites, site)
+				}
+			}
+		}
+		val.SetSites(sites)
+	}
+	return val, nil
+}
+
+func readApplianceMetricsAggregatorFromConfig(metricAggrs []interface{}, currentVersion *version.Version) (openapi.ApplianceAllOfMetricsAggregator, error) {
+	val := openapi.ApplianceAllOfMetricsAggregator{}
+	for _, metricAggr := range metricAggrs {
+		if metricAggr == nil {
+			continue
+		}
+		raw := metricAggr.(map[string]interface{})
+		if v, ok := raw["enabled"]; ok {
+			val.SetEnabled(v.(bool))
+		}
+
+		if v, ok := raw["prometheus_exporter"]; ok {
+			exporter, err := readPrometheusExporterFromConfig(v.([]interface{}))
+			if err != nil {
+				return val, err
+			}
+			val.SetPrometheusExporter(exporter)
 		}
 
 		sites := make([]string, 0)
