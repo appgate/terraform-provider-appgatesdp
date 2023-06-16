@@ -884,6 +884,60 @@ func resourceAppgateAppliance() *schema.Resource {
 								},
 							},
 						},
+						"azure_monitor": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"app_id": {
+										Type: schema.TypeString,
+										Required: true,
+									},
+									"app_secret": {
+										Type: schema.TypeString,
+										Optional: true,
+										Sensitive: true,
+									},
+									"token_request_url": {
+										Type: schema.TypeString,
+										Required: true,
+									},
+									"log_destination_url": {
+										Type: schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"falcon_log_scale": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"collector_url": {
+										Type: schema.TypeString,
+										Required: true,
+									},
+									"token": {
+										Type: schema.TypeString,
+										Optional: true,
+										Sensitive: true,
+									},
+									"index": {
+										Type: schema.TypeString,
+										Optional: true,
+									},
+									"source_type": {
+										Type: schema.TypeString,
+										Optional: true,
+									},
+									"source": {
+										Type: schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 						"sites": {
 							Type:        schema.TypeSet,
 							Description: "Array of sites.",
@@ -2067,7 +2121,6 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 	}
 
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
-
 		if v, ok := in.GetSumoLogicClientsOk(); ok {
 			sumoList := make([]map[string]interface{}, 0)
 			for _, sumo := range v {
@@ -2089,7 +2142,42 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 			}
 			logforward["splunk"] = splunkList
 		}
+	}
 
+	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+		if v, ok := in.GetAzureMonitorsOk(); ok {
+			azureList := make([]map[string]interface{}, 0)
+			for index, azure := range v {
+				s := map[string]interface{}{
+					"app_id": azure.GetAppId(),
+					"app_secret": azure.GetAppSecret(),
+					"token_request_url": azure.GetTokenRequestUrl(),
+					"log_destination_url": azure.GetLogDestinationUrl(),
+				}
+				if state := d.Get(fmt.Sprintf("log_forwarder.0.azure_monitor.%d.app_secret", index)).(string); len(state) > 0 {
+					s["app_secret"] = state
+				}
+				azureList = append(azureList, s)
+			}
+			logforward["azure_monitor"] = azureList
+		}
+		if v, ok := in.GetFalconLogScalesOk(); ok {
+			falconList := make([]map[string]interface{}, 0)
+			for index, falcon := range v {
+				s := map[string]interface{}{
+					"collector_url": falcon.GetCollectorUrl(),
+					"token": falcon.GetToken(),
+					"index": falcon.GetIndex(),
+					"source": falcon.GetSource(),
+					"source_type": falcon.GetSourceType(),
+				}
+				if state := d.Get(fmt.Sprintf("log_forwarder.0.falcon_log_scale.%d.token", index)).(string); len(state) > 0 {
+					s["token"] = state
+				}
+				falconList = append(falconList, s)
+			}
+			logforward["falcon_log_scale"] = falconList
+		}
 	}
 	logforward["sites"] = in.GetSites()
 
@@ -3166,6 +3254,53 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 				splunks = append(splunks, splunk)
 			}
 			val.SetSplunkClients(splunks)
+		}
+
+		if v := raw["azure_monitor"]; len(v.([]interface{})) > 0 {
+			azures := make([]openapi.AzureMonitor, 0)
+			for _, az := range v.([]interface{}) {
+				azure := openapi.AzureMonitor{}
+				row := az.(map[string]interface{})
+				if v, ok := row["app_id"]; ok {
+					azure.SetAppId(v.(string))
+				}
+				if v, ok := row["app_secret"]; ok {
+					azure.SetAppSecret(v.(string))
+				}
+				if v, ok := row["token_request_url"]; ok {
+					azure.SetTokenRequestUrl(v.(string))
+				}
+				if v, ok := row["log_destination_url"]; ok {
+					azure.SetLogDestinationUrl(v.(string))
+				}
+				azures = append(azures, azure)
+			}
+			val.SetAzureMonitors(azures)
+		}
+
+		if v := raw["falcon_log_scale"]; len(v.([]interface{})) > 0 {
+			falcons := make([]openapi.FalconLogScale, 0)
+			for _, az := range v.([]interface{}) {
+				falcon := openapi.FalconLogScale{}
+				row := az.(map[string]interface{})
+				if v, ok := row["collector_url"]; ok {
+					falcon.SetCollectorUrl(v.(string))
+				}
+				if v, ok := row["token"]; ok {
+					falcon.SetToken(v.(string))
+				}
+				if v, ok := row["index"]; ok {
+					falcon.SetIndex(v.(string))
+				}
+				if v, ok := row["source"]; ok {
+					falcon.SetSource(v.(string))
+				}
+				if v, ok := row["source_type"]; ok {
+					falcon.SetSourceType(v.(string))
+				}
+				falcons = append(falcons, falcon)
+			}
+			val.SetFalconLogScales(falcons)
 		}
 
 		sites := make([]string, 0)

@@ -527,6 +527,21 @@ AWS Kinesis endpoints to connect and send the audit logs with the given format.
 * `number_of_partition_keys`: (Optional) Add one or more partition keys to determine which shards will handle the data.
 * `filter`: (Optional) Filter these log records using a boolean expression using JMESPath query language. See "LogForward filtering" section in the admin guide for additional details.
 
+#### Azure Monitor
+Azure Monitor endpoints to connect and send the audit logs
+* `app_id`: (Required) App ID to use for authentication
+* `app_secret`: (Optional) App secret to use for authentication
+* `token_request_url`: (Required) URL for Azure Monitor to request token from
+* `log_destination_url`: (Required) URL of Azure Monitor to forward logs to
+
+#### Falcon LogScale
+Falcon Log Scale endpoints to connect and sent audit logs
+* `collector_url`: (Required) URL of the Falcon LogScale collector
+* `token`: (Optional) Ingest token for authentication
+* `index`: (Optional) Name of the repository to ingest into
+* `source_type`: (Optional) Translated to \#type inside Humio. If set, this is used to choose which Humio parser to use for extracting fields
+* `source`: (Optional) Translated to @source field in Humio.
+
 #### sites
 The sites to collect logs from and forward.
 ### connector

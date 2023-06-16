@@ -5044,6 +5044,24 @@ func TestAccAppliance62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.nic", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.local_weight", "100"),
+
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.sites.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.sites.0", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.azure_monitor.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.azure_monitor.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.azure_monitor.0.app_secret", "az-password123"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.azure_monitor.0.app_id", "az-example"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.azure_monitor.0.log_destination_url", "https://example.com/azure/log"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.azure_monitor.0.token_request_url", "https://example.com/azure/token"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.falcon_log_scale.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.falcon_log_scale.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.falcon_log_scale.0.token", "password123"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.falcon_log_scale.0.collector_url", "https://example.com/falcon/collect"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.falcon_log_scale.0.index", "example-index"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.falcon_log_scale.0.source_type", "example-source-type"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.falcon_log_scale.0.source", "example-source"),
 				),
 			},
 			{
@@ -5056,6 +5074,8 @@ func TestAccAppliance62(t *testing.T) {
 					"prometheus_exporter.0.https_p12.0.content",
 					"prometheus_exporter.0.allowed_users.0.password",
 					"prometheus_exporter.0.allowed_users.1.password",
+					"log_forwarder.0.azure_monitor.0.app_secret",
+					"log_forwarder.0.falcon_log_scale.0.token",
 				},
 			},
 		},
@@ -5132,6 +5152,25 @@ resource "appgatesdp_appliance" "appliancev62" {
 				netmask = 0
 			}
 		}
+	}
+	log_forwarder {
+		enabled = true
+		azure_monitor {
+			app_id = "az-example"
+			token_request_url = "https://example.com/azure/token"
+			log_destination_url = "https://example.com/azure/log"
+			app_secret = "az-password123"
+		}
+		falcon_log_scale {
+			collector_url = "https://example.com/falcon/collect"
+			token = "password123"
+			index = "example-index"
+			source_type = "example-source-type"
+			source = "example-source"
+		}
+		sites = [
+			data.appgatesdp_site.default_site.id
+		]
 	}
 }
 
