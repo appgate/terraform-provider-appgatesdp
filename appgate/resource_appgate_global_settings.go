@@ -119,6 +119,12 @@ func resourceGlobalSettings() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"registered_device_expiration_days": {
+				Type: schema.TypeInt,
+				Description: "Number of days registered devices are kept instorage before being deleted",
+				Optional: true,
+				Default: 90,
+			},
 			"spa_mode": {
 				Type:        schema.TypeString,
 				Description: "SPA Mode.",
@@ -209,6 +215,7 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 
 	d.Set("collective_name", settings.GetCollectiveName())
 	d.Set("spa_time_window_seconds", settings.GetSpaTimeWindowSeconds())
+	d.Set("registered_device_expiration_days", settings.GetRegisteredDeviceExpirationDays())
 	d.Set("spa_mode", settings.GetSpaMode())
 
 	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
@@ -280,6 +287,13 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 			return diag.FromErr(err)
 		}
 		originalsettings.SetAppDiscoveryDomains(domains)
+	}
+	if d.HasChange("registered_device_expiration_days") {
+		if currentVersion.LessThan(Appliance62Version) {
+			return diag.Errorf("registered_device_expiration_days is not supported on %s", currentVersion.String())
+		} else if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+			originalsettings.SetRegisteredDeviceExpirationDays(float32(d.Get("registered_device_expiration_days").(int)))
+		}
 	}
 	if d.HasChange("spa_mode") {
 		if currentVersion.LessThan(Appliance55Version) {
