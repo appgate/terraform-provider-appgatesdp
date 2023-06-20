@@ -21,6 +21,7 @@ const (
 	identityProviderSaml            = "Saml"
 	identityProviderLdapCertificate = "LdapCertificate"
 	identityProviderConnector       = "Connector"
+	identityProviderOidc	        = "Oidc"
 	builtinProviderLocal            = "local"
 	builtinProviderConnector        = "Connector"
 )
@@ -44,6 +45,7 @@ func identityProviderSchema() map[string]*schema.Schema {
 						identityProviderSaml,
 						identityProviderLdapCertificate,
 						identityProviderConnector,
+						identityProviderOidc,
 					}
 					for _, x := range list {
 						if s == x {

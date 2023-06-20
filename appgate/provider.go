@@ -195,6 +195,7 @@ func Provider() *schema.Provider {
 			"appgatesdp_client_connections":                 resourceClientConnections(),
 			"appgatesdp_blacklist_user":                     resourceAppgateBlacklistUser(),
 			"appgatesdp_radius_identity_provider":           resourceAppgateRadiusProvider(),
+			"appgatesdp_oidc_identity_provider":             resourceAppgateOidcProvider(),
 			"appgatesdp_saml_identity_provider":             resourceAppgateSamlProvider(),
 			"appgatesdp_local_database_identity_provider":   resourceAppgateLocalDatabaseProvider(),
 			"appgatesdp_ldap_certificate_identity_provider": resourceAppgateLdapCertificateProvider(),
