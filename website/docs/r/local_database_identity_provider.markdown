@@ -77,6 +77,7 @@ The following arguments are supported:
 * `admin_password`: (Optional) The password to login to LDAP and query users with. Required on creation.
 * `base_dn`: (Optional) The subset of the LDAP server to search users from. If not set, root of the server is used.
 * `object_class`: (Optional) The object class of the users to be authenticated and queried.
+* `user_filter`: (Optional) Object class of the users to be authenticated and queried. This field is translated to '(objectClass=value)' as user filter.
 * `username_attribute`: (Optional) The name of the attribute to get the exact username from the LDAP server.
 * `membership_filter`: (Optional) The filter to use while querying users' nested groups.
 * `membership_base_dn`: (Optional) The subset of the LDAP server to search groups from. If not set, "baseDn" is used.

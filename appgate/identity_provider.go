@@ -371,7 +371,12 @@ func ldapProviderSchema() map[string]*schema.Schema {
 	}
 	s["object_class"] = &schema.Schema{
 		Type:     schema.TypeString,
+		Deprecated: "Deprecated as of 6.2. Use userFilter instead",
 		Computed: true,
+		Optional: true,
+	}
+	s["user_filter"] = &schema.Schema {
+		Type:	schema.TypeString,
 		Optional: true,
 	}
 	s["username_attribute"] = &schema.Schema{
