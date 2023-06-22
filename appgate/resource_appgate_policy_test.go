@@ -820,7 +820,6 @@ resource "appgatesdp_policy" "dns_policy_with_dns_settings" {
 		expression = <<-EOF
 		  var result = false;
 		  return result;
-		EOF
 
 		custom_client_help_url = "https://help.appgate.com"
 		client_profile_settings {
@@ -829,6 +828,115 @@ resource "appgatesdp_policy" "dns_policy_with_dns_settings" {
 			appgatesdp_client_profile.portal.id
 		  ]
 		}
+}
+`, context)
+}
+
+func TestAccPolicyClientProfileSettings62(t *testing.T) {
+	resourceName := "appgatesdp_policy.test_policy62"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":         rName,
+		"updated_name": "updated" + rName,
+		"expression": `<<-EOF
+		var result = false;
+		return result;
+		EOF`,
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor62AndAbove(t)
+				},
+				Config: testAccCheckPolicyBasic62(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPolicyExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "terraform policy notes"),
+					resource.TestCheckResourceAttr(resourceName, "disabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "expression", "return true;\n"),
+
+					resource.TestCheckResourceAttr(resourceName, "client_settings.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.%", "11"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.add_remove_profiles", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.attention_level", "High"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.auto_start", "Enabled"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.entitlements_list", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.keep_me_signed_in", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.quit", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.saml_auto_sign_in", "Enabled"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.sign_out", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.suspend", "Show"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.new_user_onboarding", "Hide"),
+
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.profiles.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.force", "true"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccCriteriaScripImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccCheckPolicyBasic62(context map[string]interface{}) string {
+return Nprintf(`
+data "appgatesdp_condition" "always" {
+	condition_name = "Always"
+}
+
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+
+resource "appgatesdp_client_profile" "portal" {
+	name                   = "%{name}_profile"
+	spa_key_name           = "development-portal"
+	identity_provider_name = "local"
+}
+
+resource "appgatesdp_policy" "test_policy62" {
+    name  = "%{name}"
+    notes = "terraform policy notes"
+    tags = [
+        "terraform",
+        "api-created"
+    ]
+    disabled = false
+
+    expression = <<-EOF
+        return true;
+    EOF
+
+	client_settings {
+		enabled             = true
+		entitlements_list   = "Show"
+		attention_level     = "High"
+		auto_start          = "Enabled"
+		add_remove_profiles = "Show"
+		keep_me_signed_in   = "Show"
+		saml_auto_sign_in   = "Enabled"
+		quit                = "Show"
+		sign_out            = "Show"
+		suspend             = "Show"
+		new_user_onboarding = "Hide"
+	}
+	client_profile_settings {
+		enabled = true
+		profiles = [appgatesdp_client_profile.portal.id]
+		force = true
+	}
 }
 `, context)
 }

@@ -173,6 +173,16 @@ func basePolicyDeploymentSiteAttributes() map[string]*schema.Schema {
 			Description: "The path of a claim that contains the UUID of an override site. It should be defined as 'claims.xxx.xxx' or 'claims.xxx.xxx.xxx'1.",
 			Optional:    true,
 		},
+		"override_nearest_site": {
+			Type:     schema.TypeBool,
+			Description: "Overrides the Entitlements Site according to location of the client and Sites where this feature is enabled.",
+			Optional: true,
+		},
+		"apply_fallback_site": {
+			Type:     schema.TypeBool,
+			Description: "The Entitlements in this Policy will be available in the fallback Sites if the corresponding Sites are configured accordingly.",
+			Optional: true,
+		},
 	}
 }
 
@@ -264,6 +274,11 @@ func basePolicyClientAttributes() map[string]*schema.Schema {
 						Optional: true,
 						Computed: true,
 					},
+					"new_user_onboarding": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Computed: true,
+					},
 				},
 			},
 		},
@@ -283,6 +298,11 @@ func basePolicyClientAttributes() map[string]*schema.Schema {
 						Type:     schema.TypeSet,
 						Required: true,
 						Elem:     &schema.Schema{Type: schema.TypeString},
+					},
+					"force": {
+						Type: schema.TypeBool,
+						Optional: true,
+						Default: false,
 					},
 				},
 			},
@@ -429,6 +449,12 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 		if v, ok := d.GetOk("override_site_claim"); ok {
 			args.SetOverrideSiteClaim(v.(string))
 		}
+		if v, ok := d.GetOk("override_nearest_site"); ok {
+			args.SetOverrideNearestSite(v.(bool))
+		}
+		if v, ok := d.GetOk("apply_fallback_site"); ok {
+			args.SetApplyFallbackSite(v.(bool))
+		}
 		if v, ok := d.GetOk("dns_settings"); ok {
 			if args.GetType() != "Dns" {
 				return diag.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", args.GetType())
@@ -544,6 +570,9 @@ func readPolicyClientProfileSettingsFromConfig(settings []interface{}) (openapi.
 			}
 			result.SetProfiles(profiles)
 		}
+		if v, ok := raw["force"]; ok {
+			result.SetForce(v.(bool))
+		}
 
 	}
 	return result, nil
@@ -585,6 +614,9 @@ func readPolicyClientSettingsFromConfig(settings []interface{}) (openapi.PolicyA
 		}
 		if v, ok := raw["suspend"].(string); ok && len(v) > 0 {
 			result.SetSuspend(v)
+		}
+		if v, ok := raw["new_user_onboarding"].(string); ok{
+			result.SetNewUserOnboarding(v)
 		}
 	}
 	return result, nil
@@ -732,6 +764,16 @@ func resourceAppgatePolicyRead(ctx context.Context, d *schema.ResourceData, meta
 		d.Set("client_profile_settings", clientProfileSettings)
 		d.Set("custom_client_help_url", policy.GetCustomClientHelpUrl())
 	}
+
+	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+		if v := d.Get("override_nearest_site"); v != nil {
+			d.Set("override_nearest_site", v.(bool))
+		}
+		if v := d.Get("apply_fallback_site"); v != nil {
+			d.Set("apply_fallback_site", v.(bool))
+		}
+	}
+
 	return diags
 }
 
@@ -769,6 +811,9 @@ func flattenPolicyClientProfileSettings(clientSettings openapi.PolicyAllOfClient
 	if v, ok := clientSettings.GetProfilesOk(); ok {
 		m["profiles"] = v
 	}
+	if v, ok := clientSettings.GetForceOk(); ok {
+		m["force"] = v
+	}
 	return []interface{}{m}, nil
 }
 
@@ -803,6 +848,9 @@ func flattenPolicyClientSettings(clientSettings openapi.PolicyAllOfClientSetting
 	}
 	if v, ok := clientSettings.GetSuspendOk(); ok {
 		m["suspend"] = *v
+	}
+	if v, ok := clientSettings.GetNewUserOnboardingOk(); ok {
+		m["new_user_onboarding"] = *v
 	}
 	return []interface{}{m}, nil
 }
