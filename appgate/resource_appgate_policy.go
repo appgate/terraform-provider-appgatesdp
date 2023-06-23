@@ -174,14 +174,14 @@ func basePolicyDeploymentSiteAttributes() map[string]*schema.Schema {
 			Optional:    true,
 		},
 		"override_nearest_site": {
-			Type:     schema.TypeBool,
+			Type:        schema.TypeBool,
 			Description: "Overrides the Entitlements Site according to location of the client and Sites where this feature is enabled.",
-			Optional: true,
+			Optional:    true,
 		},
 		"apply_fallback_site": {
-			Type:     schema.TypeBool,
+			Type:        schema.TypeBool,
 			Description: "The Entitlements in this Policy will be available in the fallback Sites if the corresponding Sites are configured accordingly.",
-			Optional: true,
+			Optional:    true,
 		},
 	}
 }
@@ -300,9 +300,9 @@ func basePolicyClientAttributes() map[string]*schema.Schema {
 						Elem:     &schema.Schema{Type: schema.TypeString},
 					},
 					"force": {
-						Type: schema.TypeBool,
+						Type:     schema.TypeBool,
 						Optional: true,
-						Default: false,
+						Default:  false,
 					},
 				},
 			},
@@ -615,7 +615,7 @@ func readPolicyClientSettingsFromConfig(settings []interface{}) (openapi.PolicyA
 		if v, ok := raw["suspend"].(string); ok && len(v) > 0 {
 			result.SetSuspend(v)
 		}
-		if v, ok := raw["new_user_onboarding"].(string); ok{
+		if v, ok := raw["new_user_onboarding"].(string); ok {
 			result.SetNewUserOnboarding(v)
 		}
 	}

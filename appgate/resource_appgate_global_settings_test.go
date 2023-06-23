@@ -225,7 +225,6 @@ func TestAccGlobalSettings6AndAbove(t *testing.T) {
 	})
 }
 
-
 func TestAccGlobalSettings62AndAbove(t *testing.T) {
 	resourceName := "appgatesdp_global_settings.test_global_settings"
 

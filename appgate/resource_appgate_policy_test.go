@@ -891,7 +891,7 @@ func TestAccPolicyClientProfileSettings62(t *testing.T) {
 }
 
 func testAccCheckPolicyBasic62(context map[string]interface{}) string {
-return Nprintf(`
+	return Nprintf(`
 data "appgatesdp_condition" "always" {
 	condition_name = "Always"
 }

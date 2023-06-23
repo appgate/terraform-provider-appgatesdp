@@ -21,7 +21,7 @@ const (
 	identityProviderSaml            = "Saml"
 	identityProviderLdapCertificate = "LdapCertificate"
 	identityProviderConnector       = "Connector"
-	identityProviderOidc	        = "Oidc"
+	identityProviderOidc            = "Oidc"
 	builtinProviderLocal            = "local"
 	builtinProviderConnector        = "Connector"
 )
@@ -370,13 +370,13 @@ func ldapProviderSchema() map[string]*schema.Schema {
 		Optional: true,
 	}
 	s["object_class"] = &schema.Schema{
-		Type:     schema.TypeString,
+		Type:       schema.TypeString,
 		Deprecated: "Deprecated as of 6.2. Use userFilter instead",
-		Computed: true,
-		Optional: true,
+		Computed:   true,
+		Optional:   true,
 	}
-	s["user_filter"] = &schema.Schema {
-		Type:	schema.TypeString,
+	s["user_filter"] = &schema.Schema{
+		Type:     schema.TypeString,
 		Optional: true,
 	}
 	s["username_attribute"] = &schema.Schema{

@@ -508,8 +508,8 @@ func resourceAppgateSite() *schema.Resource {
 										Sensitive: true,
 									},
 									"org_id": {
-										Type:      schema.TypeString,
-										Required:  true,
+										Type:     schema.TypeString,
+										Required: true,
 									},
 								},
 							},

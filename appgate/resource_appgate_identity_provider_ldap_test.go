@@ -344,7 +344,6 @@ func TestAccLdapIdentityProviderBasic55OrGreater(t *testing.T) {
 	})
 }
 
-
 func testAccCheckLdapIdentityProviderBasic62OrGreater(rName string) string {
 	return fmt.Sprintf(`
 data "appgatesdp_ip_pool" "ip_v4_pool" {

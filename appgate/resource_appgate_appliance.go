@@ -97,7 +97,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Required: true,
 						},
 						"local_hostname": {
-							Type: schema.TypeString,
+							Type:     schema.TypeString,
 							Optional: true,
 						},
 						"https_port": {
@@ -536,9 +536,9 @@ func resourceAppgateAppliance() *schema.Resource {
 
 						"allow_sources": allowSourcesSchema(),
 						"use_https": {
-							Type: schema.TypeBool,
+							Type:     schema.TypeBool,
 							Optional: true,
-							Default: false,
+							Default:  false,
 						},
 						"https_p12": {
 							Type:     schema.TypeList,
@@ -566,9 +566,9 @@ func resourceAppgateAppliance() *schema.Resource {
 							},
 						},
 						"basic_auth": {
-							Type: schema.TypeBool,
+							Type:     schema.TypeBool,
 							Optional: true,
-							Default: false,
+							Default:  false,
 						},
 						"allowed_users": {
 							Type:     schema.TypeList,
@@ -890,20 +890,20 @@ func resourceAppgateAppliance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"app_id": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Required: true,
 									},
 									"app_secret": {
-										Type: schema.TypeString,
-										Optional: true,
+										Type:      schema.TypeString,
+										Optional:  true,
 										Sensitive: true,
 									},
 									"token_request_url": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Required: true,
 									},
 									"log_destination_url": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Required: true,
 									},
 								},
@@ -915,24 +915,24 @@ func resourceAppgateAppliance() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"collector_url": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Required: true,
 									},
 									"token": {
-										Type: schema.TypeString,
-										Optional: true,
+										Type:      schema.TypeString,
+										Optional:  true,
 										Sensitive: true,
 									},
 									"index": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Optional: true,
 									},
 									"source_type": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Optional: true,
 									},
 									"source": {
-										Type: schema.TypeString,
+										Type:     schema.TypeString,
 										Optional: true,
 									},
 								},
@@ -950,16 +950,16 @@ func resourceAppgateAppliance() *schema.Resource {
 			},
 
 			"metrics_aggregator": {
-				Type: schema.TypeList,
+				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
-							Type: schema.TypeBool,
+							Type:     schema.TypeBool,
 							Optional: true,
-							Default: false,
+							Default:  false,
 						},
 						"prometheus_exporter": {
 							Type:     schema.TypeList,
@@ -981,9 +981,9 @@ func resourceAppgateAppliance() *schema.Resource {
 
 									"allow_sources": allowSourcesSchema(),
 									"use_https": {
-										Type: schema.TypeBool,
+										Type:     schema.TypeBool,
 										Optional: true,
-										Default: false,
+										Default:  false,
 									},
 									"https_p12": {
 										Type:     schema.TypeList,
@@ -1011,9 +1011,9 @@ func resourceAppgateAppliance() *schema.Resource {
 										},
 									},
 									"basic_auth": {
-										Type: schema.TypeBool,
+										Type:     schema.TypeBool,
 										Optional: true,
-										Default: false,
+										Default:  false,
 									},
 									"allowed_users": {
 										Type:     schema.TypeList,
@@ -1036,10 +1036,10 @@ func resourceAppgateAppliance() *schema.Resource {
 							},
 						},
 						"sites": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Computed:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -1977,7 +1977,7 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 			return diag.Errorf("Unable to read log fowarder %s", err)
 		}
 	}
-	
+
 	if v, ok := appliance.GetMetricsAggregatorOk(); ok {
 		metricsAggr, err := flattenApplianceMetricsAggregator(*v, currentVersion, d)
 		if err != nil {
@@ -2263,9 +2263,9 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 			azureList := make([]map[string]interface{}, 0)
 			for index, azure := range v {
 				s := map[string]interface{}{
-					"app_id": azure.GetAppId(),
-					"app_secret": azure.GetAppSecret(),
-					"token_request_url": azure.GetTokenRequestUrl(),
+					"app_id":              azure.GetAppId(),
+					"app_secret":          azure.GetAppSecret(),
+					"token_request_url":   azure.GetTokenRequestUrl(),
 					"log_destination_url": azure.GetLogDestinationUrl(),
 				}
 				if state := d.Get(fmt.Sprintf("log_forwarder.0.azure_monitor.%d.app_secret", index)).(string); len(state) > 0 {
@@ -2280,10 +2280,10 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 			for index, falcon := range v {
 				s := map[string]interface{}{
 					"collector_url": falcon.GetCollectorUrl(),
-					"token": falcon.GetToken(),
-					"index": falcon.GetIndex(),
-					"source": falcon.GetSource(),
-					"source_type": falcon.GetSourceType(),
+					"token":         falcon.GetToken(),
+					"index":         falcon.GetIndex(),
+					"source":        falcon.GetSource(),
+					"source_type":   falcon.GetSourceType(),
 				}
 				if state := d.Get(fmt.Sprintf("log_forwarder.0.falcon_log_scale.%d.token", index)).(string); len(state) > 0 {
 					s["token"] = state
@@ -2323,7 +2323,7 @@ func flattenApplianceMetricsAggregator(in openapi.ApplianceAllOfMetricsAggregato
 		metricsAggrList := d.Get("metrics_aggregator").([]interface{})
 		for _, m := range metricsAggrList {
 			// OMG!!! This type conversion
-			for _, l := range  m.(map[string]interface{})["prometheus_exporter"].([]interface{}) {
+			for _, l := range m.(map[string]interface{})["prometheus_exporter"].([]interface{}) {
 				localPrometheusExporter = l.(map[string]interface{})
 			}
 		}
@@ -3188,7 +3188,7 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 				if v, ok := raw["weight"]; ok {
 					vpn.SetWeight(int32(v.(int)))
 				}
-				if v, ok := raw["local_weight"]; ok  {
+				if v, ok := raw["local_weight"]; ok {
 					vpn.SetLocalWeight(int32(v.(int)))
 				}
 				if v := raw["allow_destinations"]; len(v.([]interface{})) > 0 {

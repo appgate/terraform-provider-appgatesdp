@@ -120,10 +120,10 @@ func resourceGlobalSettings() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"registered_device_expiration_days": {
-				Type: schema.TypeInt,
+				Type:        schema.TypeInt,
 				Description: "Number of days registered devices are kept instorage before being deleted",
-				Optional: true,
-				Default: 90,
+				Optional:    true,
+				Default:     90,
 			},
 			"spa_mode": {
 				Type:        schema.TypeString,
