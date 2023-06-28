@@ -121,7 +121,7 @@ func resourceGlobalSettings() *schema.Resource {
 			},
 			"registered_device_expiration_days": {
 				Type:        schema.TypeInt,
-				Description: "Number of days registered devices are kept instorage before being deleted",
+				Description: "Number of days registered devices are kept in storage before being deleted",
 				Optional:    true,
 				Default:     90,
 			},
