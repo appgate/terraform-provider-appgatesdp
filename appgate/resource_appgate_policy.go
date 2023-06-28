@@ -429,7 +429,7 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		if v, ok := d.GetOk("client_profile_settings"); ok {
-			settings, err := readPolicyClientProfileSettingsFromConfig(v.([]interface{}))
+			settings, err := readPolicyClientProfileSettingsFromConfig(currentVersion, v.([]interface{}))
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -553,7 +553,7 @@ func readTrustedNetworkCheckFromConfig(trustedNetworks []interface{}) openapi.Po
 	return result
 }
 
-func readPolicyClientProfileSettingsFromConfig(settings []interface{}) (openapi.PolicyAllOfClientProfileSettings, error) {
+func readPolicyClientProfileSettingsFromConfig(version *version.Version, settings []interface{}) (openapi.PolicyAllOfClientProfileSettings, error) {
 	result := openapi.PolicyAllOfClientProfileSettings{}
 	for _, r := range settings {
 		if r == nil {
@@ -570,10 +570,11 @@ func readPolicyClientProfileSettingsFromConfig(settings []interface{}) (openapi.
 			}
 			result.SetProfiles(profiles)
 		}
-		if v, ok := raw["force"]; ok {
-			result.SetForce(v.(bool))
+		if version.GreaterThanOrEqual(Appliance62Version) {
+			if v, ok := raw["force"]; ok {
+				result.SetForce(v.(bool))
+			}
 		}
-
 	}
 	return result, nil
 }
@@ -615,7 +616,7 @@ func readPolicyClientSettingsFromConfig(settings []interface{}) (openapi.PolicyA
 		if v, ok := raw["suspend"].(string); ok && len(v) > 0 {
 			result.SetSuspend(v)
 		}
-		if v, ok := raw["new_user_onboarding"].(string); ok {
+		if v, ok := raw["new_user_onboarding"].(string); ok && len(v) > 0 {
 			result.SetNewUserOnboarding(v)
 		}
 	}
@@ -1010,7 +1011,7 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		if d.HasChange("client_profile_settings") {
 			_, v := d.GetChange("client_profile_settings")
-			clientProfileSettings, err := readPolicyClientProfileSettingsFromConfig(v.([]interface{}))
+			clientProfileSettings, err := readPolicyClientProfileSettingsFromConfig(currentVersion, v.([]interface{}))
 			if err != nil {
 				return diag.FromErr(err)
 			}

@@ -1224,7 +1224,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 		}
 		if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 			if v, ok := raw["illumio_resolvers"]; ok {
-				resolvers, err := readIllumioResolversFromConfig(v.(*schema.Set).List())
+				resolvers, err := readIllumioResolversFromConfig(currentVersion, v.(*schema.Set).List())
 				if err != nil {
 					return result, err
 				}
@@ -1474,7 +1474,7 @@ func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsFo
 	return result, nil
 }
 
-func readIllumioResolversFromConfig(resolvers []interface{}) ([]openapi.SiteAllOfNameResolutionIllumioResolvers, error) {
+func readIllumioResolversFromConfig(currentVersion *version.Version, resolvers []interface{}) ([]openapi.SiteAllOfNameResolutionIllumioResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionIllumioResolvers, 0)
 	for _, illumio := range resolvers {
 		raw := illumio.(map[string]interface{})
