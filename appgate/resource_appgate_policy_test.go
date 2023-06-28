@@ -809,25 +809,25 @@ resource "appgatesdp_client_profile" "portal" {
 	identity_provider_name = "local"
 }
 resource "appgatesdp_policy" "dns_policy_with_dns_settings" {
-		name = "%{name}_policy"
-		type = "Device"
-		tags = [
-			"terraform",
-			"api-created"
-		]
-		tamper_proofing = false
-		disabled        = false
-		expression = <<-EOF
-		  var result = false;
-		  return result;
-
-		custom_client_help_url = "https://help.appgate.com"
-		client_profile_settings {
-			enabled = true
-			profiles = [
-			appgatesdp_client_profile.portal.id
-		  ]
-		}
+	name = "%{name}_policy"
+	type = "Device"
+	tags = [
+		"terraform",
+		"api-created"
+	]
+	tamper_proofing = false
+	disabled        = false
+	expression = <<-EOF
+	  var result = false;
+	  return result;
+	EOF
+	custom_client_help_url = "https://help.appgate.com"
+	client_profile_settings {
+		enabled = true
+		profiles = [
+		appgatesdp_client_profile.portal.id
+	  ]
+	}
 }
 `, context)
 }
