@@ -1106,7 +1106,7 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 			result.SetSnat(v.(bool))
 		}
 		if v, ok := raw["tls"]; ok {
-			tls := openapi.NewSiteAllOfVpnTlsWithDefaults()
+			tls := openapi.SiteAllOfVpnTls{}
 			rawTLS := v.(*schema.Set).List()
 			for _, d := range rawTLS {
 				raw := d.(map[string]interface{})
@@ -1114,7 +1114,7 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 					tls.SetEnabled(v.(bool))
 				}
 			}
-			result.SetTls(*tls)
+			result.SetTls(tls)
 		}
 
 		if v, ok := raw["dtls"]; ok {
