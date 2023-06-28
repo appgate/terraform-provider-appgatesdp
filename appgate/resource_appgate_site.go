@@ -1497,8 +1497,10 @@ func readIllumioResolversFromConfig(resolvers []interface{}) ([]openapi.SiteAllO
 		if v, ok := raw["password"]; ok {
 			row.SetPassword(v.(string))
 		}
-		if v, ok := raw["org_id"]; ok {
-			row.SetOrgId(v.(string))
+		if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+			if v, ok := raw["org_id"]; ok {
+				row.SetOrgId(v.(string))
+			}
 		}
 		result = append(result, row)
 	}

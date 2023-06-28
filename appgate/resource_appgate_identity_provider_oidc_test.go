@@ -19,7 +19,7 @@ func TestAccOidcIdentityProviderBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					applianceTestForFiveFiveOrHigher(t)
+					testFor62AndAbove(t)
 				},
 				Config: testAccCheckOidcIdentityProviderBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
