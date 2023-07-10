@@ -2003,7 +2003,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					applianceConstraintCheck(t, ">= 5.5, < 6.2")
+					applianceConstraintCheck(t, ">= 6.1, < 6.2")
 				},
 				Config: testAccSiteNameResolverIllumio(rName),
 				Check: resource.ComposeTestCheckFunc(
