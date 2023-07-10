@@ -1959,7 +1959,7 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if v, ok := appliance.GetGatewayOk(); ok {
-		gateway, err := flatttenApplianceGateway(*v)
+		gateway, err := flatttenApplianceGateway(*v, currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2117,7 +2117,7 @@ func flattenAppliancePortalSignInCustomziation(d *schema.ResourceData, local map
 	return result, nil
 }
 
-func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]interface{}, error) {
+func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway, currentVersion *version.Version) ([]map[string]interface{}, error) {
 	var gateways []map[string]interface{}
 	gateway := make(map[string]interface{})
 	if v, ok := in.GetEnabledOk(); ok {
@@ -2129,8 +2129,11 @@ func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway) ([]map[string]in
 		if v, ok := v.GetWeightOk(); ok {
 			vpn["weight"] = *v
 		}
-		if v, ok := v.GetLocalWeightOk(); ok {
-			vpn["local_weight"] = *v
+
+		if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+			if v, ok := v.GetLocalWeightOk(); ok {
+				vpn["local_weight"] = *v
+			}
 		}
 		if v, ok := v.GetAllowDestinationsOk(); ok {
 			destinations := make([]map[string]interface{}, 0)
@@ -3188,8 +3191,8 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 				if v, ok := raw["weight"]; ok {
 					vpn.SetWeight(int32(v.(int)))
 				}
-				if v, ok := raw["local_weight"]; ok {
-					vpn.SetLocalWeight(int32(v.(int)))
+				if v, ok := raw["local_weight"].(int); ok && v > 0 {
+					vpn.SetLocalWeight(int32(v))
 				}
 				if v := raw["allow_destinations"]; len(v.([]interface{})) > 0 {
 					rawAllowedDestinations := v.([]interface{})
