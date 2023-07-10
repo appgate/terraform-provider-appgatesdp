@@ -509,7 +509,7 @@ func resourceAppgateSite() *schema.Resource {
 									},
 									"org_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 								},
 							},
