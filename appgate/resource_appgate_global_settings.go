@@ -123,7 +123,6 @@ func resourceGlobalSettings() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "Number of days registered devices are kept in storage before being deleted",
 				Optional:    true,
-				Default:     90,
 			},
 			"spa_mode": {
 				Type:        schema.TypeString,
