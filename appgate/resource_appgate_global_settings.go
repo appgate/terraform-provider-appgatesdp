@@ -214,7 +214,6 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 
 	d.Set("collective_name", settings.GetCollectiveName())
 	d.Set("spa_time_window_seconds", settings.GetSpaTimeWindowSeconds())
-	d.Set("registered_device_expiration_days", settings.GetRegisteredDeviceExpirationDays())
 	d.Set("spa_mode", settings.GetSpaMode())
 
 	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
@@ -226,7 +225,9 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 			return diag.FromErr(fmt.Errorf("Failed to read Client Connections, %w", err))
 		}
 		d.Set("profile_hostname", clientConnections.GetProfileHostname())
-
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+		d.Set("registered_device_expiration_days", settings.GetRegisteredDeviceExpirationDays())
 	}
 	return diags
 }

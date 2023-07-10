@@ -98,12 +98,7 @@ func TestAccGlobalSettings54ProfileHostname(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					c := testAccProvider.Meta().(*Client)
-					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					if currentVersion.LessThan(Appliance54Version) {
-						t.Skipf("Test only for 5.4 and above, client_connections profile_hostname is not supported prior to 5.4, you are using %s", currentVersion.String())
-					}
+					applianceConstraintCheck(t, ">= 5.4, < 6.2")
 				},
 				Config: testAccGlobalSettingsProfileHostname(),
 				Check: resource.ComposeTestCheckFunc(
