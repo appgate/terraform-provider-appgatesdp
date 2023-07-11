@@ -538,7 +538,6 @@ func resourceAppgateAppliance() *schema.Resource {
 						"use_https": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  false,
 						},
 						"https_p12": {
 							Type:     schema.TypeList,
@@ -982,7 +981,6 @@ func resourceAppgateAppliance() *schema.Resource {
 									"use_https": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Default:  false,
 									},
 									"https_p12": {
 										Type:     schema.TypeList,
@@ -3240,9 +3238,6 @@ func readPrometheusExporterFromConfig(exporters []interface{}, currentVersion *v
 			}
 			val.SetAllowSources(allowSources)
 		}
-		if v, ok := rawServer["use_https"]; ok {
-			val.SetUseHTTPS(v.(bool))
-		}
 		if v, ok := rawServer["https_p12"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
 			p12, err := readP12(v[0])
 			if err != nil {
@@ -3260,6 +3255,9 @@ func readPrometheusExporterFromConfig(exporters []interface{}, currentVersion *v
 		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
 			if v, ok := rawServer["basic_auth"]; ok {
 				val.SetBasicAuth(v.(bool))
+			}
+			if v, ok := rawServer["use_https"]; ok {
+				val.SetUseHTTPS(v.(bool))
 			}
 		}
 	}
