@@ -1409,7 +1409,7 @@ the root of Appliance when this interface is removed.`,
 	}
 
 	if n, ok := d.GetOk("prometheus_exporter"); ok {
-		exporter, err := readPrometheusExporterFromConfig(n.([]interface{}))
+		exporter, err := readPrometheusExporterFromConfig(n.([]interface{}), currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2755,7 +2755,7 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("prometheus_exporter") {
 		_, v := d.GetChange("prometheus_exporter")
-		exporter, err := readPrometheusExporterFromConfig(v.([]interface{}))
+		exporter, err := readPrometheusExporterFromConfig(v.([]interface{}), currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -3220,7 +3220,7 @@ func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGatewa
 	return val, nil
 }
 
-func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.PrometheusExporter, error) {
+func readPrometheusExporterFromConfig(exporters []interface{}, currentVersion *version.Version) (openapi.PrometheusExporter, error) {
 	val := openapi.PrometheusExporter{}
 	for _, srv := range exporters {
 		if srv == nil {
@@ -3250,15 +3250,17 @@ func readPrometheusExporterFromConfig(exporters []interface{}) (openapi.Promethe
 			}
 			val.SetHttpsP12(p12)
 		}
-		if v, ok := rawServer["basic_auth"]; ok {
-			val.SetBasicAuth(v.(bool))
-		}
 		if v, ok := rawServer["allowed_users"].([]interface{}); ok && len(v) > 0 {
 			allowedUsers, err := readAllowedUsers(v)
 			if err != nil {
 				return val, err
 			}
 			val.SetAllowedUsers(allowedUsers)
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+			if v, ok := rawServer["basic_auth"]; ok {
+				val.SetBasicAuth(v.(bool))
+			}
 		}
 	}
 	return val, nil
@@ -3511,7 +3513,7 @@ func readApplianceMetricsAggregatorFromConfig(metricAggrs []interface{}, current
 		}
 
 		if v, ok := raw["prometheus_exporter"]; ok {
-			exporter, err := readPrometheusExporterFromConfig(v.([]interface{}))
+			exporter, err := readPrometheusExporterFromConfig(v.([]interface{}), currentVersion)
 			if err != nil {
 				return val, err
 			}
