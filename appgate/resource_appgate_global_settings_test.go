@@ -142,7 +142,7 @@ func TestAccGlobalSettings6AndAbove(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					applianceConstraintCheck(t, ">= 5.5, < 6.2")
+					applianceConstraintCheck(t, ">= 6.0, < 6.2")
 				},
 				Config: `
 				resource "appgatesdp_global_settings" "test_global_settings" {
