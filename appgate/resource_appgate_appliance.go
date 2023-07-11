@@ -568,7 +568,6 @@ func resourceAppgateAppliance() *schema.Resource {
 						"basic_auth": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  false,
 						},
 						"allowed_users": {
 							Type:     schema.TypeList,
@@ -1013,7 +1012,6 @@ func resourceAppgateAppliance() *schema.Resource {
 									"basic_auth": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Default:  false,
 									},
 									"allowed_users": {
 										Type:     schema.TypeList,
