@@ -19,12 +19,7 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					c := testAccProvider.Meta().(*Client)
-					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-						t.Skip("Test only for 5.4 and below, on_boarding_two_factor.0.device_limit_per_user updated behaviour in > 5.5")
-					}
+					applianceTestForFiveFiveOrHigher(t)
 				},
 				Config: testAccCheckLdapIdentityProviderBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -81,7 +76,6 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "object_class", "user"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "6"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.message", "welcome"),
 					resource.TestCheckResourceAttrSet(resourceName, "on_boarding_two_factor.0.mfa_provider_id"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "1"),
@@ -160,7 +154,6 @@ resource "appgatesdp_ldap_identity_provider" "ldap_test_resource" {
   block_local_dns_requests = true
   on_boarding_two_factor {
     mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
-    device_limit_per_user = 6
     message               = "welcome"
   }
   tags = [

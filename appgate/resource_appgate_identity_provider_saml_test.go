@@ -19,12 +19,7 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					c := testAccProvider.Meta().(*Client)
-					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-						t.Skip("Test only for 5.4 and below, on_boarding_two_factor.0.device_limit_per_user updated behaviour in > 5.5")
-					}
+					applianceTestForFiveFiveOrHigher(t)
 				},
 				Config: testAccCheckSamlIdentityProviderBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -48,7 +43,6 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "true"),
 					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "0"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "6"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.message", "welcome"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.mfa_provider_id", "3ae98d53-c520-437f-99e4-451f936e6d2c"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
@@ -126,7 +120,6 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "false"),
 					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "5"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "4"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.message", "change"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.mfa_provider_id", "3ae98d53-c520-437f-99e4-451f936e6d2c"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
@@ -220,7 +213,6 @@ func TestAccSamlIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "false"),
 					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "5"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "4"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.message", "change"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.mfa_provider_id", "3ae98d53-c520-437f-99e4-451f936e6d2c"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
@@ -337,7 +329,6 @@ func testAccCheckSamlIdentityProviderBasic(rName string) string {
 	block_local_dns_requests = true
 	on_boarding_two_factor {
 		mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
-		device_limit_per_user = 6
 		message               = "welcome"
 	}
 	tags = [
@@ -448,7 +439,6 @@ func testAccCheckSamlIdentityProviderUpdates(rName string) string {
 
 	on_boarding_two_factor {
 		mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
-		device_limit_per_user = 4
 		message               = "change"
 	}
 	tags = [
@@ -576,7 +566,6 @@ func testAccCheckSamlIdentityProviderClaimMoveAndDelete(rName string) string {
     inactivity_timeout_minutes = 5
     on_boarding_two_factor {
       mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
-      device_limit_per_user = 4
       message               = "change"
     }
 
@@ -681,7 +670,6 @@ func testAccCheckSamlIdentityProviderClaimMoves(rName string) string {
     inactivity_timeout_minutes = 5
     on_boarding_two_factor {
       mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
-      device_limit_per_user = 4
       message               = "change"
     }
 	claim_mappings {
