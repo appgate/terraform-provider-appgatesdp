@@ -488,6 +488,7 @@ Gateway settings.
 #### vpn
 VPN configuration.
 * `weight`: (Optional) Load balancing weight.
+* `local_weight`: (Optional) Load balacning weight that would take effect with Local Site Detection feature.
 * `allow_destinations`: (Optional) Destinations to allow tunnels to.
 ### log_forwarder
 LogForwarder settings. LogForwarder collects audit logs from the appliances in the given sites and sends them to the given endpoints.
@@ -550,6 +551,15 @@ Metrics Aggregator settings.
 * `enabled`: (Optional) Default boolean value `false`. Enable metrics aggregator on this appliance.
 * `prometheus_exporter`: (Optional) Prometheus exporter configuration
 * `sites`: (Optional) UUIDs of a site
+
+### prometheus exporter
+Prometheus Exporter settings
+* `enabled`: (Optional) Whether the Prometheus Exporter is enabled on this appliance or not.
+* `port`: (Optional) Port to connect for Prometheus Exporter
+* `allow_sources`: (Optional) Source configuration to allow via iptables.
+* `use_https` (Optional) Whether to use HTTP or HTTPS for the exporter.
+* `basic_auth` (Optional) Enable basic auth for Prometheus Exporter
+* `allowed_users`: (Optional) Array of basic_auth users
 
 ### connector
 Connector settings.

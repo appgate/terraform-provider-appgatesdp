@@ -97,6 +97,7 @@ Settings that admins can apply to the Client.
 * `quit`:  (Optional)  Enum values: `Show,Hide`Show or hide "Quit" on Client UI.
 * `sign_out`:  (Optional)  Enum values: `Show,Hide`Show or hide "Sign out" on Client UI.
 * `suspend`:  (Optional)  Enum values: `Show,Hide`Show or hide "Suspend" feature on Client UI.
+* `new_user_onboarding`: (Optional) Enum values: `Show,Hide`Show or hide the tooltips for new users on Client UI.
 
 
 

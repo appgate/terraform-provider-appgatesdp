@@ -179,6 +179,7 @@ Resolvers to resolve names by querying Appgate Illumio Resolver.
 * `port`: (Required) Port number of the Illumio Resolver.
 * `username`: (Required) Username with access to the Illumio Resolver.
 * `password`: (Optional) Password for the username.
+* `org_id`: (Optional) Organization ID of the Illumio Resolver
 
 ### tags
 Array of tags.
