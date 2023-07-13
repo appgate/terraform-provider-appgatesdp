@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -507,6 +507,10 @@ func resourceAppgateSite() *schema.Resource {
 										Required:  true,
 										Sensitive: true,
 									},
+									"org_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -789,6 +793,7 @@ func flattenSiteIllumioResolvers(in []openapi.SiteAllOfNameResolutionIllumioReso
 		m["hostname"] = v.GetHostname()
 		m["port"] = v.GetPort()
 		m["username"] = v.GetUsername()
+		m["org_id"] = v.GetOrgId()
 		if val, ok := local["password"]; ok {
 			m["password"] = val
 		} else {
@@ -1101,7 +1106,7 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 			result.SetSnat(v.(bool))
 		}
 		if v, ok := raw["tls"]; ok {
-			tls := openapi.NewSiteAllOfVpnTlsWithDefaults()
+			tls := openapi.SiteAllOfVpnTls{}
 			rawTLS := v.(*schema.Set).List()
 			for _, d := range rawTLS {
 				raw := d.(map[string]interface{})
@@ -1109,7 +1114,7 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 					tls.SetEnabled(v.(bool))
 				}
 			}
-			result.SetTls(*tls)
+			result.SetTls(tls)
 		}
 
 		if v, ok := raw["dtls"]; ok {
@@ -1219,7 +1224,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 		}
 		if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 			if v, ok := raw["illumio_resolvers"]; ok {
-				resolvers, err := readIllumioResolversFromConfig(v.(*schema.Set).List())
+				resolvers, err := readIllumioResolversFromConfig(currentVersion, v.(*schema.Set).List())
 				if err != nil {
 					return result, err
 				}
@@ -1469,7 +1474,7 @@ func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsFo
 	return result, nil
 }
 
-func readIllumioResolversFromConfig(resolvers []interface{}) ([]openapi.SiteAllOfNameResolutionIllumioResolvers, error) {
+func readIllumioResolversFromConfig(currentVersion *version.Version, resolvers []interface{}) ([]openapi.SiteAllOfNameResolutionIllumioResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionIllumioResolvers, 0)
 	for _, illumio := range resolvers {
 		raw := illumio.(map[string]interface{})
@@ -1491,6 +1496,11 @@ func readIllumioResolversFromConfig(resolvers []interface{}) ([]openapi.SiteAllO
 		}
 		if v, ok := raw["password"]; ok {
 			row.SetPassword(v.(string))
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+			if v, ok := raw["org_id"]; ok {
+				row.SetOrgId(v.(string))
+			}
 		}
 		result = append(result, row)
 	}

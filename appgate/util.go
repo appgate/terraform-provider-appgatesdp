@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 	"github.com/cenkalti/backoff/v4"
 
@@ -188,6 +188,42 @@ func readAllowSources(in []interface{}) ([]openapi.AllowSourcesInner, error) {
 	}
 
 	return r, nil
+}
+
+func readAllowedUsers(in []interface{}) ([]openapi.PrometheusExporterAllowedUsersInner, error) {
+	r := make([]openapi.PrometheusExporterAllowedUsersInner, 0)
+	as, err := listToMapList(in)
+	if err != nil {
+		return r, err
+	}
+	for _, source := range as {
+		row := openapi.NewPrometheusExporterAllowedUsersInner()
+		if v, ok := source["username"].(string); ok {
+			row.SetUsername(v)
+		}
+		if v, ok := source["password"].(string); ok {
+			row.SetPassword(v)
+		}
+		r = append(r, *row)
+	}
+	return r, nil
+}
+
+func readP12(in interface{}) (openapi.P12, error) {
+	p12 := openapi.P12{}
+	raw := in.(map[string]interface{})
+	p12.SetId(uuid.New().String())
+	if v, ok := raw["content"]; ok {
+		content, err := appliancePortalReadp12Content(v.(string))
+		if err != nil {
+			return p12, fmt.Errorf("unable to read https_p12 file content %w", err)
+		}
+		p12.SetContent(content)
+	}
+	if v, ok := raw["password"]; ok {
+		p12.SetPassword(v.(string))
+	}
+	return p12, nil
 }
 
 func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {

@@ -43,6 +43,7 @@ var (
 		Version16: "5.5.0",
 		Version17: "6.0.0",
 		Version18: "6.1.0",
+		Version19: "6.2.0",
 	}
 
 	Appliance53Version, _ = version.NewVersion(ApplianceVersionMap[Version14])
@@ -50,6 +51,7 @@ var (
 	Appliance55Version, _ = version.NewVersion(ApplianceVersionMap[Version16])
 	Appliance60Version, _ = version.NewVersion(ApplianceVersionMap[Version17])
 	Appliance61Version, _ = version.NewVersion(ApplianceVersionMap[Version18])
+	Appliance62Version, _ = version.NewVersion(ApplianceVersionMap[Version19])
 )
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
@@ -193,6 +195,7 @@ func Provider() *schema.Provider {
 			"appgatesdp_client_connections":                 resourceClientConnections(),
 			"appgatesdp_blacklist_user":                     resourceAppgateBlacklistUser(),
 			"appgatesdp_radius_identity_provider":           resourceAppgateRadiusProvider(),
+			"appgatesdp_oidc_identity_provider":             resourceAppgateOidcProvider(),
 			"appgatesdp_saml_identity_provider":             resourceAppgateSamlProvider(),
 			"appgatesdp_local_database_identity_provider":   resourceAppgateLocalDatabaseProvider(),
 			"appgatesdp_ldap_certificate_identity_provider": resourceAppgateLdapCertificateProvider(),

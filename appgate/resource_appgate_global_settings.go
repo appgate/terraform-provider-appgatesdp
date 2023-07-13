@@ -119,6 +119,11 @@ func resourceGlobalSettings() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"registered_device_expiration_days": {
+				Type:        schema.TypeInt,
+				Description: "Number of days registered devices are kept in storage before being deleted",
+				Optional:    true,
+			},
 			"spa_mode": {
 				Type:        schema.TypeString,
 				Description: "SPA Mode.",
@@ -220,7 +225,9 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 			return diag.FromErr(fmt.Errorf("Failed to read Client Connections, %w", err))
 		}
 		d.Set("profile_hostname", clientConnections.GetProfileHostname())
-
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+		d.Set("registered_device_expiration_days", settings.GetRegisteredDeviceExpirationDays())
 	}
 	return diags
 }
@@ -280,6 +287,13 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 			return diag.FromErr(err)
 		}
 		originalsettings.SetAppDiscoveryDomains(domains)
+	}
+	if d.HasChange("registered_device_expiration_days") {
+		if currentVersion.LessThan(Appliance62Version) {
+			return diag.Errorf("registered_device_expiration_days is not supported on %s", currentVersion.String())
+		} else if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+			originalsettings.SetRegisteredDeviceExpirationDays(float32(d.Get("registered_device_expiration_days").(int)))
+		}
 	}
 	if d.HasChange("spa_mode") {
 		if currentVersion.LessThan(Appliance55Version) {

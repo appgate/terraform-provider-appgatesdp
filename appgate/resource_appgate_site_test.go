@@ -2003,7 +2003,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor61AndAbove(t)
+					applianceConstraintCheck(t, ">= 6.1, < 6.2")
 				},
 				Config: testAccSiteNameResolverIllumio(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -2025,7 +2025,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.hostname", "illumio.acme.com"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.name", "Illumio Resolver 1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.password", "adminadmin"),
@@ -2077,7 +2077,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.hostname", "illumio.acme.com"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.name", "Illumio Resolver 99"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.password", "adminadmin"),
@@ -2228,6 +2228,230 @@ resource "appgatesdp_site" "illumio_site" {
 	  excluded_subnets = []
 	}
 	name_resolution {
+	}
+}`, rName)
+}
+
+func TestAccSiteNameResolverIllumio62(t *testing.T) {
+	resourceName := "appgatesdp_site.illumio_site"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSiteDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor62AndAbove(t)
+				},
+				Config: testAccSiteNameResolverIllumio62(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.hostname", "illumio.acme.com"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.name", "Illumio Resolver 1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.password", "adminadmin"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.port", "65530"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.update_interval", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.username", "admin"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.org_id", "org12345"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+			{
+				Config: testAccSiteNameResolverIllumioUpdated62(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.hostname", "illumio.acme.com"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.name", "Illumio Resolver 99"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.password", "adminadmin"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.port", "1337"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.update_interval", "50"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.username", "acme"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.org_id", "org12345"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+			{
+				Config: testAccSiteNameResolverIllumioRemoved(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:     resourceName,
+				ImportState:      true,
+				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
+			},
+		},
+	})
+}
+
+func testAccSiteNameResolverIllumio62(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_site" "illumio_site" {
+	name                      = "%s"
+	short_name                = "ts0"
+	entitlement_based_routing = false
+	network_subnets = [
+	  "10.0.0.0/16"
+	]
+	default_gateway {
+	  enabled_v4       = false
+	  enabled_v6       = false
+	  excluded_subnets = []
+	}
+	name_resolution {
+	  illumio_resolvers {
+		name     = "Illumio Resolver 1"
+		hostname = "illumio.acme.com"
+		update_interval = 5
+		port     = 65530
+		username = "admin"
+		password = "adminadmin"
+		org_id = "org12345"
+	  }
+	}
+}`, rName)
+}
+
+func testAccSiteNameResolverIllumioUpdated62(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_site" "illumio_site" {
+	name                      = "%s"
+	short_name                = "ts0"
+	entitlement_based_routing = false
+	network_subnets = [
+	  "10.0.0.0/16"
+	]
+	default_gateway {
+	  enabled_v4       = false
+	  enabled_v6       = false
+	  excluded_subnets = []
+	}
+	name_resolution {
+	  illumio_resolvers {
+		name     = "Illumio Resolver 99"
+		hostname = "illumio.acme.com"
+		update_interval = 50
+		port     = 1337
+		username = "acme"
+		password = "adminadmin"
+		org_id = "org12345"
+	  }
 	}
 }`, rName)
 }

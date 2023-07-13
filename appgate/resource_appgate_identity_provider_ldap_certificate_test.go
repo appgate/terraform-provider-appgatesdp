@@ -19,12 +19,7 @@ func TestAccLdapCertificateIdentityProvidervBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					c := testAccProvider.Meta().(*Client)
-					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-						t.Skip("Test only for 5.4 and below, on_boarding_two_factor.0.device_limit_per_user updated behaviour in > 5.5")
-					}
+					applianceTestForFiveFiveOrHigher(t)
 				},
 				Config: testAccCheckLdapCertificateIdentityProvidervBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -87,7 +82,6 @@ func TestAccLdapCertificateIdentityProvidervBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.always_required", "false"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.claim_suffix", "onBoarding"),
-					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.device_limit_per_user", "6"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.message", "welcome"),
 					resource.TestCheckResourceAttr(resourceName, "on_boarding_two_factor.0.mfa_provider_id", "3ae98d53-c520-437f-99e4-451f936e6d2c"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.#", "1"),
@@ -158,7 +152,6 @@ resource "appgatesdp_ldap_certificate_identity_provider" "ldap_cert_test_resourc
   block_local_dns_requests = true
   on_boarding_two_factor {
     mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
-    device_limit_per_user = 6
     message               = "welcome"
   }
   certificate_user_attribute = "blabla"

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -129,6 +129,9 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 	if v, ok := d.GetOk("object_class"); ok {
 		args.SetObjectClass(v.(string))
 	}
+	if v, ok := d.GetOk("user_filter"); ok {
+		args.SetUserFilter(v.(string))
+	}
 	if v, ok := d.GetOk("username_attribute"); ok {
 		args.SetUsernameAttribute(v.(string))
 	}
@@ -223,6 +226,7 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("object_class", ldap.GetObjectClass())
+	d.Set("user_filter", ldap.GetUserFilter())
 	d.Set("username_attribute", ldap.GetUsernameAttribute())
 	d.Set("membership_filter", ldap.GetMembershipFilter())
 	if v, ok := ldap.GetMembershipBaseDnOk(); ok {
@@ -380,6 +384,9 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 	if d.HasChange("object_class") {
 		originalLdapProvider.SetObjectClass(d.Get("object_class").(string))
+	}
+	if d.HasChange("user_filter") {
+		originalLdapProvider.SetUserFilter(d.Get("user_filter").(string))
 	}
 	if d.HasChange("username_attribute") {
 		originalLdapProvider.SetUsernameAttribute(d.Get("username_attribute").(string))

@@ -47,6 +47,10 @@ var testFor61AndAbove = func(t *testing.T) {
 	applianceConstraintCheck(t, ">= 6.1")
 }
 
+var testFor62AndAbove = func(t *testing.T) {
+	applianceConstraintCheck(t, ">= 6.2")
+}
+
 func TestAccApplianceBasicController(t *testing.T) {
 	resourceName := "appgatesdp_appliance.test_controller"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
@@ -2247,7 +2251,7 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.8"),
@@ -2437,7 +2441,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					c := testAccProvider.Meta().(*Client)
 					c.GetToken()
 					currentVersion := c.ApplianceVersion
-					constraints, err := version.NewConstraint(">= 6.0")
+					constraints, err := version.NewConstraint(">= 6.0, < 6.2")
 					if err != nil {
 						t.Fatalf("could not parse version constraint %s", err)
 						return
@@ -2452,7 +2456,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.8"),
@@ -2545,7 +2549,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.8"),
@@ -3043,7 +3047,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_ciphers.1", "ECDHE-RSA-AES128-GCM-SHA256"),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.https_port", "443"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.8"),
@@ -3068,7 +3072,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
@@ -3134,7 +3138,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "5556"),
@@ -3170,7 +3174,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "1.3.3.8"),
@@ -3195,7 +3199,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
@@ -3258,7 +3262,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "5556"),
@@ -3429,7 +3433,7 @@ func TestAccApplianceLogForwarderElastic55(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "127.0.0.1"),
@@ -3454,7 +3458,7 @@ func TestAccApplianceLogForwarderElastic55(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
@@ -3603,7 +3607,7 @@ func TestAccApplianceLogForwarderElastic55(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "portal.0.profiles.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.proxy_p12s.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "127.0.0.1"),
@@ -3863,13 +3867,13 @@ func TestAccApplianceLogForwarderSplunkSumo61(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor61AndAbove(t)
+					applianceConstraintCheck(t, ">= 6.1, < 6.2")
 				},
 				Config: testAccCheckApplianceLogforwarderSplunkSumo(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "443"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
@@ -3890,7 +3894,7 @@ func TestAccApplianceLogForwarderSplunkSumo61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
@@ -3997,7 +4001,7 @@ func TestAccApplianceLogForwarderSplunkSumo61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text", ""),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text_color", ""),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "5556"),
@@ -4124,13 +4128,13 @@ func TestAccApplianceLogForwarderTcpClients(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor61AndAbove(t)
+					applianceConstraintCheck(t, ">= 6.1, < 6.2")
 				},
 				Config: testAccCheckApplianceLogforwarderTCPClients(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "127.0.0.1"),
@@ -4155,7 +4159,7 @@ func TestAccApplianceLogForwarderTcpClients(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
 					resource.TestCheckResourceAttr(resourceName, "healthcheck_server.#", "1"),
@@ -4166,7 +4170,7 @@ func TestAccApplianceLogForwarderTcpClients(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.%", "9"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.aws_kineses.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.elasticsearch.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.enabled", "true"),
@@ -4284,7 +4288,7 @@ func TestAccApplianceLogForwarderTcpClients(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text", ""),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text_color", ""),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "5556"),
@@ -4436,14 +4440,14 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor6AndAbove(t)
+					applianceConstraintCheck(t, ">= 6.0, < 6.2")
 				},
 				Config: testAccApplianceGatewayVPN(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "0.0.0.0"),
@@ -4472,7 +4476,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", ""),
@@ -4488,7 +4492,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.0", "y.com"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.%", "9"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.aws_kineses.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.elasticsearch.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.enabled", "false"),
@@ -4567,7 +4571,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text", ""),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text_color", ""),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "5556"),
@@ -4610,7 +4614,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "0.0.0.0"),
@@ -4639,7 +4643,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", "192.168.111.0"),
@@ -4655,7 +4659,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "hostname_aliases.0", "y.com"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.%", "9"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.aws_kineses.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.elasticsearch.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.enabled", "false"),
@@ -4734,7 +4738,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text", ""),
 					resource.TestCheckResourceAttr(resourceName, "portal.0.sign_in_customization.0.text_color", ""),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "5556"),
@@ -4818,16 +4822,16 @@ resource "appgatesdp_appliance" "gateway" {
 	site  = data.appgatesdp_site.default_site.id
 	networking {
 		nics {
-		enabled = true
-		name    = "eth0"
-		ipv4 {
-			dhcp {
 			enabled = true
-			dns     = true
-			routers = true
-			ntp     = true
+			name    = "eth0"
+			ipv4 {
+				dhcp {
+					enabled = true
+					dns     = true
+					routers = true
+					ntp     = true
+				}
 			}
-		}
 		}
 	}
 	ssh_server {
@@ -4935,6 +4939,440 @@ resource "appgatesdp_appliance" "gateway" {
 				netmask = 24
 			}
 		}
+	}
+}
+
+`, context)
+}
+
+func TestAccAppliance62MetricsAggregator(t *testing.T) {
+	resourceName := "appgatesdp_appliance.appliancev62_metrics_aggregator"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckApplianceDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor62AndAbove(t)
+				},
+				Config: testAccAppliance62MetricsAggregator(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
+
+					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", ""),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.address", "::"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.nic", ""),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.local_hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "Disabled"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.virtual_ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.virtual_ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.mtu", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.sites.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.sites.0", "8a4add9e-0e99-4bb1-949c-c9faf9a49ad4"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allow_sources.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allow_sources.0.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.port", "1234"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.https_p12.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.https_p12.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.https_p12.0.content", "test-fixtures/test_devops.crt"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.https_p12.0.subject_name", "CN=test.devops"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.basic_auth", "true"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allowed_users.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allowed_users.0.username", "foo"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allowed_users.0.password", "foo123"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allowed_users.1.username", "boo"),
+					resource.TestCheckResourceAttr(resourceName, "metrics_aggregator.0.prometheus_exporter.0.allowed_users.1.password", "boo123"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccApplianceImportStateCheckFunc(1),
+				ImportStateVerifyIgnore: []string{"site", "seed_file",
+					"metrics_aggregator.0.prometheus_exporter.0.https_p12.0.content",
+					"metrics_aggregator.0.prometheus_exporter.0.allowed_users.0.password",
+					"metrics_aggregator.0.prometheus_exporter.0.allowed_users.1.password",
+				},
+			},
+		},
+	})
+}
+
+func testAccAppliance62MetricsAggregator(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+resource "appgatesdp_appliance" "appliancev62_metrics_aggregator" {
+	name             = "%{name}"
+	hostname         = "%{hostname}"
+	site  = data.appgatesdp_site.default_site.id
+	client_interface {
+		hostname = "%{hostname}"
+		local_hostname = "%{hostname}"
+
+		allow_sources {
+			address = "0.0.0.0"
+			netmask = 0
+		}
+		allow_sources {
+			address = "::"
+			netmask = 0
+		}
+	}
+	networking {
+		nics {
+			enabled = true
+			name    = "eth0"
+			ipv4 {
+				dhcp {
+					enabled = true
+					dns     = true
+					routers = true
+					ntp     = true
+				}
+			}
+		}
+	}
+	metrics_aggregator {
+		enabled = true
+		sites = [
+			data.appgatesdp_site.default_site.id
+		]
+		prometheus_exporter {
+			enabled = true
+			port    = 1234
+			allow_sources {
+				address = "127.0.0.1"
+				netmask = 32
+				nic     = "eth0"
+			}
+			use_https = true
+			https_p12 {
+				content  = "test-fixtures/test_devops.crt"
+				password = ""
+			}
+			basic_auth = true
+			allowed_users {
+				username = "foo"
+				password = "foo123"
+			}
+			allowed_users { 
+				username = "boo"
+				password = "boo123"
+			}
+		}
+	}
+}
+
+`, context)
+}
+
+func TestAccAppliance62(t *testing.T) {
+	resourceName := "appgatesdp_appliance.appliancev62"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	context := map[string]interface{}{
+		"name":     rName,
+		"hostname": fmt.Sprintf("%s.devops", rName),
+	}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckApplianceDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					testFor62AndAbove(t)
+				},
+				Config: testAccAppliance62(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApplianceExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
+					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
+
+					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.0.nic", ""),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.address", "::"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.1.nic", ""),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.dtls_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.local_hostname", context["hostname"].(string)),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "443"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "Disabled"),
+					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
+
+					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.ntp", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.dhcp.0.routers", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv4.0.virtual_ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.dns", "true"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.dhcp.0.ntp", "false"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.static.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.ipv6.0.virtual_ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.mtu", "0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.#", "0"),
+
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.%", "7"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.address", "127.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allow_sources.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.port", "1234"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.https_p12.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.https_p12.0.%", "4"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.https_p12.0.content", "test-fixtures/test_devops.crt"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.https_p12.0.subject_name", "CN=test.devops"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.basic_auth", "true"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allowed_users.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allowed_users.0.username", "foo"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allowed_users.0.password", "foo123"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allowed_users.1.username", "boo"),
+					resource.TestCheckResourceAttr(resourceName, "prometheus_exporter.0.allowed_users.1.password", "boo123"),
+
+					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", "0.0.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.netmask", "0"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.nic", "eth0"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.weight", "100"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.local_weight", "100"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateCheck:  testAccApplianceImportStateCheckFunc(1),
+				ImportStateVerifyIgnore: []string{"site", "seed_file",
+					// we can't import verify local file path
+					"prometheus_exporter.0.https_p12.0.content",
+					"prometheus_exporter.0.allowed_users.0.password",
+					"prometheus_exporter.0.allowed_users.1.password",
+					"log_forwarder.0.azure_monitor.0.app_secret",
+					"log_forwarder.0.falcon_log_scale.0.token",
+				},
+			},
+		},
+	})
+}
+
+func testAccAppliance62(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+resource "appgatesdp_appliance" "appliancev62" {
+	name             = "%{name}"
+	hostname         = "%{hostname}"
+	site  = data.appgatesdp_site.default_site.id
+	client_interface {
+		hostname = "%{hostname}"
+		local_hostname = "%{hostname}"
+
+		allow_sources {
+		address = "0.0.0.0"
+		netmask = 0
+		}
+		allow_sources {
+		address = "::"
+		netmask = 0
+		}
+	}
+	networking {
+		nics {
+			enabled = true
+			name    = "eth0"
+			ipv4 {
+				dhcp {
+					enabled = true
+					dns     = true
+					routers = true
+					ntp     = true
+				}
+			}
+		}
+	}
+	prometheus_exporter {
+		enabled = true
+		port    = 1234
+		allow_sources {
+			address = "127.0.0.1"
+			netmask = 32
+			nic     = "eth0"
+		}
+		use_https = true
+		https_p12 {
+			content  = "test-fixtures/test_devops.crt"
+			password = ""
+		}
+		basic_auth = true
+		allowed_users {
+			username = "foo"
+			password = "foo123"
+		}
+		allowed_users { 
+			username = "boo"
+			password = "boo123"
+		}
+	}
+	gateway {
+		enabled = true
+		vpn {
+			weight = 100
+			local_weight = 100
+			allow_destinations {
+				nic     = "eth0"
+				address = "0.0.0.0"
+				netmask = 0
+			}
+		}
+	}
+}
+
+`, context)
+}
+
+func testAccAppliance62LogForwarder(context map[string]interface{}) string {
+	return Nprintf(`
+data "appgatesdp_site" "default_site" {
+	site_name = "Default Site"
+}
+resource "appgatesdp_appliance" "appliancev62" {
+	name             = "%{name}"
+	hostname         = "%{hostname}"
+	site  = data.appgatesdp_site.default_site.id
+	client_interface {
+		hostname = "%{hostname}"
+		local_hostname = "%{hostname}"
+
+		allow_sources {
+		address = "0.0.0.0"
+		netmask = 0
+		}
+		allow_sources {
+		address = "::"
+		netmask = 0
+		}
+	}
+	networking {
+		nics {
+			enabled = true
+			name    = "eth0"
+			ipv4 {
+				dhcp {
+					enabled = true
+					dns     = true
+					routers = true
+					ntp     = true
+				}
+			}
+		}
+	}
+	log_forwarder {
+		enabled = true
+		azure_monitor {
+			app_id = "az-example"
+			token_request_url = "https://example.com/azure/token"
+			log_destination_url = "https://example.com/azure/log"
+			app_secret = "az-password123"
+		}
+		falcon_log_scale {
+			collector_url = "https://example.com/falcon/collect"
+			token = "password123"
+			index = "example-index"
+			source_type = "example-source-type"
+			source = "example-source"
+		}
+		sites = [
+			data.appgatesdp_site.default_site.id
+		]
 	}
 }
 

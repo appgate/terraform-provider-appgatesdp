@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/go-version"
@@ -21,6 +21,7 @@ const (
 	identityProviderSaml            = "Saml"
 	identityProviderLdapCertificate = "LdapCertificate"
 	identityProviderConnector       = "Connector"
+	identityProviderOidc            = "Oidc"
 	builtinProviderLocal            = "local"
 	builtinProviderConnector        = "Connector"
 )
@@ -44,6 +45,7 @@ func identityProviderSchema() map[string]*schema.Schema {
 						identityProviderSaml,
 						identityProviderLdapCertificate,
 						identityProviderConnector,
+						identityProviderOidc,
 					}
 					for _, x := range list {
 						if s == x {
@@ -368,8 +370,13 @@ func ldapProviderSchema() map[string]*schema.Schema {
 		Optional: true,
 	}
 	s["object_class"] = &schema.Schema{
+		Type:       schema.TypeString,
+		Deprecated: "Deprecated as of 6.2. Use userFilter instead",
+		Computed:   true,
+		Optional:   true,
+	}
+	s["user_filter"] = &schema.Schema{
 		Type:     schema.TypeString,
-		Computed: true,
 		Optional: true,
 	}
 	s["username_attribute"] = &schema.Schema{

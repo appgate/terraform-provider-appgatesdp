@@ -20,7 +20,7 @@ func TestAccPolicyDeviceBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_settings.0.%", "10"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.%", "11"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.add_remove_profiles", "Show"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.attention_level", "Show"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.auto_start", "Show"),
@@ -65,7 +65,7 @@ func TestAccPolicyDeviceBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_settings.0.%", "10"),
+					resource.TestCheckResourceAttr(resourceName, "client_settings.0.%", "11"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.add_remove_profiles", "Show"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.attention_level", "Show"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.auto_start", "Show"),

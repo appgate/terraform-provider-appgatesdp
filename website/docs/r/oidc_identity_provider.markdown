@@ -1,15 +1,14 @@
 ---
 layout: "appgatesdp"
-page_title: "APPGATE: appgatesdp_local_database_identity_provider"
-sidebar_current: "docs-appgate-resource-local_database_identity_provider"
+page_title: "APPGATE: appgatesdp_oidc_identity_provider"
+sidebar_current: "docs-appgate-resource-oidc_identity_provider"
 description: |-
-  Import and Update Local database Identity Provider.
+   Create a new oidc Identity Provider.
 ---
 
-# appgatesdp_local_database_identity_provider
+# appgatesdp_oidc_identity_provider
 
-~> **NOTE:** Local database Identity Provider is a builtin default singleton resource, that cannot be deleted. But we can modify the existing one, import the default state from the collective with terraform import.
-
+Create a new Identity Provider.
 
 ~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.0.0
 Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
@@ -28,19 +27,87 @@ data "appgatesdp_ip_pool" "ip_v4_pool" {
   ip_pool_name = "default pool v4"
 }
 
-resource "appgatesdp_local_database_identity_provider" "local" {
-  notes      = "Built-in Identity Provider on local database."
-  ip_pool_v4 = data.appgatesdp_ip_pool.ip_v4_pool.id
-  ip_pool_v6 = data.appgatesdp_ip_pool.ip_v6_pool.id
-
-  user_lockout_threshold = 7
-  min_password_length    = 9
-
-  tags = [
-    "builtin",
-  ]
+data "appgatesdp_mfa_provider" "fido" {
+  mfa_provider_name = "Default FIDO2 Provider"
 }
 
+resource "appgatesdp_oidc_identity_provider" "oidc" {
+  issuer = "https://example.com/oidc/issuer"
+  audience = "oidc_test_audience"
+  scope = "oidc_test_scope"
+  google { 
+    enabled = true
+    client_secret = "oidc_test_client_secret"
+    refresh_token = true
+  }
+
+  name = "the-oidc"
+  admin_provider = true
+  ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
+  ip_pool_v6     = data.appgatesdp_ip_pool.ip_v6_pool.id
+  dns_servers = [
+    "172.17.18.19",
+    "192.100.111.31"
+  ]
+  dns_search_domains = [
+    "internal.company.com"
+  ]
+  block_local_dns_requests = true
+  on_boarding_two_factor {
+    mfa_provider_id       = data.appgatesdp_mfa_provider.fido.id
+    device_limit_per_user = 6
+    message               = "welcome"
+  }
+  tags = [
+    "terraform",
+    "api-created"
+  ]
+  claim_mappings {
+    attribute_name = "objectGUID"
+    claim_name     = "userId"
+    encrypt      = false
+    list           = false
+  }
+  claim_mappings {
+    attribute_name = "sAMAccountName"
+    claim_name     = "username"
+    encrypt      = false
+    list           = false
+  }
+  claim_mappings {
+    attribute_name = "givenName"
+    claim_name     = "firstName"
+    encrypt      = false
+    list           = false
+  }
+  claim_mappings {
+    attribute_name = "sn"
+    claim_name     = "lastName"
+    encrypt      = false
+    list           = false
+  }
+  claim_mappings {
+    attribute_name = "mail"
+    claim_name     = "emails"
+    encrypt      = false
+    list           = true
+  }
+  claim_mappings {
+    attribute_name = "memberOf"
+    claim_name     = "groups"
+    encrypt      = false
+    list           = true
+  }
+
+  on_demand_claim_mappings {
+    command    = "fileSize"
+    claim_name = "antiVirusIsRunning"
+    parameters {
+      path = "/usr/bin/python3"
+    }
+    platform = "desktop.windows.all"
+  }
+}
 
 
 ```
@@ -62,6 +129,8 @@ The following arguments are supported:
 * `user_scripts`: (Optional) ID of the User Claim Scripts to run during authorization.
 
 ### Configurable Identity Provider Arguments
+`admin_provider`: (Optional) Whether the provider will be listed in the Admin UI or not.
+
 * `dns_servers`: (Optional) The DNS servers to be assigned to the Clients of the users in this Identity Provider.
 * `dns_search_domains`: (Optional) The DNS search domains to be assigned to Clients of the users in this Identity Provider.
 * `device_limit_per_user`:  (Optional) The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded. Deprecated. Use root level field instead.
@@ -80,14 +149,18 @@ The following arguments are supported:
   * `parameters`:  (Optional) Depending on the command type, extra parameters to pass to the on-demand claim.
   * `platform`: (Required)  Enum values: `desktop.windows.all,desktop.macos.all,desktop.linux.all,desktop.all,mobile.android.all,mobile.ios.all,mobile.all,all`The platform(s) to run the on-demand claim.
 
-### Local Provider Identity Provider Arguments
-`user_lockout_threshold`: (Optional): After how many failed attempts with a local user be locked our from authenticating again.
-`user_lockout_duration_minutes`: (Optional) For how long lockout will last for local users.
-`min_password_length`: (Optional) Minimum password length requirement for local users.
+### Oidc Identity Provider Specific Arguments
+* `issuer`: (Optional) OIDC issuer URL.
+* `audience`: (Optional) Audience/Client ID to make sure the recipient of the Token is this Controller.
+* `scope`: (Optional) Scope to use for tokens.
+* `google`: (Optional): Google specific OIDC settings
+  * `enabled`: (Optional) Whether to enable Google specific OIDC settings
+  * `client_secret`: (Optional) Client secret.
+  * `refresh_token`: (Optional) Whether to enable refresh token with Google OIDC or not
 
 ## Import
 Instances can be imported using the `id`, e.g.
 
 ```
-$ terraform import appgatesdp_local_database_identity_provider.example d3131f83-10d1-4abc-ac0b-7349538e8300
+$ terraform import appgatesdp_oidc_identity_provider.example d3131f83-10d1-4abc-ac0b-7349538e8300
 ```

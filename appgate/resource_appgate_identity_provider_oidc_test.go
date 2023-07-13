@@ -9,75 +9,33 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func testAccCheckRadiusIdentityProviderExists(resource string) resource.TestCheckFunc {
-	return func(state *terraform.State) error {
-		token, err := testAccProvider.Meta().(*Client).GetToken()
-		if err != nil {
-			return err
-		}
-		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
-
-		rs, ok := state.RootModule().Resources[resource]
-		if !ok {
-			return fmt.Errorf("Not found: %s", resource)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No Record ID is set")
-		}
-
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
-			return fmt.Errorf("error fetching radius identity provider with resource %s. %s", resource, err)
-		}
-		return nil
-	}
-}
-
-func testAccCheckRadiusIdentityProviderDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgatesdp_radius_identity_provider" {
-			continue
-		}
-
-		token, err := testAccProvider.Meta().(*Client).GetToken()
-		if err != nil {
-			return err
-		}
-		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
-
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
-			return fmt.Errorf("radius identity provider still exists, %+v", err)
-		}
-	}
-	return nil
-}
-
-func testAccRadiusIdentityProviderImportStateCheckFunc(expectedStates int) resource.ImportStateCheckFunc {
-	return func(s []*terraform.InstanceState) error {
-		if len(s) != expectedStates {
-			return fmt.Errorf("expected %d states, got %d: %+v", expectedStates, len(s), s)
-		}
-		return nil
-	}
-}
-
-func TestAccRadiusIdentityProviderBasic(t *testing.T) {
-	resourceName := "appgatesdp_radius_identity_provider.radius_test_resource"
+func TestAccOidcIdentityProviderBasic(t *testing.T) {
+	resourceName := "appgatesdp_oidc_identity_provider.oidc_test_resource"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRadiusIdentityProviderDestroy,
+		CheckDestroy: testAccCheckOidcIdentityProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					applianceTestForFiveFiveOrHigher(t)
+					testFor62AndAbove(t)
 				},
-				Config: testAccCheckRadiusIdentityProviderBasic55OrGreater(rName),
+				Config: testAccCheckOidcIdentityProviderBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRadiusIdentityProviderExists(resourceName),
+					testAccCheckOidcIdentityProviderExists(resourceName),
+
+					resource.TestCheckResourceAttr(resourceName, "type", "Oidc"),
+					resource.TestCheckResourceAttr(resourceName, "issuer", "https://example.com/oidc/issuer"),
+					resource.TestCheckResourceAttr(resourceName, "audience", "oidc_test_audience"),
+					resource.TestCheckResourceAttr(resourceName, "scope", "oidc_test_scope"),
+					resource.TestCheckResourceAttr(resourceName, "google.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "google.0.%", "3"),
+					resource.TestCheckResourceAttr(resourceName, "google.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "google.0.client_secret", "oidc_test_client_secret"),
+					resource.TestCheckResourceAttr(resourceName, "google.0.refresh_token", "true"),
+
 					resource.TestCheckResourceAttr(resourceName, "admin_provider", "true"),
-					resource.TestCheckResourceAttr(resourceName, "authentication_protocol", "CHAP"),
 					resource.TestCheckResourceAttr(resourceName, "block_local_dns_requests", "true"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.#", "6"),
 					resource.TestCheckResourceAttr(resourceName, "claim_mappings.0.%", "4"),
@@ -115,8 +73,6 @@ func TestAccRadiusIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "dns_servers.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "dns_servers.0", "172.17.18.19"),
 					resource.TestCheckResourceAttr(resourceName, "dns_servers.1", "192.100.111.31"),
-					resource.TestCheckResourceAttr(resourceName, "hostnames.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "hostnames.0", "radius.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "inactivity_timeout_minutes", "0"),
 					resource.TestCheckResourceAttr(resourceName, "ip_pool_v4", "f572b4ab-7963-4a90-9e5a-3bf033bfe2cc"),
 					resource.TestCheckResourceAttr(resourceName, "ip_pool_v6", "6935b379-205d-4fdd-847f-a0b5f14aff53"),
@@ -136,26 +92,23 @@ func TestAccRadiusIdentityProviderBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.parameters.0.name", ""),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.parameters.0.path", "/usr/bin/python3"),
 					resource.TestCheckResourceAttr(resourceName, "on_demand_claim_mappings.0.platform", "desktop.windows.all"),
-					resource.TestCheckResourceAttr(resourceName, "port", "1812"),
-					resource.TestCheckResourceAttr(resourceName, "shared_secret", "hunter2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "type", "Radius"),
 				),
 			},
 			{
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateCheck:        testAccRadiusIdentityProviderImportStateCheckFunc(1),
-				ImportStateVerifyIgnore: []string{"shared_secret"},
+				ImportStateCheck:        testAccOidcIdentityProviderImportStateCheckFunc(1),
+				ImportStateVerifyIgnore: []string{"google.0.client_secret"},
 			},
 		},
 	})
 }
 
-func testAccCheckRadiusIdentityProviderBasic55OrGreater(rName string) string {
+func testAccCheckOidcIdentityProviderBasic(rName string) string {
 	return fmt.Sprintf(`
 data "appgatesdp_ip_pool" "ip_v6_pool" {
   ip_pool_name = "default pool v6"
@@ -167,14 +120,18 @@ data "appgatesdp_ip_pool" "ip_v4_pool" {
 data "appgatesdp_mfa_provider" "fido" {
   mfa_provider_name = "Default FIDO2 Provider"
 }
-resource "appgatesdp_radius_identity_provider" "radius_test_resource" {
+resource "appgatesdp_oidc_identity_provider" "oidc_test_resource" {
+  issuer = "https://example.com/oidc/issuer"
+  audience = "oidc_test_audience"
+  scope = "oidc_test_scope"
+  google { 
+    enabled = true
+    client_secret = "oidc_test_client_secret"
+    refresh_token = true
+  }
+
   name = "%s"
-  hostnames = [
-    "radius.company.com"
-  ]
   admin_provider = true
-  port           = 1812
-  shared_secret  = "hunter2"
   ip_pool_v4     = data.appgatesdp_ip_pool.ip_v4_pool.id
   ip_pool_v6     = data.appgatesdp_ip_pool.ip_v6_pool.id
   dns_servers = [
@@ -241,4 +198,56 @@ resource "appgatesdp_radius_identity_provider" "radius_test_resource" {
   }
 }
 `, rName)
+}
+
+func testAccCheckOidcIdentityProviderExists(resource string) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
+		api := testAccProvider.Meta().(*Client).API.OidcIdentityProvidersApi
+
+		rs, ok := state.RootModule().Resources[resource]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resource)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No Record ID is set")
+		}
+
+		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+			return fmt.Errorf("error fetching Oidc identity provider with resource %s. %s", resource, err)
+		}
+		return nil
+	}
+}
+
+func testAccCheckOidcIdentityProviderDestroy(s *terraform.State) error {
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "appgatesdp_oidc_identity_provider" {
+			continue
+		}
+
+		token, err := testAccProvider.Meta().(*Client).GetToken()
+		if err != nil {
+			return err
+		}
+		api := testAccProvider.Meta().(*Client).API.OidcIdentityProvidersApi
+
+		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+			return fmt.Errorf("oidc identity provider still exists, %+v", err)
+		}
+	}
+	return nil
+}
+
+func testAccOidcIdentityProviderImportStateCheckFunc(expectedStates int) resource.ImportStateCheckFunc {
+	return func(s []*terraform.InstanceState) error {
+		if len(s) != expectedStates {
+			return fmt.Errorf("expected %d states, got %d: %+v", expectedStates, len(s), s)
+		}
+		return nil
+	}
 }

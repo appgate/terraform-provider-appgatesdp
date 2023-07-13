@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/hashicorp/go-version"
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v18/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -173,6 +174,16 @@ func basePolicyDeploymentSiteAttributes() map[string]*schema.Schema {
 			Description: "The path of a claim that contains the UUID of an override site. It should be defined as 'claims.xxx.xxx' or 'claims.xxx.xxx.xxx'1.",
 			Optional:    true,
 		},
+		"override_nearest_site": {
+			Type:        schema.TypeBool,
+			Description: "Overrides the Entitlements Site according to location of the client and Sites where this feature is enabled.",
+			Optional:    true,
+		},
+		"apply_fallback_site": {
+			Type:        schema.TypeBool,
+			Description: "The Entitlements in this Policy will be available in the fallback Sites if the corresponding Sites are configured accordingly.",
+			Optional:    true,
+		},
 	}
 }
 
@@ -260,6 +271,11 @@ func basePolicyClientAttributes() map[string]*schema.Schema {
 						Computed: true,
 					},
 					"suspend": {
+						Type:     schema.TypeString,
+						Optional: true,
+						Computed: true,
+					},
+					"new_user_onboarding": {
 						Type:     schema.TypeString,
 						Optional: true,
 						Computed: true,
@@ -409,7 +425,7 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		if v, ok := d.GetOk("client_profile_settings"); ok {
-			settings, err := readPolicyClientProfileSettingsFromConfig(v.([]interface{}))
+			settings, err := readPolicyClientProfileSettingsFromConfig(currentVersion, v.([]interface{}))
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -428,6 +444,12 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 		}
 		if v, ok := d.GetOk("override_site_claim"); ok {
 			args.SetOverrideSiteClaim(v.(string))
+		}
+		if v, ok := d.GetOk("override_nearest_site"); ok {
+			args.SetOverrideNearestSite(v.(bool))
+		}
+		if v, ok := d.GetOk("apply_fallback_site"); ok {
+			args.SetApplyFallbackSite(v.(bool))
 		}
 		if v, ok := d.GetOk("dns_settings"); ok {
 			if args.GetType() != "Dns" {
@@ -527,7 +549,7 @@ func readTrustedNetworkCheckFromConfig(trustedNetworks []interface{}) openapi.Po
 	return result
 }
 
-func readPolicyClientProfileSettingsFromConfig(settings []interface{}) (openapi.PolicyAllOfClientProfileSettings, error) {
+func readPolicyClientProfileSettingsFromConfig(version *version.Version, settings []interface{}) (openapi.PolicyAllOfClientProfileSettings, error) {
 	result := openapi.PolicyAllOfClientProfileSettings{}
 	for _, r := range settings {
 		if r == nil {
@@ -544,7 +566,6 @@ func readPolicyClientProfileSettingsFromConfig(settings []interface{}) (openapi.
 			}
 			result.SetProfiles(profiles)
 		}
-
 	}
 	return result, nil
 }
@@ -585,6 +606,9 @@ func readPolicyClientSettingsFromConfig(settings []interface{}) (openapi.PolicyA
 		}
 		if v, ok := raw["suspend"].(string); ok && len(v) > 0 {
 			result.SetSuspend(v)
+		}
+		if v, ok := raw["new_user_onboarding"].(string); ok && len(v) > 0 {
+			result.SetNewUserOnboarding(v)
 		}
 	}
 	return result, nil
@@ -732,6 +756,16 @@ func resourceAppgatePolicyRead(ctx context.Context, d *schema.ResourceData, meta
 		d.Set("client_profile_settings", clientProfileSettings)
 		d.Set("custom_client_help_url", policy.GetCustomClientHelpUrl())
 	}
+
+	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+		if v := d.Get("override_nearest_site"); v != nil {
+			d.Set("override_nearest_site", v.(bool))
+		}
+		if v := d.Get("apply_fallback_site"); v != nil {
+			d.Set("apply_fallback_site", v.(bool))
+		}
+	}
+
 	return diags
 }
 
@@ -803,6 +837,9 @@ func flattenPolicyClientSettings(clientSettings openapi.PolicyAllOfClientSetting
 	}
 	if v, ok := clientSettings.GetSuspendOk(); ok {
 		m["suspend"] = *v
+	}
+	if v, ok := clientSettings.GetNewUserOnboardingOk(); ok {
+		m["new_user_onboarding"] = *v
 	}
 	return []interface{}{m}, nil
 }
@@ -962,7 +999,7 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		if d.HasChange("client_profile_settings") {
 			_, v := d.GetChange("client_profile_settings")
-			clientProfileSettings, err := readPolicyClientProfileSettingsFromConfig(v.([]interface{}))
+			clientProfileSettings, err := readPolicyClientProfileSettingsFromConfig(currentVersion, v.([]interface{}))
 			if err != nil {
 				return diag.FromErr(err)
 			}
