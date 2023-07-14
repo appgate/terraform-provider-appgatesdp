@@ -47,6 +47,8 @@ The following arguments are supported:
 * `tags`: (Optional) Array of tags.
 * `override_site`: (Optional) Site ID where all the Entitlements of this Policy must be deployed. This overrides Entitlement's own Site and to be used only in specific network layouts. Otherwise the assigned site on individual Entitlements will be used.
 * `override_site_claim`: (Optional) The path of a claim that contains the UUID of an override site. It should be defined as "claims.xxx.xxx" or "claims.xxx.xxx.xxx".
+* `override_nearest_site`: (Optional) Overrides the Entitlements Site according to the location of the client and Sites where this feature is enabled.
+* `apply_fallback_site`: (Optional) The Entitlements in this Policy will be available in the fallback Sites if the corresponding Sites are configured accordingly.
 
 ### entitlements
 List of Entitlement IDs in this Policy.
