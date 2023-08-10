@@ -3238,26 +3238,26 @@ func readPrometheusExporterFromConfig(exporters []interface{}, currentVersion *v
 			}
 			val.SetAllowSources(allowSources)
 		}
-		if v, ok := rawServer["https_p12"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
-			p12, err := readP12(v[0])
-			if err != nil {
-				return val, err
-			}
-			val.SetHttpsP12(p12)
-		}
-		if v, ok := rawServer["allowed_users"].([]interface{}); ok && len(v) > 0 {
-			allowedUsers, err := readAllowedUsers(v)
-			if err != nil {
-				return val, err
-			}
-			val.SetAllowedUsers(allowedUsers)
-		}
-		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
+		if currentVersion.GreaterThanOrEqual(Appliance62Version) {
 			if v, ok := rawServer["basic_auth"]; ok {
 				val.SetBasicAuth(v.(bool))
 			}
 			if v, ok := rawServer["use_https"]; ok {
 				val.SetUseHTTPS(v.(bool))
+			}
+			if v, ok := rawServer["https_p12"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
+				p12, err := readP12(v[0])
+				if err != nil {
+					return val, err
+				}
+				val.SetHttpsP12(p12)
+			}
+			if v, ok := rawServer["allowed_users"].([]interface{}); ok && len(v) > 0 {
+				allowedUsers, err := readAllowedUsers(v)
+				if err != nil {
+					return val, err
+				}
+				val.SetAllowedUsers(allowedUsers)
 			}
 		}
 	}
