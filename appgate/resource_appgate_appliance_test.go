@@ -5125,7 +5125,6 @@ resource "appgatesdp_appliance" "appliancev62_metrics_aggregator" {
 `, context)
 }
 
-
 func TestAccAppliance61(t *testing.T) {
 	resourceName := "appgatesdp_appliance.appliancev61"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
