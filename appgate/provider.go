@@ -201,6 +201,7 @@ func Provider() *schema.Provider {
 			"appgatesdp_ldap_certificate_identity_provider": resourceAppgateLdapCertificateProvider(),
 			"appgatesdp_connector_identity_provider":        resourceAppgateConnectorProvider(),
 			"appgatesdp_client_profile":                     resourceAppgateClientProfile(),
+			"appgatesdp_stop_policy":                        resourceAppgateStopPolicy(),
 		},
 	}
 
