@@ -10,8 +10,8 @@ func TestAccPolicyStopBasic(t *testing.T) {
 	resourceName := "appgatesdp_stop_policy.test_stop_policy"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	context := map[string]interface{}{
-		"name":           rName,
-		"new_name":       rName + "NEW",
+		"name":     rName,
+		"new_name": rName + "NEW",
 	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

@@ -301,7 +301,7 @@ func basePolicyClientAttributes() map[string]*schema.Schema {
 						Elem:     &schema.Schema{Type: schema.TypeString},
 					},
 					"force": {
-						Type: schema.TypeBool,
+						Type:     schema.TypeBool,
 						Optional: true,
 					},
 				},
@@ -365,7 +365,7 @@ const (
 	PolicyTypeDns    string = "Dns"
 	PolicyTypeAdmin  string = "Admin"
 	PolicyTypeMixed  string = "Mixed"
-	PolicyTypeStop string = "Stop"
+	PolicyTypeStop   string = "Stop"
 )
 
 func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
