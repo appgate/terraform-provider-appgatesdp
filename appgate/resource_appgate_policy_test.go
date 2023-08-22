@@ -751,7 +751,7 @@ func TestAccPolicyClientProfileSettings61(t *testing.T) {
 					testAccCheckPolicyExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "administrative_roles.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.profiles.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_settings.#", "1"),
@@ -875,7 +875,7 @@ func TestAccPolicyClientProfileSettings62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_settings.0.new_user_onboarding", "Hide"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "client_profile_settings.0.profiles.#", "1"),
 				),

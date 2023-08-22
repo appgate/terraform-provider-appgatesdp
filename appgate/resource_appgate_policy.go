@@ -300,6 +300,10 @@ func basePolicyClientAttributes() map[string]*schema.Schema {
 						Required: true,
 						Elem:     &schema.Schema{Type: schema.TypeString},
 					},
+					"force": {
+						Type:     schema.TypeBool,
+						Optional: true,
+					},
 				},
 			},
 		},
@@ -361,6 +365,7 @@ const (
 	PolicyTypeDns    string = "Dns"
 	PolicyTypeAdmin  string = "Admin"
 	PolicyTypeMixed  string = "Mixed"
+	PolicyTypeStop   string = "Stop"
 )
 
 func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -565,6 +570,11 @@ func readPolicyClientProfileSettingsFromConfig(version *version.Version, setting
 				return result, err
 			}
 			result.SetProfiles(profiles)
+		}
+		if version.GreaterThanOrEqual(Appliance62Version) {
+			if v, ok := raw["force"]; ok {
+				result.SetForce(v.(bool))
+			}
 		}
 	}
 	return result, nil
@@ -802,6 +812,9 @@ func flattenPolicyClientProfileSettings(clientSettings openapi.PolicyAllOfClient
 	}
 	if v, ok := clientSettings.GetProfilesOk(); ok {
 		m["profiles"] = v
+	}
+	if v, ok := clientSettings.GetForceOk(); ok {
+		m["force"] = v
 	}
 	return []interface{}{m}, nil
 }
