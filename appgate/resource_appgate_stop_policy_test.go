@@ -14,7 +14,7 @@ func TestAccPolicyStopBasic(t *testing.T) {
 		"new_name": rName + "NEW",
 	}
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testFor62AndAbove(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPolicyDestroy,
 		Steps: []resource.TestStep{
