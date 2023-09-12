@@ -2455,3 +2455,93 @@ resource "appgatesdp_site" "illumio_site" {
 	}
 }`, rName)
 }
+
+func TestAccSiteBasic2(t *testing.T) {
+	resourceName := "appgatesdp_site.test_site"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSiteDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckSite2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+				),
+			},
+			{
+				Config: testAccCheckSiteUpdate2(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "name", "The test site"),
+					resource.TestCheckResourceAttr(resourceName, "short_name", "ts1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.1", "10.20.0.0/24"),
+					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
+					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
+					resource.TestCheckResourceAttr(resourceName, "tags.2", "updated-tag"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "note updated"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "true"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckSite2(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_site" "test_site" {
+    name       = "%s"
+    network_subnets = [
+        "10.0.0.0/16"
+    ]
+    notes = "This object has been created for test purposes."
+	vpn {
+	  state_sharing = false
+	  snat          = false
+	}
+}
+`, rName)
+}
+
+func testAccCheckSiteUpdate2() string {
+	return `
+resource "appgatesdp_site" "test_site" {
+    name       = "The test site"
+    short_name = "ts1"
+    tags = [
+        "developer",
+        "api-created",
+	    "updated-tag"
+    ]
+    notes = "note updated"
+    entitlement_based_routing = false
+	network_subnets = [
+        "10.0.0.0/16",
+        "10.20.0.0/24",
+    ]
+	vpn {
+		state_sharing = true
+		snat          = true
+	}
+}
+`
+}
