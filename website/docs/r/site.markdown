@@ -193,10 +193,6 @@ Settings for asset name resolution.
 * `gcp_resolvers`:  (Optional) Resolvers to resolve GCP machine by querying Google web services.
 * `dns_forwarding`:  (Optional) Enable DNS Forwarding feature.
 
-```hcl
-
-```
-
 #### dns_resolvers
 Resolver to resolve hostnames using DNS servers.
 * `name`: (Required) Identifier name. Has no functional effect. Example: DNS Resolver 1.
