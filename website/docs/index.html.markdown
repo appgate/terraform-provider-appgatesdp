@@ -14,7 +14,7 @@ description: |-
 provider "appgatesdp" {
   username = "admin"
   password = "admin"
-  url      = "https://controller.devops:444/admin"
+  url      = "https://controller.devops:8443/admin"
   provider = "local"
   insecure = true
 }
@@ -46,7 +46,7 @@ Usage:
 
 ```hcl
 provider "appgatesdp" {
-  url      = "https://appgate.controller.com:444/admin"
+  url      = "https://appgate.controller.com:8443/admin"
   username = "admin"
   password = "admin"
   provider = "local"
@@ -63,7 +63,7 @@ provider "appgatesdp" {}
 Usage:
 
 ```sh
-$ export APPGATE_ADDRESS="https://controller.devops:444/admin"
+$ export APPGATE_ADDRESS="https://controller.devops:8443/admin"
 $ export APPGATE_USERNAME="admin"
 $ export APPGATE_PASSWORD="admin"
 $ export APPGATE_PROVIDER="local"
@@ -135,7 +135,7 @@ eyJjbGFpbXNUb2tlbiI6ImV5SmhiR2NpT2lKU1V6VXhNaUlzSW5wcGNDSTZJa1JGUmlJc0luUjVjQ0k2
 ```hcl
 provider "appgatesdp" {
   # this block can be empty or omitted, either provider the URL as environment variable or in a config file.
-  url      = "https://appgate.controller.com:444/admin"
+  url      = "https://appgate.controller.com:8443/admin"
 }
 ```
 

@@ -321,7 +321,7 @@ Source configuration to allow via iptables.
 The details of peer connection interface. Used by other appliances and administrative UI. This interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.
 
 * `hostname`: (Required) Hostname to connect by the peers. It will be used to validate the appliance certificate. Example: appgate.company.com.
-* `https_port`:  (Optional)  default value `444` Port to connect for peer specific services.
+* `https_port`:  (Optional)  default value `8443` Port to connect for peer specific services.
 * `allow_sources`:  (Optional) Source configuration to allow via iptables.
 #### allow_sources
 Source configuration to allow via iptables.
