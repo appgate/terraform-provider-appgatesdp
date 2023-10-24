@@ -153,7 +153,7 @@ func resourceAppgateAppliance() *schema.Resource {
 						"https_port": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  444,
+							Default:  8443,
 						},
 						"allow_sources": allowSourcesSchema(),
 					},
