@@ -1221,6 +1221,9 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 				}
 				result.SetDnsForwarding(dnsForwardingResolvers)
 			}
+			if dnsForwardingResolvers.SiteIpv4 == nil && dnsForwardingResolvers.SiteIpv6 == nil {
+				return result, errors.New("either site_ipv4 or site_ipv6 must be set")
+			}
 		}
 		if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 			if v, ok := raw["illumio_resolvers"]; ok {
