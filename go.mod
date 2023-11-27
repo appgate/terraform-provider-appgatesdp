@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.30.0
 	github.com/imdario/mergo v0.3.16
-	golang.org/x/net v0.17.0
+	golang.org/x/net v0.18.0
 )
 
 require (
