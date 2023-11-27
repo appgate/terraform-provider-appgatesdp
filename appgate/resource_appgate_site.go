@@ -1445,10 +1445,10 @@ func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsFo
 	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
 	for _, dnsForwarding := range dnsForwardingConfig {
 		raw := dnsForwarding.(map[string]interface{})
-		if v, ok := raw["site_ipv4"]; ok {
+		if v, ok := raw["site_ipv4"]; ok && v != "" {
 			result.SetSiteIpv4(v.(string))
 		}
-		if v, ok := raw["site_ipv6"]; ok {
+		if v, ok := raw["site_ipv6"]; ok && v != "" {
 			result.SetSiteIpv6(v.(string))
 		}
 		if v, ok := raw["dns_servers"]; ok {
