@@ -1221,6 +1221,9 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 				}
 				result.SetDnsForwarding(dnsForwardingResolvers)
 			}
+			if dnsForwardingResolvers.SiteIpv4 == nil && dnsForwardingResolvers.SiteIpv6 == nil {
+				return result, errors.New("either site_ipv4 or site_ipv6 must be set")
+			}
 		}
 		if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 			if v, ok := raw["illumio_resolvers"]; ok {
@@ -1445,10 +1448,10 @@ func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsFo
 	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
 	for _, dnsForwarding := range dnsForwardingConfig {
 		raw := dnsForwarding.(map[string]interface{})
-		if v, ok := raw["site_ipv4"]; ok {
+		if v, ok := raw["site_ipv4"]; ok && v != "" {
 			result.SetSiteIpv4(v.(string))
 		}
-		if v, ok := raw["site_ipv6"]; ok {
+		if v, ok := raw["site_ipv6"]; ok && v != "" {
 			result.SetSiteIpv6(v.(string))
 		}
 		if v, ok := raw["dns_servers"]; ok {

@@ -2545,3 +2545,103 @@ resource "appgatesdp_site" "test_site" {
 }
 `
 }
+
+func TestAccSiteBasic3(t *testing.T) {
+	resourceName := "appgatesdp_site.test_site"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSiteDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckSite3(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+				),
+			},
+			{
+				Config: testAccCheckSite3Updated(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v4", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.enabled_v6", "false"),
+					resource.TestCheckResourceAttr(resourceName, "default_gateway.0.excluded_subnets.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "entitlement_based_routing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ip_pool_mappings.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.address", "1.1.1.1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.netmask", "32"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "192.168.1.1"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckSite3(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_site" "test_site" {
+    name       = "%s"
+    network_subnets = [
+        "10.0.0.0/16"
+    ]
+    notes = "This object has been created for test purposes."
+	vpn {
+	  state_sharing = false
+	  snat          = false
+	}
+}
+`, rName)
+}
+
+func testAccCheckSite3Updated(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_site" "test_site" {
+    name       = "%s"
+    network_subnets = [
+        "10.0.0.0/16"
+    ]
+    notes = "This object has been created for test purposes."
+	vpn {
+	    state_sharing = false
+	    snat          = false
+	}
+	name_resolution {
+		dns_forwarding {
+            default_ttl_seconds = 300
+			site_ipv4 = "192.168.1.1"
+			dns_servers = [
+			    "1.1.1.1"
+			]
+			allow_destinations {
+			    address = "1.1.1.1"
+			    netmask = 32
+			}
+		}
+	}
+}
+`, rName)
+}
