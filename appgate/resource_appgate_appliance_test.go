@@ -4473,8 +4473,9 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "customization", ""),
 					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.suspended", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "1"),
@@ -4640,7 +4641,7 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "customization", ""),
 					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
@@ -5206,6 +5207,8 @@ func TestAccAppliance61(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.suspended", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.address", "0.0.0.0"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.allow_destinations.0.netmask", "0"),
@@ -5277,6 +5280,7 @@ resource "appgatesdp_appliance" "appliancev61" {
 	}
 	gateway {
 		enabled = true
+		suspended = false
 		vpn {
 			weight = 100
 			allow_destinations {

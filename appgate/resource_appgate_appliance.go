@@ -639,6 +639,11 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional: true,
 							Default:  false,
 						},
+						"suspended": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 						"vpn": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1451,7 +1456,7 @@ the root of Appliance when this interface is removed.`,
 	}
 
 	if v, ok := d.GetOk("gateway"); ok {
-		gw, err := readGatewayFromConfig(v.([]interface{}))
+		gw, err := readGatewayFromConfig(v.([]interface{}), currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2118,6 +2123,12 @@ func flatttenApplianceGateway(in openapi.ApplianceAllOfGateway, currentVersion *
 	gateway := make(map[string]interface{})
 	if v, ok := in.GetEnabledOk(); ok {
 		gateway["enabled"] = v
+	}
+
+	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+		if v, ok := in.GetSuspendedOk(); ok {
+			gateway["suspended"] = v
+		}
 	}
 
 	if v, ok := in.GetVpnOk(); ok {
@@ -2796,7 +2807,7 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("gateway") {
 		_, v := d.GetChange("gateway")
-		gw, err := readGatewayFromConfig(v.([]interface{}))
+		gw, err := readGatewayFromConfig(v.([]interface{}), currentVersion)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -3173,12 +3184,17 @@ func readControllerFromConfig(controllers []interface{}) (openapi.ApplianceAllOf
 	return val, nil
 }
 
-func readGatewayFromConfig(gateways []interface{}) (openapi.ApplianceAllOfGateway, error) {
+func readGatewayFromConfig(gateways []interface{}, currentVersion *version.Version) (openapi.ApplianceAllOfGateway, error) {
 	val := openapi.ApplianceAllOfGateway{}
 	for _, ctrl := range gateways {
 		r := ctrl.(map[string]interface{})
 		if v, ok := r["enabled"]; ok {
 			val.SetEnabled(v.(bool))
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance61Version) {
+			if v, ok := r["suspended"]; ok {
+				val.SetSuspended(v.(bool))
+			}
 		}
 		if v := r["vpn"].([]interface{}); len(v) > 0 {
 			vpn := openapi.ApplianceAllOfGatewayVpn{}
