@@ -157,9 +157,10 @@ List of IP Pool mappings for this specific Site. When IPs are allocated this Sit
 
 ### default_gateway
 Default Gateway configuration.
-* `enabled_v4`:  (Optional)  default value `false` When enabled, the Client uses this Site as the Default Default for all IPV4 traffic.
-* `enabled_v6`:  (Optional)  default value `false` When enabled, the Client uses this Site as the Default Default for all IPv6 traffic.
+* `enabled_v4`:  (Required - See Note below) default value `false` When enabled, the Client uses this Site as the Default for all IPV4 traffic. At least one of enabled_v4 or enabled_v6b 
+* `enabled_v6`:  (Required - See Note below) default value `false` When enabled, the Client uses this Site as the Default for all IPv6 traffic.
 * `excluded_subnets`:  (Optional) Network subnets to exclude when Default Gateway is enabled. The traffic for these subnets will not go through the Gateway in this Site. Deprecated as of 6.0. Use action type 'exclude' in Entitlements instead.
+> Note: At least one of `enabled_v4` or `enabled_v6` must be set
 
 ### vpn
 VPN configuration for this Site.
