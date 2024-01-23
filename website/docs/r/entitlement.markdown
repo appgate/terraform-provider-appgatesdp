@@ -34,17 +34,20 @@ resource "appgatesdp_entitlement" "ping_entitlement" {
 
   condition_logic = "and"
   actions {
-    subtype = "icmp_up"
     action  = "allow"
-    # https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml#icmp-parameters-types
-    types = ["0-16"]
-    hosts = [
-      "10.0.0.1",
-      "10.0.0.0/24",
-      "hostname.company.com",
-      "dns://hostname.company.com",
-      "aws://security-group:accounting"
-    ]
+	subtype = "tcp_up"
+	hosts = [
+	  "103.15.3.254/32",
+	  "172.17.3.255/32",
+	  "192.168.2.255/32",
+	]
+	ports   = ["53"]
+  }
+  actions {
+    action  = "allow"
+	subtype = "udp_up"
+	hosts   = ["192.168.2.255/32"]
+	ports   = ["53"]
   }
 
   app_shortcuts {
@@ -96,6 +99,7 @@ List of all IP Access actions in this Entitlement.
 * `types`:  (Optional) ICMP type. Only valid for icmp subtypes.
 * `methods`:  (Optional) HTTP method. Only valid for http subtypes. Leave it empty to allow all types.
 * `monitor`:  (Optional) Only available for tcp_up and http_up subtypes. If enabled, Gateways will monitor this action for responsiveness and act accordingly. See admin manual for more details.
+
 ### app_shortcuts
 Array of App Shortcuts.
 
@@ -129,9 +133,6 @@ List of Entitlement Script IDs used for creating App Shortcuts dynamically.
 
 ### tags
 Array of tags.
-
-
-
 
 ## Import
 
