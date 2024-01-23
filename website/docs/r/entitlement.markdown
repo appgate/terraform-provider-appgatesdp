@@ -35,19 +35,20 @@ resource "appgatesdp_entitlement" "ping_entitlement" {
   condition_logic = "and"
   actions {
     action  = "allow"
-	subtype = "tcp_up"
-	hosts = [
-	  "103.15.3.254/32",
-	  "172.17.3.255/32",
-	  "192.168.2.255/32",
-	]
-	ports   = ["53"]
+    subtype = "tcp_up"
+    hosts = [
+      "103.15.3.254/32",
+      "172.17.3.255/32",
+      "192.168.2.255/32",
+    ]
+    ports   = ["53"]
   }
+  
   actions {
-    action  = "allow"
-	subtype = "udp_up"
-	hosts   = ["192.168.2.255/32"]
-	ports   = ["53"]
+    action = "allow"
+    subtype = "udp_up"
+    hosts   = ["192.168.2.255/32"]
+    ports   = ["53"]
   }
 
   app_shortcuts {
