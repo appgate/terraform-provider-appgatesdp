@@ -30,7 +30,6 @@ func TestAccGlobalSettingsBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "claims_token_expiration"),
 					resource.TestCheckResourceAttrSet(resourceName, "collective_id"),
 					resource.TestCheckResourceAttr(resourceName, "entitlement_token_expiration", "500"),
-					resource.TestCheckResourceAttrSet(resourceName, "fips"),
 					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
 					resource.TestCheckResourceAttr(resourceName, "login_banner_message", "Welcome"),
 					resource.TestCheckResourceAttr(resourceName, "message_of_the_day", "hello world"),
@@ -110,7 +109,6 @@ func TestAccGlobalSettings54ProfileHostname(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "claims_token_expiration"),
 					resource.TestCheckResourceAttrSet(resourceName, "collective_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "entitlement_token_expiration"),
-					resource.TestCheckResourceAttrSet(resourceName, "fips"),
 					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpn_certificate_expiration"),
 					resource.TestCheckResourceAttr(resourceName, "profile_hostname", "xyz.appgate-sdp.com"),
@@ -162,7 +160,6 @@ func TestAccGlobalSettings6AndAbove(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "backup_api_enabled"),
 					resource.TestCheckResourceAttrSet(resourceName, "claims_token_expiration"),
 					resource.TestCheckResourceAttrSet(resourceName, "collective_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "fips"),
 					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpn_certificate_expiration"),
 
@@ -202,7 +199,6 @@ func TestAccGlobalSettings6AndAbove(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "backup_api_enabled"),
 					resource.TestCheckResourceAttrSet(resourceName, "claims_token_expiration"),
 					resource.TestCheckResourceAttrSet(resourceName, "collective_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "fips"),
 					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpn_certificate_expiration"),
 
@@ -253,7 +249,6 @@ func TestAccGlobalSettings62AndAbove(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "backup_api_enabled"),
 					resource.TestCheckResourceAttrSet(resourceName, "claims_token_expiration"),
 					resource.TestCheckResourceAttrSet(resourceName, "collective_id"),
-					resource.TestCheckResourceAttrSet(resourceName, "fips"),
 					resource.TestCheckResourceAttrSet(resourceName, "geo_ip_updates"),
 					resource.TestCheckResourceAttrSet(resourceName, "vpn_certificate_expiration"),
 

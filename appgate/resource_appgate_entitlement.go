@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/go-version"
@@ -297,11 +297,7 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 	args.SetDisabled(d.Get("disabled").(bool))
 
 	if v, ok := d.GetOk("risk_sensitivity"); ok {
-		if currentVersion.LessThan(Appliance60Version) {
-			diags = append(diags, diag.Errorf("entitlement.risk_sensitivity is not supported on your version %s", currentVersion.String())...)
-		} else if currentVersion.GreaterThanOrEqual(Appliance60Version) {
-			args.SetRiskSensitivity(v.(string))
-		}
+		args.SetRiskSensitivity(v.(string))
 	}
 
 	if v, ok := d.GetOk("condition_logic"); ok {
