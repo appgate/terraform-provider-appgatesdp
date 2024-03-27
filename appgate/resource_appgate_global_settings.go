@@ -94,12 +94,6 @@ func resourceGlobalSettings() *schema.Resource {
 				Computed:    true,
 				Sensitive:   true,
 			},
-			"fips": {
-				Type:        schema.TypeBool,
-				Description: "FIPS 140-2 Compliant Tunneling.",
-				Optional:    true,
-				Computed:    true,
-			},
 			"geo_ip_updates": {
 				Type:        schema.TypeBool,
 				Description: "Whether the automatic GeoIp updates are enabled or not.",
@@ -206,7 +200,6 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	} else {
 		d.Set("backup_passphrase", settings.GetBackupPassphrase())
 	}
-	d.Set("fips", settings.GetFips())
 	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())
 	d.Set("app_discovery_domains", settings.GetAppDiscoveryDomains())
@@ -216,16 +209,6 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	d.Set("spa_time_window_seconds", settings.GetSpaTimeWindowSeconds())
 	d.Set("spa_mode", settings.GetSpaMode())
 
-	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
-		ccAPI := meta.(*Client).API.ClientProfilesApi
-		request := ccAPI.ClientConnectionsGet(ctx)
-		clientConnections, _, err := request.Authorization(token).Execute()
-		if err != nil {
-			d.SetId("")
-			return diag.FromErr(fmt.Errorf("Failed to read Client Connections, %w", err))
-		}
-		d.Set("profile_hostname", clientConnections.GetProfileHostname())
-	}
 	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
 		d.Set("registered_device_expiration_days", settings.GetRegisteredDeviceExpirationDays())
 	}
@@ -270,9 +253,6 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 	if d.HasChange("backup_passphrase") {
 		originalsettings.SetBackupPassphrase(d.Get("backup_passphrase").(string))
-	}
-	if d.HasChange("fips") {
-		originalsettings.SetFips(d.Get("fips").(bool))
 	}
 	if d.HasChange("geo_ip_updates") {
 		originalsettings.SetGeoIpUpdates(d.Get("geo_ip_updates").(bool))
@@ -323,22 +303,6 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(fmt.Errorf("Could not update Global settings %w", prettyPrintAPIError(err)))
 	}
 
-	if currentVersion.GreaterThanOrEqual(Appliance54Version) && d.HasChange("profile_hostname") {
-		ccAPI := meta.(*Client).API.ClientProfilesApi
-		request := ccAPI.ClientConnectionsGet(ctx)
-		originalclientConnections, _, err := request.Authorization(token).Execute()
-		if err != nil {
-			d.SetId("")
-			return diag.FromErr(fmt.Errorf("Failed to read Client Connections, %w", err))
-		}
-		_, v := d.GetChange("profile_hostname")
-		originalclientConnections.SetProfileHostname(v.(string))
-		req := ccAPI.ClientConnectionsPut(ctx)
-		_, _, err = req.ClientConnections(*originalclientConnections).Authorization(token).Execute()
-		if err != nil {
-			return diag.FromErr(fmt.Errorf("Could not update Client Connections %w", prettyPrintAPIError(err)))
-		}
-	}
 	return resourceGlobalSettingsRead(ctx, d, meta)
 }
 

@@ -544,6 +544,14 @@ Falcon Log Scale endpoints to connect and sent audit logs
 * `source_type`: (Optional) Translated to \#type inside Humio. If set, this is used to choose which Humio parser to use for extracting fields
 * `source`: (Optional) Translated to @source field in Humio.
 
+#### Datadogs
+Datadog endpoint to connect and send audit logs
+* `site`: 
+
+#### Coralogixs
+Coralogix endpoint to connect and send audit logs
+* `url`: 
+
 #### sites
 The sites to collect logs from and forward.
 

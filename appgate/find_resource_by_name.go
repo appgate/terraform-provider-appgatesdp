@@ -3,10 +3,12 @@ package appgate
 
 import (
 	"context"
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"log"
+	"time"
+
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"log"
 )
 
 func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiService, id, token string) (*openapi.Entitlement, diag.Diagnostics) {
@@ -703,7 +705,56 @@ func findClientProfileByUUID(ctx context.Context, api *openapi.ClientProfilesApi
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
-	return resource, nil
+	profile := openapi.ClientProfile{}
+	if id, ok := resource["id"]; ok {
+		profile.SetId(id.(string))
+	}
+	if name, ok := resource["name"]; ok {
+		profile.SetName(name.(string))
+	}
+	if identityProviderName, ok := resource["identityProviderName"]; ok {
+		profile.SetIdentityProviderName(identityProviderName.(string))
+	}
+	if spaKeyName, ok := resource["spaKeyName"]; ok {
+		profile.SetSpaKeyName(spaKeyName.(string))
+	}
+	if created, ok := resource["created"]; ok {
+		if c, err := time.Parse(time.RFC3339, created.(string)); err == nil {
+			profile.SetCreated(c)
+		}
+	}
+	if updated, ok := resource["updated"]; ok {
+		if u, err := time.Parse(time.RFC3339, updated.(string)); err == nil {
+			profile.SetUpdated(u)
+		}
+	}
+	if exported, ok := resource["exported"]; ok {
+		if e, err := time.Parse(time.RFC3339, exported.(string)); err == nil {
+			profile.SetExported(e)
+		}
+	}
+	if tags, ok := resource["tags"]; ok {
+		l := []string{}
+		t, ok := tags.([]interface{})
+		if ok {
+			if len(t) > 0 {
+				for _, v := range t {
+					l = append(l, v.(string))
+				}
+			}
+		}
+		profile.SetTags(l)
+	}
+	if type_, ok := resource["type"]; ok {
+		profile.SetType(type_.(string))
+	}
+	if globalHostname, ok := resource["globalHostname"]; ok {
+		profile.SetGlobalHostname(globalHostname.(string))
+	}
+	if notes, ok := resource["notes"]; ok {
+		profile.SetNotes(notes.(string))
+	}
+	return &profile, nil
 }
 
 func findClientProfileByName(ctx context.Context, api *openapi.ClientProfilesApiService, name, token string) (*openapi.ClientProfile, diag.Diagnostics) {
@@ -715,8 +766,11 @@ func findClientProfileByName(ctx context.Context, api *openapi.ClientProfilesApi
 		return nil, diag.FromErr(err)
 	}
 	for _, r := range resource.GetData() {
-		if r.GetName() == name {
-			return &r, nil
+		if p, ok := r["profile"]; ok {
+			profileData := p.(openapi.ClientProfile)
+			if profileData.GetName() == name {
+				return &profileData, nil
+			}
 		}
 	}
 	if len(resource.GetData()) > 1 {

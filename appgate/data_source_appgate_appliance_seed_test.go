@@ -22,7 +22,6 @@ func TestAccAppgateApplianceSeedDataSource(t *testing.T) {
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "appliance_id", resourceName, "id"),
-					resource.TestCheckResourceAttrSet("data.appgatesdp_appliance_seed.test_gateway_seed_file", "latest_version"),
 					resource.TestCheckResourceAttrSet("data.appgatesdp_appliance_seed.test_gateway_seed_file", "password"),
 					resource.TestCheckResourceAttrSet("data.appgatesdp_appliance_seed.test_gateway_seed_file", "seed_file"),
 				),

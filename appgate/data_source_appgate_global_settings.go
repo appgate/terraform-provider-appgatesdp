@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -53,11 +53,6 @@ func dataSourceGlobalSettings() *schema.Resource {
 				Deprecated: "Whether there is a backup passphrase set or not. Deprecated as of 5.0. Use backupApiEnabled instead.",
 				Computed:   true,
 			},
-			"fips": {
-				Type:        schema.TypeBool,
-				Description: "FIPS 140-2 Compliant Tunneling.",
-				Computed:    true,
-			},
 			"geo_ip_updates": {
 				Type:        schema.TypeBool,
 				Description: "Whether the automatic GeoIp updates are enabled or not.",
@@ -102,7 +97,6 @@ func dataSourceAppgateGlobalSettingsRead(d *schema.ResourceData, meta interface{
 	d.Set("login_banner_message", settings.GetLoginBannerMessage())
 	d.Set("message_of_the_day", settings.GetMessageOfTheDay())
 	d.Set("backup_api_enabled", settings.GetBackupApiEnabled())
-	d.Set("fips", settings.GetFips())
 	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())
 	d.Set("app_discovery_domains", settings.GetAppDiscoveryDomains())

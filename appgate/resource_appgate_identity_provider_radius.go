@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -172,7 +172,6 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
-	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	radius, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -192,7 +191,7 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 		d.Set("device_limit_per_user", *v)
 	}
 	if v, ok := radius.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
 			return err
 		}
 	}
@@ -246,7 +245,6 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
 	ctx := context.TODO()
-	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalRadiusProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -274,7 +272,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}

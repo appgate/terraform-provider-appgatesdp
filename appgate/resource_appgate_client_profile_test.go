@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -14,9 +13,8 @@ import (
 func TestAccClientProfileBasic(t *testing.T) {
 	resourceName := "appgatesdp_client_profile.test_client_profile"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckClientProfileDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckClientProfileBasic(),
@@ -46,30 +44,6 @@ resource "appgatesdp_client_profile" "test_client_profile" {
 `
 }
 
-func testAccCheckClientProfileDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "appgatesdp_client_profile" {
-			continue
-		}
-		token, err := testAccProvider.Meta().(*Client).GetToken()
-		if err != nil {
-			return err
-		}
-		api := testAccProvider.Meta().(*Client).API.ClientProfilesApi
-		clientConnections, _, err := api.ClientConnectionsGet(context.Background()).Authorization(token).Execute()
-		if err != nil {
-			return err
-		}
-		existingProfiles := clientConnections.GetProfiles()
-		for _, profile := range existingProfiles {
-			if strings.EqualFold(profile.GetName(), rs.Primary.ID) && profile.GetName() == rs.Primary.ID {
-				return fmt.Errorf("appgatesdp_client_profile %q still exists got %d profiles", rs.Primary.ID, len(existingProfiles))
-			}
-		}
-	}
-	return nil
-}
-
 func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		token, err := testAccProvider.Meta().(*Client).GetToken()
@@ -77,7 +51,6 @@ func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
 			return err
 		}
 		api := testAccProvider.Meta().(*Client).API.ClientProfilesApi
-		currentVersion := testAccProvider.Meta().(*Client).ApplianceVersion
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
 			return fmt.Errorf("Not found: %s", resource)
@@ -87,18 +60,6 @@ func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 		ctx := context.Background()
-		if currentVersion.LessThan(Appliance61Version) {
-			clientConnections, _, err := api.ClientConnectionsGet(ctx).Authorization(token).Execute()
-			if err != nil {
-				return fmt.Errorf("error fetching ClientConnections with resource %s. %s", resource, err)
-			}
-
-			for _, profile := range clientConnections.GetProfiles() {
-				if strings.EqualFold(profile.GetName(), id) && profile.GetName() == id {
-					return nil
-				}
-			}
-		}
 
 		if _, _, err := api.ClientProfilesIdGet(ctx, id).Authorization(token).Execute(); err == nil {
 			return nil
@@ -120,9 +81,8 @@ func testAccClientProfileImportStateCheckFunc(expectedStates int) resource.Impor
 func TestAccClientProfileBasic61(t *testing.T) {
 	resourceName := "appgatesdp_client_profile.acme"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckClientProfileDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {

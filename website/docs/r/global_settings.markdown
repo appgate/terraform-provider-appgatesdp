@@ -44,7 +44,6 @@ The following arguments are supported:
 * `message_of_the_day`: (Optional) The configured message will be displayed after a successful login.
 * `backup_api_enabled`: (Optional) Whether the backup API is enabled or not.
 * `backup_passphrase`: (Optional) The passphrase to encrypt Appliance Backups when backup API is used.
-* `fips`: (Optional) FIPS 140-2 Compliant Tunneling.
 * `geo_ip_updates`: (Optional) Whether the automatic GeoIp updates are enabled or not.
 * `audit_log_persistence_mode`: (Optional) Audit Log persistence mode.
 * `app_discovery_domains`: (Optional) Domains to monitor for App Discovery feature.

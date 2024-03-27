@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 	"golang.org/x/net/http/httpproxy"
@@ -185,6 +185,8 @@ func guessVersion(clientVersion int) (*version.Version, error) {
 		return version.NewVersion("6.1.0+estimated")
 	case Version19:
 		return version.NewVersion("6.2.0+estimated")
+	case Version20:
+		return version.NewVersion("6.3.0+estimated")
 	}
 	return nil, fmt.Errorf("could not determine appliance version with client version %d", clientVersion)
 }

@@ -14,12 +14,13 @@ func TestAccPolicyStopBasic(t *testing.T) {
 		"new_name": rName + "NEW",
 	}
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testFor62AndAbove(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckPolicyStopBasic(context),
+				PreConfig: func() { testFor62AndAbove(t) },
+				Config:    testAccCheckPolicyStopBasic(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "expression", emptyPolicyExpression),

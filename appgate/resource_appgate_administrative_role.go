@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/adminrole"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
@@ -321,21 +321,21 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 			if _, ok := a.GetScopeOk(); ok {
 				return result, fmt.Errorf("Scope is not applicable in combination with privileges.functions")
 			}
-			funcs, err := readArrayOfStringsFromConfig(v)
+			funcs, err := readArrayOfFunctionsFromConfig(v)
 			if err != nil {
 				return result, fmt.Errorf("Failed to resolve privileges functions %w", err)
 			}
-			specialCases := func(input []string) []string {
+			specialCases := func(input []string) []openapi.ApplianceFunction {
 				// the API in 6.2 is very strict with the format of the function,
 				// and the formatted string is not plain CamelCase, so we need to do our own custom logic here
 				// to format the function string. this is so we don't break backwards compatibility, since this attribute
 				// DiffSuppress string case
 				forcedFormated := []string{"Controller", "Gateway", "LogServer", "LogForwarder", "Connector", "Portal"}
-				result := make([]string, 0, len(input))
+				result := make([]openapi.ApplianceFunction, 0, len(input))
 				for _, s := range input {
 					for index, inner := range forcedFormated {
 						if strings.EqualFold(s, inner) {
-							result = append(result, forcedFormated[index])
+							result = append(result, openapi.ApplianceFunction(forcedFormated[index]))
 						}
 					}
 

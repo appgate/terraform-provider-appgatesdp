@@ -39,7 +39,6 @@ resource "appgatesdp_site" "gbg_site" {
     }
     entitlement_based_routing = true
     vpn {
-        state_sharing                  = false
         snat                           = false
         ip_access_log_interval_seconds = 120
         tls {
@@ -164,7 +163,6 @@ Default Gateway configuration.
 
 ### vpn
 VPN configuration for this Site.
-* `state_sharing`:  (Required)  default value `false` Configuration for keeping track of states.
 * `snat`:  (Required)  default value `false` Source NAT.
 * `tls`:  (Optional) VPN over TLS protocol configuration.
 * `dtls`:  (Optional) VPN over DTLS protocol configuration.

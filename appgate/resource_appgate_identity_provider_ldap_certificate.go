@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -204,7 +204,6 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 		return err
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
-	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.TODO()
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	ldap, res, err := request.Authorization(token).Execute()
@@ -227,7 +226,7 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 		d.Set("device_limit_per_user", *v)
 	}
 	if v, ok := ldap.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
 			return err
 		}
 	}
@@ -298,7 +297,6 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
 	ctx := context.TODO()
-	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalLdapCertificateProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -326,7 +324,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}

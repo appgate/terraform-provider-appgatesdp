@@ -27,10 +27,11 @@ const (
 	Version17 int = 17
 	Version18 int = 18
 	Version19 int = 19
+	Version20 int = 20
 	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
 	// its not recommended to change this value.
-	DefaultClientVersion    = Version18
-	MinimumSupportedVersion = Version16
+	DefaultClientVersion    = Version20
+	MinimumSupportedVersion = Version18
 )
 
 var (
@@ -44,6 +45,7 @@ var (
 		Version17: "6.0.0",
 		Version18: "6.1.0",
 		Version19: "6.2.0",
+		Version20: "6.3.0",
 	}
 
 	Appliance53Version, _ = version.NewVersion(ApplianceVersionMap[Version14])
@@ -52,6 +54,7 @@ var (
 	Appliance60Version, _ = version.NewVersion(ApplianceVersionMap[Version17])
 	Appliance61Version, _ = version.NewVersion(ApplianceVersionMap[Version18])
 	Appliance62Version, _ = version.NewVersion(ApplianceVersionMap[Version19])
+	Appliance63Version, _ = version.NewVersion(ApplianceVersionMap[Version20])
 )
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
@@ -192,7 +195,6 @@ func Provider() *schema.Provider {
 			"appgatesdp_local_user":                         resourceAppgateLocalUser(),
 			"appgatesdp_license":                            resourceAppgateLicense(),
 			"appgatesdp_admin_mfa_settings":                 resourceAdminMfaSettings(),
-			"appgatesdp_client_connections":                 resourceClientConnections(),
 			"appgatesdp_blacklist_user":                     resourceAppgateBlacklistUser(),
 			"appgatesdp_radius_identity_provider":           resourceAppgateRadiusProvider(),
 			"appgatesdp_oidc_identity_provider":             resourceAppgateOidcProvider(),
@@ -206,12 +208,12 @@ func Provider() *schema.Provider {
 	}
 
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		return providerConfigure(ctx, d, provider.UserAgent("appgatesdp", pkgversion.ProviderVersion))
+		return providerConfigure(d, provider.UserAgent("appgatesdp", pkgversion.ProviderVersion))
 	}
 	return provider
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData, ua string) (interface{}, diag.Diagnostics) {
+func providerConfigure(d *schema.ResourceData, ua string) (interface{}, diag.Diagnostics) {
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 	config := Config{
