@@ -10,12 +10,22 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
+
+const (
+	labelsDisabledCollectiveID     string = "collective_id"
+	labelsDisabledCollectiveName   string = "collective_name"
+	labelsDisabledApplianceID      string = "appliance_id"
+	labelsDisabledApplianceName    string = "appliance_name"
+	labelsDisabledApplianceVersion string = "appliance_version"
+	labelsDisabledSiteID           string = "site_id"
+	labelsDisabledSiteName         string = "site_name"
 )
 
 func resourceAppgateAppliance() *schema.Resource {
@@ -346,6 +356,7 @@ func resourceAppgateAppliance() *schema.Resource {
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 
+						// TODO: Deprececated as of api version 20. Remove when releasing api version 23
 						"dns_domains": {
 							Type:        schema.TypeSet,
 							Description: "DNS Search domains.",
@@ -582,6 +593,32 @@ func resourceAppgateAppliance() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+								},
+							},
+						},
+						"labels_disabled": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+								ValidateFunc: func(v interface{}, name string) (ws []string, errs []error) {
+									s := v.(string)
+									list := []string{
+										labelsDisabledCollectiveID,
+										labelsDisabledCollectiveName,
+										labelsDisabledApplianceID,
+										labelsDisabledApplianceName,
+										labelsDisabledApplianceVersion,
+										labelsDisabledSiteID,
+										labelsDisabledSiteName,
+									}
+									for _, x := range list {
+										if s == x {
+											return
+										}
+									}
+									errs = append(errs, fmt.Errorf("type must be on of %v, got %s", list, s))
+									return
 								},
 							},
 						},
@@ -909,6 +946,10 @@ func resourceAppgateAppliance() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"scope": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
 								},
 							},
 						},
@@ -937,6 +978,61 @@ func resourceAppgateAppliance() *schema.Resource {
 									"source": {
 										Type:     schema.TypeString,
 										Optional: true,
+									},
+								},
+							},
+						},
+						"datadogs": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"site": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"api_key": {
+										Type:      schema.TypeString,
+										Required:  true,
+										Sensitive: true,
+									},
+									"source": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"tags": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						"coralogixs": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"url": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"private_key": {
+										Type:      schema.TypeString,
+										Required:  true,
+										Sensitive: true,
+									},
+									"uuid": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"application_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"subsystem_name": {
+										Type:     schema.TypeString,
+										Required: true,
 									},
 								},
 							},
@@ -1032,6 +1128,11 @@ func resourceAppgateAppliance() *schema.Resource {
 												},
 											},
 										},
+									},
+									"labels_disabled": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 								},
 							},
@@ -1340,35 +1441,12 @@ func resourceAppgateApplianceCreate(ctx context.Context, d *schema.ResourceData,
 		args.SetCustomization(v.(string))
 	}
 
-	if v, ok := d.GetOk("connect_to_peers_using_client_port_with_spa"); ok {
-		args.SetConnectToPeersUsingClientPortWithSpa(v.(bool))
-	}
-
 	if c, ok := d.GetOk("client_interface"); ok {
 		cinterface, err := readClientInterfaceFromConfig(c.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		args.SetClientInterface(cinterface)
-	}
-
-	if p, ok := d.GetOk("peer_interface"); ok {
-		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("peer_interface is not supported in %s", currentVersion.String()),
-				Detail: `peer_interface is removed in >= 6.0.
-All connections will be handled by client_interface and admin_interface in the future.
-The hostname field is used as identifier and will take over the hostname field in
-the root of Appliance when this interface is removed.`,
-			})
-			return diags
-		}
-		pinterface, err := readPeerInterfaceFromConfig(p.([]interface{}))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		args.SetPeerInterface(pinterface)
 	}
 
 	if a, ok := d.GetOk("admin_interface"); ok {
@@ -1776,24 +1854,12 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("Error setting appliance.customization %s", err)
 	}
 
-	if err := d.Set("connect_to_peers_using_client_port_with_spa", appliance.GetConnectToPeersUsingClientPortWithSpa()); err != nil {
-		return diag.Errorf("Error setting appliance.connect_to_peers_using_client_port_with_spa %s", err)
-	}
-
 	if v, ok := appliance.GetClientInterfaceOk(); ok {
 		ci, err := flattenApplianceClientInterface(*v)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		d.Set("client_interface", ci)
-	}
-
-	if v, ok := appliance.GetPeerInterfaceOk(); ok {
-		peerInterface, err := flattenAppliancePeerInterface(*v)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		d.Set("peer_interface", peerInterface)
 	}
 
 	if v, ok := appliance.GetAdminInterfaceOk(); ok {
@@ -1917,7 +1983,13 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 			}
 			allowedUsers = append(allowedUsers, allowedUser)
 		}
+
 		exporter["allowed_users"] = allowedUsers
+
+		if currentVersion.GreaterThanOrEqual(Appliance63Version) {
+			exporter["labels_disabled"] = v.GetLabelsDisabled()
+		}
+
 		if err := d.Set("prometheus_exporter", []interface{}{exporter}); err != nil {
 			return diag.FromErr(err)
 		}
@@ -2041,7 +2113,7 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 		portal["profiles"] = v.GetProfiles()
 		portal["external_profiles"] = v.GetExternalProfiles()
 		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-			signInCustomization, err := flattenAppliancePortalSignInCustomziation(d, localPortal, v.GetSignInCustomization())
+			signInCustomization, err := flattenAppliancePortalSignInCustomziation(d, v.GetSignInCustomization())
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -2102,7 +2174,7 @@ func flattenApplianceProxyp12s(local map[string]interface{}, p12 openapi.P12) ([
 	return result, nil
 }
 
-func flattenAppliancePortalSignInCustomziation(d *schema.ResourceData, local map[string]interface{}, customization openapi.PortalSignInCustomization) ([]map[string]interface{}, error) {
+func flattenAppliancePortalSignInCustomziation(d *schema.ResourceData, customization openapi.PortalSignInCustomization) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
 	raw := make(map[string]interface{})
 
@@ -2278,6 +2350,9 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 					"token_request_url":   azure.GetTokenRequestUrl(),
 					"log_destination_url": azure.GetLogDestinationUrl(),
 				}
+				if currentVersion.GreaterThanOrEqual(Appliance63Version) {
+					s["scope"] = azure.GetScope()
+				}
 				if state := d.Get(fmt.Sprintf("log_forwarder.0.azure_monitor.%d.app_secret", index)).(string); len(state) > 0 {
 					s["app_secret"] = state
 				}
@@ -2303,6 +2378,44 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 			logforward["falcon_log_scale"] = falconList
 		}
 	}
+
+	if currentVersion.GreaterThanOrEqual(Appliance63Version) {
+		if v, ok := in.GetDatadogsOk(); ok {
+			dataDogsList := make([]map[string]interface{}, 0)
+			for index, dd := range v {
+				s := map[string]interface{}{
+					"site":    dd.GetSite(),
+					"api_key": dd.GetApiKey(),
+					"source":  dd.GetSource(),
+					"tags":    dd.GetTags(),
+				}
+				if state := d.Get(fmt.Sprintf("log_forwarder.0.datadogs.%d.token", index)).(string); len(state) > 0 {
+					s["token"] = state
+				}
+				dataDogsList = append(dataDogsList, s)
+			}
+			logforward["datadogs"] = dataDogsList
+		}
+
+		if v, ok := in.GetCoralogixsOk(); ok {
+			coralogixsList := make([]map[string]interface{}, 0)
+			for index, cl := range v {
+				s := map[string]interface{}{
+					"url":              cl.GetUrl(),
+					"private_key":      cl.GetPrivateKey(),
+					"uuid":             cl.GetUuid(),
+					"application_name": cl.GetApplicationName(),
+					"subsystem_name":   cl.GetSubsystemName(),
+				}
+				if state := d.Get(fmt.Sprintf("log_forwarder.0.coralogixs.%d.token", index)).(string); len(state) > 0 {
+					s["token"] = state
+				}
+				coralogixsList = append(coralogixsList, s)
+			}
+			logforward["coralogixs"] = coralogixsList
+		}
+	}
+
 	logforward["sites"] = in.GetSites()
 
 	logforwarders = append(logforwarders, logforward)
@@ -2360,6 +2473,10 @@ func flattenApplianceMetricsAggregator(in openapi.ApplianceAllOfMetricsAggregato
 			allowedUsers = append(allowedUsers, allowedUser)
 		}
 		exporter["allowed_users"] = allowedUsers
+
+		if currentVersion.GreaterThanOrEqual(Appliance63Version) {
+			exporter["labels_disabled"] = v.GetLabelsDisabled()
+		}
 
 		metricsAggr["prometheus_exporter"] = []interface{}{exporter}
 	}
@@ -2450,24 +2567,6 @@ func flattenApplianceClientInterface(in openapi.ApplianceAllOfClientInterface) (
 		m["override_spa_mode"] = "Disabled"
 	}
 
-	return []interface{}{m}, nil
-}
-
-func flattenAppliancePeerInterface(in openapi.ApplianceAllOfPeerInterface) ([]interface{}, error) {
-	m := make(map[string]interface{})
-	if v, ok := in.GetHostnameOk(); ok {
-		m["hostname"] = v
-	}
-	if v, ok := in.GetHttpsPortOk(); ok {
-		m["https_port"] = v
-	}
-	if _, ok := in.GetAllowSourcesOk(); ok {
-		allowSources, err := flattenAllowSources(in.GetAllowSources())
-		if err != nil {
-			return nil, err
-		}
-		m["allow_sources"] = allowSources
-	}
 	return []interface{}{m}, nil
 }
 
@@ -2677,10 +2776,6 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 		originalAppliance.SetCustomization(d.Get("customization").(string))
 	}
 
-	if d.HasChange("connect_to_peers_using_client_port_with_spa") {
-		originalAppliance.SetConnectToPeersUsingClientPortWithSpa(d.Get("connect_to_peers_using_client_port_with_spa").(bool))
-	}
-
 	if d.HasChange("client_interface") {
 		_, v := d.GetChange("client_interface")
 		cinterface, err := readClientInterfaceFromConfig(v.([]interface{}))
@@ -2688,15 +2783,6 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 			return diag.FromErr(err)
 		}
 		originalAppliance.SetClientInterface(cinterface)
-	}
-
-	if d.HasChange("peer_interface") {
-		_, v := d.GetChange("peer_interface")
-		pinterface, err := readPeerInterfaceFromConfig(v.([]interface{}))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		originalAppliance.SetPeerInterface(pinterface)
 	}
 
 	if d.HasChange("admin_interface") {
@@ -2948,26 +3034,6 @@ func readClientInterfaceFromConfig(cinterfaces []interface{}) (openapi.Appliance
 	return cinterface, nil
 }
 
-func readPeerInterfaceFromConfig(pinterfaces []interface{}) (openapi.ApplianceAllOfPeerInterface, error) {
-	pinterf := openapi.ApplianceAllOfPeerInterface{}
-	for _, r := range pinterfaces {
-		raw := r.(map[string]interface{})
-		if v, ok := raw["hostname"].(string); ok && len(v) > 0 {
-			pinterf.SetHostname(v)
-		}
-		if v, ok := raw["https_port"]; ok {
-			pinterf.SetHttpsPort(int32(v.(int)))
-		}
-		if v := raw["allow_sources"].([]interface{}); len(v) > 0 {
-			allowSources, err := readAllowSources(v)
-			if err != nil {
-				return pinterf, fmt.Errorf("Failed to resolve peer_interface.allow_sources: %w", err)
-			}
-			pinterf.SetAllowSources(allowSources)
-		}
-	}
-	return pinterf, nil
-}
 func readAdminInterfaceFromConfig(adminInterfaces []interface{}) (openapi.ApplianceAllOfAdminInterface, error) {
 	aInterface := openapi.ApplianceAllOfAdminInterface{}
 	for _, admin := range adminInterfaces {
@@ -3276,6 +3342,15 @@ func readPrometheusExporterFromConfig(exporters []interface{}, currentVersion *v
 				val.SetAllowedUsers(allowedUsers)
 			}
 		}
+		if currentVersion.GreaterThanOrEqual(Appliance63Version) {
+			if v, ok := rawServer["labels_disabled"].([]interface{}); ok && len(v) > 0 {
+				labelsDisabled, err := readLabelsDisabled(v)
+				if err != nil {
+					return val, err
+				}
+				val.SetLabelsDisabled(labelsDisabled)
+			}
+		}
 	}
 	return val, nil
 }
@@ -3471,6 +3546,9 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 				if v, ok := row["log_destination_url"]; ok {
 					azure.SetLogDestinationUrl(v.(string))
 				}
+				if v, ok := row["scope"]; ok {
+					azure.SetScope(v.(string))
+				}
 				azures = append(azures, azure)
 			}
 			val.SetAzureMonitors(azures)
@@ -3499,6 +3577,56 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 				falcons = append(falcons, falcon)
 			}
 			val.SetFalconLogScales(falcons)
+		}
+
+		if v := raw["datadogs"]; len(v.([]interface{})) > 0 {
+			datadogs := make([]openapi.Datadog, 0)
+			for _, dd := range v.([]interface{}) {
+				datadog := openapi.Datadog{}
+				row := dd.(map[string]interface{})
+				if v, ok := row["site"]; ok {
+					datadog.SetSite(v.(string))
+				}
+				if v, ok := row["api_key"]; ok {
+					datadog.SetApiKey(v.(string))
+				}
+				if v, ok := row["source"]; ok {
+					datadog.SetSource(v.(string))
+				}
+				if v, ok := row["tags"]; ok {
+					datadog.SetTags(v.([]string))
+				}
+				datadogs = append(datadogs, datadog)
+			}
+			val.SetDatadogs(datadogs)
+		}
+
+		if v := raw["coralogixs"]; len(v.([]interface{})) > 0 {
+			coralogixs := make([]openapi.Coralogix, 0)
+			for _, cl := range v.([]interface{}) {
+				coralogix := openapi.Coralogix{}
+				row := cl.(map[string]interface{})
+				if v, ok := row["url"]; ok {
+					coralogix.SetUrl(v.(string))
+				}
+				if v, ok := row["private_key"]; ok {
+					coralogix.SetPrivateKey(v.(string))
+				}
+				if v, ok := row["private_key"]; ok {
+					coralogix.SetPrivateKey(v.(string))
+				}
+				if v, ok := row["uuid"]; ok {
+					coralogix.SetUuid(v.(string))
+				}
+				if v, ok := row["application_name"]; ok {
+					coralogix.SetApplicationName(v.(string))
+				}
+				if v, ok := row["subsystem_name"]; ok {
+					coralogix.SetSubsystemName(v.(string))
+				}
+				coralogixs = append(coralogixs, coralogix)
+			}
+			val.SetCoralogixs(coralogixs)
 		}
 
 		sites := make([]string, 0)
@@ -3717,10 +3845,10 @@ func readAppliancePortalFromConfig(d *schema.ResourceData, portals []interface{}
 			p.SetProxyP12s(p12s)
 		}
 		if v, ok := raw["external_profiles"].([]interface{}); ok && len(v) > 0 && v[0] != nil {
-			profiles := make([]openapi.PortalExternalProfilesInner, 0)
+			profiles := make([]openapi.ExternalProfile, 0)
 			for _, k := range v {
 				raw := k.(map[string]interface{})
-				profile := openapi.PortalExternalProfilesInner{}
+				profile := openapi.ExternalProfile{}
 				if v, ok := raw["id"]; ok {
 					profile.SetId(v.(string))
 				}

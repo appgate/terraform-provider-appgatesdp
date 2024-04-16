@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 	"github.com/cenkalti/backoff/v4"
 
@@ -209,6 +209,17 @@ func readAllowedUsers(in []interface{}) ([]openapi.PrometheusExporterAllowedUser
 	return r, nil
 }
 
+func readLabelsDisabled(v []interface{}) ([]string, error) {
+	l := []string{}
+	for _, i := range v {
+		s, ok := i.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid type: 'i', expected string")
+		}
+		l = append(l, s)
+	}
+	return l, nil
+}
 func readP12(in interface{}) (openapi.P12, error) {
 	p12 := openapi.P12{}
 	raw := in.(map[string]interface{})
@@ -226,6 +237,18 @@ func readP12(in interface{}) (openapi.P12, error) {
 	return p12, nil
 }
 
+func readArrayOfFunctionsFromConfig(list []interface{}) ([]openapi.ApplianceFunction, error) {
+	result := make([]openapi.ApplianceFunction, 0)
+	for _, item := range list {
+		if item == nil {
+			continue
+		}
+		function := openapi.ApplianceFunction(item.(string))
+		result = append(result, function)
+	}
+	return result, nil
+}
+
 func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {
 	result := make([]string, 0)
 	for _, item := range list {
@@ -237,10 +260,10 @@ func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {
 	return result, nil
 }
 
-func sliceToLowercase(l []string) []string {
+func sliceToLowercase(l []openapi.ApplianceFunction) []string {
 	result := make([]string, 0, len(l))
 	for _, s := range l {
-		result = append(result, strings.ToLower(s))
+		result = append(result, strings.ToLower(string(s)))
 	}
 	return result
 }

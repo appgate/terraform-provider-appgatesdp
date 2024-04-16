@@ -92,7 +92,6 @@ func TestAccSiteBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
 				),
@@ -633,7 +632,7 @@ func TestAccSiteBasicAwsResolverWithoutSecret(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "11"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "12"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.https_proxy", ""),
@@ -733,7 +732,7 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "11"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "12"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", "string1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.%", "4"),
@@ -767,14 +766,13 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -800,7 +798,7 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "11"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "12"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", "string1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.%", "4"),
@@ -834,14 +832,13 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -858,7 +855,7 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "11"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "12"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", "string1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.%", "4"),
@@ -1217,7 +1214,7 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1227,7 +1224,6 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv4", "10.10.10.10"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv6", "fdf8:f53b:82e4::53"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -1273,7 +1269,7 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1283,7 +1279,6 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv4", "20.20.20.20"), // updated
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv6", "fdf8:f53b:82e4::53"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -1329,14 +1324,13 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"), // deleted
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -1373,7 +1367,6 @@ func testAccSiteVPNRouteVia(context map[string]interface{}) string {
           }
         }
         vpn {
-          state_sharing                  = false
           ip_access_log_interval_seconds = 120
           snat                           = false
           tls {
@@ -1414,7 +1407,6 @@ func testAccSiteVPNRouteViaUpdatedV4Route(context map[string]interface{}) string
           }
         }
         vpn {
-          state_sharing                  = false
           ip_access_log_interval_seconds = 120
           snat                           = false
           tls {
@@ -1455,7 +1447,6 @@ func testAccSiteVPNRouteViaDeleted(context map[string]interface{}) string {
           }
         }
         vpn {
-          state_sharing                  = false
           ip_access_log_interval_seconds = 120
           snat                           = false
           tls {
@@ -1512,7 +1503,7 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1522,7 +1513,6 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv4", "10.10.10.10"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv6", ""),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -1562,7 +1552,7 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1572,7 +1562,6 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv4", "10.20.10.20"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv6", ""),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -1612,7 +1601,7 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1621,7 +1610,6 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.0.ipv6", "fdf8:f53b:82e4::53"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -1650,7 +1638,6 @@ resource "appgatesdp_site" "d_test_site" {
 	  enabled_v6 = false
 	}
 	vpn {
-	  state_sharing                  = false
 	  ip_access_log_interval_seconds = 120
 	  snat                           = false
 	  tls {
@@ -1682,7 +1669,6 @@ resource "appgatesdp_site" "d_test_site" {
 	  enabled_v6 = false
 	}
 	vpn {
-	  state_sharing                  = false
 	  ip_access_log_interval_seconds = 120
 	  snat                           = false
 	  tls {
@@ -1714,7 +1700,6 @@ resource "appgatesdp_site" "d_test_site" {
 	  enabled_v6 = false
 	}
 	vpn {
-	  state_sharing                  = false
 	  ip_access_log_interval_seconds = 120
 	  snat                           = false
 	  tls {
@@ -1803,14 +1788,13 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -2030,7 +2014,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.name", "Illumio Resolver 1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.password", "adminadmin"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.port", "65530"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.update_interval", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.update_interval", "10"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.username", "admin"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
@@ -2038,14 +2022,13 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -2091,14 +2074,13 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -2137,14 +2119,13 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -2269,7 +2250,7 @@ func TestAccSiteNameResolverIllumio62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.name", "Illumio Resolver 1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.password", "adminadmin"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.port", "65530"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.update_interval", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.update_interval", "10"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.username", "admin"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.0.org_id", "org12345"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
@@ -2278,14 +2259,13 @@ func TestAccSiteNameResolverIllumio62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -2332,14 +2312,13 @@ func TestAccSiteNameResolverIllumio62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -2378,14 +2357,13 @@ func TestAccSiteNameResolverIllumio62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.ip_access_log_interval_seconds", "120"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.route_via.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
@@ -2418,7 +2396,7 @@ resource "appgatesdp_site" "illumio_site" {
 	  illumio_resolvers {
 		name     = "Illumio Resolver 1"
 		hostname = "illumio.acme.com"
-		update_interval = 5
+		update_interval = 10
 		port     = 65530
 		username = "admin"
 		password = "adminadmin"
@@ -2480,7 +2458,6 @@ func TestAccSiteBasic2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 				),
 			},
 			{
@@ -2499,7 +2476,6 @@ func TestAccSiteBasic2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "note updated"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "true"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "true"),
 				),
 			},
 		},
@@ -2515,7 +2491,6 @@ resource "appgatesdp_site" "test_site" {
     ]
     notes = "This object has been created for test purposes."
 	vpn {
-	  state_sharing = false
 	  snat          = false
 	}
 }
@@ -2539,7 +2514,6 @@ resource "appgatesdp_site" "test_site" {
         "10.20.0.0/24",
     ]
 	vpn {
-		state_sharing = true
 		snat          = true
 	}
 }
@@ -2570,7 +2544,6 @@ func TestAccSiteBasic3(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 				),
 			},
 			{
@@ -2589,7 +2562,6 @@ func TestAccSiteBasic3(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.snat", "false"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.state_sharing", "false"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.address", "1.1.1.1"),
@@ -2610,7 +2582,6 @@ resource "appgatesdp_site" "test_site" {
     ]
     notes = "This object has been created for test purposes."
 	vpn {
-	  state_sharing = false
 	  snat          = false
 	}
 }
@@ -2626,7 +2597,6 @@ resource "appgatesdp_site" "test_site" {
     ]
     notes = "This object has been created for test purposes."
 	vpn {
-	    state_sharing = false
 	    snat          = false
 	}
 	name_resolution {

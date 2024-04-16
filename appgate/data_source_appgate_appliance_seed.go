@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -111,10 +111,6 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 	if cloudOk {
 		sshConfig.ProvideCloudSSHKey = openapi.PtrBool(cloudKey.(bool))
 		d.Set("provide_cloud_ssh_key", true)
-	}
-	if _, lvOk := d.GetOk("latest_version"); lvOk {
-		exportRequest = exportRequest.LatestVersion(true)
-		d.Set("latest_version", true)
 	}
 	exportRequest = exportRequest.SSHConfig(*sshConfig)
 	seedmap, _, err := exportRequest.Authorization(token).Execute()

@@ -25,12 +25,11 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "actions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "conditions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.action", "allow"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "5"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.#", "4"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.0", "10.0.0.0/24"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.1", "10.0.0.1"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.2", "aws://security-group:accounting"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.3", "dns://hostname.company.com"),
-					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.4", "hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.2", "dns://hostname.company.com"),
+					resource.TestCheckResourceAttr(resourceName, "actions.0.hosts.3", "hostname.company.com"),
 					resource.TestCheckResourceAttr(resourceName, "actions.0.ports.#", "0"),
 
 					resource.TestCheckResourceAttr(resourceName, "actions.0.subtype", "icmp_up"),
@@ -102,7 +101,7 @@ resource "appgatesdp_entitlement" "test_ping_item" {
   site = data.appgatesdp_site.default_site.id
     conditions = [
       data.appgatesdp_condition.always.id
-  ]
+    ]
 
   tags = [
     "terraform",
@@ -122,7 +121,6 @@ resource "appgatesdp_entitlement" "test_ping_item" {
       "10.0.0.0/24",
       "hostname.company.com",
       "dns://hostname.company.com",
-      "aws://security-group:accounting"
     ]
   }
 

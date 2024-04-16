@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 	"golang.org/x/net/http/httpproxy"
@@ -185,6 +185,8 @@ func guessVersion(clientVersion int) (*version.Version, error) {
 		return version.NewVersion("6.1.0+estimated")
 	case Version19:
 		return version.NewVersion("6.2.0+estimated")
+	case Version20:
+		return version.NewVersion("6.3.0+estimated")
 	}
 	return nil, fmt.Errorf("could not determine appliance version with client version %d", clientVersion)
 }
@@ -283,13 +285,9 @@ func (c *Client) login(ctx context.Context) (*openapi.LoginResponse, error) {
 	err := backoff.Retry(func() error {
 		login, response, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
 		if response == nil {
-			if err != nil {
-				if err, ok := err.(*url.Error); ok {
-					if err, ok := err.Unwrap().(x509.UnknownAuthorityError); ok {
-						return &backoff.PermanentError{
-							Err: fmt.Errorf("Import certificate or toggle APPGATE_INSECURE - %s", err),
-						}
-					}
+			if err != nil && errors.As(err, &x509.UnknownAuthorityError{}) {
+				return &backoff.PermanentError{
+					Err: fmt.Errorf("Import certificate or toggle APPGATE_INSECURE - %s", err),
 				}
 			}
 			log.Printf("[DEBUG] Login failed, No response %s", err)

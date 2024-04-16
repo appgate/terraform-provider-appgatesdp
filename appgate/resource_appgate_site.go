@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -135,11 +135,6 @@ func resourceAppgateSite() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-
-						"state_sharing": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
 
 						"snat": {
 							Type:     schema.TypeBool,
@@ -302,6 +297,10 @@ func resourceAppgateSite() *schema.Resource {
 										Optional: true,
 										Default:  true,
 									},
+									"partition": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 									"assumed_roles": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -426,6 +425,10 @@ func resourceAppgateSite() *schema.Resource {
 										Optional: true,
 									},
 									"instance_filter": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"forwarding_rules_filter": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
@@ -568,7 +571,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if v, ok := d.GetOk("vpn"); ok {
-		vpn, err := readSiteVPNFromConfig(currentVersion, v.([]interface{}))
+		vpn, err := readSiteVPNFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -633,7 +636,7 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("entitlement_based_routing", site.EntitlementBasedRouting)
 
 	if site.Vpn != nil {
-		if err = d.Set("vpn", flattenSiteVPN(currentVersion, *site.Vpn)); err != nil {
+		if err = d.Set("vpn", flattenSiteVPN(*site.Vpn)); err != nil {
 			return err
 		}
 	}
@@ -681,11 +684,8 @@ func flattenSiteDefaultGateway(in openapi.SiteAllOfDefaultGateway) []interface{}
 	return []interface{}{m}
 }
 
-func flattenSiteVPN(currentVersion *version.Version, in openapi.SiteAllOfVpn) []interface{} {
+func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 	m := make(map[string]interface{})
-	if v, ok := in.GetStateSharingOk(); ok {
-		m["state_sharing"] = *v
-	}
 	if v, ok := in.GetSnatOk(); ok {
 		m["snat"] = *v
 	}
@@ -745,14 +745,12 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 	if v, ok := in.GetGcpResolversOk(); ok {
 		m["gcp_resolvers"] = flattenSiteGCPResolvers(v)
 	}
-	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-		if v, ok := in.GetDnsForwardingOk(); ok {
-			dnsfwd, err := flattenSiteDnsForwading(*v)
-			if err != nil {
-				return nil, err
-			}
-			m["dns_forwarding"] = dnsfwd
+	if v, ok := in.GetDnsForwardingOk(); ok {
+		dnsfwd, err := flattenSiteDnsForwading(*v)
+		if err != nil {
+			return nil, err
 		}
+		m["dns_forwarding"] = dnsfwd
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		if v, ok := in.GetIllumioResolversOk(); ok {
@@ -893,7 +891,7 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 		m["query_aaaa"] = v.GetQueryAAAA()
 		m["default_ttl_seconds"] = v.GetDefaultTtlSeconds()
 		m["servers"] = v.GetServers()
-		m["search_domains"] = v.GetSearchDomains()
+		m["search_domains"] = v.GetMatchDomains()
 
 		out[i] = m
 	}
@@ -1003,7 +1001,7 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("vpn") {
 		_, v := d.GetChange("vpn")
-		vpn, err := readSiteVPNFromConfig(currentVersion, v.([]interface{}))
+		vpn, err := readSiteVPNFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -1091,7 +1089,7 @@ func readSiteDefaultGatewayFromConfig(defaultGateways []interface{}) (openapi.Si
 	return result, nil
 }
 
-func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) (openapi.SiteAllOfVpn, error) {
+func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 	result := openapi.SiteAllOfVpn{}
 	for _, vpn := range vpns {
 		if vpn == nil {
@@ -1099,9 +1097,6 @@ func readSiteVPNFromConfig(currentVersion *version.Version, vpns []interface{}) 
 		}
 		raw := vpn.(map[string]interface{})
 
-		if v, ok := raw["state_sharing"]; ok {
-			result.SetStateSharing(v.(bool))
-		}
 		if v, ok := raw["snat"]; ok {
 			result.SetSnat(v.(bool))
 		}
@@ -1269,7 +1264,7 @@ func readDNSResolversFromConfig(currentVersion *version.Version, dnsConfigs []in
 				return result, fmt.Errorf("Failed to resolve dns search domains: %w", err)
 			}
 			if len(domains) > 0 {
-				row.SetSearchDomains(domains)
+				row.SetMatchDomains(domains)
 			}
 		}
 		result = append(result, row)
