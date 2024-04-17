@@ -20,7 +20,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -376,16 +375,6 @@ func Nprintf(format string, params map[string]interface{}) string {
 	return format
 }
 
-func applianceStatsRetryable(ctx context.Context, meta interface{}) *retry.RetryError {
-	if err := checkApplianceStatus(ctx, meta)(); err != nil {
-		if err, ok := err.(ApplianceStatsRetryableError); ok {
-			return retry.RetryableError(err)
-		}
-		return retry.NonRetryableError(err)
-	}
-	return nil
-}
-
 // ApplianceStatsRetryableError is used when /stats/appliance should be retried.
 type ApplianceStatsRetryableError struct {
 	err error
@@ -394,39 +383,6 @@ type ApplianceStatsRetryableError struct {
 // Error returns non-empty string if there was an error.
 func (e ApplianceStatsRetryableError) Error() string {
 	return e.err.Error()
-}
-
-func checkApplianceStatus(ctx context.Context, meta interface{}) func() error {
-	return func() error {
-		statsAPI := meta.(*Client).API.ApplianceStatsApi
-		token, err := meta.(*Client).GetToken()
-		if err != nil {
-			return err
-		}
-		stats, _, err := statsAPI.StatsAppliancesGet(ctx).Authorization(token).Execute()
-		if err != nil {
-			return ApplianceStatsRetryableError{err: err}
-		}
-		numberOfControllers := int(stats.GetControllerCount())
-		controllers := make([]openapi.StatsAppliancesListAllOfData, 0, numberOfControllers)
-		for _, data := range stats.GetData() {
-			c := data.GetController()
-			// all none controller appliances will return n/a as status
-			if c.GetStatus() != "n/a" {
-				controllers = append(controllers, data)
-			}
-		}
-		if len(controllers) != numberOfControllers {
-			log.Printf("[DEBUG] Found %d controller expected %d", len(controllers), numberOfControllers)
-		}
-		for _, controller := range controllers {
-			log.Printf("[DEBUG] Wait for controllers %s %s %s", controller.GetName(), controller.GetState(), controller.GetStatus())
-			if controller.GetStatus() == "busy" {
-				return ApplianceStatsRetryableError{err: fmt.Errorf("%s is busy, got %s", controller.GetName(), controller.GetStatus())}
-			}
-		}
-		return nil
-	}
 }
 
 const (
