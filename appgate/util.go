@@ -13,7 +13,6 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
@@ -21,7 +20,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -377,12 +376,12 @@ func Nprintf(format string, params map[string]interface{}) string {
 	return format
 }
 
-func applianceStatsRetryable(ctx context.Context, meta interface{}) *resource.RetryError {
+func applianceStatsRetryable(ctx context.Context, meta interface{}) *retry.RetryError {
 	if err := checkApplianceStatus(ctx, meta)(); err != nil {
 		if err, ok := err.(ApplianceStatsRetryableError); ok {
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
-		return resource.NonRetryableError(err)
+		return retry.NonRetryableError(err)
 	}
 	return nil
 }
@@ -428,19 +427,6 @@ func checkApplianceStatus(ctx context.Context, meta interface{}) func() error {
 		}
 		return nil
 	}
-}
-
-// waitForControllers is a blocking function that does exponential backOff on appliance stats
-// and make sure all the controllers are healthy before returning nil
-func waitForControllers(ctx context.Context, meta interface{}) error {
-	return backoff.Retry(checkApplianceStatus(ctx, meta), &backoff.ExponentialBackOff{
-		InitialInterval:     2 * time.Second,
-		RandomizationFactor: 0.7,
-		Multiplier:          2,
-		MaxInterval:         5 * time.Minute,
-		Stop:                backoff.Stop,
-		Clock:               backoff.SystemClock,
-	})
 }
 
 const (
