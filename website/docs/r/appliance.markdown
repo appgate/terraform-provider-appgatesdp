@@ -546,11 +546,18 @@ Falcon Log Scale endpoints to connect and sent audit logs
 
 #### Datadogs
 Datadog endpoint to connect and send audit logs
-* `site`: 
+* `site`: Datadog site to send logs to.
+* `apiKey`: API key to use for authentication.
+* `source`: Source to use for the logs.
+* `tags`: Tags to add to the logs.
 
 #### Coralogixs
 Coralogix endpoint to connect and send audit logs
-* `url`: 
+* `url`: URL of the Coralogix collector to connect to.
+* `privateKey`: Private key to use for authentication.
+* `uuid`: UUID of the Coralogix collector to connect to.
+* `applicationName`: Application name to use for the logs.
+* `subsystemName`: Subsystem name to use for the logs.
 
 #### sites
 The sites to collect logs from and forward.
