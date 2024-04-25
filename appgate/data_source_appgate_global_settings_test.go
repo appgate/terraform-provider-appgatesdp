@@ -21,7 +21,6 @@ func TestAccAppgateGlobalSettingsDataSource(t *testing.T) {
 
 					resource.TestCheckResourceAttrSet("data.appgatesdp_global_settings.test", "backup_api_enabled"),
 
-					resource.TestCheckResourceAttrSet("data.appgatesdp_global_settings.test", "fips"),
 					resource.TestCheckResourceAttrSet("data.appgatesdp_global_settings.test", "geo_ip_updates"),
 					resource.TestCheckResourceAttrSet("data.appgatesdp_global_settings.test", "audit_log_persistence_mode"),
 

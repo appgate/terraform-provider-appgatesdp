@@ -13,15 +13,13 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 	"github.com/cenkalti/backoff/v4"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -209,6 +207,17 @@ func readAllowedUsers(in []interface{}) ([]openapi.PrometheusExporterAllowedUser
 	return r, nil
 }
 
+func readLabelsDisabled(v []interface{}) ([]string, error) {
+	l := []string{}
+	for _, i := range v {
+		s, ok := i.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid type: 'i', expected string")
+		}
+		l = append(l, s)
+	}
+	return l, nil
+}
 func readP12(in interface{}) (openapi.P12, error) {
 	p12 := openapi.P12{}
 	raw := in.(map[string]interface{})
@@ -226,6 +235,18 @@ func readP12(in interface{}) (openapi.P12, error) {
 	return p12, nil
 }
 
+func readArrayOfFunctionsFromConfig(list []interface{}) ([]openapi.ApplianceFunction, error) {
+	result := make([]openapi.ApplianceFunction, 0)
+	for _, item := range list {
+		if item == nil {
+			continue
+		}
+		function := openapi.ApplianceFunction(item.(string))
+		result = append(result, function)
+	}
+	return result, nil
+}
+
 func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {
 	result := make([]string, 0)
 	for _, item := range list {
@@ -237,10 +258,10 @@ func readArrayOfStringsFromConfig(list []interface{}) ([]string, error) {
 	return result, nil
 }
 
-func sliceToLowercase(l []string) []string {
+func sliceToLowercase(l []openapi.ApplianceFunction) []string {
 	result := make([]string, 0, len(l))
 	for _, s := range l {
-		result = append(result, strings.ToLower(s))
+		result = append(result, strings.ToLower(string(s)))
 	}
 	return result
 }
@@ -354,16 +375,6 @@ func Nprintf(format string, params map[string]interface{}) string {
 	return format
 }
 
-func applianceStatsRetryable(ctx context.Context, meta interface{}) *resource.RetryError {
-	if err := checkApplianceStatus(ctx, meta)(); err != nil {
-		if err, ok := err.(ApplianceStatsRetryableError); ok {
-			return resource.RetryableError(err)
-		}
-		return resource.NonRetryableError(err)
-	}
-	return nil
-}
-
 // ApplianceStatsRetryableError is used when /stats/appliance should be retried.
 type ApplianceStatsRetryableError struct {
 	err error
@@ -372,52 +383,6 @@ type ApplianceStatsRetryableError struct {
 // Error returns non-empty string if there was an error.
 func (e ApplianceStatsRetryableError) Error() string {
 	return e.err.Error()
-}
-
-func checkApplianceStatus(ctx context.Context, meta interface{}) func() error {
-	return func() error {
-		statsAPI := meta.(*Client).API.ApplianceStatsApi
-		token, err := meta.(*Client).GetToken()
-		if err != nil {
-			return err
-		}
-		stats, _, err := statsAPI.StatsAppliancesGet(ctx).Authorization(token).Execute()
-		if err != nil {
-			return ApplianceStatsRetryableError{err: err}
-		}
-		numberOfControllers := int(stats.GetControllerCount())
-		controllers := make([]openapi.StatsAppliancesListAllOfData, 0, numberOfControllers)
-		for _, data := range stats.GetData() {
-			c := data.GetController()
-			// all none controller appliances will return n/a as status
-			if c.GetStatus() != "n/a" {
-				controllers = append(controllers, data)
-			}
-		}
-		if len(controllers) != numberOfControllers {
-			log.Printf("[DEBUG] Found %d controller expected %d", len(controllers), numberOfControllers)
-		}
-		for _, controller := range controllers {
-			log.Printf("[DEBUG] Wait for controllers %s %s %s", controller.GetName(), controller.GetState(), controller.GetStatus())
-			if controller.GetStatus() == "busy" {
-				return ApplianceStatsRetryableError{err: fmt.Errorf("%s is busy, got %s", controller.GetName(), controller.GetStatus())}
-			}
-		}
-		return nil
-	}
-}
-
-// waitForControllers is a blocking function that does exponential backOff on appliance stats
-// and make sure all the controllers are healthy before returning nil
-func waitForControllers(ctx context.Context, meta interface{}) error {
-	return backoff.Retry(checkApplianceStatus(ctx, meta), &backoff.ExponentialBackOff{
-		InitialInterval:     2 * time.Second,
-		RandomizationFactor: 0.7,
-		Multiplier:          2,
-		MaxInterval:         5 * time.Minute,
-		Stop:                backoff.Stop,
-		Clock:               backoff.SystemClock,
-	})
 }
 
 const (

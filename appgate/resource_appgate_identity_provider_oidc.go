@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v19/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -192,7 +192,6 @@ func resourceAppgateOidcProviderRuleRead(d *schema.ResourceData, meta interface{
 	}
 	api := meta.(*Client).API.OidcIdentityProvidersApi
 	ctx := context.TODO()
-	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	oidc, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -212,7 +211,7 @@ func resourceAppgateOidcProviderRuleRead(d *schema.ResourceData, meta interface{
 		d.Set("device_limit_per_user", *v)
 	}
 	if v, ok := oidc.GetOnBoarding2FAOk(); ok {
-		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v, currentVersion)); err != nil {
+		if err := d.Set("on_boarding_two_factor", flattenIdentityProviderOnboarding2fa(*v)); err != nil {
 			return err
 		}
 	}
@@ -279,7 +278,6 @@ func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 	api := meta.(*Client).API.OidcIdentityProvidersApi
 	ctx := context.TODO()
-	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
 	originalOidcProvider, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -307,7 +305,7 @@ func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")
-		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}), currentVersion)
+		onboarding, err := readOnBoardingTwoFactorFromConfig(v.([]interface{}))
 		if err != nil {
 			return err
 		}
@@ -380,7 +378,7 @@ func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("google") {
 		_, v := d.GetChange("google")
-		googles := readOidcProviderGoogleFromConfig(v.([]interface{}), d)
+		googles := readOidcProviderGoogleFromConfig(v.([]interface{}))
 		originalOidcProvider.SetGoogle(googles[0])
 	}
 
@@ -393,7 +391,7 @@ func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	return resourceAppgateOidcProviderRuleRead(d, meta)
 }
 
-func readOidcProviderGoogleFromConfig(input []interface{}, d *schema.ResourceData) []openapi.OidcProviderAllOfGoogle {
+func readOidcProviderGoogleFromConfig(input []interface{}) []openapi.OidcProviderAllOfGoogle {
 	googles := make([]openapi.OidcProviderAllOfGoogle, 0)
 	for _, raw := range input {
 		google := raw.(map[string]interface{})
