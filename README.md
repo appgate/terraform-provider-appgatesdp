@@ -5,7 +5,7 @@ Version compatibility
 ---------------------------
 Our goal is to always support the latest stable release of Appgate.
 
-The current version of the master branch supports Appgate appliance API version 18.
+The current version of the master branch supports Appgate appliance API version 20.
 
 for more documentation about version compatibility, see the [terraform documentation](./website/docs/guides/version_compatibility.markdown).
 
