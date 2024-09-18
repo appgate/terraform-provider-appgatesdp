@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -826,7 +826,6 @@ func flattenSiteAzureResolver(currentVersion *version.Version, in []openapi.Site
 		m := make(map[string]interface{})
 		m["name"] = v.GetName()
 		m["update_interval"] = v.GetUpdateInterval()
-		m["subscription_id"] = v.GetSubscriptionId()
 		m["tenant_id"] = v.GetTenantId()
 		m["client_id"] = v.GetClientId()
 		if val, ok := local["secret"]; ok {
@@ -1366,9 +1365,6 @@ func readAzureResolversFromConfig(currentVersion *version.Version, azureConfigs 
 		}
 		if v, ok := raw["update_interval"]; ok {
 			row.SetUpdateInterval(int32(v.(int)))
-		}
-		if v, ok := raw["subscription_id"]; ok {
-			row.SetSubscriptionId(v.(string))
 		}
 		if v, ok := raw["tenant_id"]; ok {
 			row.SetTenantId(v.(string))

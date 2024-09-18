@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
@@ -2983,7 +2983,7 @@ func resourceAppgateApplianceDelete(ctx context.Context, d *schema.ResourceData,
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		log.Printf("[DEBUG] Appliance is active, deactivate and wiping before deleting")
 		deactiveRequest := api.AppliancesIdDeactivatePost(ctx, appliance.GetId())
-		_, err = deactiveRequest.Wipe(true).Authorization(token).Execute()
+		_, _, err = deactiveRequest.Wipe(true).Authorization(token).Execute()
 		if err != nil {
 			return diag.Errorf("Failed to delete Appliance while deactivating, %s", err)
 		}

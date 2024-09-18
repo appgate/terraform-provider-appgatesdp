@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 	"golang.org/x/net/http/httpproxy"

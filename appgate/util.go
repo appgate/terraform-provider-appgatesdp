@@ -14,7 +14,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 	"github.com/cenkalti/backoff/v4"
 
@@ -401,16 +401,16 @@ const (
 // and make sure a certain appliance has reached state.
 func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, state string, b *backoff.ExponentialBackOff) error {
 	return backoff.Retry(func() error {
-		statsAPI := meta.(*Client).API.ApplianceStatsApi
+		appliancesAPI := meta.(*Client).API.AppliancesApi
 		token, err := meta.(*Client).GetToken()
 		if err != nil {
 			return ApplianceStatsRetryableError{err: err}
 		}
-		stats, _, err := statsAPI.StatsAppliancesGet(ctx).Authorization(token).Execute()
+		stats, _, err := appliancesAPI.AppliancesStatusGet(ctx).Authorization(token).Execute()
 		if err != nil {
 			return ApplianceStatsRetryableError{err: err}
 		}
-		var appliance openapi.StatsAppliancesListAllOfData
+		var appliance openapi.ApplianceWithStatus
 		for _, data := range stats.GetData() {
 			if data.GetId() == applianceID {
 				appliance = data
