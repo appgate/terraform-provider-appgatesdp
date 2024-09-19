@@ -28,9 +28,10 @@ const (
 	Version18 int = 18
 	Version19 int = 19
 	Version20 int = 20
+	Version21 int = 21
 	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
 	// its not recommended to change this value.
-	DefaultClientVersion    = Version20
+	DefaultClientVersion    = Version21
 	MinimumSupportedVersion = Version18
 )
 
@@ -46,6 +47,7 @@ var (
 		Version18: "6.1.0",
 		Version19: "6.2.0",
 		Version20: "6.3.0",
+		Version21: "6.4.0",
 	}
 
 	Appliance53Version, _ = version.NewVersion(ApplianceVersionMap[Version14])
@@ -55,6 +57,7 @@ var (
 	Appliance61Version, _ = version.NewVersion(ApplianceVersionMap[Version18])
 	Appliance62Version, _ = version.NewVersion(ApplianceVersionMap[Version19])
 	Appliance63Version, _ = version.NewVersion(ApplianceVersionMap[Version20])
+	Appliance64Version, _ = version.NewVersion(ApplianceVersionMap[Version21])
 )
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
@@ -86,7 +89,7 @@ func Provider() *schema.Provider {
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APPGATE_INSECURE", false),
+				DefaultFunc: schema.EnvDefaultFunc("APPGATE_INSECURE", true),
 			},
 			"debug": {
 				Type:        schema.TypeBool,
