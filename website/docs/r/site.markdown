@@ -30,7 +30,7 @@ resource "appgatesdp_site" "gbg_site" {
     ip_pool_mappings {
         from = "64cbd0ca-688d-4b55-a8a4-4069d8be6ce5"
         to   = "699d9d61-67bb-4cc3-9365-7666d2ddd0a8"
-        type = "Allocation
+        type = "Allocation"
     }
     default_gateway {
         enabled_v4       = false
