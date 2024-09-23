@@ -80,7 +80,7 @@ resource "appgatesdp_site" "gbg_site" {
 	            "vpc1"
 	        ]
 	        assumed_roles {
-	            account_id  = "account_id1
+	            account_id  = "account_id1"
 	            role_name   = "role_1"
 	            external_id = "external_id1"
 	            regions = [
