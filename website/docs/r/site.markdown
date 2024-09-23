@@ -30,7 +30,7 @@ resource "appgatesdp_site" "gbg_site" {
     ip_pool_mappings {
         from = "64cbd0ca-688d-4b55-a8a4-4069d8be6ce5"
         to   = "699d9d61-67bb-4cc3-9365-7666d2ddd0a8"
-        type = "Allocation
+        type = "Allocation"
     }
     default_gateway {
         enabled_v4       = false
@@ -70,7 +70,7 @@ resource "appgatesdp_site" "gbg_site" {
 	        name               = "AWS Resolver 1"
 	        update_interval    = 5
 	        vpc_auto_discovery = true
-	        regions            = "us-west-1"
+	        regions            = ["us-west-1"]
 	        use_iam_role       = true
 	        access_key_id      = "access_key_id1"
 	        secret_access_key  = "secret_access_key1"
@@ -80,11 +80,11 @@ resource "appgatesdp_site" "gbg_site" {
 	            "vpc1"
 	        ]
 	        assumed_roles {
-	            account_id  = "account_id1
+	            account_id  = "account_id1"
 	            role_name   = "role_1"
 	            external_id = "external_id1"
 	            regions = [
-	                "us-west-1
+	                "us-west-1"
                 ]
 	        }
 	    }
