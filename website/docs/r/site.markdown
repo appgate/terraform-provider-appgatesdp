@@ -70,7 +70,7 @@ resource "appgatesdp_site" "gbg_site" {
 	        name               = "AWS Resolver 1"
 	        update_interval    = 5
 	        vpc_auto_discovery = true
-	        regions            = "us-west-1"
+	        regions            = ["us-west-1"]
 	        use_iam_role       = true
 	        access_key_id      = "access_key_id1"
 	        secret_access_key  = "secret_access_key1"
@@ -84,7 +84,7 @@ resource "appgatesdp_site" "gbg_site" {
 	            role_name   = "role_1"
 	            external_id = "external_id1"
 	            regions = [
-	                "us-west-1
+	                "us-west-1"
                 ]
 	        }
 	    }
