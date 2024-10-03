@@ -10,7 +10,6 @@ import (
 	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
-	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -52,7 +51,7 @@ func identityProviderSchema() map[string]*schema.Schema {
 							return
 						}
 					}
-					errs = append(errs, fmt.Errorf("type must be on of %v, got %s", list, s))
+					errs = append(errs, fmt.Errorf("type must be one of %v, got %s", list, s))
 					return
 				},
 			},
@@ -421,7 +420,7 @@ func ldapProviderSchema() map[string]*schema.Schema {
 }
 
 // readProviderFromConfig reads all the common attributes for the IdentityProviders.
-func readProviderFromConfig(d *schema.ResourceData, provider openapi.ConfigurableIdentityProvider, currentVersion *version.Version) (*openapi.ConfigurableIdentityProvider, error) {
+func readProviderFromConfig(d *schema.ResourceData, provider openapi.ConfigurableIdentityProvider) (*openapi.ConfigurableIdentityProvider, error) {
 	base, err := readBaseEntityFromConfig(d)
 	if err != nil {
 		return &provider, err
@@ -438,18 +437,6 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.Configurabl
 
 	if v, ok := d.GetOk("admin_provider"); ok {
 		provider.SetAdminProvider(v.(bool))
-	}
-
-	// device_limit_per_user is only available on 5.5 or higher on root level,
-	// previous version has this on on_boarding_two_factor.device_limit_per_user
-	if v, ok := d.GetOk("device_limit_per_user"); ok {
-		if currentVersion.LessThan(Appliance55Version) {
-			return &provider, fmt.Errorf(
-				"device_limit_per_user is only available on 5.5, your current version is %s, Use on_boarding_two_factor.device_limit_per_user for appliances less then 5.5",
-				currentVersion.String(),
-			)
-		}
-		provider.SetDeviceLimitPerUser(int32(v.(int)))
 	}
 
 	if v, ok := d.GetOk("on_boarding_two_factor"); ok {
@@ -471,6 +458,9 @@ func readProviderFromConfig(d *schema.ResourceData, provider openapi.Configurabl
 	}
 	if v, ok := d.GetOk("ip_pool_v6"); ok {
 		provider.SetIpPoolV6(v.(string))
+	}
+	if v, ok := d.GetOk("device_limit_per_user"); ok {
+		provider.SetDeviceLimitPerUser(int32(v.(int)))
 	}
 	if v, ok := d.GetOk("user_scripts"); ok {
 		us, err := readArrayOfStringsFromConfig(v.([]interface{}))

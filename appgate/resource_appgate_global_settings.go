@@ -276,25 +276,13 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 	if d.HasChange("spa_mode") {
-		if currentVersion.LessThan(Appliance55Version) {
-			return diag.Errorf("spa_mode is not supported on %s", currentVersion.String())
-		} else if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-			originalsettings.SetSpaMode(d.Get("spa_mode").(string))
-		}
+		originalsettings.SetSpaMode(d.Get("spa_mode").(string))
 	}
 	if d.HasChange("spa_time_window_seconds") {
-		if currentVersion.LessThan(Appliance60Version) {
-			return diag.Errorf("spa_time_window_seconds is not supported on %s", currentVersion.String())
-		} else if currentVersion.GreaterThanOrEqual(Appliance60Version) {
-			originalsettings.SetSpaTimeWindowSeconds(float32(d.Get("spa_time_window_seconds").(int)))
-		}
+		originalsettings.SetSpaTimeWindowSeconds(float32(d.Get("spa_time_window_seconds").(int)))
 	}
 	if d.HasChange("collective_name") {
-		if currentVersion.LessThan(Appliance60Version) {
-			return diag.Errorf("collective_name is not supported on %s", currentVersion.String())
-		} else if currentVersion.GreaterThanOrEqual(Appliance60Version) {
-			originalsettings.SetCollectiveName(d.Get("collective_name").(string))
-		}
+		originalsettings.SetCollectiveName(d.Get("collective_name").(string))
 	}
 	log.Printf("[DEBUG] Updating Global settings %+v", originalsettings)
 	req := api.GlobalSettingsPut(ctx)

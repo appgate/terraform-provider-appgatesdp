@@ -384,10 +384,6 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 		args.SetId(v.(string))
 	}
 
-	// Type is only available in >= 5.5
-	if currentVersion.LessThan(Appliance55Version) {
-		args.Type = nil
-	}
 	// if the provisioner has expliclitly set the type, use it.
 	if v, ok := d.GetOk("type"); ok {
 		args.SetType(v.(string))
@@ -398,9 +394,6 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 	// - resource "appgatesdp_device_policy"
 	// - resource "appgatesdp_dns_policy"
 	if v, ok := ctx.Value(PolicyTypeCtx).(string); ok {
-		if currentVersion.LessThan(Appliance55Version) {
-			return diag.Errorf("appgatesdp_%s_policy is not supported on your version", v)
-		}
 		args.Type = openapi.PtrString(v)
 	}
 
@@ -420,14 +413,12 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 		args.SetExpression(c.(string))
 	}
 
-	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
-		if v, ok := d.GetOk("client_settings"); ok {
-			settings, err := readPolicyClientSettingsFromConfig(v.([]interface{}))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			args.SetClientSettings(settings)
+	if v, ok := d.GetOk("client_settings"); ok {
+		settings, err := readPolicyClientSettingsFromConfig(v.([]interface{}))
+		if err != nil {
+			return diag.FromErr(err)
 		}
+		args.SetClientSettings(settings)
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		if v, ok := d.GetOk("client_profile_settings"); ok {
@@ -441,32 +432,30 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 			args.SetCustomClientHelpUrl(v.(string))
 		}
 	}
-	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-		if v, ok := d.GetOk("type"); ok {
-			args.SetType(v.(string))
+	if v, ok := d.GetOk("type"); ok {
+		args.SetType(v.(string))
+	}
+	if args.GetType() == "Dns" {
+		args.SetTamperProofing(false)
+	}
+	if v, ok := d.GetOk("override_site_claim"); ok {
+		args.SetOverrideSiteClaim(v.(string))
+	}
+	if v, ok := d.GetOk("override_nearest_site"); ok {
+		args.SetOverrideNearestSite(v.(bool))
+	}
+	if v, ok := d.GetOk("apply_fallback_site"); ok {
+		args.SetApplyFallbackSite(v.(bool))
+	}
+	if v, ok := d.GetOk("dns_settings"); ok {
+		if args.GetType() != "Dns" {
+			return diag.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", args.GetType())
 		}
-		if args.GetType() == "Dns" {
-			args.SetTamperProofing(false)
+		servers, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return diag.FromErr(err)
 		}
-		if v, ok := d.GetOk("override_site_claim"); ok {
-			args.SetOverrideSiteClaim(v.(string))
-		}
-		if v, ok := d.GetOk("override_nearest_site"); ok {
-			args.SetOverrideNearestSite(v.(bool))
-		}
-		if v, ok := d.GetOk("apply_fallback_site"); ok {
-			args.SetApplyFallbackSite(v.(bool))
-		}
-		if v, ok := d.GetOk("dns_settings"); ok {
-			if args.GetType() != "Dns" {
-				return diag.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", args.GetType())
-			}
-			servers, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			args.SetDnsSettings(servers)
-		}
+		args.SetDnsSettings(servers)
 	}
 
 	if c, ok := d.GetOk("entitlements"); ok {
@@ -508,9 +497,6 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 		args.SetOverrideSite(c.(string))
 	}
 	if v, ok := d.GetOk("proxy_auto_config"); ok {
-		if currentVersion.LessThan(Appliance53Version) {
-			return diag.Errorf("proxy_auto_config not supported on %q client v%d", currentVersion, meta.(*Client).ClientVersion)
-		}
 		args.SetProxyAutoConfig(readProxyAutoConfigFromConfig(v.([]interface{})))
 	}
 
@@ -721,9 +707,7 @@ func resourceAppgatePolicyRead(ctx context.Context, d *schema.ResourceData, meta
 			if err != nil {
 				return diag.FromErr(err)
 			}
-			if currentVersion.GreaterThanOrEqual(Appliance53Version) {
-				d.Set("proxy_auto_config", pac)
-			}
+			d.Set("proxy_auto_config", pac)
 		}
 	}
 	if v, o := policy.GetTrustedNetworkCheckOk(); o != false {
@@ -735,28 +719,24 @@ func resourceAppgatePolicyRead(ctx context.Context, d *schema.ResourceData, meta
 			d.Set("trusted_network_check", t)
 		}
 	}
-	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
-		if ok := d.Get("client_settings"); ok != nil {
-			clientSettings, err := flattenPolicyClientSettings(policy.GetClientSettings())
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			d.Set("client_settings", clientSettings)
+	if ok := d.Get("client_settings"); ok != nil {
+		clientSettings, err := flattenPolicyClientSettings(policy.GetClientSettings())
+		if err != nil {
+			return diag.FromErr(err)
 		}
-
+		d.Set("client_settings", clientSettings)
 	}
-	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-		d.Set("type", policy.GetType())
-		if v := d.Get("override_site_claim"); v != nil {
-			d.Set("override_site_claim", policy.GetOverrideSiteClaim())
+
+	d.Set("type", policy.GetType())
+	if v := d.Get("override_site_claim"); v != nil {
+		d.Set("override_site_claim", policy.GetOverrideSiteClaim())
+	}
+	if v := d.Get("dns_settings"); v != nil {
+		dnsSettings, err := flattenPolicyDnsSettings(policy.GetDnsSettings())
+		if err != nil {
+			return diag.FromErr(err)
 		}
-		if v := d.Get("dns_settings"); v != nil {
-			dnsSettings, err := flattenPolicyDnsSettings(policy.GetDnsSettings())
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			d.Set("dns_settings", dnsSettings)
-		}
+		d.Set("dns_settings", dnsSettings)
 	}
 	if v := d.Get("client_profile_settings"); v != nil && currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		clientProfileSettings, err := flattenPolicyClientProfileSettings(policy.GetClientProfileSettings())
@@ -966,15 +946,13 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 		orginalPolicy.SetAdministrativeRoles(entitlements)
 	}
-	if currentVersion.GreaterThanOrEqual(Appliance54Version) {
-		if d.HasChange("client_settings") {
-			_, v := d.GetChange("client_settings")
-			clientSettings, err := readPolicyClientSettingsFromConfig(v.([]interface{}))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			orginalPolicy.SetClientSettings(clientSettings)
+	if d.HasChange("client_settings") {
+		_, v := d.GetChange("client_settings")
+		clientSettings, err := readPolicyClientSettingsFromConfig(v.([]interface{}))
+		if err != nil {
+			return diag.FromErr(err)
 		}
+		orginalPolicy.SetClientSettings(clientSettings)
 	}
 
 	if d.HasChange("override_site") {
@@ -986,29 +964,27 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
-	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-		if d.HasChange("type") {
-			orginalPolicy.SetType(d.Get("type").(string))
+	if d.HasChange("type") {
+		orginalPolicy.SetType(d.Get("type").(string))
+	}
+	if d.HasChange("override_site_claim") {
+		_, n := d.GetChange("override_site_claim")
+		if new, ok := n.(string); ok && len(new) > 0 {
+			orginalPolicy.SetOverrideSiteClaim(new)
+		} else {
+			orginalPolicy.OverrideSiteClaim = nil
 		}
-		if d.HasChange("override_site_claim") {
-			_, n := d.GetChange("override_site_claim")
-			if new, ok := n.(string); ok && len(new) > 0 {
-				orginalPolicy.SetOverrideSiteClaim(new)
-			} else {
-				orginalPolicy.OverrideSiteClaim = nil
-			}
+	}
+	if d.HasChange("dns_settings") {
+		if orginalPolicy.GetType() != "Dns" {
+			return diag.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", orginalPolicy.GetType())
 		}
-		if d.HasChange("dns_settings") {
-			if orginalPolicy.GetType() != "Dns" {
-				return diag.Errorf("appgatesdp_policy.dns_settings is only allowed on policy Type 'Dns', got %q", orginalPolicy.GetType())
-			}
-			_, v := d.GetChange("dns_settings")
-			dnsSettings, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			orginalPolicy.SetDnsSettings(dnsSettings)
+		_, v := d.GetChange("dns_settings")
+		dnsSettings, err := readPolicyDnsSettingsFromConfig(v.(*schema.Set).List())
+		if err != nil {
+			return diag.FromErr(err)
 		}
+		orginalPolicy.SetDnsSettings(dnsSettings)
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		if d.HasChange("client_profile_settings") {

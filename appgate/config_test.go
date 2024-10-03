@@ -144,9 +144,10 @@ func TestLoginNotAcceptable(t *testing.T) {
 }
 
 var (
-	computed54TestVersion, _ = version.NewVersion("5.4.0+estimated")
+	computed61TestVersion, _ = version.NewVersion("6.1.0+estimated")
+	computed64TestVersion, _ = version.NewVersion("6.4.0+estimated")
 
-	loginResponse54 = `
+	loginResponse61 = `
 {
     "user": {
         "name": "admin",
@@ -173,8 +174,8 @@ var (
 {
 	"id": "string",
 	"message": "string",
-	"minSupportedVersion": 7,
-	"maxSupportedVersion": 15
+	"minSupportedVersion": 18,
+	"maxSupportedVersion": 21
 }
   `
 )
@@ -195,16 +196,16 @@ func TestClient(t *testing.T) {
 		wantInsecure    bool
 	}{
 		{
-			name: "test 5.4 login",
+			name: "test 6.1 login",
 			fields: fields{
-				ResponseBody: loginResponse54,
+				ResponseBody: loginResponse61,
 			},
 			wantErr:         false,
-			expectedVersion: computed54TestVersion,
+			expectedVersion: computed64TestVersion,
 			config: &Config{
 				Username:     "admin",
 				Password:     "admin",
-				Version:      15,
+				Version:      18,
 				LoginTimeout: 1,
 				Insecure:     true,
 			},
@@ -214,10 +215,10 @@ func TestClient(t *testing.T) {
 		{
 			name: "invalid client version",
 			fields: fields{
-				ResponseBody: loginResponse54,
+				ResponseBody: loginResponse61,
 			},
 			wantErr:         true,
-			expectedVersion: computed54TestVersion,
+			expectedVersion: computed61TestVersion,
 			config: &Config{
 				Username:     "admin",
 				Password:     "admin",
@@ -231,14 +232,14 @@ func TestClient(t *testing.T) {
 		{
 			name: "500 login response",
 			fields: fields{
-				ResponseBody: loginResponse54,
+				ResponseBody: loginResponse61,
 			},
 			wantErr:         true,
-			expectedVersion: computed54TestVersion,
+			expectedVersion: computed61TestVersion,
 			config: &Config{
 				Username:     "admin",
 				Password:     "admin",
-				Version:      15,
+				Version:      18,
 				LoginTimeout: 1,
 				Insecure:     true,
 			},
@@ -248,14 +249,14 @@ func TestClient(t *testing.T) {
 		{
 			name: "502 login response",
 			fields: fields{
-				ResponseBody: loginResponse54,
+				ResponseBody: loginResponse61,
 			},
 			wantErr:         true,
-			expectedVersion: computed54TestVersion,
+			expectedVersion: computed61TestVersion,
 			config: &Config{
 				Username:     "admin",
 				Password:     "admin",
-				Version:      15,
+				Version:      18,
 				LoginTimeout: 1,
 				Insecure:     true,
 			},
@@ -265,14 +266,14 @@ func TestClient(t *testing.T) {
 		{
 			name: "503 login response",
 			fields: fields{
-				ResponseBody: loginResponse54,
+				ResponseBody: loginResponse61,
 			},
 			wantErr:         true,
-			expectedVersion: computed54TestVersion,
+			expectedVersion: computed61TestVersion,
 			config: &Config{
 				Username:     "admin",
 				Password:     "admin",
-				Version:      15,
+				Version:      18,
 				LoginTimeout: 1,
 				Insecure:     true,
 			},
@@ -285,7 +286,7 @@ func TestClient(t *testing.T) {
 				ResponseBody: loginResponse406,
 			},
 			wantErr:         true,
-			expectedVersion: computed54TestVersion,
+			expectedVersion: computed61TestVersion,
 			config: &Config{
 				Username:     "admin",
 				Password:     "admin",
@@ -299,15 +300,15 @@ func TestClient(t *testing.T) {
 		{
 			name: "test with invalid pem",
 			fields: fields{
-				ResponseBody: loginResponse54,
+				ResponseBody: loginResponse61,
 			},
 			wantErr:         false,
 			wantClientErr:   true,
-			expectedVersion: computed54TestVersion,
+			expectedVersion: computed61TestVersion,
 			config: &Config{
 				Username:     "admin",
 				Password:     "admin",
-				Version:      15,
+				Version:      18,
 				LoginTimeout: 1,
 				Insecure:     false,
 				PemFilePath:  "test-fixtures/invalid_cert.pem",
@@ -318,15 +319,15 @@ func TestClient(t *testing.T) {
 		{
 			name: "test with pem file",
 			fields: fields{
-				ResponseBody: loginResponse54,
+				ResponseBody: loginResponse61,
 			},
 			wantErr:         false,
 			wantClientErr:   false,
-			expectedVersion: computed54TestVersion,
+			expectedVersion: computed64TestVersion,
 			config: &Config{
 				Username:     "admin",
 				Password:     "admin",
-				Version:      15,
+				Version:      18,
 				LoginTimeout: 1,
 				Insecure:     false,
 				PemFilePath:  "test-fixtures/cert.pem",

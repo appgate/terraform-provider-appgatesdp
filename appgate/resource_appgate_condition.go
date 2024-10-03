@@ -11,9 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// errRemedyLogicUnsupportedVersion is used when trying to use remedy_logic on an older unsupported version.
-var errRemedyLogicUnsupportedVersion = fmt.Errorf("remedy_logic is only supported in %s or higher", ApplianceVersionMap[Version14])
-
 func resourceAppgateCondition() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAppgateConditionCreate,
@@ -131,7 +128,6 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	api := meta.(*Client).API.ConditionsApi
-	currentVersion := meta.(*Client).ApplianceVersion
 
 	args := openapi.Condition{}
 	if v, ok := d.GetOk("condition_id"); ok {
@@ -150,9 +146,6 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if v, ok := d.GetOk("remedy_logic"); ok {
-		if currentVersion.LessThan(Appliance53Version) {
-			return fmt.Errorf("%w, you are using %q client v%d", errRemedyLogicUnsupportedVersion, currentVersion, meta.(*Client).ClientVersion)
-		}
 		args.SetRemedyLogic(v.(string))
 	}
 
@@ -191,7 +184,6 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	api := meta.(*Client).API.ConditionsApi
-	currentVersion := meta.(*Client).ApplianceVersion
 	ctx := context.Background()
 	request := api.ConditionsIdGet(ctx, d.Id())
 	remoteCondition, res, err := request.Authorization(token).Execute()
@@ -208,11 +200,7 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("notes", remoteCondition.Notes)
 	d.Set("tags", remoteCondition.Tags)
 	d.Set("expression", remoteCondition.Expression)
-
-	if currentVersion.GreaterThanOrEqual(Appliance53Version) {
-		d.Set("remedy_logic", remoteCondition.GetRemedyLogic())
-	}
-
+	d.Set("remedy_logic", remoteCondition.GetRemedyLogic())
 	d.Set("repeat_schedules", remoteCondition.RepeatSchedules)
 	if remoteCondition.RemedyMethods != nil {
 		if err = d.Set("remedy_methods", flattenConditionRemedyMethods(remoteCondition.RemedyMethods)); err != nil {
@@ -244,7 +232,6 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	api := meta.(*Client).API.ConditionsApi
-	currentVersion := meta.(*Client).ApplianceVersion
 	request := api.ConditionsIdGet(ctx, d.Id())
 	orginalCondition, _, err := request.Authorization(token).Execute()
 	if err != nil {
@@ -266,9 +253,6 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 		orginalCondition.SetExpression(d.Get("expression").(string))
 	}
 	if d.HasChange("remedy_logic") {
-		if currentVersion.LessThan(Appliance53Version) {
-			return fmt.Errorf("%w, you are using %q client v%d", errRemedyLogicUnsupportedVersion, currentVersion, meta.(*Client).ClientVersion)
-		}
 		orginalCondition.SetRemedyLogic(d.Get("remedy_logic").(string))
 	}
 

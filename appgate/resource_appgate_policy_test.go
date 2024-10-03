@@ -311,9 +311,6 @@ func TestAccPolicyClientSettings55(t *testing.T) {
 		CheckDestroy: testAccCheckPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFiveOrHigher(t)
-				},
 				Config: testAccCheckPolicyClientSettings(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyExists(resourceName),
@@ -492,10 +489,6 @@ func TestAccPolicyDnsSettings55(t *testing.T) {
 				PreConfig: func() {
 					c := testAccProvider.Meta().(*Client)
 					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					if currentVersion.LessThan(Appliance55Version) {
-						t.Skip("Test only for 5.5 and above, appliance.portal is only supported in 5.4 and above.")
-					}
 				},
 				Config: testAccCheckPolicyDnsSettings(context),
 				Check: resource.ComposeTestCheckFunc(

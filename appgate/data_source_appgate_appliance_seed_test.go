@@ -17,9 +17,6 @@ func TestAccAppgateApplianceSeedDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSeedTest(rName),
-				PreConfig: func() {
-					applianceTestForFiveFive(t)
-				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "appliance_id", resourceName, "id"),
 					resource.TestCheckResourceAttrSet("data.appgatesdp_appliance_seed.test_gateway_seed_file", "password"),
@@ -51,17 +48,6 @@ resource "appgatesdp_appliance" "new_test_gateway" {
       nic     = "eth0"
     }
     override_spa_mode = "UDP-TCP"
-  }
-
-  peer_interface {
-    hostname   = "envy-10-97-168-1338.devops"
-    https_port = "1338"
-
-    allow_sources {
-      address = "1.3.3.8"
-      netmask = 32
-      nic     = "eth0"
-    }
   }
 
   site = data.appgatesdp_site.default_site.id

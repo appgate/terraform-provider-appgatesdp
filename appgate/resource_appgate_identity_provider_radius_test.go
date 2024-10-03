@@ -70,9 +70,6 @@ func TestAccRadiusIdentityProviderBasic(t *testing.T) {
 		CheckDestroy: testAccCheckRadiusIdentityProviderDestroy,
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFiveOrHigher(t)
-				},
 				Config: testAccCheckRadiusIdentityProviderBasic55OrGreater(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRadiusIdentityProviderExists(resourceName),

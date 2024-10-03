@@ -54,7 +54,6 @@ func TestAccSiteBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.client_id", "string3"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.name", "Azure Resolver 1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.secret", "string4"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.subscription_id", "string1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.tenant_id", "string2"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.0.update_interval", "30"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
@@ -259,12 +258,12 @@ resource "appgatesdp_site" "test_site" {
         }
 
         azure_resolvers {
-            name            = "Azure Resolver 1"
-            update_interval = 30
-            subscription_id = "string1"
-            tenant_id       = "string2"
-            client_id       = "string3"
-            secret          = "string4"
+            name                   = "Azure Resolver 1"
+            update_interval        = 30
+            use_managed_identities = true
+            tenant_id              = "string2"
+            client_id              = "string3"
+            secret                 = "string4"
         }
 
         esx_resolvers {
@@ -339,12 +338,12 @@ resource "appgatesdp_site" "test_site" {
         }
 
         azure_resolvers {
-            name            = "Azure Resolver 1"
-            update_interval = 30
-            subscription_id = "string1"
-            tenant_id       = "string2"
-            client_id       = "string3"
-            secret          = "string4"
+            name                   = "Azure Resolver 1"
+            update_interval        = 30
+            use_managed_identities = true
+            tenant_id              = "string2"
+            client_id              = "string3"
+            secret                 = "string4"
         }
 
         esx_resolvers {
@@ -414,12 +413,12 @@ resource "appgatesdp_site" "test_site" {
         }
 
         azure_resolvers {
-            name            = "Azure Resolver 1"
-            update_interval = 30
-            subscription_id = "string1"
-            tenant_id       = "string2"
-            client_id       = "string3"
-            secret          = "string4"
+            name                   = "Azure Resolver 1"
+            update_interval        = 30
+            tenant_id              = "string2"
+            client_id              = "string3"
+            secret                 = "string4"
+            use_managed_identities = true
         }
 
         esx_resolvers {
@@ -484,12 +483,12 @@ resource "appgatesdp_site" "test_site" {
         }
 
         azure_resolvers {
-            name            = "Azure Resolver 1"
-            update_interval = 30
-            subscription_id = "string1"
-            tenant_id       = "string2"
-            client_id       = "string3"
-            secret          = "string4"
+            name                   = "Azure Resolver 1"
+            update_interval        = 30
+            tenant_id              = "string2"
+            client_id              = "string3"
+            secret                 = "string4"
+            use_managed_identities = true
         }
 
         esx_resolvers {
@@ -555,12 +554,12 @@ resource "appgatesdp_site" "test_site" {
         }
 
         azure_resolvers {
-            name            = "Azure Resolver 1"
-            update_interval = 30
-            subscription_id = "string1"
-            tenant_id       = "string2"
-            client_id       = "string3"
-            secret          = "string4"
+            name                   = "Azure Resolver 1"
+            update_interval        = 30
+            tenant_id              = "string2"
+            client_id              = "string3"
+            secret                 = "string4"
+			use_managed_identities = true
         }
 
         esx_resolvers {
@@ -1851,6 +1850,9 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
 				),
+				ImportStateVerifyIgnore: []string{
+					"name_resolution.0.illumio_resolvers.0.org_id",
+				},
 			},
 			{
 				ResourceName:     resourceName,
@@ -1906,6 +1908,9 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
 				),
+				ImportStateVerifyIgnore: []string{
+					"name_resolution.0.illumio_resolvers.0.org_id",
+				},
 			},
 			{
 				ResourceName:     resourceName,
@@ -1951,6 +1956,9 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
 				),
+				ImportStateVerifyIgnore: []string{
+					"name_resolution.0.illumio_resolvers.0.org_id",
+				},
 			},
 			{
 				ResourceName:     resourceName,

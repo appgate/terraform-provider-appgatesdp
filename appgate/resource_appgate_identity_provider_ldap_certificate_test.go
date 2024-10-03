@@ -18,9 +18,6 @@ func TestAccLdapCertificateIdentityProvidervBasic(t *testing.T) {
 		CheckDestroy: testAccCheckLdapCertificateIdentityProvidervDestroy,
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFiveOrHigher(t)
-				},
 				Config: testAccCheckLdapCertificateIdentityProvidervBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLdapCertificateIdentityProvidervExists(resourceName),
@@ -281,10 +278,6 @@ func TestAccLdapCertificateIdentityProvidervBasic55OrGreater(t *testing.T) {
 				PreConfig: func() {
 					c := testAccProvider.Meta().(*Client)
 					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					if currentVersion.LessThan(Appliance55Version) {
-						t.Skip("Test only for 5.5 and above, on_boarding_two_factor.0.device_limit_per_user updated behaviour in > 5.5")
-					}
 				},
 				Config: testAccCheckLdapCertificateIdentityProvidervBasic55OrGreater(rName),
 				Check: resource.ComposeTestCheckFunc(

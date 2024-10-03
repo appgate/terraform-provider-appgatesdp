@@ -2,7 +2,6 @@ package appgate
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -351,10 +350,6 @@ func resourceAppgateSite() *schema.Resource {
 										Type:     schema.TypeBool,
 										Default:  false,
 										Optional: true,
-									},
-									"subscription_id": {
-										Type:     schema.TypeString,
-										Required: true,
 									},
 									"tenant_id": {
 										Type:     schema.TypeString,
@@ -736,7 +731,7 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 	}
 	if v, ok := in.GetAzureResolversOk(); ok {
 		l := getNSLocalChanges(local, "azure_resolvers")
-		m["azure_resolvers"] = flattenSiteAzureResolver(currentVersion, v, l)
+		m["azure_resolvers"] = flattenSiteAzureResolver(v, l)
 	}
 	if v, ok := in.GetEsxResolversOk(); ok {
 		l := getNSLocalChanges(local, "esx_resolvers")
@@ -754,7 +749,7 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 	}
 	if currentVersion.GreaterThanOrEqual(Appliance61Version) {
 		if v, ok := in.GetIllumioResolversOk(); ok {
-			m["illumio_resolvers"] = flattenSiteIllumioResolvers(v, getNSLocalChanges(local, "illumio_resolvers"))
+			m["illumio_resolvers"] = flattenSiteIllumioResolvers(currentVersion, v, getNSLocalChanges(local, "illumio_resolvers"))
 		}
 	}
 	return []interface{}{m}, nil
@@ -782,7 +777,7 @@ func flattenSiteGCPResolvers(in []openapi.SiteAllOfNameResolutionGcpResolvers) [
 	return out
 }
 
-func flattenSiteIllumioResolvers(in []openapi.SiteAllOfNameResolutionIllumioResolvers, local map[string]interface{}) []map[string]interface{} {
+func flattenSiteIllumioResolvers(version *version.Version, in []openapi.SiteAllOfNameResolutionIllumioResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -791,7 +786,12 @@ func flattenSiteIllumioResolvers(in []openapi.SiteAllOfNameResolutionIllumioReso
 		m["hostname"] = v.GetHostname()
 		m["port"] = v.GetPort()
 		m["username"] = v.GetUsername()
-		m["org_id"] = v.GetOrgId()
+		if version.GreaterThanOrEqual(Appliance62Version) {
+			if val, ok := local["orgiId"]; ok {
+				m["orgId"] = val
+			}
+			m["org_id"] = v.GetOrgId()
+		}
 		if val, ok := local["password"]; ok {
 			m["password"] = val
 		} else {
@@ -820,7 +820,7 @@ func flattenSiteESXResolvers(in []openapi.SiteAllOfNameResolutionEsxResolvers, l
 	return out
 }
 
-func flattenSiteAzureResolver(currentVersion *version.Version, in []openapi.SiteAllOfNameResolutionAzureResolvers, local map[string]interface{}) []map[string]interface{} {
+func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -833,9 +833,7 @@ func flattenSiteAzureResolver(currentVersion *version.Version, in []openapi.Site
 		} else {
 			m["secret"] = v.GetSecret()
 		}
-		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-			m["use_managed_identities"] = v.GetUseManagedIdentities()
-		}
+		m["use_managed_identities"] = v.GetUseManagedIdentities()
 
 		out[i] = m
 	}
@@ -1170,7 +1168,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 		}
 		if v, ok := raw["dns_resolvers"]; ok {
 			dnss := v.(*schema.Set).List()
-			dnsResolvers, err := readDNSResolversFromConfig(currentVersion, dnss)
+			dnsResolvers, err := readDNSResolversFromConfig(dnss)
 			if err != nil {
 				return result, err
 			}
@@ -1184,7 +1182,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 			result.SetAwsResolvers(awsResolvers)
 		}
 		if v, ok := raw["azure_resolvers"]; ok {
-			azureResolvers, err := readAzureResolversFromConfig(currentVersion, v.(*schema.Set).List())
+			azureResolvers, err := readAzureResolversFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
@@ -1205,14 +1203,11 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 			result.SetGcpResolvers(gcpResolvers)
 		}
 		if v, ok := raw["dns_forwarding"]; ok {
-			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(currentVersion, v.(*schema.Set).List())
+			dnsForwardingResolvers, err := readDNSForwardingResolversFromConfig(v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
 			if len(dnsForwardingResolvers.GetDnsServers()) > 0 {
-				if currentVersion.LessThan(Appliance55Version) {
-					return result, errors.New("dns_forwarding is only available in 5.5 or above")
-				}
 				result.SetDnsForwarding(dnsForwardingResolvers)
 			}
 		}
@@ -1229,7 +1224,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 	return result, nil
 }
 
-func readDNSResolversFromConfig(currentVersion *version.Version, dnsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
+func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionDnsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionDnsResolvers, 0)
 	for _, dns := range dnsConfigs {
 		raw := dns.(map[string]interface{})
@@ -1240,13 +1235,11 @@ func readDNSResolversFromConfig(currentVersion *version.Version, dnsConfigs []in
 		if v, ok := raw["update_interval"]; ok {
 			row.SetUpdateInterval(int32(v.(int)))
 		}
-		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
-			if v, ok := raw["query_aaaa"]; ok {
-				row.SetQueryAAAA(v.(bool))
-			}
-			if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
-				row.SetDefaultTtlSeconds(int32(v))
-			}
+		if v, ok := raw["query_aaaa"]; ok {
+			row.SetQueryAAAA(v.(bool))
+		}
+		if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
+			row.SetDefaultTtlSeconds(int32(v))
 		}
 		if v := raw["servers"]; len(v.([]interface{})) > 0 {
 			servers, err := readArrayOfStringsFromConfig(v.([]interface{}))
@@ -1355,7 +1348,7 @@ func readAwsAssumedRolesFromConfig(roles []interface{}) ([]openapi.SiteAllOfName
 	return result, nil
 }
 
-func readAzureResolversFromConfig(currentVersion *version.Version, azureConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
+func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAzureResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAzureResolvers, 0)
 	for _, azure := range azureConfigs {
 		raw := azure.(map[string]interface{})
@@ -1375,10 +1368,8 @@ func readAzureResolversFromConfig(currentVersion *version.Version, azureConfigs 
 		if v, ok := raw["secret"]; ok {
 			row.SetSecret(v.(string))
 		}
-		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-			if v, ok := raw["use_managed_identities"]; ok {
-				row.SetUseManagedIdentities(v.(bool))
-			}
+		if v, ok := raw["use_managed_identities"]; ok {
+			row.SetUseManagedIdentities(v.(bool))
 		}
 		result = append(result, row)
 	}
@@ -1432,7 +1423,7 @@ func readGCPResolversFromConfig(gcpConfigs []interface{}) ([]openapi.SiteAllOfNa
 	return result, nil
 }
 
-func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
+func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (openapi.SiteAllOfNameResolutionDnsForwarding, error) {
 	result := openapi.SiteAllOfNameResolutionDnsForwarding{}
 	for _, dnsForwarding := range dnsForwardingConfig {
 		raw := dnsForwarding.(map[string]interface{})
@@ -1456,10 +1447,8 @@ func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsFo
 			}
 			result.SetAllowDestinations(destinations)
 		}
-		if currentVersion.GreaterThanOrEqual(Appliance60Version) {
-			if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
-				result.SetDefaultTtlSeconds(int32(v))
-			}
+		if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
+			result.SetDefaultTtlSeconds(int32(v))
 		}
 	}
 	return result, nil

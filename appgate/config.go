@@ -171,16 +171,6 @@ func guessVersion(clientVersion int) (*version.Version, error) {
 	// TODO query GET /appliance controller and check exact version.
 	// POST /login does not include version anymore.
 	switch clientVersion {
-	case Version13:
-		return version.NewVersion("5.2.0+estimated")
-	case Version14:
-		return version.NewVersion("5.3.0+estimated")
-	case Version15:
-		return version.NewVersion("5.4.0+estimated")
-	case Version16:
-		return version.NewVersion("5.5.0+estimated")
-	case Version17:
-		return version.NewVersion("6.0.0+estimated")
 	case Version18:
 		return version.NewVersion("6.1.0+estimated")
 	case Version19:

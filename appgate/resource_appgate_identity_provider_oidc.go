@@ -88,15 +88,12 @@ func resourceAppgateOidcProviderRuleCreate(d *schema.ResourceData, meta interfac
 	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderOidc
-	provider, err = readProviderFromConfig(d, *provider, currentVersion)
+	provider, err = readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderOidc, err)
 	}
 	args := openapi.OidcProvider{}
 	// base
-	if currentVersion.LessThan(Appliance55Version) {
-		args.DeviceLimitPerUser = nil
-	}
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())

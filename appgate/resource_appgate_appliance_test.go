@@ -33,12 +33,6 @@ var applianceConstraintCheck = func(t *testing.T, constraint string) {
 }
 
 var (
-	applianceTestForFiveFive = func(t *testing.T) {
-		applianceConstraintCheck(t, ">= 5.5, < 6.0")
-	}
-	applianceTestForFiveFiveOrHigher = func(t *testing.T) {
-		applianceConstraintCheck(t, ">= 5.5")
-	}
 	testFor6AndAbove = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.0")
 	}
@@ -81,10 +75,6 @@ func TestAccApplianceBasicController(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					// this test include peer_interface which is not allowed on higher versions
-					applianceTestForFiveFive(t)
-				},
 				Config: testAccCheckApplianceBasicController(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -248,7 +238,6 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", context["updated_name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["updated_hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
@@ -260,10 +249,6 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "4444"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "UDP-TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "13371"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-test-created-updated"),
@@ -435,7 +420,6 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", context["disabled_name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["updated_hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
@@ -447,10 +431,6 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "4444"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "UDP-TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "13371"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-test-created-updated"),
@@ -597,7 +577,6 @@ data "appgatesdp_site" "default_site" {
 resource "appgatesdp_appliance" "test_controller" {
   name     = "%{name}"
   hostname = "%{hostname}"
-  connect_to_peers_using_client_port_with_spa = true
   client_interface {
     hostname       = "%{hostname}"
     proxy_protocol = true
@@ -609,10 +588,6 @@ resource "appgatesdp_appliance" "test_controller" {
       nic     = "eth0"
     }
     override_spa_mode = "TCP"
-  }
-  peer_interface {
-    hostname   = "%{hostname}"
-    https_port = "1337"
   }
   tags = [
     "terraform",
@@ -803,10 +778,6 @@ resource "appgatesdp_appliance" "test_controller" {
     override_spa_mode = "UDP-TCP"
   }
 
-  peer_interface {
-    hostname   = "%{hostname}"
-    https_port = "13371"
-  }
   tags = [
     "terraform",
     "api-test-created-updated",
@@ -1035,11 +1006,6 @@ resource "appgatesdp_appliance" "test_controller" {
     override_spa_mode = "UDP-TCP"
   }
 
-  peer_interface {
-    hostname   = "%{hostname}"
-    https_port = "13371"
-  }
-
   tags = [
     "terraform",
     "api-test-created-updated",
@@ -1146,9 +1112,6 @@ func TestAccApplianceConnector(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFive(t)
-				},
 				Config: testAccCheckApplianceBasicConnector(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -1200,11 +1163,6 @@ func TestAccApplianceConnector(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1337"),
-
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-test-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "terraform"),
@@ -1247,10 +1205,6 @@ resource "appgatesdp_appliance" "connector" {
       override_spa_mode = "TCP"
     }
 
-    peer_interface {
-      hostname   = "%{hostname}"
-      https_port = "1337"
-    }
     tags = [
       "terraform",
       "api-test-created"
@@ -1336,10 +1290,6 @@ func TestAccApplianceBasicGateway(t *testing.T) {
 		CheckDestroy: testAccCheckApplianceDestroy,
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					// this test include peer_interface which is not allowed on higher versions
-					applianceTestForFiveFive(t)
-				},
 				Config: testAccCheckApplianceBasicGateway(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -1420,10 +1370,6 @@ resource "appgatesdp_appliance" "test_gateway" {
     override_spa_mode = "TCP"
   }
 
-  peer_interface {
-    hostname   =  "%{hostname}"
-    https_port = "1337"
-  }
   tags = [
     "terraform",
     "api-test-created"
@@ -1489,16 +1435,12 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFive(t)
-				},
 				Config: testAccCheckApplianceBasicControllerWithoutOverrideSPA(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.allow_sources.#", "1"),
@@ -1598,11 +1540,6 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key", ""),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key_type", ""),
 
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1337"),
-
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "127.0.0.1"),
@@ -1666,7 +1603,6 @@ data "appgatesdp_site" "default_site" {
 resource "appgatesdp_appliance" "test_controller" {
   name     = "%{name}"
   hostname     = "%{hostname}"
-  connect_to_peers_using_client_port_with_spa = true
   client_interface {
     hostname       = "%{hostname}"
     proxy_protocol = true
@@ -1677,10 +1613,6 @@ resource "appgatesdp_appliance" "test_controller" {
       netmask = 32
       nic     = "eth0"
     }
-  }
-  peer_interface {
-    hostname   = "%{hostname}"
-    https_port = "1337"
   }
   tags = [
     "terraform",
@@ -1862,16 +1794,12 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFive(t)
-				},
 				Config: testAccCheckApplianceBasicControllerWithOverrideSPA(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "client_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "Disabled"),
@@ -1972,11 +1900,6 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key", ""),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key_type", ""),
 
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1337"),
-
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.0.address", "127.0.0.1"),
@@ -2040,7 +1963,6 @@ data "appgatesdp_site" "default_site" {
 resource "appgatesdp_appliance" "test_controller" {
   name     = "%{name}"
   hostname = "%{hostname}"
-  connect_to_peers_using_client_port_with_spa = true
   client_interface {
     hostname       = "%{hostname}"
     proxy_protocol = true
@@ -2052,10 +1974,6 @@ resource "appgatesdp_appliance" "test_controller" {
       netmask = 32
       nic     = "eth0"
     }
-  }
-  peer_interface {
-    hostname   = "%{hostname}"
-    https_port = "1337"
   }
   tags = [
     "terraform",
@@ -2267,7 +2185,6 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "447"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "UDP-TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
@@ -2299,15 +2216,6 @@ func TestAccAppliancePortalSetup(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.name", "eth0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.%", "3"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.%", "3"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.address", "1.3.3.8"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.netmask", "32"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.nic", "eth0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1338"),
 					resource.TestCheckResourceAttr(resourceName, "portal.#", "1"),
 
 					resource.TestCheckResourceAttr(resourceName, "portal.0.enabled", "true"),
@@ -2378,16 +2286,6 @@ resource "appgatesdp_appliance" "test_portal" {
 		}
 		override_spa_mode = "UDP-TCP"
 	}
-	peer_interface {
-		hostname   = "%{hostname}"
-		https_port = "1338"
-
-		allow_sources {
-			address = "1.3.3.8"
-			netmask = 32
-			nic     = "eth0"
-		}
-	}
 	site = data.appgatesdp_site.default_site.id
 	networking {
 		nics {
@@ -2445,15 +2343,6 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 				PreConfig: func() {
 					c := testAccProvider.Meta().(*Client)
 					c.GetToken()
-					currentVersion := c.ApplianceVersion
-					constraints, err := version.NewConstraint(">= 6.0, < 6.2")
-					if err != nil {
-						t.Fatalf("could not parse version constraint %s", err)
-						return
-					}
-					if !constraints.Check(currentVersion) {
-						t.Skip("Test only for 6.0 and above, appliance.portal without peer_interface is only supported in 5.4 and above.")
-					}
 				},
 				Config: testAccCheckAppliancePortalConfig6(context),
 				Check: resource.ComposeTestCheckFunc(
@@ -2792,9 +2681,6 @@ func TestAccApplianceAdminInterfaceAddRemove(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFive(t)
-				},
 				Config: testAccApplianceWithAdminInterface(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -2833,10 +2719,6 @@ func TestAccApplianceAdminInterfaceAddRemove(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "444"),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.0.allow_sources.#", "0"),
@@ -2896,11 +2778,6 @@ func TestAccApplianceAdminInterfaceAddRemove(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "444"),
-
 					resource.TestCheckResourceAttr(resourceName, "admin_interface.#", "0"),
 				),
 			},
@@ -2930,16 +2807,6 @@ resource "appgatesdp_appliance" "appliance_one" {
 		  netmask = 0
 		}
 		override_spa_mode = "TCP"
-	}
-
-	peer_interface {
-		hostname   = "%{hostname}"
-		https_port = "444"
-
-		allow_sources {
-		  address = "0.0.0.0"
-		  netmask = 0
-		}
 	}
 
 	admin_interface {
@@ -2993,15 +2860,6 @@ resource "appgatesdp_appliance" "appliance_one" {
 		override_spa_mode = "TCP"
 	}
 
-	peer_interface {
-		hostname   = "%{hostname}"
-		https_port = "444"
-
-		allow_sources {
-		  address = "0.0.0.0"
-		  netmask = 0
-		}
-	}
 	site = data.appgatesdp_site.default_site.id
 	networking {
 		nics {
@@ -3037,9 +2895,6 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFive(t)
-				},
 				Config: testAccApplianceWithLogServer(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApplianceExists(resourceName),
@@ -3063,7 +2918,6 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "447"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "UDP-TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 					resource.TestCheckResourceAttr(resourceName, "connector.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.advanced_clients.#", "0"),
@@ -3074,7 +2928,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "customization", ""),
 					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
@@ -3130,15 +2984,6 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ntp.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.%", "3"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.%", "3"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.address", "1.3.3.8"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.netmask", "32"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.nic", "eth0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1338"),
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),
@@ -3191,7 +3036,6 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "447"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "UDP-TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "true"),
 					resource.TestCheckResourceAttr(resourceName, "connector.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.advanced_clients.#", "0"),
@@ -3202,7 +3046,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "controller.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "customization", ""),
 					resource.TestCheckResourceAttr(resourceName, "gateway.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "gateway.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "gateway.0.vpn.0.%", "3"),
@@ -3255,15 +3099,6 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ntp.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.%", "3"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.%", "3"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.address", "1.3.3.8"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.netmask", "32"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.allow_sources.0.nic", "eth0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.hostname", context["hostname"].(string)),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.0.https_port", "1338"),
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),
@@ -3331,16 +3166,6 @@ resource "appgatesdp_appliance" "log_server" {
 		  "ECDHE-RSA-AES128-GCM-SHA256"
 		]
 	}
-	peer_interface {
-		hostname   = "%{hostname}"
-		https_port = "1338"
-
-		allow_sources {
-		address = "1.3.3.8"
-		netmask = 32
-		nic     = "eth0"
-		}
-	}
 
 	site = data.appgatesdp_site.default_site.id
 	networking {
@@ -3388,17 +3213,6 @@ resource "appgatesdp_appliance" "log_server" {
 		override_spa_mode = "UDP-TCP"
 	}
 
-	peer_interface {
-		hostname   = "%{hostname}"
-		https_port = "1338"
-
-		allow_sources {
-		address = "1.3.3.8"
-		netmask = 32
-		nic     = "eth0"
-		}
-	}
-
 	site = data.appgatesdp_site.default_site.id
 	networking {
 		nics {
@@ -3428,7 +3242,6 @@ data "appgatesdp_site" "default_site" {
 resource "appgatesdp_appliance" "log_forwarder_elasticsearch" {
 	name                                        = "%{name}"
 	hostname                                    = "%{hostname}"
-	connect_to_peers_using_client_port_with_spa = true
 	client_interface {
 		hostname       = "%{hostname}"
 		proxy_protocol = true
@@ -3440,10 +3253,6 @@ resource "appgatesdp_appliance" "log_forwarder_elasticsearch" {
 			nic     = "eth0"
 		}
 		override_spa_mode = "TCP"
-	}
-	peer_interface {
-		hostname   = "%{hostname}"
-		https_port = "1337"
 	}
 	tags = [
 		"terraform",
@@ -3640,7 +3449,6 @@ func TestAccApplianceLogForwarderSplunkSumo61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "443"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "Disabled"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "false"),
 					resource.TestCheckResourceAttr(resourceName, "connector.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.advanced_clients.#", "0"),
@@ -3739,7 +3547,6 @@ func TestAccApplianceLogForwarderSplunkSumo61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.hostname", "3.ubuntu.pool.ntp.org"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key", ""),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key_type", ""),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),
@@ -3906,7 +3713,6 @@ func TestAccApplianceLogForwarderTcpClients(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.https_port", "444"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.override_spa_mode", "TCP"),
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "true"),
-					resource.TestCheckResourceAttr(resourceName, "connect_to_peers_using_client_port_with_spa", "false"),
 					resource.TestCheckResourceAttr(resourceName, "connector.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.advanced_clients.#", "0"),
@@ -4029,7 +3835,6 @@ func TestAccApplianceLogForwarderTcpClients(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ntp.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),
@@ -4315,7 +4120,6 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.hostname", "3.ubuntu.pool.ntp.org"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key", ""),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key_type", ""),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),
@@ -4484,7 +4288,6 @@ func TestAccApplianceBasicGateway6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.hostname", "3.ubuntu.pool.ntp.org"),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key", ""),
 					resource.TestCheckResourceAttr(resourceName, "ntp.0.servers.3.key_type", ""),
-					resource.TestCheckResourceAttr(resourceName, "peer_interface.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "ping.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ping.0.allow_sources.#", "0"),

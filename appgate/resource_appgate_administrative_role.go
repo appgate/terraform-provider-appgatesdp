@@ -211,7 +211,13 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		privileges, err := readAdminIstrativeRolePrivileges(v.(*schema.Set).List(), currentVersion, targetMap)
+		privileges, err := func() ([]openapi.AdministrativePrivilege, error) {
+			var (
+				privileges                  = v.(*schema.Set).List()
+				_          *version.Version = currentVersion
+			)
+			return readAdminIstrativeRolePrivileges(privileges, targetMap)
+		}()
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -231,7 +237,7 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	return diags
 }
 
-func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *version.Version, targetMap *openapi.AdministrativeRolesTypeTargetMapGet200Response) ([]openapi.AdministrativePrivilege, error) {
+func readAdminIstrativeRolePrivileges(privileges []interface{}, targetMap *openapi.AdministrativeRolesTypeTargetMapGet200Response) ([]openapi.AdministrativePrivilege, error) {
 	result := make([]openapi.AdministrativePrivilege, 0)
 	for _, privilege := range privileges {
 		if privilege == nil {
@@ -300,9 +306,6 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, currentVersion *
 		// lowercase, server side validation does not care about letter case
 		allowedFuncs := []string{"controller", "gateway", "logserver", "logforwarder", "connector", "portal"}
 		if v, ok := raw["functions"].([]interface{}); ok && len(v) > 0 {
-			if currentVersion.LessThan(Appliance60Version) {
-				return result, fmt.Errorf("privileges.functions is only supported on >= 6")
-			}
 			if a.GetType() != "AssignFunction" {
 				return result, fmt.Errorf(
 					"functions only applicable on \"AssignFunction\" type with target \"Appliance\" or \"All\"."+
@@ -455,7 +458,13 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		privileges, err := readAdminIstrativeRolePrivileges(v.(*schema.Set).List(), currentVersion, targetMap)
+		privileges, err := func() ([]openapi.AdministrativePrivilege, error) {
+			var (
+				privileges                  = v.(*schema.Set).List()
+				_          *version.Version = currentVersion
+			)
+			return readAdminIstrativeRolePrivileges(privileges, targetMap)
+		}()
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("Failed to update administrative role privileges %w", err))
 		}
