@@ -1850,17 +1850,11 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
 				),
-				ImportStateVerifyIgnore: []string{
-					"name_resolution.0.illumio_resolvers.0.org_id",
-				},
 			},
 			{
 				ResourceName:     resourceName,
 				ImportState:      true,
 				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
-				ImportStateVerifyIgnore: []string{
-					"name_resolution.0.illumio_resolvers.0.org_id",
-				},
 			},
 			{
 				Config: testAccSiteNameResolverIllumioUpdated(rName),
@@ -1908,9 +1902,6 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
 				),
-				ImportStateVerifyIgnore: []string{
-					"name_resolution.0.illumio_resolvers.0.org_id",
-				},
 			},
 			{
 				ResourceName:     resourceName,
@@ -1956,9 +1947,6 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.0.enabled", "true"),
 				),
-				ImportStateVerifyIgnore: []string{
-					"name_resolution.0.illumio_resolvers.0.org_id",
-				},
 			},
 			{
 				ResourceName:     resourceName,
@@ -2229,7 +2217,7 @@ resource "appgatesdp_site" "illumio_site" {
 		port     = 65530
 		username = "admin"
 		password = "adminadmin"
-		org_id = "org12345"
+		org_id   = "org12345"
 	  }
 	}
 }`, rName)
@@ -2257,7 +2245,7 @@ resource "appgatesdp_site" "illumio_site" {
 		port     = 1337
 		username = "acme"
 		password = "adminadmin"
-		org_id = "org12345"
+		org_id   = "org12345"
 	  }
 	}
 }`, rName)

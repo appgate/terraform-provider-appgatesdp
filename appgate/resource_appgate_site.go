@@ -787,9 +787,6 @@ func flattenSiteIllumioResolvers(version *version.Version, in []openapi.SiteAllO
 		m["port"] = v.GetPort()
 		m["username"] = v.GetUsername()
 		if version.GreaterThanOrEqual(Appliance62Version) {
-			if val, ok := local["orgiId"]; ok {
-				m["orgId"] = val
-			}
 			m["org_id"] = v.GetOrgId()
 		}
 		if val, ok := local["password"]; ok {

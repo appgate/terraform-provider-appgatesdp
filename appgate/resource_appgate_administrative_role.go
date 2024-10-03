@@ -304,7 +304,7 @@ func readAdminIstrativeRolePrivileges(privileges []interface{}, targetMap *opena
 		// client side validation since the controller API does not yet validate it.
 		functionAllowedTargets := []string{"Appliance", "All"}
 		// lowercase, server side validation does not care about letter case
-		allowedFuncs := []string{"controller", "gateway", "logserver", "logforwarder", "connector", "portal"}
+		allowedFuncs := []string{"controller", "gateway", "logserver", "logforwarder", "connector", "portal", "ztp"}
 		if v, ok := raw["functions"].([]interface{}); ok && len(v) > 0 {
 			if a.GetType() != "AssignFunction" {
 				return result, fmt.Errorf(

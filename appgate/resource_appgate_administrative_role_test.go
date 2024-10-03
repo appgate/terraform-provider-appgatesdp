@@ -526,7 +526,7 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 	privileges {
 	  type      = "AssignFunction"
 	  target    = "All"
-	  functions = ["Connector", "Controller", "GateWAY", "logserver", "Ztp"]
+	  functions = ["Connector", "Controller", "GateWAY", "logserver"]
 	}
 }
 `, context)
@@ -543,7 +543,7 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 	privileges {
 	  type      = "AssignFunction"
 	  target    = "All"
-	  functions = ["Connector", "Controller", "GateWAY", "logserver", "Ztp"]
+	  functions = ["Connector", "Controller", "GateWAY", "logserver"]
 	}
 }
 `, context)
