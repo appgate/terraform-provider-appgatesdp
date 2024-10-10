@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
@@ -80,14 +80,6 @@ func resourceAppgateAppliance() *schema.Resource {
 				Computed:    true,
 			},
 
-			"connect_to_peers_using_client_port_with_spa": {
-				Type:        schema.TypeBool,
-				Deprecated:  "connect_to_peers_using_client_port_with_spa is deprecated as of 5.4. It will always be enabled when the support for peerInterface is removed.",
-				Description: "Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect.",
-				Optional:    true,
-				Computed:    true,
-			},
-
 			"client_interface": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -141,31 +133,6 @@ func resourceAppgateAppliance() *schema.Resource {
 								return
 							},
 						},
-					},
-				},
-			},
-
-			"peer_interface": {
-				Type:     schema.TypeList,
-				Optional: true,
-				// TODO:
-				// Temporary removed this warning, since its not scheduled to be removed until the version after 5.5
-				// and since its still required for all existing supported versions, we will not show this error for the users.
-				//
-				// Deprecated: "peer_interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.",
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"hostname": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"https_port": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  8443,
-						},
-						"allow_sources": allowSourcesSchema(),
 					},
 				},
 			},
@@ -1542,7 +1509,7 @@ func resourceAppgateApplianceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if v, ok := d.GetOk("log_forwarder"); ok {
-		lf, err := readLogForwardFromConfig(v.([]interface{}), currentVersion)
+		lf, err := readLogForwardFromConfig(v.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1558,7 +1525,7 @@ func resourceAppgateApplianceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if v, ok := d.GetOk("connector"); ok {
-		connector, err := readApplianceConnectorFromConfig(currentVersion, v.([]interface{}))
+		connector, err := readApplianceConnectorFromConfig(v.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1574,10 +1541,7 @@ func resourceAppgateApplianceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if v, ok := d.GetOk("portal"); ok {
-		if !currentVersion.GreaterThanOrEqual(Appliance54Version) {
-			return diag.Errorf("appliance.portal requires %s, you are using %q client v%d", Appliance54Version, currentVersion, meta.(*Client).ClientVersion)
-		}
-		portal, err := readAppliancePortalFromConfig(d, v.([]interface{}), currentVersion)
+		portal, err := readAppliancePortalFromConfig(d, v.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2062,7 +2026,7 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if v, ok := appliance.GetConnectorOk(); ok {
-		connector, err := flatttenApplianceConnector(currentVersion, *v)
+		connector, err := flatttenApplianceConnector(*v)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2112,13 +2076,11 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 
 		portal["profiles"] = v.GetProfiles()
 		portal["external_profiles"] = v.GetExternalProfiles()
-		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-			signInCustomization, err := flattenAppliancePortalSignInCustomziation(d, v.GetSignInCustomization())
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			portal["sign_in_customization"] = signInCustomization
+		signInCustomization, err := flattenAppliancePortalSignInCustomziation(d, v.GetSignInCustomization())
+		if err != nil {
+			return diag.FromErr(err)
 		}
+		portal["sign_in_customization"] = signInCustomization
 		portals = append(portals, portal)
 		if err := d.Set("portal", portals); err != nil {
 			return diag.FromErr(err)
@@ -2259,28 +2221,26 @@ func flatttenApplianceLogForwarder(in openapi.ApplianceAllOfLogForwarder, curren
 		if v, ok := v.GetRetentionDaysOk(); ok {
 			elasticsearch["retention_days"] = *v
 		}
-		if currentVersion.GreaterThanOrEqual(Appliance55Version) {
-			if v, ok := v.GetCompatibilityModeOk(); ok {
-				elasticsearch["compatibility_mode"] = *v
+		if v, ok := v.GetCompatibilityModeOk(); ok {
+			elasticsearch["compatibility_mode"] = *v
+		}
+		if authRaw, ok := v.GetAuthenticationOk(); ok {
+			auth := make(map[string]interface{})
+			if v, ok := authRaw.GetTypeOk(); ok {
+				auth["type"] = v
 			}
-			if authRaw, ok := v.GetAuthenticationOk(); ok {
-				auth := make(map[string]interface{})
-				if v, ok := authRaw.GetTypeOk(); ok {
-					auth["type"] = v
-				}
 
-				// token is sensitive, so we won't get it in the response body, but we can lookup it from the state
-				if state := d.Get("log_forwarder.0.elasticsearch.0.authentication").([]interface{}); len(state) > 0 && state[0] != nil {
-					s := state[0].(map[string]interface{})
-					if v, ok := s["token"]; ok {
-						auth["token"] = v.(string)
-					}
-				} else if v, ok := authRaw.GetTokenOk(); ok {
-					log.Printf("[DEBUG] Could not find log_forwarder.0.elasticsearch.0.authentication.token in state, fallback to API response")
-					auth["token"] = v
+			// token is sensitive, so we won't get it in the response body, but we can lookup it from the state
+			if state := d.Get("log_forwarder.0.elasticsearch.0.authentication").([]interface{}); len(state) > 0 && state[0] != nil {
+				s := state[0].(map[string]interface{})
+				if v, ok := s["token"]; ok {
+					auth["token"] = v.(string)
 				}
-				elasticsearch["authentication"] = []map[string]interface{}{auth}
+			} else if v, ok := authRaw.GetTokenOk(); ok {
+				log.Printf("[DEBUG] Could not find log_forwarder.0.elasticsearch.0.authentication.token in state, fallback to API response")
+				auth["token"] = v
 			}
+			elasticsearch["authentication"] = []map[string]interface{}{auth}
 		}
 		logforward["elasticsearch"] = []map[string]interface{}{elasticsearch}
 	}
@@ -2485,7 +2445,7 @@ func flattenApplianceMetricsAggregator(in openapi.ApplianceAllOfMetricsAggregato
 	return metricsAggrs, nil
 }
 
-func flatttenApplianceConnector(currentVersion *version.Version, in openapi.ApplianceAllOfConnector) ([]map[string]interface{}, error) {
+func flatttenApplianceConnector(in openapi.ApplianceAllOfConnector) ([]map[string]interface{}, error) {
 	var connectors []map[string]interface{}
 	connector := make(map[string]interface{})
 	if v, ok := in.GetEnabledOk(); ok {
@@ -2504,9 +2464,7 @@ func flatttenApplianceConnector(currentVersion *version.Version, in openapi.Appl
 			}
 			c["allow_resources"] = alloweResources
 			c["snat_to_resources"] = client.GetSnatToResources()
-			if currentVersion.GreaterThanOrEqual(Appliance54Version) {
-				c["dnat_to_resource"] = client.GetDnatToResource()
-			}
+			c["dnat_to_resource"] = client.GetDnatToResource()
 
 			clients = append(clients, c)
 		}
@@ -2902,7 +2860,7 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("log_forwarder") {
 		_, v := d.GetChange("log_forwarder")
-		lf, err := readLogForwardFromConfig(v.([]interface{}), currentVersion)
+		lf, err := readLogForwardFromConfig(v.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2920,7 +2878,7 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("connector") {
 		_, v := d.GetChange("connector")
-		iot, err := readApplianceConnectorFromConfig(currentVersion, v.([]interface{}))
+		iot, err := readApplianceConnectorFromConfig(v.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2929,7 +2887,7 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("portal") {
 		_, v := d.GetChange("portal")
-		portal, err := readAppliancePortalFromConfig(d, v.([]interface{}), currentVersion)
+		portal, err := readAppliancePortalFromConfig(d, v.([]interface{}))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -2983,7 +2941,7 @@ func resourceAppgateApplianceDelete(ctx context.Context, d *schema.ResourceData,
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		log.Printf("[DEBUG] Appliance is active, deactivate and wiping before deleting")
 		deactiveRequest := api.AppliancesIdDeactivatePost(ctx, appliance.GetId())
-		_, err = deactiveRequest.Wipe(true).Authorization(token).Execute()
+		_, _, err = deactiveRequest.Wipe(true).Authorization(token).Execute()
 		if err != nil {
 			return diag.Errorf("Failed to delete Appliance while deactivating, %s", err)
 		}
@@ -3373,7 +3331,7 @@ func readPingFromConfig(pingers []interface{}) (openapi.ApplianceAllOfPing, erro
 	return val, nil
 }
 
-func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version.Version) (openapi.ApplianceAllOfLogForwarder, error) {
+func readLogForwardFromConfig(logforwards []interface{}) (openapi.ApplianceAllOfLogForwarder, error) {
 	val := openapi.ApplianceAllOfLogForwarder{}
 	for _, logforward := range logforwards {
 		if logforward == nil {
@@ -3409,16 +3367,10 @@ func readLogForwardFromConfig(logforwards []interface{}, currentVersion *version
 					elasticsearch.SetRetentionDays(int32(v.(int)))
 				}
 				if v, ok := r["compatibility_mode"]; ok {
-					if currentVersion.LessThan(Appliance55Version) {
-						return val, fmt.Errorf("elasticsearch.compatibility_mode is only available in 5.5 or greater, got %s", currentVersion)
-					}
 					elasticsearch.SetCompatibilityMode(int32(v.(int)))
 				}
 
 				if v, ok := r["authentication"].([]interface{}); ok {
-					if currentVersion.LessThan(Appliance55Version) {
-						return val, fmt.Errorf("elasticsearch.authentication is only available in 5.5 or greater, got %s", currentVersion)
-					}
 					val := v[0].(map[string]interface{})
 					a := openapi.ElasticsearchAllOfAuthentication{}
 					if v, ok := val["type"].(string); ok && len(v) > 0 {
@@ -3676,7 +3628,7 @@ func readApplianceMetricsAggregatorFromConfig(metricAggrs []interface{}, current
 	return val, nil
 }
 
-func readApplianceConnectorFromConfig(currentVersion *version.Version, connectors []interface{}) (openapi.ApplianceAllOfConnector, error) {
+func readApplianceConnectorFromConfig(connectors []interface{}) (openapi.ApplianceAllOfConnector, error) {
 	val := openapi.ApplianceAllOfConnector{}
 	for _, connector := range connectors {
 		if connector == nil {
@@ -3720,10 +3672,8 @@ func readApplianceConnectorFromConfig(currentVersion *version.Version, connector
 				if v, ok := r["snat_to_resources"]; ok {
 					client.SetSnatToResources(v.(bool))
 				}
-				if currentVersion.GreaterThanOrEqual(Appliance54Version) {
-					if v, ok := r["dnat_to_resource"]; ok {
-						client.SetDnatToResource(v.(bool))
-					}
+				if v, ok := r["dnat_to_resource"]; ok {
+					client.SetDnatToResource(v.(bool))
 				}
 
 				clients = append(clients, client)
@@ -3794,7 +3744,7 @@ func readRsyslogDestinationFromConfig(rsyslogs []interface{}) ([]openapi.Applian
 	return result, nil
 }
 
-func readAppliancePortalFromConfig(d *schema.ResourceData, portals []interface{}, currentVersion *version.Version) (openapi.Portal, error) {
+func readAppliancePortalFromConfig(d *schema.ResourceData, portals []interface{}) (openapi.Portal, error) {
 	p := openapi.Portal{}
 	for _, portal := range portals {
 		if portal == nil {
@@ -3890,11 +3840,7 @@ func readAppliancePortalFromConfig(d *schema.ResourceData, portals []interface{}
 			}
 
 			if v, ok := raw["auto_redirect"].(bool); ok {
-				if currentVersion.LessThan(Appliance60Version) && v {
-					return p, fmt.Errorf("portal.sign_in_customization.auto_redirect is not allowed in %s", currentVersion.String())
-				} else if currentVersion.GreaterThanOrEqual(Appliance60Version) {
-					customization.SetAutoRedirect(v)
-				}
+				customization.SetAutoRedirect(v)
 			}
 
 			p.SetSignInCustomization(customization)

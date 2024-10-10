@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -69,16 +69,12 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderLdapCertificate
-	provider, err = readProviderFromConfig(d, *provider, currentVersion)
+	provider, err = readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderLdapCertificate, err)
 	}
 
 	args := openapi.LdapCertificateProvider{}
-
-	if currentVersion.LessThan(Appliance55Version) {
-		args.DeviceLimitPerUser = nil
-	}
 
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
@@ -320,7 +316,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 		originalLdapCertificateProvider.SetAdminProvider(d.Get("admin_provider").(bool))
 	}
 	if d.HasChange("device_limit_per_user") {
-		originalLdapCertificateProvider.SetDeviceLimitPerUser(int32(d.Get("device_limit_per_user").(int)))
+		originalLdapCertificateProvider.SetDeviceLimitPerUser(d.Get("device_limit_per_user").(int32))
 	}
 	if d.HasChange("on_boarding_two_factor") {
 		_, v := d.GetChange("on_boarding_two_factor")

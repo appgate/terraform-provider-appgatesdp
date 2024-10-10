@@ -41,18 +41,6 @@ resource "appgatesdp_appliance" "new_gateway" {
     override_spa_mode = "UDP-TCP"
   }
 
-  peer_interface {
-    hostname   = "envy-10-97-168-1338.devops"
-    https_port = "1338"
-
-    allow_sources {
-      address = "1.3.3.8"
-      netmask = 0
-      nic     = "eth0"
-    }
-  }
-
-
   admin_interface {
     hostname = "envy-10-97-168-1337.devops"
     https_ciphers = [
@@ -274,9 +262,7 @@ The following arguments are supported:
 * `site`: (Optional) Site served by the Appliance. Entitlements on this Site will be included in the Entitlement Token for this Appliance. Not useful if Gateway role is not enabled.
 * `site_name`: (Optional) Name of the Site for this Appliance. For convenience only.
 * `customization`: (Optional) Customization assigned to this Appliance.
-* `connect_to_peers_using_client_port_with_spa`: (Optional) Makes the Appliance to connect to Controller/LogServer/LogForwarders using their clientInterface.httpsPort instead of peerInterface.httpsPort. The Appliance uses SPA to connect. This field is deprecated as of 5.4. It will always be enabled when the support for peerInterface is removed.
 * `client_interface`: (Required) The details of the Client connection interface.
-* `peer_interface`: (Required) The details of peer connection interface. Used by other appliances and administrative UI. This interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.
 * `admin_interface`: (Optional) The details of the admin connection interface. Required on Controllers and LogServers.
 * `networking`: (Required) Networking configuration of the system.
 * `ntp`: (Optional) NTP configuration.
@@ -313,16 +299,6 @@ Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.
 * `netmask`: (Optional) Netmask to use with address for allowing connections. Example: 0.
 * `nic`: (Optional) NIC name to accept connections on. Example: eth0.
-### peer_interface
-
-!> **Warning:** peer_interface will be removed in future release. Estimated to be removed in the release after 5.5
-
-
-The details of peer connection interface. Used by other appliances and administrative UI. This interface is deprecated as of 5.4. All connections will be handled by clientInterface and adminInterface in the future. The hostname field is used as identifier and will take over the hostname field in the root of Appliance when this interface is removed.
-
-* `hostname`: (Required) Hostname to connect by the peers. It will be used to validate the appliance certificate. Example: appgate.company.com.
-* `https_port`:  (Optional)  default value `8443` Port to connect for peer specific services.
-* `allow_sources`:  (Optional) Source configuration to allow via iptables.
 #### allow_sources
 Source configuration to allow via iptables.
 * `address`: (Optional) IP address to allow connection. Example: 0.0.0.0,::.

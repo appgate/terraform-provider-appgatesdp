@@ -19,7 +19,7 @@ func resourceIdentityProvidereUpgradeV0(_ context.Context, rawState map[string]i
 		return nil, nil
 	}
 	currentVersion := meta.(*Client).ApplianceVersion
-	if currentVersion.GreaterThanOrEqual(Appliance55Version) {
+	if currentVersion.GreaterThanOrEqual(Appliance64Version) {
 		if v, ok := rawState["on_boarding_two_factor"]; ok {
 			twoFA := v.(map[string]interface{})
 			if v, ok := twoFA["device_limit_per_user"]; ok {

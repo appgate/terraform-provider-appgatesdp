@@ -45,37 +45,7 @@ func TestResourceExampleInstanceStateUpgradeV0(t *testing.T) {
 				},
 			},
 			Meta: &Client{
-				ApplianceVersion: Appliance55Version,
-			},
-		},
-		{
-			Description: "5.4 do nothing",
-			InputState: map[string]interface{}{
-				"name":         "foobar",
-				"notes":        "Managed by terraform",
-				"object_class": "user",
-				"on_boarding_two_factor": map[string]interface{}{
-					"always_required":       false,
-					"claim_suffix":          "onBoarding",
-					"device_limit_per_user": 6,
-					"message":               "welcome",
-					"mfa_provider_id":       "3ae98d53-c520-437f-99e4-451f936e6d2c",
-				},
-			},
-			ExpectedState: map[string]interface{}{
-				"name":         "foobar",
-				"notes":        "Managed by terraform",
-				"object_class": "user",
-				"on_boarding_two_factor": map[string]interface{}{
-					"always_required":       false,
-					"claim_suffix":          "onBoarding",
-					"device_limit_per_user": 6,
-					"message":               "welcome",
-					"mfa_provider_id":       "3ae98d53-c520-437f-99e4-451f936e6d2c",
-				},
-			},
-			Meta: &Client{
-				ApplianceVersion: Appliance54Version,
+				ApplianceVersion: Appliance64Version,
 			},
 		},
 	}

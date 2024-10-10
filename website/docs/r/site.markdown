@@ -92,7 +92,6 @@ resource "appgatesdp_site" "gbg_site" {
 	        name                   = "Azure Resolver 1"
 	        update_interval        = 5
 	        use_managed_identities = true
-	        subscription_id        = "subscription1"
 	        tenant_id              = "tenant1"
 	        client_id              = "client_id1"
 	        secret                 = "secret1"
@@ -221,7 +220,6 @@ Resolvers to resolve Azure machines by querying Azure App Service.
 * `name`: (Required) Identifier name. Has no functional effect.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
 * `use_managed_identities`: (Optional) Uses the built-in Managed Identities in Azure instances to authenticate against the API.
-* `subscription_id`: (Optional) Azure subscription id, visible with the azure cli command `azure account show`.
 * `tenant_id`: (Optional) Azure tenant id, visible with the azure cli command `azure account show`.
 * `client_id`: (Optional) Azure client id, also called app id. Visible for a given application using the azure cli command `azure ad app show`.
 * `secret`: (Optional) Azure client secret. For Azure AD Apps this is done by creating a key for the app.

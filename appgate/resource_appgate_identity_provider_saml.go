@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v20/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -71,15 +71,12 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderSaml
-	provider, err = readProviderFromConfig(d, *provider, currentVersion)
+	provider, err = readProviderFromConfig(d, *provider)
 	if err != nil {
 		return fmt.Errorf("Failed to read and create basic identity provider for %s %w", identityProviderSaml, err)
 	}
 
 	args := openapi.SamlProvider{}
-	if currentVersion.LessThan(Appliance55Version) {
-		args.DeviceLimitPerUser = nil
-	}
 	args.SetType(provider.GetType())
 	args.SetId(provider.GetId())
 	args.SetName(provider.GetName())

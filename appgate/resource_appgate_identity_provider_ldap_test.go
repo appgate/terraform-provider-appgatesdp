@@ -18,9 +18,6 @@ func TestAccLdapIdentityProviderBasic(t *testing.T) {
 		CheckDestroy: testAccCheckLdapIdentityProviderDestroy,
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					applianceTestForFiveFiveOrHigher(t)
-				},
 				Config: testAccCheckLdapIdentityProviderBasic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLdapIdentityProviderExists(resourceName),
