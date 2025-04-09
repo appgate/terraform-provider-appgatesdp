@@ -214,7 +214,8 @@ import (
 
 func find{{ .Name | Title }}ByUUID(ctx context.Context, api *{{ .Service }}, id, token string) (*{{ .Model }}, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source {{ .Name }} get by UUID %s", id)
-	resource, _, err := api.{{ .ServiceIDGetMethod }}(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.{{ .ServiceIDGetMethod }}(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -224,8 +225,8 @@ func find{{ .Name | Title }}ByUUID(ctx context.Context, api *{{ .Service }}, id,
 func find{{ .Name | Title }}ByName(ctx context.Context, api *{{ .Service }}, name, token string) (*{{ .Model }}, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source {{ .Name }} get by name %s", name)
-
-	resource, _, err := api.{{ .ServiceGetMethod }}(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.{{ .ServiceGetMethod }}(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}

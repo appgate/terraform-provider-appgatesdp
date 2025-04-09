@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -72,7 +71,7 @@ func testAccCheckEntitlementScriptExists(resource string) resource.TestCheckFunc
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.EntitlementScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.EntitlementScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching entitlement script with resource %s. %s", resource, err)
 		}
 		return nil
@@ -91,7 +90,7 @@ func testAccCheckEntitlementScriptDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.EntitlementScriptsApi
 
-		if _, _, err := api.EntitlementScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.EntitlementScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Criteria script still exists, %+v", err)
 		}
 	}

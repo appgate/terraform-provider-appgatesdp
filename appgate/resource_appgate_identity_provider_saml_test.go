@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -1160,7 +1159,7 @@ func testAccCheckSamlIdentityProviderExists(resource string) resource.TestCheckF
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching saml identity provider with resource %s. %s", resource, err)
 		}
 		return nil
@@ -1179,7 +1178,7 @@ func testAccCheckSamlIdentityProviderDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.SamlIdentityProvidersApi
 
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("saml identity provider still exists, %+v", err)
 		}
 	}

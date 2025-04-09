@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -76,7 +75,7 @@ func testAccCheckDeviceScriptExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.DeviceScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.DeviceScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching device script with resource %s. %s", resource, err)
 		}
 		return nil
@@ -95,7 +94,7 @@ func testAccCheckDeviceScriptDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.DeviceClaimScriptsApi
 
-		if _, _, err := api.DeviceScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.DeviceScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Device script still exists, %+v", err)
 		}
 	}

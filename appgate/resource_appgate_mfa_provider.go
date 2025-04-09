@@ -191,10 +191,10 @@ func resourceAppgateMfaProviderCreate(d *schema.ResourceData, meta interface{}) 
 		args.SetChallengeSharedSecret(v.(string))
 	}
 
-	request := api.MfaProvidersPost(context.TODO())
+	request := api.MfaProvidersPost(BaseAuthContext(token))
 	request = request.MfaProvider(*args)
 
-	mfaProvider, _, err := request.Authorization(token).Execute()
+	mfaProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create MFA provider %w", prettyPrintAPIError(err))
 	}
@@ -212,9 +212,9 @@ func resourceAppgateMfaProviderRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	api := meta.(*Client).API.MFAProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.MfaProvidersIdGet(ctx, d.Id())
-	mfaProvider, res, err := request.Authorization(token).Execute()
+	mfaProvider, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -248,7 +248,8 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 	api := meta.(*Client).API.MFAProvidersApi
 	ctx := context.TODO()
 	request := api.MfaProvidersIdGet(ctx, d.Id())
-	originalMfaProvider, _, err := request.Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	originalMfaProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read MFA provider while updating, %w", err)
 	}
@@ -300,7 +301,8 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 	req := api.MfaProvidersIdPut(ctx, d.Id())
 	req = req.MfaProvider(*originalMfaProvider)
-	_, _, err = req.Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update MFA provider %w", prettyPrintAPIError(err))
 	}
@@ -314,8 +316,7 @@ func resourceAppgateMfaProviderDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 	api := meta.(*Client).API.MFAProvidersApi
-
-	if _, err := api.MfaProvidersIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.MfaProvidersIdDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete MFA provider %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

@@ -512,9 +512,10 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 		args.SetAdministrativeRoles(administrativeRoles)
 	}
 
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.PoliciesPost(ctx)
 	request = request.Policy(args)
-	policy, _, err := request.Authorization(token).Execute()
+	policy, _, err := request.Execute()
 	if err != nil {
 		return diag.Errorf("Could not create policy %s", prettyPrintAPIError(err))
 	}
@@ -666,8 +667,9 @@ func resourceAppgatePolicyRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 	api := meta.(*Client).API.PoliciesApi
 	currentVersion := meta.(*Client).ApplianceVersion
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.PoliciesIdGet(ctx, d.Id())
-	policy, response, err := request.Authorization(token).Execute()
+	policy, response, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if response != nil && response.StatusCode == http.StatusNotFound {
@@ -862,8 +864,9 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 	api := meta.(*Client).API.PoliciesApi
 	currentVersion := meta.(*Client).ApplianceVersion
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.PoliciesIdGet(ctx, d.Id())
-	orginalPolicy, _, err := request.Authorization(token).Execute()
+	orginalPolicy, _, err := request.Execute()
 	if err != nil {
 		return diag.Errorf("Failed to read policy, %s", err)
 	}
@@ -1000,8 +1003,7 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 	req := api.PoliciesIdPut(ctx, d.Id())
-
-	_, _, err = req.Policy(*orginalPolicy).Authorization(token).Execute()
+	_, _, err = req.Policy(*orginalPolicy).Execute()
 	if err != nil {
 		return diag.Errorf("Could not update policy %s", prettyPrintAPIError(err))
 	}
@@ -1019,13 +1021,14 @@ func resourceAppgatePolicyDelete(ctx context.Context, d *schema.ResourceData, me
 	api := meta.(*Client).API.PoliciesApi
 
 	// Get policy
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.PoliciesIdGet(ctx, d.Id())
-	policy, _, err := request.Authorization(token).Execute()
+	policy, _, err := request.Execute()
 	if err != nil {
 		return diag.Errorf("Failed to delete policy while GET, %s", err)
 	}
 
-	_, err = api.PoliciesIdDelete(ctx, policy.GetId()).Authorization(token).Execute()
+	_, err = api.PoliciesIdDelete(ctx, policy.GetId()).Execute()
 	if err != nil {
 		return diag.Errorf("Failed to delete policy, %s", err)
 	}

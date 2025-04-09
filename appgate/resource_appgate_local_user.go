@@ -116,7 +116,8 @@ func resourceAppgateLocalUserCreate(ctx context.Context, d *schema.ResourceData,
 		args.SetLockStart(t)
 	}
 
-	localUser, _, err := api.LocalUsersPost(context.Background()).LocalUsersGetRequest(args).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	localUser, _, err := api.LocalUsersPost(ctx).LocalUsersGetRequest(args).Execute()
 	if err != nil {
 		return diag.FromErr(prettyPrintAPIError(err))
 	}
@@ -138,7 +139,8 @@ func resourceAppgateLocalUserRead(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	localUser, response, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	localUser, response, err := api.LocalUsersIdGet(ctx, d.Id()).Execute()
 	if err != nil {
 		d.SetId("")
 		if response != nil && response.StatusCode == http.StatusNotFound {
@@ -171,7 +173,8 @@ func resourceAppgateLocalUserUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	user, _, err := api.LocalUsersIdGet(ctx, d.Id()).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	user, _, err := api.LocalUsersIdGet(ctx, d.Id()).Execute()
 	if err != nil {
 		return diag.FromErr(prettyPrintAPIError(err))
 	}
@@ -212,7 +215,8 @@ func resourceAppgateLocalUserUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	_, _, err = api.LocalUsersIdPut(ctx, d.Id()).LocalUser(*user).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	_, _, err = api.LocalUsersIdPut(ctx, d.Id()).LocalUser(*user).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("could not update Local user %w", prettyPrintAPIError(err)))
 	}
@@ -226,8 +230,8 @@ func resourceAppgateLocalUserDelete(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-
-	if _, err := api.LocalUsersIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, err := api.LocalUsersIdDelete(ctx, d.Id()).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("could not delete Local user %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

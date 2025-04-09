@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -121,7 +120,7 @@ func testAccCheckLocalUserExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.LocalUsersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.LocalUsersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching local user with resource %s. %s", resource, err)
 		}
 		return nil
@@ -140,7 +139,7 @@ func testAccCheckLocalUserDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.LocalUsersApi
 
-		if _, _, err := api.LocalUsersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.LocalUsersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("local user still exists, %+v", err)
 		}
 	}

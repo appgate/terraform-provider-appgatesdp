@@ -100,7 +100,8 @@ func resourceAppgateClientProfileCreate(ctx context.Context, d *schema.ResourceD
 	if v, ok := d.GetOk("hostname"); ok {
 		args["hostname"] = v.(string)
 	}
-	profile, _, err := api.ClientProfilesPost(ctx).Authorization(token).Body(args).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	profile, _, err := api.ClientProfilesPost(ctx).Body(args).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not create client profile %s", prettyPrintAPIError(err)))
 	}
@@ -116,7 +117,8 @@ func resourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceDat
 	}
 	log.Printf("[DEBUG] Reading Client Profile id: %+v", d.Id())
 	api := meta.(*Client).API.ClientProfilesApi
-	profile, res, err := api.ClientProfilesIdGet(ctx, d.Id()).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	profile, res, err := api.ClientProfilesIdGet(ctx, d.Id()).Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -152,7 +154,8 @@ func resourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceDat
 		d.Set("exported", exported)
 	}
 
-	url, _, err := api.ClientProfilesIdUrlGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	url, _, err := api.ClientProfilesIdUrlGet(ctx, id).Execute()
 	if err != nil {
 		diags = AppendFromErr(diags, err)
 		return diags
@@ -175,7 +178,8 @@ func resourceAppgateClientProfileUpdate(ctx context.Context, d *schema.ResourceD
 	var diags diag.Diagnostics
 
 	api := meta.(*Client).API.ClientProfilesApi
-	originalProfile, _, err := api.ClientProfilesIdGet(ctx, d.Id()).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	originalProfile, _, err := api.ClientProfilesIdGet(ctx, d.Id()).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Failed to read profile while updating, %w", err))
 	}
@@ -199,7 +203,8 @@ func resourceAppgateClientProfileUpdate(ctx context.Context, d *schema.ResourceD
 	if d.HasChange("hostname") {
 		originalProfile["hostname"] = d.Get("hostname").(string)
 	}
-	if _, _, err := api.ClientProfilesIdPut(ctx, d.Id()).Authorization(token).Body(originalProfile).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, _, err := api.ClientProfilesIdPut(ctx, d.Id()).Body(originalProfile).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update client profile %w", prettyPrintAPIError(err)))
 
 	}
@@ -213,7 +218,8 @@ func resourceAppgateClientProfileDelete(ctx context.Context, d *schema.ResourceD
 	}
 	log.Printf("[DEBUG] Delete client profile %+v", d.Id())
 	api := meta.(*Client).API.ClientProfilesApi
-	if _, err := api.ClientProfilesIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, err := api.ClientProfilesIdDelete(ctx, d.Id()).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete client profile %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

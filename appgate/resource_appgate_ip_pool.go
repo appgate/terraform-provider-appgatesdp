@@ -106,10 +106,9 @@ func resourceAppgateIPPoolCreate(d *schema.ResourceData, meta interface{}) error
 
 	args.SetTags(schemaExtractTags(d))
 
-	request := api.IpPoolsPost(context.TODO())
+	request := api.IpPoolsPost(BaseAuthContext(token))
 	request = request.IpPool(args)
-
-	IPPool, _, err := request.Authorization(token).Execute()
+	IPPool, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create Ip pool %w", prettyPrintAPIError(err))
 	}
@@ -147,9 +146,9 @@ func resourceAppgateIPPoolRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	api := meta.(*Client).API.IPPoolsApi
-	ctx := context.TODO()
+	ctx := context.WithValue(context.Background(), openapi.ContextAccessToken, token)
 	request := api.IpPoolsIdGet(ctx, d.Id())
-	IPPool, res, err := request.Authorization(token).Execute()
+	IPPool, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -202,9 +201,9 @@ func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	api := meta.(*Client).API.IPPoolsApi
-	ctx := context.TODO()
+	ctx := context.WithValue(context.Background(), openapi.ContextAccessToken, token)
 	request := api.IpPoolsIdGet(ctx, d.Id())
-	originalIPPool, _, err := request.Authorization(token).Execute()
+	originalIPPool, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read Ip pool while updating, %w", err)
 	}
@@ -248,7 +247,7 @@ func resourceAppgateIPPoolUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	req := api.IpPoolsIdPut(ctx, d.Id())
-	_, _, err = req.IpPool(*originalIPPool).Authorization(token).Execute()
+	_, _, err = req.IpPool(*originalIPPool).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Ip pool %w", prettyPrintAPIError(err))
 	}
@@ -263,8 +262,7 @@ func resourceAppgateIPPoolDelete(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	api := meta.(*Client).API.IPPoolsApi
-
-	if _, err := api.IpPoolsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.IpPoolsIdDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Ip pool %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

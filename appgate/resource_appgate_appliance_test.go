@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -561,7 +560,7 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 
-		if _, _, err := api.AppliancesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.AppliancesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Appliance still exists, %+v", err)
 		}
 	}
@@ -1270,7 +1269,7 @@ func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.AppliancesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.AppliancesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching appliance with resource %s. %s", resource, err)
 		}
 		return nil

@@ -179,8 +179,9 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	api := meta.(*Client).API.GlobalSettingsApi
 	currentVersion := meta.(*Client).ApplianceVersion
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.GlobalSettingsGet(ctx)
-	settings, res, err := request.Authorization(token).Execute()
+	settings, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -225,8 +226,10 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	api := meta.(*Client).API.GlobalSettingsApi
 	currentVersion := meta.(*Client).ApplianceVersion
 
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.GlobalSettingsGet(ctx)
-	originalsettings, _, err := request.Authorization(token).Execute()
+
+	originalsettings, _, err := request.Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Failed to read Global settings while updating, %w", err))
 	}
@@ -286,8 +289,9 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		originalsettings.SetCollectiveName(d.Get("collective_name").(string))
 	}
 	log.Printf("[DEBUG] Updating Global settings %+v", originalsettings)
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	req := api.GlobalSettingsPut(ctx)
-	_, err = req.GlobalSettings(*originalsettings).Authorization(token).Execute()
+	_, err = req.GlobalSettings(*originalsettings).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Global settings %w", prettyPrintAPIError(err)))
 	}
@@ -304,8 +308,8 @@ func resourceGlobalSettingsDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.GlobalSettingsApi
-
-	if _, err := api.GlobalSettingsDelete(context.Background()).Authorization(token).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, err := api.GlobalSettingsDelete(ctx).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not reset Global settings %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

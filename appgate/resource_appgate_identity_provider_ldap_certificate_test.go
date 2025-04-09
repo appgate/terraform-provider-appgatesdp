@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -392,7 +391,7 @@ func testAccCheckLdapCertificateIdentityProvidervExists(resource string) resourc
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching ldap identity provider with resource %s. %s", resource, err)
 		}
 		return nil
@@ -411,7 +410,7 @@ func testAccCheckLdapCertificateIdentityProvidervDestroy(s *terraform.State) err
 		}
 		api := testAccProvider.Meta().(*Client).API.LdapCertificateIdentityProvidersApi
 
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("ldap identity provider still exists, %+v", err)
 		}
 	}

@@ -238,9 +238,7 @@ func (c *Client) GetToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	c.Token = fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
-	return c.Token, nil
+	return *response.Token, nil
 }
 
 var exponentialBackOff = backoff.ExponentialBackOff{

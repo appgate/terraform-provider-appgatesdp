@@ -51,7 +51,8 @@ func dataSourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceD
 	d.Set("client_profile_name", clientProfile.GetName())
 	d.Set("client_profile_id", clientProfile.GetId())
 
-	url, _, err := api.ClientProfilesIdUrlGet(ctx, clientProfile.GetId()).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	url, _, err := api.ClientProfilesIdUrlGet(ctx, clientProfile.GetId()).Execute()
 	if err != nil {
 		diags = AppendFromErr(diags, err)
 		return diags

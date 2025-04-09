@@ -1556,7 +1556,7 @@ func resourceAppgateApplianceCreate(ctx context.Context, d *schema.ResourceData,
 		args.SetHostnameAliases(hostnames)
 	}
 
-	appliance, _, err := api.AppliancesPost(ctx).Appliance(*args).Authorization(token).Execute()
+	appliance, _, err := api.AppliancesPost(context.WithValue(ctx, openapi.ContextAccessToken, token)).Appliance(*args).Execute()
 	if err != nil {
 		return diag.Errorf("Could not create appliance %s", prettyPrintAPIError(err))
 	}
@@ -1796,8 +1796,9 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.AppliancesIdGet(ctx, d.Id())
-	appliance, res, err := request.Authorization(token).Execute()
+	appliance, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -2665,9 +2666,6 @@ func flattenApplianceNetworking(in openapi.ApplianceAllOfNetworking) ([]map[stri
 	if v, ok := in.GetDnsServersOk(); ok {
 		networking["dns_servers"] = schema.NewSet(schema.HashString, convertStringArrToInterface(v))
 	}
-	if _, ok := in.GetDnsDomainsOk(); ok {
-		networking["dns_domains"] = schema.NewSet(schema.HashString, convertStringArrToInterface(in.GetDnsDomains()))
-	}
 
 	if v, ok := in.GetRoutesOk(); ok {
 		routes := make([]map[string]interface{}, 0)
@@ -2704,8 +2702,9 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 	api := meta.(*Client).API.AppliancesApi
 	currentVersion := meta.(*Client).ApplianceVersion
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.AppliancesIdGet(ctx, d.Id())
-	originalAppliance, _, err := request.Authorization(token).Execute()
+	originalAppliance, _, err := request.Execute()
 	if err != nil {
 		return diag.Errorf("Failed to read Appliance, %s", err)
 	}
@@ -2914,7 +2913,7 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	req := api.AppliancesIdPut(ctx, d.Id())
 
-	_, _, err = req.Appliance(*originalAppliance).Authorization(token).Execute()
+	_, _, err = req.Appliance(*originalAppliance).Execute()
 	if err != nil {
 		return diag.Errorf("Could not update appliance %s", prettyPrintAPIError(err))
 	}
@@ -2932,8 +2931,9 @@ func resourceAppgateApplianceDelete(ctx context.Context, d *schema.ResourceData,
 	api := meta.(*Client).API.AppliancesApi
 
 	// Get appliance
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.AppliancesIdGet(ctx, d.Id())
-	appliance, _, err := request.Authorization(token).Execute()
+	appliance, _, err := request.Execute()
 	if err != nil {
 		return diag.Errorf("Failed to delete Appliance while GET, %s", err)
 	}
@@ -2941,7 +2941,7 @@ func resourceAppgateApplianceDelete(ctx context.Context, d *schema.ResourceData,
 	if ok, _ := appliance.GetActivatedOk(); *ok {
 		log.Printf("[DEBUG] Appliance is active, deactivate and wiping before deleting")
 		deactiveRequest := api.AppliancesIdDeactivatePost(ctx, appliance.GetId())
-		_, _, err = deactiveRequest.Wipe(true).Authorization(token).Execute()
+		_, _, err = deactiveRequest.Wipe(true).Execute()
 		if err != nil {
 			return diag.Errorf("Failed to delete Appliance while deactivating, %s", err)
 		}
@@ -2949,7 +2949,7 @@ func resourceAppgateApplianceDelete(ctx context.Context, d *schema.ResourceData,
 
 	// Delete
 	deleteRequest := api.AppliancesIdDelete(ctx, appliance.GetId())
-	_, err = deleteRequest.Authorization(token).Execute()
+	_, err = deleteRequest.Execute()
 	if err != nil {
 		return diag.Errorf("Failed to delete Appliance, %s", err)
 	}
@@ -3065,9 +3065,6 @@ func readNetworkingFromConfig(networks []interface{}) (openapi.ApplianceAllOfNet
 			for _, dns := range list {
 				dnsDomains = append(dnsDomains, dns.(string))
 			}
-		}
-		if len(dnsDomains) > 0 {
-			network.SetDnsDomains(dnsDomains)
 		}
 
 		if v := rawNetwork["routes"]; len(v.([]interface{})) > 0 {

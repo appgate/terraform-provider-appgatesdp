@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -158,7 +157,7 @@ func testAccCheckRingfenceRuleExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.RingfenceRulesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.RingfenceRulesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching ringfence rule with resource %s. %s", resource, err)
 		}
 		return nil
@@ -177,7 +176,7 @@ func testAccCheckRingfenceRuleDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.RingfenceRulesApi
 
-		if _, _, err := api.RingfenceRulesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.RingfenceRulesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("RingfenceRule still exists, %+v", err)
 		}
 	}

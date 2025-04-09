@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"testing"
@@ -59,9 +58,8 @@ func testAccCheckClientProfileExists(resource string) resource.TestCheckFunc {
 		if id == "" {
 			return fmt.Errorf("No Record ID is set")
 		}
-		ctx := context.Background()
-
-		if _, _, err := api.ClientProfilesIdGet(ctx, id).Authorization(token).Execute(); err == nil {
+		ctx := BaseAuthContext(token)
+		if _, _, err := api.ClientProfilesIdGet(ctx, id).Execute(); err == nil {
 			return nil
 		}
 

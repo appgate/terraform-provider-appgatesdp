@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -128,7 +127,7 @@ func testAccCheckIPPoolExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.IpPoolsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.IpPoolsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching ip pool with resource %s. %s", resource, err)
 		}
 		return nil
@@ -147,7 +146,7 @@ func testAccCheckIPPoolDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.IPPoolsApi
 
-		if _, _, err := api.IpPoolsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.IpPoolsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Device script still exists, %+v", err)
 		}
 	}

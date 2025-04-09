@@ -98,13 +98,13 @@ func dataSourceAppgateGlobalSettingsRead(d *schema.ResourceData, meta interface{
 	d.Set("backup_api_enabled", settings.GetBackupApiEnabled())
 	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())
-	d.Set("app_discovery_domains", settings.GetAppDiscoveryDomains())
 	d.Set("collective_id", settings.GetCollectiveId())
 	return nil
 }
 
 func getGlobalSettings(api *openapi.GlobalSettingsApiService, token string) (*openapi.GlobalSettings, error) {
-	globalSettings, _, err := api.GlobalSettingsGet(context.Background()).Authorization(token).Execute()
+	ctx := BaseAuthContext(token)
+	globalSettings, _, err := api.GlobalSettingsGet(ctx).Execute()
 	if err != nil {
 		return nil, err
 	}

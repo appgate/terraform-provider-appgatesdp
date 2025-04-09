@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -65,7 +64,7 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 		return err
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderLdapCertificate
@@ -184,7 +183,7 @@ func resourceAppgateLdapCertificateProviderRuleCreate(d *schema.ResourceData, me
 		args.SetSkipX509ExternalChecks(v.(bool))
 	}
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderLdapCertificate, prettyPrintAPIError(err))
 	}
@@ -200,9 +199,9 @@ func resourceAppgateLdapCertificateProviderRuleRead(d *schema.ResourceData, meta
 		return err
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	ldap, res, err := request.Authorization(token).Execute()
+	ldap, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -292,9 +291,9 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 		return err
 	}
 	api := meta.(*Client).API.LdapCertificateIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	originalLdapCertificateProvider, _, err := request.Authorization(token).Execute()
+	originalLdapCertificateProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
@@ -443,7 +442,7 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
 	req = req.Body(*originalLdapCertificateProvider)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderLdapCertificate, prettyPrintAPIError(err))
 	}

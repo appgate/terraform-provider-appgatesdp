@@ -2,7 +2,6 @@ package appgate
 
 import (
 	"bufio"
-	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
@@ -130,10 +129,10 @@ func resourceAppgateApplianceCustomizationCreate(d *schema.ResourceData, meta in
 		args.SetFile(encoded)
 	}
 
-	request := api.ApplianceCustomizationsPost(context.TODO())
+	request := api.ApplianceCustomizationsPost(BaseAuthContext(token))
 	request = request.ApplianceCustomization(*args)
 
-	customization, _, err := request.Authorization(token).Execute()
+	customization, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create Appliance customization %w", prettyPrintAPIError(err))
 	}
@@ -151,9 +150,8 @@ func resourceAppgateApplianceCustomizationRead(d *schema.ResourceData, meta inte
 		return err
 	}
 	api := meta.(*Client).API.ApplianceCustomizationsApi
-	ctx := context.TODO()
-	request := api.ApplianceCustomizationsIdGet(ctx, d.Id())
-	customization, res, err := request.Authorization(token).Execute()
+	request := api.ApplianceCustomizationsIdGet(BaseAuthContext(token), d.Id())
+	customization, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -192,9 +190,9 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 		return err
 	}
 	api := meta.(*Client).API.ApplianceCustomizationsApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.ApplianceCustomizationsIdGet(ctx, d.Id())
-	originalApplianceCustomization, _, err := request.Authorization(token).Execute()
+	originalApplianceCustomization, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read Appliance customization while updating, %w", err)
 	}
@@ -234,7 +232,7 @@ func resourceAppgateApplianceCustomizationUpdate(d *schema.ResourceData, meta in
 
 	req := api.ApplianceCustomizationsIdPut(ctx, d.Id())
 	req = req.ApplianceCustomization(*originalApplianceCustomization)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Appliance customization %w", prettyPrintAPIError(err))
 	}
@@ -249,7 +247,8 @@ func resourceAppgateApplianceCustomizationDelete(d *schema.ResourceData, meta in
 	}
 	api := meta.(*Client).API.ApplianceCustomizationsApi
 
-	if _, err := api.ApplianceCustomizationsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
+	ctx := BaseAuthContext(token)
+	if _, err := api.ApplianceCustomizationsIdDelete(ctx, d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Appliance customization %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

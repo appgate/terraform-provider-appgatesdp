@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -217,7 +216,7 @@ func testAccCheckOidcIdentityProviderExists(resource string) resource.TestCheckF
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching Oidc identity provider with resource %s. %s", resource, err)
 		}
 		return nil
@@ -236,7 +235,7 @@ func testAccCheckOidcIdentityProviderDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.OidcIdentityProvidersApi
 
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("oidc identity provider still exists, %+v", err)
 		}
 	}

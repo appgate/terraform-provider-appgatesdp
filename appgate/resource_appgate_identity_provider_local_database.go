@@ -57,7 +57,7 @@ func resourceAppgateLocalDatabaseProviderRuleCreate(d *schema.ResourceData, meta
 		return err
 	}
 	api := meta.(*Client).API.LocalDatabaseIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	localDatabase, err := getBuiltinLocalDatabaseProviderUUID(ctx, *api, token)
 	if err != nil {
 		return err
@@ -70,9 +70,9 @@ func resourceAppgateLocalDatabaseProviderRuleCreate(d *schema.ResourceData, meta
 
 func getBuiltinLocalDatabaseProviderUUID(ctx context.Context, api openapi.LocalDatabaseIdentityProvidersApiService, token string) (*openapi.LocalDatabaseProvider, error) {
 	var localDatabase *openapi.LocalDatabaseProvider
-	request := api.IdentityProvidersGet(ctx)
+	request := api.IdentityProvidersGet(context.WithValue(ctx, openapi.ContextAccessToken, token))
 
-	provider, _, err := request.Query(builtinProviderLocal).OrderBy("name").Range_("0-25").Authorization(token).Execute()
+	provider, _, err := request.Query(builtinProviderLocal).OrderBy("name").Range_("0-25").Execute()
 	if err != nil {
 		return localDatabase, err
 	}
@@ -92,7 +92,7 @@ func resourceAppgateLocalDatabaseProviderRuleRead(d *schema.ResourceData, meta i
 		return err
 	}
 	api := meta.(*Client).API.LocalDatabaseIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	localDatabase, err := getBuiltinLocalDatabaseProviderUUID(ctx, *api, token)
 	if err != nil {
 		d.SetId("")
@@ -149,9 +149,9 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 		return err
 	}
 	api := meta.(*Client).API.LocalDatabaseIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	originalLocalDatabaseProvider, _, err := request.Authorization(token).Execute()
+	originalLocalDatabaseProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read LocalDatabase Identity provider, %w", err)
 	}
@@ -242,7 +242,7 @@ func resourceAppgateLocalDatabaseProviderRuleUpdate(d *schema.ResourceData, meta
 
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
 	req = req.Body(*originalLocalDatabaseProvider)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderLocalDatabase, prettyPrintAPIError(err))
 	}

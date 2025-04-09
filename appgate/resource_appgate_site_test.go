@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -198,7 +197,7 @@ func testAccCheckSiteDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.SitesApi
 
-		if _, _, err := api.SitesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.SitesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Site still exists, %+v", err)
 		}
 	}
@@ -598,7 +597,7 @@ func testAccCheckSiteExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.SitesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.SitesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching item with resource %s. %s", resource, err)
 		}
 		return nil

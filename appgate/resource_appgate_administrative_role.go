@@ -207,7 +207,8 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 	args.SetTags(schemaExtractTags(d))
 
 	if v, ok := d.GetOk("privileges"); ok {
-		targetMap, _, err := api.AdministrativeRolesTypeTargetMapGet(ctx).Authorization(token).Execute()
+		ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+		targetMap, _, err := api.AdministrativeRolesTypeTargetMapGet(ctx).Execute()
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -223,8 +224,9 @@ func resourceAppgateAdministrativeRoleCreate(ctx context.Context, d *schema.Reso
 		}
 		args.SetPrivileges(privileges)
 	}
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.AdministrativeRolesPost(ctx)
-	administrativeRole, _, err := request.AdministrativeRole(*args).Authorization(token).Execute()
+	administrativeRole, _, err := request.AdministrativeRole(*args).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not create Administrative role %w", prettyPrintAPIError(err)))
 	}
@@ -361,8 +363,9 @@ func resourceAppgateAdministrativeRoleRead(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AdminRolesApi
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
-	administrativeRole, res, err := request.Authorization(token).Execute()
+	administrativeRole, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -435,8 +438,9 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 	}
 	api := meta.(*Client).API.AdminRolesApi
 	currentVersion := meta.(*Client).ApplianceVersion
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.AdministrativeRolesIdGet(ctx, d.Id())
-	originalAdministrativeRole, _, err := request.Authorization(token).Execute()
+	originalAdministrativeRole, _, err := request.Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Failed to read Administrative role while updating, %w", err))
 	}
@@ -454,7 +458,8 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 
 	if d.HasChange("privileges") {
 		_, v := d.GetChange("privileges")
-		targetMap, _, err := api.AdministrativeRolesTypeTargetMapGet(ctx).Authorization(token).Execute()
+		ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+		targetMap, _, err := api.AdministrativeRolesTypeTargetMapGet(ctx).Execute()
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -470,8 +475,7 @@ func resourceAppgateAdministrativeRoleUpdate(ctx context.Context, d *schema.Reso
 		}
 		originalAdministrativeRole.SetPrivileges(privileges)
 	}
-
-	_, _, err = api.AdministrativeRolesIdPut(ctx, d.Id()).AdministrativeRole(*originalAdministrativeRole).Authorization(token).Execute()
+	_, _, err = api.AdministrativeRolesIdPut(ctx, d.Id()).AdministrativeRole(*originalAdministrativeRole).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Administrative role %w", prettyPrintAPIError(err)))
 	}
@@ -487,7 +491,8 @@ func resourceAppgateAdministrativeRoleDelete(ctx context.Context, d *schema.Reso
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AdminRolesApi
-	if _, err := api.AdministrativeRolesIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, err := api.AdministrativeRolesIdDelete(ctx, d.Id()).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete Administrative role %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

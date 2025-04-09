@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -122,7 +121,6 @@ func resourceAppgateCondition() *schema.Resource {
 
 func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Creating Condition with name: %s", d.Get("name").(string))
-	ctx := context.Background()
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return err
@@ -165,9 +163,9 @@ func resourceAppgateConditionCreate(d *schema.ResourceData, meta interface{}) er
 		args.SetRemedyMethods(remedyMethods)
 	}
 
-	request := api.ConditionsPost(ctx)
+	request := api.ConditionsPost(BaseAuthContext(token))
 	request = request.Condition(args)
-	condition, _, err := request.Authorization(token).Execute()
+	condition, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create condition %w", prettyPrintAPIError(err))
 	}
@@ -184,9 +182,9 @@ func resourceAppgateConditionRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	api := meta.(*Client).API.ConditionsApi
-	ctx := context.Background()
+	ctx := BaseAuthContext(token)
 	request := api.ConditionsIdGet(ctx, d.Id())
-	remoteCondition, res, err := request.Authorization(token).Execute()
+	remoteCondition, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -226,14 +224,14 @@ func flattenConditionRemedyMethods(in []openapi.RemedyMethod) []map[string]inter
 
 func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating condition: %s", d.Get("name").(string))
-	ctx := context.Background()
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return err
 	}
 	api := meta.(*Client).API.ConditionsApi
+	ctx := BaseAuthContext(token)
 	request := api.ConditionsIdGet(ctx, d.Id())
-	orginalCondition, _, err := request.Authorization(token).Execute()
+	orginalCondition, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read condition, %w", err)
 	}
@@ -275,8 +273,7 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	req := api.ConditionsIdPut(ctx, d.Id())
-
-	_, _, err = req.Condition(*orginalCondition).Authorization(token).Execute()
+	_, _, err = req.Condition(*orginalCondition).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update condition %w", prettyPrintAPIError(err))
 	}
@@ -286,7 +283,6 @@ func resourceAppgateConditionUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAppgateConditionDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete condition with name: %s", d.Get("name").(string))
-	ctx := context.Background()
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return err
@@ -294,14 +290,15 @@ func resourceAppgateConditionDelete(d *schema.ResourceData, meta interface{}) er
 	api := meta.(*Client).API.ConditionsApi
 
 	// Get condition
+	ctx := BaseAuthContext(token)
 	request := api.ConditionsIdGet(ctx, d.Id())
-	condition, _, err := request.Authorization(token).Execute()
+	condition, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to delete condition while GET, %w", err)
 	}
 
 	deleteRequest := api.ConditionsIdDelete(ctx, condition.GetId())
-	_, err = deleteRequest.Authorization(token).Execute()
+	_, err = deleteRequest.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to delete condition, %w", err)
 	}

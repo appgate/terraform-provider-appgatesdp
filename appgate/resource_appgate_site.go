@@ -580,7 +580,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 		args.SetNameResolution(nameResolution)
 	}
 
-	site, _, err := api.SitesPost(context.Background()).Site(args).Authorization(token).Execute()
+	site, _, err := api.SitesPost(BaseAuthContext(token)).Site(args).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create site %w", prettyPrintAPIError(err))
 	}
@@ -599,8 +599,8 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 
-	request := api.SitesIdGet(context.Background(), d.Id())
-	site, res, err := request.Authorization(token).Execute()
+	request := api.SitesIdGet(BaseAuthContext(token), d.Id())
+	site, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -929,9 +929,8 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
-	request := api.SitesIdGet(context.Background(), d.Id())
-
-	orginalSite, res, err := request.Authorization(token).Execute()
+	request := api.SitesIdGet(BaseAuthContext(token), d.Id())
+	orginalSite, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -1010,8 +1009,8 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 		orginalSite.SetNameResolution(nameResolution)
 	}
 
-	putRequest := api.SitesIdPut(context.Background(), d.Id())
-	_, _, err = putRequest.Site(*orginalSite).Authorization(token).Execute()
+	putRequest := api.SitesIdPut(BaseAuthContext(token), d.Id())
+	_, _, err = putRequest.Site(*orginalSite).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update site %w", prettyPrintAPIError(err))
 	}
@@ -1026,7 +1025,7 @@ func resourceAppgateSiteDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	api := meta.(*Client).API.SitesApi
 
-	if _, err := api.SitesIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.SitesIdDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Failed to delete Site, %w", err)
 	}
 	d.SetId("")

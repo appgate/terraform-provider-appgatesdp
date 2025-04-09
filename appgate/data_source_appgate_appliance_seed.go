@@ -60,7 +60,7 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 	api := meta.(*Client).API.AppliancesApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	applianceID, iok := d.GetOk("appliance_id")
 
 	if !iok {
@@ -68,7 +68,7 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 	}
 
 	request := api.AppliancesIdGet(ctx, applianceID.(string))
-	appliance, res, err := request.Authorization(token).Execute()
+	appliance, res, err := request.ApiService.AppliancesIdGetExecute(request)
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -106,7 +106,7 @@ func dataSourceAppgateApplianceSeedRead(d *schema.ResourceData, meta interface{}
 		d.Set("provide_cloud_ssh_key", true)
 	}
 	exportRequest = exportRequest.SSHConfig(*sshConfig)
-	seedmap, _, err := exportRequest.Authorization(token).Execute()
+	seedmap, _, err := exportRequest.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not export appliance %w", prettyPrintAPIError(err))
 	}
