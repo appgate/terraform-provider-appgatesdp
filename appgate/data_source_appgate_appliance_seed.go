@@ -1,14 +1,13 @@
 package appgate
 
 import (
-	"context"
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )

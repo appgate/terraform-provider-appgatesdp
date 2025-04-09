@@ -3,6 +3,7 @@ package appgate
 import (
 	"context"
 	"fmt"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"

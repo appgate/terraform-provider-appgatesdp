@@ -14,7 +14,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 	"github.com/cenkalti/backoff/v4"
 

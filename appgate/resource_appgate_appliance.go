@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"

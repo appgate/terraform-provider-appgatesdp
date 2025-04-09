@@ -23,9 +23,10 @@ const (
 	Version19 int = 19
 	Version20 int = 20
 	Version21 int = 21
+	Version22 int = 22
 	// DefaultClientVersion is the latest support version of appgate sdp client that is supported.
-	// its not recommended to change this value.
-	DefaultClientVersion    = Version21
+	// it is not recommended to change this value.
+	DefaultClientVersion    = Version22
 	MinimumSupportedVersion = Version18
 )
 
@@ -36,12 +37,14 @@ var (
 		Version19: "6.2.0",
 		Version20: "6.3.0",
 		Version21: "6.4.0",
+		Version22: "6.5.0",
 	}
 
 	Appliance61Version, _ = version.NewVersion(ApplianceVersionMap[Version18])
 	Appliance62Version, _ = version.NewVersion(ApplianceVersionMap[Version19])
 	Appliance63Version, _ = version.NewVersion(ApplianceVersionMap[Version20])
 	Appliance64Version, _ = version.NewVersion(ApplianceVersionMap[Version21])
+	Appliance65Version, _ = version.NewVersion(ApplianceVersionMap[Version22])
 )
 
 // Provider function returns the object that implements the terraform.ResourceProvider interface, specifically a schema.Provider
