@@ -237,10 +237,14 @@ func resourceAppgateSite() *schema.Resource {
 										Required: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
-									"search_domains": {
+									"match_domains": {
 										Type:     schema.TypeList,
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"auto_client_dns": {
+										Type:     schema.TypeBool,
+										Optional: true,
 									},
 								},
 							},
@@ -298,6 +302,21 @@ func resourceAppgateSite() *schema.Resource {
 									"partition": {
 										Type:     schema.TypeString,
 										Optional: true,
+									},
+									"ec2": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  true,
+									},
+									"eks": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+									"rds": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
 									},
 									"assumed_roles": {
 										Type:     schema.TypeList,
@@ -363,6 +382,16 @@ func resourceAppgateSite() *schema.Resource {
 										Type:      schema.TypeString,
 										Optional:  true,
 										Sensitive: true,
+									},
+									"subscription_ids": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"subscription_id_auto_discovery": {
+										Type:     schema.TypeBool,
+										Default:  false,
+										Optional: true,
 									},
 								},
 							},
@@ -830,7 +859,8 @@ func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers
 			m["secret"] = v.GetSecret()
 		}
 		m["use_managed_identities"] = v.GetUseManagedIdentities()
-
+		m["subscription_ids"] = v.GetSubscriptionIds()
+		m["subscription_id_auto_discovery"] = v.GetSubscriptionIdAutoDiscovery()
 		out[i] = m
 	}
 	return out
@@ -857,6 +887,9 @@ func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers, lo
 		if vv, o := v.GetAssumedRolesOk(); o != false {
 			m["assumed_roles"] = flattenSiteAwsAssumedRoles(vv)
 		}
+		m["ec2"] = v.GetEc2()
+		m["eks"] = v.GetEks()
+		m["rds"] = v.GetRds()
 		out[i] = m
 	}
 	return out
@@ -884,7 +917,8 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 		m["query_aaaa"] = v.GetQueryAAAA()
 		m["default_ttl_seconds"] = v.GetDefaultTtlSeconds()
 		m["servers"] = v.GetServers()
-		m["search_domains"] = v.GetMatchDomains()
+		m["match_domains"] = v.GetMatchDomains()
+		m["auto_client_dns"] = v.GetAutoClientDns()
 
 		out[i] = m
 	}
@@ -1245,10 +1279,10 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 				row.SetServers(servers)
 			}
 		}
-		if v := raw["search_domains"]; len(v.([]interface{})) > 0 {
+		if v := raw["match_domains"]; len(v.([]interface{})) > 0 {
 			domains, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve dns search domains: %w", err)
+				return result, fmt.Errorf("Failed to resolve dns match domains: %w", err)
 			}
 			if len(domains) > 0 {
 				row.SetMatchDomains(domains)
@@ -1302,6 +1336,15 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		}
 		if v, ok := raw["resolve_with_master_credentials"]; ok {
 			row.SetResolveWithMasterCredentials(v.(bool))
+		}
+		if v, ok := raw["ec2"]; ok {
+			row.SetEc2(v.(bool))
+		}
+		if v, ok := raw["eks"]; ok {
+			row.SetEks(v.(bool))
+		}
+		if v, ok := raw["rds"]; ok {
+			row.SetRds(v.(bool))
 		}
 		if v, ok := raw["assumed_roles"]; ok {
 			assumedRoles, err := readAwsAssumedRolesFromConfig(v.([]interface{}))
@@ -1365,6 +1408,17 @@ func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAll
 		}
 		if v, ok := raw["use_managed_identities"]; ok {
 			row.SetUseManagedIdentities(v.(bool))
+		}
+
+		if v, ok := raw["subscription_ids"]; ok {
+			subscriptionIds, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			row.SetSubscriptionIds(subscriptionIds)
+		}
+		if v, ok := raw["subscription_id_auto_discovery"]; ok {
+			row.SetSubscriptionIdAutoDiscovery(v.(bool))
 		}
 		result = append(result, row)
 	}
