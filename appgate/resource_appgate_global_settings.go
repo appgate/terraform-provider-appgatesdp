@@ -204,7 +204,6 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())
-	d.Set("app_discovery_domains", settings.GetAppDiscoveryDomains())
 	d.Set("collective_id", settings.GetCollectiveId())
 
 	d.Set("collective_name", settings.GetCollectiveName())
@@ -263,14 +262,6 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 	if d.HasChange("audit_log_persistence_mode") {
 		originalsettings.SetAuditLogPersistenceMode(d.Get("audit_log_persistence_mode").(string))
-	}
-	if d.HasChange("app_discovery_domains") {
-		_, n := d.GetChange("app_discovery_domains")
-		domains, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		originalsettings.SetAppDiscoveryDomains(domains)
 	}
 	if d.HasChange("registered_device_expiration_days") {
 		if currentVersion.LessThan(Appliance62Version) {
