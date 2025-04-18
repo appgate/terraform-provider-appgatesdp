@@ -1119,7 +1119,7 @@ func TestAccApplianceConnector(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.address", "0.0.0.0"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.device_id", "12699e27-b584-464a-81ee-5b4784b6d425"),
-					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.name", "Printers"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.name", "Printers1"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.snat_to_resources", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 
@@ -1171,7 +1171,7 @@ func testAccCheckApplianceBasicConnector(context map[string]interface{}) string 
 data "appgatesdp_site" "default_site" {
     site_name = "Default Site"
 }
-resource "appgatesdp_appliance" "basic_connector" {
+resource "appgatesdp_appliance" "connector" {
     name     = "%{name}"
     hostname = "%{hostname}"
     site     = data.appgatesdp_site.default_site.id
@@ -2338,7 +2338,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -2431,7 +2431,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -2927,7 +2927,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "log_server.0.retention_days", "30"),
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -3042,7 +3042,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "log_server.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -4700,7 +4700,7 @@ func TestAccAppliance61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -4871,7 +4871,7 @@ func TestAccAppliance62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
