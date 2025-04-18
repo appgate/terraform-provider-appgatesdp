@@ -322,15 +322,6 @@ func resourceAppgateAppliance() *schema.Resource {
 							Optional:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
-
-						// TODO: Deprececated as of api version 20. Remove when releasing api version 23
-						"dns_domains": {
-							Type:        schema.TypeSet,
-							Description: "DNS Search domains.",
-							Set:         schema.HashString,
-							Optional:    true,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-						},
 						"routes": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -3057,14 +3048,6 @@ func readNetworkingFromConfig(networks []interface{}) (openapi.ApplianceAllOfNet
 		}
 		if len(dnsServers) > 0 {
 			network.SetDnsServers(dnsServers)
-		}
-
-		dnsDomains := make([]string, 0)
-		if v, ok := rawNetwork["dns_domains"]; ok {
-			list := v.(*schema.Set).List()
-			for _, dns := range list {
-				dnsDomains = append(dnsDomains, dns.(string))
-			}
 		}
 
 		if v := rawNetwork["routes"]; len(v.([]interface{})) > 0 {
