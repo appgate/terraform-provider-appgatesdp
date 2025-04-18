@@ -35,10 +35,10 @@ data "appgatesdp_site" "default_site" {
 
 resource "appgatesdp_appliance" "new_test_gateway" {
   name     = "%s"
-  hostname = "envy-10-97-168-1337.devops"
+  hostname = "envy-10-97-168-999.devops"
 
   client_interface {
-    hostname       = "envy-10-97-168-1338.devops"
+    hostname       = "envy-10-97-168-130.devops"
     proxy_protocol = true
     https_port     = 447
     dtls_port      = 445
@@ -65,7 +65,6 @@ resource "appgatesdp_appliance" "new_test_gateway" {
       }
     }
   }
-
 }
 
 

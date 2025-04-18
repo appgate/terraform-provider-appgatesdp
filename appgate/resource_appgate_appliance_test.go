@@ -1171,7 +1171,7 @@ func testAccCheckApplianceBasicConnector(context map[string]interface{}) string 
 data "appgatesdp_site" "default_site" {
     site_name = "Default Site"
 }
-resource "appgatesdp_appliance" "connector" {
+resource "appgatesdp_appliance" "basic_connector" {
     name     = "%{name}"
     hostname = "%{hostname}"
     site     = data.appgatesdp_site.default_site.id
@@ -1223,7 +1223,7 @@ resource "appgatesdp_appliance" "connector" {
     connector {
       enabled = true
       express_clients {
-        name      = "Printers"
+        name      = "Printers1"
         device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
 
         allow_resources {
