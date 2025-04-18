@@ -372,7 +372,7 @@ func TestClient(t *testing.T) {
 			if !appgateClient.ApplianceVersion.Equal(tt.expectedVersion) {
 				t.Fatalf("Expected %s, got %s", tt.expectedVersion, appgateClient.ApplianceVersion)
 			}
-			if token != "Bearer very-long-string" {
+			if token != "very-long-string" {
 				t.Fatalf("Expected token Bearer very-long-string, got %s", appgateClient.Token)
 			}
 		})
