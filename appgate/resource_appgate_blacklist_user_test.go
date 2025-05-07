@@ -18,9 +18,9 @@ func TestAccBlacklistUserBasic(t *testing.T) {
 			{
 				Config: testAccCheckBlacklistUserBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "id", "CN=TestUser,OU=ldap"),
-					resource.TestCheckResourceAttr(resourceName, "provider_name", "ldap"),
-					resource.TestCheckResourceAttr(resourceName, "user_distinguished_name", "CN=TestUser,OU=ldap"),
+					resource.TestCheckResourceAttr(resourceName, "id", "CN=TestUser,OU=local"),
+					resource.TestCheckResourceAttr(resourceName, "provider_name", "local"),
+					resource.TestCheckResourceAttr(resourceName, "user_distinguished_name", "CN=TestUser,OU=local"),
 					resource.TestCheckResourceAttr(resourceName, "username", "TestUser"),
 				),
 			},
@@ -36,7 +36,7 @@ func TestAccBlacklistUserBasic(t *testing.T) {
 func testAccCheckBlacklistUserBasic() string {
 	return `
     resource "appgatesdp_blacklist_user" "test_blacklist_user" {
-        user_distinguished_name = "CN=TestUser,OU=ldap"
+        user_distinguished_name = "CN=TestUser,OU=local"
       }
 `
 }
