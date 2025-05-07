@@ -5066,7 +5066,7 @@ func TestAccAppliance63(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
