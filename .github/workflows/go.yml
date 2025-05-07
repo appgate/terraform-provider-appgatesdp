@@ -16,7 +16,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5
       with:
-        go-version: ^1.20
+        go-version: ^1.23
       id: go
 
     - name: Check out code into the Go module directory
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: WillAbides/setup-go-faster@v1.14.0
         with:
-          go-version: "1.20.x"
+          go-version: "1.23.x"
       - run: "GO111MODULE=on go install honnef.co/go/tools/cmd/staticcheck@2023.1.2"
       - uses: actions/checkout@v1
         with:
@@ -52,4 +52,4 @@ jobs:
           restore-keys: |
             staticcheck-
       - run: "go vet ./..."
-      - run: "$(go env GOPATH)/bin/staticcheck -go 1.20 ./..."
+      - run: "$(go env GOPATH)/bin/staticcheck -go 1.23 ./..."
