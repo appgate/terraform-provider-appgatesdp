@@ -214,6 +214,9 @@ Resolvers to resolve Amazon machines by querying Amazon Web Services.
 * `https_proxy`: (Optional) Proxy address to use while communicating with AWS. format: username:password@ip/hostname:port
 * `resolve_with_master_credentials`: (Optional) Use master credentials to resolve names in addition to any assumed roles.
 * `assumed_roles`: (Optional) Roles to be assumed to perform AWS name resolution.
+* `ec2`: (Optional) Whether to search for EC2 instances
+* `eks`: (Optional) Whether to search for EKS clusters
+* `rds`: (Optional) Whether to search for RDS instances
 
 #### azure_resolvers
 Resolvers to resolve Azure machines by querying Azure App Service.
