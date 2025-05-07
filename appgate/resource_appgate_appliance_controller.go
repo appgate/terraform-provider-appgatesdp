@@ -146,8 +146,8 @@ func resourceAppgateApplianceControllerActivationRead(ctx context.Context, d *sc
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AppliancesApi
-	request := api.AppliancesIdGet(ctx, d.Id())
 	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	request := api.AppliancesIdGet(ctx, d.Id())
 	appliance, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")

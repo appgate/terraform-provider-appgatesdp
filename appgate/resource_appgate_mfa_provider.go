@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -246,9 +245,8 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 	api := meta.(*Client).API.MFAProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.MfaProvidersIdGet(ctx, d.Id())
-	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	originalMfaProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read MFA provider while updating, %w", err)
@@ -301,7 +299,6 @@ func resourceAppgateMfaProviderUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 	req := api.MfaProvidersIdPut(ctx, d.Id())
 	req = req.MfaProvider(*originalMfaProvider)
-	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update MFA provider %w", prettyPrintAPIError(err))

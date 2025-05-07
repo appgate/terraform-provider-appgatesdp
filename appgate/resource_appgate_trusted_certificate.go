@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -132,7 +131,6 @@ func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interf
 
 	req := api.TrustedCertificatesIdPut(ctx, d.Id())
 	req = req.TrustedCertificate(*originalTrustedCertificate)
-	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update trusted certificate %w", prettyPrintAPIError(err))

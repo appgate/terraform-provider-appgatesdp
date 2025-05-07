@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"log"
@@ -124,7 +123,6 @@ func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) e
 	api := meta.(*Client).API.DeviceClaimScriptsApi
 	ctx := BaseAuthContext(token)
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
-	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	deviceScript, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
@@ -151,9 +149,8 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
-	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	originalDeviceScript, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read Device script while updating, %w", err)
@@ -183,7 +180,6 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 
 	req := api.DeviceScriptsIdPut(ctx, d.Id())
 	req = req.DeviceScript(*originalDeviceScript)
-	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Device script %w", prettyPrintAPIError(err))
