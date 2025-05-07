@@ -709,7 +709,7 @@ func testAccSiteBasicAwsResolverConfig(context map[string]interface{}) string {
 				default_ttl_seconds = 300
 				match_domains = []
 				query_aaaa = true
-				servers = []
+				servers = [ "1.1.1.1" ]
 				update_interval = 300
 				auto_client_dns = false
 			}
@@ -961,7 +961,7 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentials(context map[string]in
 				default_ttl_seconds = 300
 				match_domains = []
 				query_aaaa = true
-				servers = []
+				servers = [ "1.1.1.1" ]
 				update_interval = 300
 				auto_client_dns = false
 			}
@@ -1026,7 +1026,7 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentialsUpdated(context map[st
 				default_ttl_seconds = 300
 				match_domains = []
 				query_aaaa = true
-				servers = []
+				servers = [ "1.1.1.1" ]
 				update_interval = 300
 				auto_client_dns = false
 			}
@@ -2058,7 +2058,7 @@ resource "appgatesdp_site" "illumio_site" {
 			default_ttl_seconds = 300
 			match_domains = []
 			query_aaaa = true
-			servers = []
+			servers = [ "1.1.1.1" ]
 			update_interval = 300
 			auto_client_dns = false
 		}
@@ -2105,7 +2105,7 @@ resource "appgatesdp_site" "illumio_site" {
 			default_ttl_seconds = 300
 			match_domains = []
 			query_aaaa = true
-			servers = []
+			servers = [ "1.1.1.1" ]
 			update_interval = 300
 			auto_client_dns = false
 		}
@@ -2144,7 +2144,7 @@ resource "appgatesdp_site" "illumio_site" {
 			default_ttl_seconds = 300
 			match_domains = []
 			query_aaaa = true
-			servers = []
+			servers = [ "1.1.1.1" ]
 			update_interval = 300
 			auto_client_dns = false
 		}
@@ -2357,7 +2357,7 @@ resource "appgatesdp_site" "illumio_site" {
 			default_ttl_seconds = 300
 			match_domains = []
 			query_aaaa = true
-			servers = []
+			servers = [ "1.1.1.1" ]
 			update_interval = 300
 			auto_client_dns = false
 		}
@@ -2405,7 +2405,7 @@ resource "appgatesdp_site" "illumio_site" {
 			default_ttl_seconds = 300
 			match_domains = []
 			query_aaaa = true
-			servers = []
+			servers = [ "1.1.1.1" ]
 			update_interval = 300
 			auto_client_dns = false
 		}
@@ -2598,7 +2598,7 @@ resource "appgatesdp_site" "test_site" {
 			default_ttl_seconds = 300
 			match_domains = []
 			query_aaaa = true
-			servers = []
+			servers = [ "1.1.1.1" ]
 			update_interval = 300
 			auto_client_dns = false
 		}
