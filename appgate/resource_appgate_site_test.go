@@ -648,7 +648,7 @@ func TestAccSiteBasicAwsResolverWithoutSecret(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.eks", "false"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.rds", "false"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
@@ -676,33 +676,53 @@ func testAccSiteBasicAwsResolverConfig(context map[string]interface{}) string {
     resource "appgatesdp_site" "test_site" {
         name       = "%{name}"
         tags = [
-          "developer",
-          "api-created"
+			"developer",
+			"api-created"
         ]
         entitlement_based_routing = false
         network_subnets = [
-          "10.0.0.0/16"
+			"10.0.0.0/16"
         ]
         default_gateway {
-          enabled_v4       = false
-          enabled_v6       = false
-          excluded_subnets = []
+			enabled_v4       = false
+			enabled_v6       = false
+			excluded_subnets = []
         }
         name_resolution {
-          aws_resolvers {
-            name = "AWS Resolver 10"
-            regions = [
-              "eu-central-1",
-              "eu-west-1"
-            ]
-            update_interval                 = 59
-            vpcs                            = []
-            vpc_auto_discovery              = true
-            use_iam_role                    = true
-            resolve_with_master_credentials = true
-          }
-        }
-      }
+			aws_resolvers {
+				name = "AWS Resolver 10"
+				regions = [
+					"eu-central-1",
+					"eu-west-1"
+				]
+				update_interval                 = 59
+				vpcs                            = []
+				vpc_auto_discovery              = true
+				use_iam_role                    = true
+				resolve_with_master_credentials = true
+			}
+			dns_resolvers {
+				name = "Built-in Default DNS Resolver"
+				default_ttl_seconds = 300
+				match_domains = []
+				query_aaaa = true
+				servers = []
+				update_interval = 300
+				auto_client_dns = false
+			}
+			dns_forwarding {
+				default_ttl_seconds = 300
+				site_ipv4 = "192.168.1.1"
+				dns_servers = [
+					"1.1.1.1"
+				]
+				allow_destinations {
+					address = "1.1.1.1"
+					netmask = 32
+				}
+			}
+		}
+	}
     `, context)
 }
 
@@ -757,8 +777,8 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpc_auto_discovery", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpcs.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
@@ -802,7 +822,7 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "12"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "15"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", "string1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.%", "4"),
@@ -823,8 +843,8 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpc_auto_discovery", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.vpcs.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
@@ -859,7 +879,7 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "12"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.%", "15"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.access_key_id", "string1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.0.assumed_roles.0.%", "4"),
@@ -909,29 +929,49 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentials(context map[string]in
         }
 		name_resolution {
 			aws_resolvers {
-			  name = "AWS Resolver 1"
-			  regions = [
-				"eu-central-1",
-				"eu-west-1"
-			  ]
-			  update_interval                 = 59
-			  vpcs                            = []
-			  vpc_auto_discovery              = true
-			  use_iam_role                    = true
-			  access_key_id                   = "string1"
-			  secret_access_key               = "string2"
-			  resolve_with_master_credentials = false
-			  assumed_roles {
-				account_id  = "abc123"
-				role_name   = "The role"
-				external_id = "3a569552-48a4-4589-990d-5f1d8e3a6a18"
-				regions = [
-				  "eu-central-1",
-				]
-			  }
+				name = "AWS Resolver 1"
+			  	regions = [
+					"eu-central-1",
+					"eu-west-1"
+			  	]
+				update_interval                 = 59
+				vpcs                            = []
+				vpc_auto_discovery              = true
+				use_iam_role                    = true
+				access_key_id                   = "string1"
+				secret_access_key               = "string2"
+				resolve_with_master_credentials = false
+				assumed_roles {
+					account_id  = "abc123"
+					role_name   = "The role"
+					external_id = "3a569552-48a4-4589-990d-5f1d8e3a6a18"
+					regions = [
+						"eu-central-1",
+					]
+				}
 			}
-		  }
-      }
+			dns_resolvers {
+				name = "Built-in Default DNS Resolver"
+				default_ttl_seconds = 300
+				match_domains = []
+				query_aaaa = true
+				servers = []
+				update_interval = 300
+				auto_client_dns = false
+			}
+			dns_forwarding {
+				default_ttl_seconds = 300
+				site_ipv4 = "192.168.1.1"
+				dns_servers = [
+					"1.1.1.1"
+				]
+				allow_destinations {
+					address = "1.1.1.1"
+					netmask = 32
+				}
+			}
+		}
+	}
     `, context)
 }
 
@@ -954,29 +994,49 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentialsUpdated(context map[st
         }
 		name_resolution {
 			aws_resolvers {
-			  name = "AWS Resolver 1"
-			  regions = [
-				"eu-central-1",
-				"eu-west-1"
-			  ]
-			  update_interval                 = 59
-			  vpcs                            = []
-			  vpc_auto_discovery              = true
-			  use_iam_role                    = true
-			  access_key_id                   = "string1"
-			  secret_access_key               = "string2"
-			  resolve_with_master_credentials = true # updated
-			  assumed_roles {
-				account_id  = "abc123"
-				role_name   = "The role"
-				external_id = "3a569552-48a4-4589-990d-5f1d8e3a6a18"
-				regions = [
-				  "eu-central-1",
-				]
-			  }
+			  	name = "AWS Resolver 1"
+			  	regions = [
+					"eu-central-1",
+					"eu-west-1"
+			  	]
+			  	update_interval                 = 59
+			  	vpcs                            = []
+			  	vpc_auto_discovery              = true
+			  	use_iam_role                    = true
+			  	access_key_id                   = "string1"
+			  	secret_access_key               = "string2"
+			  	resolve_with_master_credentials = true # updated
+			  	assumed_roles {
+					account_id  = "abc123"
+					role_name   = "The role"
+					external_id = "3a569552-48a4-4589-990d-5f1d8e3a6a18"
+					regions = [
+				  		"eu-central-1",
+					]
+			  	}
 			}
-		  }
-      }
+			dns_resolvers {
+				name = "Built-in Default DNS Resolver"
+				default_ttl_seconds = 300
+				match_domains = []
+				query_aaaa = true
+				servers = []
+				update_interval = 300
+				auto_client_dns = false
+			}
+			dns_forwarding {
+				default_ttl_seconds = 300
+				site_ipv4 = "192.168.1.1"
+				dns_servers = [
+					"1.1.1.1"
+				]
+				allow_destinations {
+					address = "1.1.1.1"
+					netmask = 32
+				}
+			}
+		}
+	}
     `, context)
 }
 
@@ -1018,7 +1078,7 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.name", "test"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.#", "1"),
@@ -1073,7 +1133,7 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.name", "test"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.#", "1"),
@@ -1128,7 +1188,7 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.name", "test"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.search_domains.#", "1"),
@@ -1313,8 +1373,8 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
@@ -1362,8 +1422,8 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
@@ -1411,8 +1471,8 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
@@ -1969,22 +2029,42 @@ resource "appgatesdp_site" "illumio_site" {
 	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
-	  "10.0.0.0/16"
+		"10.0.0.0/16"
 	]
 	default_gateway {
-	  enabled_v4       = false
-	  enabled_v6       = false
-	  excluded_subnets = []
+		enabled_v4       = false
+		enabled_v6       = false
+		excluded_subnets = []
 	}
 	name_resolution {
-	  illumio_resolvers {
-		name     = "Illumio Resolver 1"
-		hostname = "illumio.acme.com"
-		update_interval = 10
-		port     = 65530
-		username = "admin"
-		password = "adminadmin"
-	  }
+		illumio_resolvers {
+			name     = "Illumio Resolver 1"
+			hostname = "illumio.acme.com"
+			update_interval = 10
+			port     = 65530
+			username = "admin"
+			password = "adminadmin"
+		}
+		dns_resolvers {
+			name = "Built-in Default DNS Resolver"
+			default_ttl_seconds = 300
+			match_domains = []
+			query_aaaa = true
+			servers = []
+			update_interval = 300
+			auto_client_dns = false
+		}
+		dns_forwarding {
+			default_ttl_seconds = 300
+			site_ipv4 = "192.168.1.1"
+			dns_servers = [
+				"1.1.1.1"
+			]
+			allow_destinations {
+				address = "1.1.1.1"
+				netmask = 32
+			}
+		}
 	}
 }`, rName)
 }
@@ -1996,22 +2076,42 @@ resource "appgatesdp_site" "illumio_site" {
 	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
-	  "10.0.0.0/16"
+		"10.0.0.0/16"
 	]
 	default_gateway {
-	  enabled_v4       = false
-	  enabled_v6       = false
-	  excluded_subnets = []
+		enabled_v4       = false
+		enabled_v6       = false
+		excluded_subnets = []
 	}
 	name_resolution {
-	  illumio_resolvers {
-		name     = "Illumio Resolver 99"
-		hostname = "illumio.acme.com"
-		update_interval = 50
-		port     = 1337
-		username = "acme"
-		password = "adminadmin"
-	  }
+		illumio_resolvers {
+			name     = "Illumio Resolver 99"
+			hostname = "illumio.acme.com"
+			update_interval = 50
+			port     = 1337
+			username = "acme"
+			password = "adminadmin"
+		}
+		dns_resolvers {
+			name = "Built-in Default DNS Resolver"
+			default_ttl_seconds = 300
+			match_domains = []
+			query_aaaa = true
+			servers = []
+			update_interval = 300
+			auto_client_dns = false
+		}
+		dns_forwarding {
+			default_ttl_seconds = 300
+			site_ipv4 = "192.168.1.1"
+			dns_servers = [
+				"1.1.1.1"
+			]
+			allow_destinations {
+				address = "1.1.1.1"
+				netmask = 32
+			}
+		}
 	}
 }`, rName)
 }
@@ -2023,14 +2123,34 @@ resource "appgatesdp_site" "illumio_site" {
 	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
-	  "10.0.0.0/16"
+		"10.0.0.0/16"
 	]
 	default_gateway {
-	  enabled_v4       = false
-	  enabled_v6       = false
-	  excluded_subnets = []
+		enabled_v4       = false
+		enabled_v6       = false
+		excluded_subnets = []
 	}
 	name_resolution {
+		dns_resolvers {
+			name = "Built-in Default DNS Resolver"
+			default_ttl_seconds = 300
+			match_domains = []
+			query_aaaa = true
+			servers = []
+			update_interval = 300
+			auto_client_dns = false
+		}
+		dns_forwarding {
+			default_ttl_seconds = 300
+			site_ipv4 = "192.168.1.1"
+			dns_servers = [
+				"1.1.1.1"
+			]
+			allow_destinations {
+				address = "1.1.1.1"
+				netmask = 32
+			}
+		}
 	}
 }`, rName)
 }
@@ -2062,8 +2182,8 @@ func TestAccSiteNameResolverIllumio62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "1"),
@@ -2114,8 +2234,8 @@ func TestAccSiteNameResolverIllumio62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "1"),
@@ -2167,8 +2287,8 @@ func TestAccSiteNameResolverIllumio62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.esx_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.illumio_resolvers.#", "0"),
@@ -2207,23 +2327,43 @@ resource "appgatesdp_site" "illumio_site" {
 	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
-	  "10.0.0.0/16"
+		"10.0.0.0/16"
 	]
 	default_gateway {
-	  enabled_v4       = false
-	  enabled_v6       = false
-	  excluded_subnets = []
+		enabled_v4       = false
+		enabled_v6       = false
+		excluded_subnets = []
 	}
 	name_resolution {
-	  illumio_resolvers {
-		name     = "Illumio Resolver 1"
-		hostname = "illumio.acme.com"
-		update_interval = 10
-		port     = 65530
-		username = "admin"
-		password = "adminadmin"
-		org_id   = "org12345"
-	  }
+		illumio_resolvers {
+			name     = "Illumio Resolver 1"
+			hostname = "illumio.acme.com"
+			update_interval = 10
+			port     = 65530
+			username = "admin"
+			password = "adminadmin"
+			org_id   = "org12345"
+		}
+		dns_resolvers {
+			name = "Built-in Default DNS Resolver"
+			default_ttl_seconds = 300
+			match_domains = []
+			query_aaaa = true
+			servers = []
+			update_interval = 300
+			auto_client_dns = false
+		}
+		dns_forwarding {
+			default_ttl_seconds = 300
+			site_ipv4 = "192.168.1.1"
+			dns_servers = [
+				"1.1.1.1"
+			]
+			allow_destinations {
+				address = "1.1.1.1"
+				netmask = 32
+			}
+		}
 	}
 }`, rName)
 }
@@ -2235,23 +2375,43 @@ resource "appgatesdp_site" "illumio_site" {
 	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
-	  "10.0.0.0/16"
+		"10.0.0.0/16"
 	]
 	default_gateway {
-	  enabled_v4       = false
-	  enabled_v6       = false
-	  excluded_subnets = []
+		enabled_v4       = false
+		enabled_v6       = false
+		excluded_subnets = []
 	}
 	name_resolution {
-	  illumio_resolvers {
-		name     = "Illumio Resolver 99"
-		hostname = "illumio.acme.com"
-		update_interval = 50
-		port     = 1337
-		username = "acme"
-		password = "adminadmin"
-		org_id   = "org12345"
-	  }
+		illumio_resolvers {
+			name     = "Illumio Resolver 99"
+			hostname = "illumio.acme.com"
+			update_interval = 50
+			port     = 1337
+			username = "acme"
+			password = "adminadmin"
+			org_id   = "org12345"
+		}
+		dns_resolvers {
+			name = "Built-in Default DNS Resolver"
+			default_ttl_seconds = 300
+			match_domains = []
+			query_aaaa = true
+			servers = []
+			update_interval = 300
+			auto_client_dns = false
+		}
+		dns_forwarding {
+			default_ttl_seconds = 300
+			site_ipv4 = "192.168.1.1"
+			dns_servers = [
+				"1.1.1.1"
+			]
+			allow_destinations {
+				address = "1.1.1.1"
+				netmask = 32
+			}
+		}
 	}
 }`, rName)
 }
@@ -2422,6 +2582,15 @@ resource "appgatesdp_site" "test_site" {
 	    snat          = false
 	}
 	name_resolution {
+		dns_resolvers {
+			name = "Built-in Default DNS Resolver"
+			default_ttl_seconds = 300
+			match_domains = []
+			query_aaaa = true
+			servers = []
+			update_interval = 300
+			auto_client_dns = false
+		}
 		dns_forwarding {
             default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
