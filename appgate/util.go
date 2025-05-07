@@ -14,7 +14,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 	"github.com/cenkalti/backoff/v4"
 
@@ -23,6 +23,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+func BaseAuthContext(token string) context.Context {
+	return context.WithValue(context.Background(), openapi.ContextAccessToken, token)
+}
 
 func AppendErrorf(diags diag.Diagnostics, format string, a ...any) diag.Diagnostics {
 	return append(diags, diag.Errorf(format, a...)...)
@@ -406,7 +410,8 @@ func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, s
 		if err != nil {
 			return ApplianceStatsRetryableError{err: err}
 		}
-		stats, _, err := appliancesAPI.AppliancesStatusGet(ctx).Authorization(token).Execute()
+		ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+		stats, _, err := appliancesAPI.AppliancesStatusGet(ctx).Execute()
 		if err != nil {
 			return ApplianceStatsRetryableError{err: err}
 		}

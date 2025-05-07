@@ -1,11 +1,10 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -62,7 +61,8 @@ func dataSourceAppgateIdentityProviderRead(d *schema.ResourceData, meta interfac
 }
 
 func findIdentityProviderByUUID(api *openapi.IdentityProvidersApiService, id string, token string) (map[string]interface{}, error) {
-	provider, _, err := api.IdentityProvidersIdGet(context.Background(), id).Authorization(token).Execute()
+	ctx := BaseAuthContext(token)
+	provider, _, err := api.IdentityProvidersIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -70,9 +70,9 @@ func findIdentityProviderByUUID(api *openapi.IdentityProvidersApiService, id str
 }
 
 func findIdentityProviderByName(api *openapi.IdentityProvidersApiService, name string, token string) (map[string]interface{}, error) {
-	request := api.IdentityProvidersGet(context.Background())
-
-	provider, _, err := request.Query(name).OrderBy("name").Range_("0-1").Authorization(token).Execute()
+	ctx := BaseAuthContext(token)
+	request := api.IdentityProvidersGet(ctx)
+	provider, _, err := request.Query(name).OrderBy("name").Range_("0-1").Execute()
 	if err != nil {
 		return nil, err
 	}

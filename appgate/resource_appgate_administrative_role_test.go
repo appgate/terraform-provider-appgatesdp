@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"testing"
@@ -10,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccadministrativeRoleBasic(t *testing.T) {
+func TestAccAdministrativeRoleBasic(t *testing.T) {
 	resourceName := "appgatesdp_administrative_role.test_administrative_role"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.ParallelTest(t, resource.TestCase{
@@ -25,15 +24,13 @@ func TestAccadministrativeRoleBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "notes", "hello world"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.0", "cc"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.1", "dd"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.target", "Entitlement"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.type", "Create"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.default_tags.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.0", "aa"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.1", "bb"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.target", "Appliance"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.type", "View"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
@@ -73,9 +70,8 @@ func TestAccadministrativeRoleBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.%", "3"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.all", "false"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.ids.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.0", "aa"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.1.scope.0.tags.1", "bb"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.target", "Appliance"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.1.type", "View"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.2.%", "5"),
@@ -126,13 +122,13 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
     privileges {
         type         = "Create"
         target       = "Entitlement"
-        default_tags = ["cc", "dd"]
+        default_tags = ["cc"]
     }
     privileges {
         type   = "View"
         target = "Appliance"
         scope {
-        tags = ["aa", "bb"]
+        tags = ["aa"]
         }
     }
 }
@@ -156,7 +152,7 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
         type   = "View"
         target = "Appliance"
         scope {
-        tags = ["aa", "bb"]
+        tags = ["aa"]
         }
     }
 	privileges {
@@ -191,7 +187,7 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
         type   = "View"
         target = "Appliance"
         scope {
-        tags = ["aa", "bb"]
+        tags = ["aa", ]
         }
     }
 	privileges {
@@ -290,7 +286,7 @@ func testAccCheckadministrativeRoleExists(resource string) resource.TestCheckFun
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.AdministrativeRolesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching Administrative Role with resource %s. %s", resource, err)
 		}
 		return nil
@@ -309,7 +305,7 @@ func testAccCheckadministrativeRoleDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.AdminRolesApi
 
-		if _, _, err := api.AdministrativeRolesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.AdministrativeRolesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Administrative Role still exists, %+v", err)
 		}
 	}
@@ -432,9 +428,8 @@ func TestAccadministrativeRoleWtihAssignFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "hello"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.%", "5"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.0", "cc"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.1", "dd"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.%", "3"),
@@ -461,8 +456,8 @@ func TestAccadministrativeRoleWtihAssignFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.all", "true"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.ids.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.tags.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.2.target", "TokenRecord"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.2.type", "Revoke"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.target", "Policy"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.type", "Create"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
 				),
@@ -512,8 +507,8 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 	  "terraform"
 	]
 	privileges {
-	  type   = "Revoke"
-	  target = "TokenRecord"
+	  type   = "Create"
+	  target = "Policy"
 	  scope {
 		all = true
 	  }
@@ -521,7 +516,7 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 	privileges {
 	  type         = "Create"
 	  target       = "Entitlement"
-	  default_tags = ["cc", "dd"]
+	  default_tags = ["cc"]
 	}
 	privileges {
 	  type      = "AssignFunction"

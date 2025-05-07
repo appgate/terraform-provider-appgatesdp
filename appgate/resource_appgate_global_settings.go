@@ -3,6 +3,7 @@ package appgate
 import (
 	"context"
 	"fmt"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"log"
 	"net/http"
 	"time"
@@ -178,8 +179,9 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	api := meta.(*Client).API.GlobalSettingsApi
 	currentVersion := meta.(*Client).ApplianceVersion
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.GlobalSettingsGet(ctx)
-	settings, res, err := request.Authorization(token).Execute()
+	settings, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -202,7 +204,6 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())
-	d.Set("app_discovery_domains", settings.GetAppDiscoveryDomains())
 	d.Set("collective_id", settings.GetCollectiveId())
 
 	d.Set("collective_name", settings.GetCollectiveName())
@@ -224,8 +225,10 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	api := meta.(*Client).API.GlobalSettingsApi
 	currentVersion := meta.(*Client).ApplianceVersion
 
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.GlobalSettingsGet(ctx)
-	originalsettings, _, err := request.Authorization(token).Execute()
+
+	originalsettings, _, err := request.Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Failed to read Global settings while updating, %w", err))
 	}
@@ -260,14 +263,6 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChange("audit_log_persistence_mode") {
 		originalsettings.SetAuditLogPersistenceMode(d.Get("audit_log_persistence_mode").(string))
 	}
-	if d.HasChange("app_discovery_domains") {
-		_, n := d.GetChange("app_discovery_domains")
-		domains, err := readArrayOfStringsFromConfig(n.(*schema.Set).List())
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		originalsettings.SetAppDiscoveryDomains(domains)
-	}
 	if d.HasChange("registered_device_expiration_days") {
 		if currentVersion.LessThan(Appliance62Version) {
 			return diag.Errorf("registered_device_expiration_days is not supported on %s", currentVersion.String())
@@ -285,8 +280,9 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		originalsettings.SetCollectiveName(d.Get("collective_name").(string))
 	}
 	log.Printf("[DEBUG] Updating Global settings %+v", originalsettings)
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	req := api.GlobalSettingsPut(ctx)
-	_, err = req.GlobalSettings(*originalsettings).Authorization(token).Execute()
+	_, err = req.GlobalSettings(*originalsettings).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Global settings %w", prettyPrintAPIError(err)))
 	}
@@ -303,8 +299,8 @@ func resourceGlobalSettingsDelete(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.GlobalSettingsApi
-
-	if _, err := api.GlobalSettingsDelete(context.Background()).Authorization(token).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, err := api.GlobalSettingsDelete(ctx).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not reset Global settings %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

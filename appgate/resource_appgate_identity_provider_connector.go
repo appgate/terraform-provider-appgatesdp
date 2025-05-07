@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -52,7 +52,7 @@ func resourceAppgateConnectorProviderRuleCreate(d *schema.ResourceData, meta int
 		return err
 	}
 	api := meta.(*Client).API.ConnectorIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	connectorIP, err := getBuiltinConnectorProviderUUID(ctx, *api, token)
 	if err != nil {
 		return err
@@ -65,9 +65,8 @@ func resourceAppgateConnectorProviderRuleCreate(d *schema.ResourceData, meta int
 
 func getBuiltinConnectorProviderUUID(ctx context.Context, api openapi.ConnectorIdentityProvidersApiService, token string) (*openapi.ConnectorProvider, error) {
 	var connectorIP *openapi.ConnectorProvider
-	request := api.IdentityProvidersGet(ctx)
-
-	provider, _, err := request.Query(builtinProviderConnector).OrderBy("name").Range_("0-25").Authorization(token).Execute()
+	request := api.IdentityProvidersGet(context.WithValue(ctx, openapi.ContextAccessToken, token))
+	provider, _, err := request.Query(builtinProviderConnector).OrderBy("name").Range_("0-25").Execute()
 	if err != nil {
 		return connectorIP, err
 	}
@@ -87,8 +86,7 @@ func resourceAppgateConnectorProviderRuleRead(d *schema.ResourceData, meta inter
 		return err
 	}
 	api := meta.(*Client).API.ConnectorIdentityProvidersApi
-	ctx := context.TODO()
-	connectorIP, err := getBuiltinConnectorProviderUUID(ctx, *api, token)
+	connectorIP, err := getBuiltinConnectorProviderUUID(context.Background(), *api, token)
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Failed to read Connector Identity provider, %w", err)
@@ -129,9 +127,9 @@ func resourceAppgateConnectorProviderRuleUpdate(d *schema.ResourceData, meta int
 		return err
 	}
 	api := meta.(*Client).API.ConnectorIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := context.WithValue(context.Background(), openapi.ContextAccessToken, token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	originalConnectorProvider, _, err := request.Authorization(token).Execute()
+	originalConnectorProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read Connector Identity provider, %w", err)
 	}
@@ -167,7 +165,7 @@ func resourceAppgateConnectorProviderRuleUpdate(d *schema.ResourceData, meta int
 	// 	originalConnectorProvider.SetOnDemandClaimMappings(claims)
 	// }
 
-	_, _, err = api.IdentityProvidersIdPut(ctx, d.Id()).Body(*originalConnectorProvider).Authorization(token).Execute()
+	_, _, err = api.IdentityProvidersIdPut(ctx, d.Id()).Body(*originalConnectorProvider).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderConnector, prettyPrintAPIError(err))
 	}

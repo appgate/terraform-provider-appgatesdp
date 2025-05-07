@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -69,10 +69,10 @@ func resourceAppgateBlacklistUserCreate(d *schema.ResourceData, meta interface{}
 	if v, ok := d.GetOk("reason"); ok {
 		args.SetReason(v.(string))
 	}
-	request := api.BlacklistPost(context.TODO())
+	request := api.BlacklistPost(BaseAuthContext(token))
 	request = request.BlacklistEntry(*args)
 
-	entry, _, err := request.Authorization(token).Execute()
+	entry, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create blacklisted user %w", prettyPrintAPIError(err))
 	}
@@ -83,9 +83,9 @@ func resourceAppgateBlacklistUserCreate(d *schema.ResourceData, meta interface{}
 }
 
 func queryEntry(ctx context.Context, api *openapi.BlacklistedUsersApiService, token, distinguishedName string) (*openapi.BlacklistEntry, error) {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.BlacklistGet(ctx)
-
-	list, _, err := request.Authorization(token).Execute()
+	list, _, err := request.Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +123,7 @@ func resourceAppgateBlacklistUserDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 	api := meta.(*Client).API.BlacklistedUsersApi
-
-	if _, err := api.BlacklistDistinguishedNameDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.BlacklistDistinguishedNameDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete blacklisted user %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

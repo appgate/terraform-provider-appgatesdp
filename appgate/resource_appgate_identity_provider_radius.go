@@ -1,12 +1,11 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -74,7 +73,7 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 		return err
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderRadius
@@ -152,7 +151,7 @@ func resourceAppgateRadiusProviderRuleCreate(d *schema.ResourceData, meta interf
 	}
 
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderRadius, prettyPrintAPIError(err))
 	}
@@ -168,9 +167,9 @@ func resourceAppgateRadiusProviderRuleRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	radius, _, err := request.Authorization(token).Execute()
+	radius, _, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
@@ -241,9 +240,9 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 	api := meta.(*Client).API.RadiusIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	originalRadiusProvider, _, err := request.Authorization(token).Execute()
+	originalRadiusProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
@@ -344,7 +343,7 @@ func resourceAppgateRadiusProviderRuleUpdate(d *schema.ResourceData, meta interf
 
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
 	req = req.Body(*originalRadiusProvider)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderRadius, prettyPrintAPIError(err))
 	}

@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -26,7 +25,7 @@ func testAccCheckRadiusIdentityProviderExists(resource string) resource.TestChec
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching radius identity provider with resource %s. %s", resource, err)
 		}
 		return nil
@@ -45,7 +44,7 @@ func testAccCheckRadiusIdentityProviderDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
 
-		if _, _, err := api.IdentityProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("radius identity provider still exists, %+v", err)
 		}
 	}

@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -44,6 +43,12 @@ var (
 	}
 	testFor63AndAbove = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.3")
+	}
+	testFor64AndAbove = func(t *testing.T) {
+		applianceConstraintCheck(t, ">= 6.4")
+	}
+	testFor65AndAbove = func(t *testing.T) {
+		applianceConstraintCheck(t, ">= 6.5")
 	}
 	testFor61 = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.1, < 6.2")
@@ -116,8 +121,6 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.0.use_tls", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "8.8.8.8"),
@@ -327,10 +330,6 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.ipv6.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.2.name", "eth2"),
 
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa-updated.com"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.1", "new.com"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "2.2.2.2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.2", "8.8.4.4"),
@@ -476,7 +475,6 @@ func TestAccApplianceBasicController(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.ipv6.0.static.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.1.name", "eth1"),
 
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.routes.#", "0"),
 
@@ -561,7 +559,7 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 
-		if _, _, err := api.AppliancesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.AppliancesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Appliance still exists, %+v", err)
 		}
 	}
@@ -671,9 +669,6 @@ resource "appgatesdp_appliance" "test_controller" {
     dns_servers = [
       "8.8.8.8",
       "1.1.1.1",
-    ]
-    dns_domains = [
-      "aa.com"
     ]
     routes {
       address = "0.0.0.0"
@@ -884,11 +879,6 @@ resource "appgatesdp_appliance" "test_controller" {
       "1.1.1.1",
       "2.2.2.2"
     ]
-    dns_domains = [
-      "aa-updated.com",
-      "new.com"
-    ]
-
     routes {
       address = "1.0.0.0"
       netmask = 16
@@ -1135,7 +1125,7 @@ func TestAccApplianceConnector(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.address", "0.0.0.0"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.allow_resources.0.netmask", "32"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.device_id", "12699e27-b584-464a-81ee-5b4784b6d425"),
-					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.name", "Printers"),
+					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.name", "Printers1"),
 					resource.TestCheckResourceAttr(resourceName, "connector.0.express_clients.0.snat_to_resources", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 
@@ -1239,7 +1229,7 @@ resource "appgatesdp_appliance" "connector" {
     connector {
       enabled = true
       express_clients {
-        name      = "Printers"
+        name      = "Printers1"
         device_id = "12699e27-b584-464a-81ee-5b4784b6d425"
 
         allow_resources {
@@ -1270,7 +1260,7 @@ func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.AppliancesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.AppliancesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching appliance with resource %s. %s", resource, err)
 		}
 		return nil
@@ -1475,8 +1465,6 @@ func TestAccApplianceBasicControllerWithoutOverrideSPA(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.0.use_tls", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "8.8.8.8"),
@@ -1697,9 +1685,6 @@ resource "appgatesdp_appliance" "test_controller" {
       "8.8.8.8",
       "1.1.1.1",
     ]
-    dns_domains = [
-      "aa.com"
-    ]
     routes {
       address = "0.0.0.0"
       netmask = 24
@@ -1835,8 +1820,6 @@ func TestAccApplianceBasicControllerOverriderSPADisabled(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "log_forwarder.0.tcp_clients.0.use_tls", "true"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "8.8.8.8"),
@@ -2057,9 +2040,6 @@ resource "appgatesdp_appliance" "test_controller" {
     dns_servers = [
       "8.8.8.8",
       "1.1.1.1",
-    ]
-    dns_domains = [
-      "aa.com"
     ]
     routes {
       address = "0.0.0.0"
@@ -2364,7 +2344,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -2457,7 +2437,7 @@ func TestAccAppliancePortalSetup6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "hostname", context["hostname"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -2953,7 +2933,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "log_server.0.retention_days", "30"),
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -3068,7 +3048,7 @@ func TestAccApplianceLogServerFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "log_server.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -3337,9 +3317,6 @@ resource "appgatesdp_appliance" "log_forwarder_elasticsearch" {
 			"8.8.8.8",
 			"1.1.1.1",
 		]
-		dns_domains = [
-			"aa.com"
-		]
 		routes {
 			address = "0.0.0.0"
 			netmask = 24
@@ -3493,8 +3470,6 @@ func TestAccApplianceLogForwarderSplunkSumo61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "8.8.8.8"),
@@ -3655,9 +3630,6 @@ resource "appgatesdp_appliance" "log_forwarder_splunk_sumo" {
 		"8.8.8.8",
 		"1.1.1.1",
 	  ]
-	  dns_domains = [
-		"aa.com"
-	  ]
 	}
 	log_forwarder {
 	  enabled = true
@@ -3759,8 +3731,6 @@ func TestAccApplianceLogForwarderTcpClients(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", context["name"].(string)),
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_domains.0", "aa.com"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.dns_servers.1", "8.8.8.8"),
@@ -3961,9 +3931,6 @@ resource "appgatesdp_appliance" "log_forwarder_tcp" {
 			dns_servers = [
 				"8.8.8.8",
 				"1.1.1.1",
-			]
-			dns_domains = [
-				"aa.com"
 			]
 			routes {
 				address = "0.0.0.0"
@@ -4739,7 +4706,7 @@ func TestAccAppliance61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -4910,7 +4877,7 @@ func TestAccAppliance62(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),
@@ -5105,7 +5072,7 @@ func TestAccAppliance63(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "client_interface.0.proxy_protocol", "false"),
 
 					resource.TestCheckResourceAttr(resourceName, "networking.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "networking.0.%", "4"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.hosts.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "networking.0.nics.0.%", "5"),

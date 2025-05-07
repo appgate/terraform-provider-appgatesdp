@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -72,7 +71,7 @@ func testAccCheckGlobalSettingsExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.GlobalSettingsGet(context.Background()).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.GlobalSettingsGet(BaseAuthContext(token)).Execute(); err != nil {
 			return fmt.Errorf("error fetching global settings with resource %s. %s", resource, err)
 		}
 		return nil

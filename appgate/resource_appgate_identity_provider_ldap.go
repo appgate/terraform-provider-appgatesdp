@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -44,7 +44,6 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	api := meta.(*Client).API.LdapIdentityProvidersApi
-	ctx := context.TODO()
 	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderLdap
@@ -141,9 +140,9 @@ func resourceAppgateLdapProviderRuleCreate(d *schema.ResourceData, meta interfac
 		pw := readLdapPasswordWarningFromConfig(v.([]interface{}))
 		args.SetPasswordWarning(pw)
 	}
-
+	ctx := context.WithValue(context.Background(), openapi.ContextAccessToken, token)
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderLdap, prettyPrintAPIError(err))
 	}
@@ -159,9 +158,9 @@ func resourceAppgateLdapProviderRuleRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	api := meta.(*Client).API.LdapIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	ldap, res, err := request.Authorization(token).Execute()
+	ldap, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -275,9 +274,9 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	api := meta.(*Client).API.LdapIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	originalLdapProvider, _, err := request.Authorization(token).Execute()
+	originalLdapProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
@@ -398,7 +397,7 @@ func resourceAppgateLdapProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
 	req = req.Body(*originalLdapProvider)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderLdap, prettyPrintAPIError(err))
 	}

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -71,7 +71,9 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 	log.Printf("[DEBUG] Creating appgatesdp_appliance_controller_activation: %s", id)
 	api := meta.(*Client).API.AppliancesApi
 	request := api.AppliancesIdGet(ctx, id)
-	appliance, res, err := request.Authorization(token).Execute()
+
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	appliance, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -106,7 +108,8 @@ func resourceAppgateApplianceControllerActivationCreate(ctx context.Context, d *
 		state = ApplianceStateControllerReady
 	}
 	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
+		ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Execute()
 		if err != nil {
 			return resource.NonRetryableError(prettyPrintAPIError(err))
 		}
@@ -143,8 +146,9 @@ func resourceAppgateApplianceControllerActivationRead(ctx context.Context, d *sc
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.AppliancesApi
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.AppliancesIdGet(ctx, d.Id())
-	appliance, res, err := request.Authorization(token).Execute()
+	appliance, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -185,7 +189,8 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 	}
 	api := meta.(*Client).API.AppliancesApi
 	request := api.AppliancesIdGet(ctx, id)
-	appliance, _, err := request.Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	appliance, _, err := request.Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %w", err))
 	}
@@ -224,7 +229,9 @@ func resourceAppgateApplianceControllerActivationUpdate(ctx context.Context, d *
 		state = ApplianceStateControllerReady
 	}
 	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
+
+		ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance %w", prettyPrintAPIError(err)))
 		}
@@ -264,7 +271,8 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 	}
 	api := meta.(*Client).API.AppliancesApi
 	request := api.AppliancesIdGet(ctx, id)
-	appliance, _, err := request.Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	appliance, _, err := request.Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Failed to read Appliance, %w", err))
 	}
@@ -273,7 +281,8 @@ func resourceAppgateApplianceControllerActivationDelete(ctx context.Context, d *
 	appliance.SetController(c)
 
 	retryErr := resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
-		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Authorization(token).Execute()
+		ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+		_, _, err := api.AppliancesIdPut(ctx, id).Appliance(*appliance).Execute()
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Could not update appliance when disable controller on %s %w", appliance.Name, prettyPrintAPIError(err)))
 		}

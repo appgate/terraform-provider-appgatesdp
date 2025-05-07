@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -260,7 +259,7 @@ func testAccCheckPolicyExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.PoliciesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.PoliciesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching policy with resource %s. %s", resource, err)
 		}
 		return nil
@@ -286,7 +285,7 @@ func testAccCheckPolicyDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.PoliciesApi
 
-		if _, _, err := api.PoliciesIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.PoliciesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("policy %s still exists", rs.Primary.ID)
 		}
 	}

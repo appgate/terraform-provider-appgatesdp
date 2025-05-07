@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 	"golang.org/x/net/http/httpproxy"
@@ -179,6 +179,8 @@ func guessVersion(clientVersion int) (*version.Version, error) {
 		return version.NewVersion("6.3.0+estimated")
 	case Version21:
 		return version.NewVersion("6.4.0+estimated")
+	case Version22:
+		return version.NewVersion("6.5.0+estimated")
 	}
 	return nil, fmt.Errorf("could not determine appliance version with client version %d", clientVersion)
 }
@@ -236,9 +238,7 @@ func (c *Client) GetToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	c.Token = fmt.Sprintf("Bearer %s", *openapi.PtrString(*response.Token))
-	return c.Token, nil
+	return *response.Token, nil
 }
 
 var exponentialBackOff = backoff.ExponentialBackOff{

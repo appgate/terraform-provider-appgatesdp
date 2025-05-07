@@ -1,13 +1,12 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -238,10 +237,14 @@ func resourceAppgateSite() *schema.Resource {
 										Required: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
-									"search_domains": {
+									"match_domains": {
 										Type:     schema.TypeList,
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"auto_client_dns": {
+										Type:     schema.TypeBool,
+										Optional: true,
 									},
 								},
 							},
@@ -299,6 +302,21 @@ func resourceAppgateSite() *schema.Resource {
 									"partition": {
 										Type:     schema.TypeString,
 										Optional: true,
+									},
+									"ec2": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  true,
+									},
+									"eks": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+									"rds": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
 									},
 									"assumed_roles": {
 										Type:     schema.TypeList,
@@ -364,6 +382,16 @@ func resourceAppgateSite() *schema.Resource {
 										Type:      schema.TypeString,
 										Optional:  true,
 										Sensitive: true,
+									},
+									"subscription_ids": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"subscription_id_auto_discovery": {
+										Type:     schema.TypeBool,
+										Default:  false,
+										Optional: true,
 									},
 								},
 							},
@@ -581,7 +609,7 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 		args.SetNameResolution(nameResolution)
 	}
 
-	site, _, err := api.SitesPost(context.Background()).Site(args).Authorization(token).Execute()
+	site, _, err := api.SitesPost(BaseAuthContext(token)).Site(args).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create site %w", prettyPrintAPIError(err))
 	}
@@ -600,8 +628,8 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
 
-	request := api.SitesIdGet(context.Background(), d.Id())
-	site, res, err := request.Authorization(token).Execute()
+	request := api.SitesIdGet(BaseAuthContext(token), d.Id())
+	site, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -727,7 +755,7 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 	}
 	if v, ok := in.GetAwsResolversOk(); ok {
 		l := getNSLocalChanges(local, "aws_resolvers")
-		m["aws_resolvers"] = flattenSiteAWSResolver(v, l)
+		m["aws_resolvers"] = flattenSiteAWSResolver(currentVersion, v, l)
 	}
 	if v, ok := in.GetAzureResolversOk(); ok {
 		l := getNSLocalChanges(local, "azure_resolvers")
@@ -831,13 +859,14 @@ func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers
 			m["secret"] = v.GetSecret()
 		}
 		m["use_managed_identities"] = v.GetUseManagedIdentities()
-
+		m["subscription_ids"] = v.GetSubscriptionIds()
+		m["subscription_id_auto_discovery"] = v.GetSubscriptionIdAutoDiscovery()
 		out[i] = m
 	}
 	return out
 }
 
-func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers, local map[string]interface{}) []map[string]interface{} {
+func flattenSiteAWSResolver(version *version.Version, in []openapi.SiteAllOfNameResolutionAwsResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -857,6 +886,11 @@ func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers, lo
 		m["resolve_with_master_credentials"] = v.GetResolveWithMasterCredentials()
 		if vv, o := v.GetAssumedRolesOk(); o != false {
 			m["assumed_roles"] = flattenSiteAwsAssumedRoles(vv)
+		}
+		if version.GreaterThanOrEqual(Appliance65Version) {
+			m["ec2"] = v.GetEc2()
+			m["eks"] = v.GetEks()
+			m["rds"] = v.GetRds()
 		}
 		out[i] = m
 	}
@@ -885,7 +919,8 @@ func flattenSiteDNSResolver(in []openapi.SiteAllOfNameResolutionDnsResolvers) []
 		m["query_aaaa"] = v.GetQueryAAAA()
 		m["default_ttl_seconds"] = v.GetDefaultTtlSeconds()
 		m["servers"] = v.GetServers()
-		m["search_domains"] = v.GetMatchDomains()
+		m["match_domains"] = v.GetMatchDomains()
+		m["auto_client_dns"] = v.GetAutoClientDns()
 
 		out[i] = m
 	}
@@ -930,9 +965,8 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	api := meta.(*Client).API.SitesApi
 	currentVersion := meta.(*Client).ApplianceVersion
-	request := api.SitesIdGet(context.Background(), d.Id())
-
-	orginalSite, res, err := request.Authorization(token).Execute()
+	request := api.SitesIdGet(BaseAuthContext(token), d.Id())
+	orginalSite, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -1011,8 +1045,8 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 		orginalSite.SetNameResolution(nameResolution)
 	}
 
-	putRequest := api.SitesIdPut(context.Background(), d.Id())
-	_, _, err = putRequest.Site(*orginalSite).Authorization(token).Execute()
+	putRequest := api.SitesIdPut(BaseAuthContext(token), d.Id())
+	_, _, err = putRequest.Site(*orginalSite).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update site %w", prettyPrintAPIError(err))
 	}
@@ -1027,7 +1061,7 @@ func resourceAppgateSiteDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 	api := meta.(*Client).API.SitesApi
 
-	if _, err := api.SitesIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.SitesIdDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Failed to delete Site, %w", err)
 	}
 	d.SetId("")
@@ -1172,7 +1206,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 			result.SetDnsResolvers(dnsResolvers)
 		}
 		if v, ok := raw["aws_resolvers"]; ok {
-			awsResolvers, err := readAWSResolversFromConfig(v.(*schema.Set).List())
+			awsResolvers, err := readAWSResolversFromConfig(currentVersion, v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
@@ -1247,10 +1281,10 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 				row.SetServers(servers)
 			}
 		}
-		if v := raw["search_domains"]; len(v.([]interface{})) > 0 {
+		if v := raw["match_domains"]; len(v.([]interface{})) > 0 {
 			domains, err := readArrayOfStringsFromConfig(v.([]interface{}))
 			if err != nil {
-				return result, fmt.Errorf("Failed to resolve dns search domains: %w", err)
+				return result, fmt.Errorf("Failed to resolve dns match domains: %w", err)
 			}
 			if len(domains) > 0 {
 				row.SetMatchDomains(domains)
@@ -1261,7 +1295,7 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 	return result, nil
 }
 
-func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
+func readAWSResolversFromConfig(currentVersion *version.Version, awsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAwsResolvers, 0)
 	for _, resolver := range awsConfigs {
 		raw := resolver.(map[string]interface{})
@@ -1304,6 +1338,17 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		}
 		if v, ok := raw["resolve_with_master_credentials"]; ok {
 			row.SetResolveWithMasterCredentials(v.(bool))
+		}
+		if currentVersion.GreaterThanOrEqual(Appliance65Version) {
+			if v, ok := raw["ec2"]; ok {
+				row.SetEc2(v.(bool))
+			}
+			if v, ok := raw["eks"]; ok {
+				row.SetEks(v.(bool))
+			}
+			if v, ok := raw["rds"]; ok {
+				row.SetRds(v.(bool))
+			}
 		}
 		if v, ok := raw["assumed_roles"]; ok {
 			assumedRoles, err := readAwsAssumedRolesFromConfig(v.([]interface{}))
@@ -1367,6 +1412,17 @@ func readAzureResolversFromConfig(azureConfigs []interface{}) ([]openapi.SiteAll
 		}
 		if v, ok := raw["use_managed_identities"]; ok {
 			row.SetUseManagedIdentities(v.(bool))
+		}
+
+		if v, ok := raw["subscription_ids"]; ok {
+			subscriptionIds, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			row.SetSubscriptionIds(subscriptionIds)
+		}
+		if v, ok := raw["subscription_id_auto_discovery"]; ok {
+			row.SetSubscriptionIdAutoDiscovery(v.(bool))
 		}
 		result = append(result, row)
 	}

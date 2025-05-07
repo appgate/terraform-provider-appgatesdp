@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/go-version"
@@ -335,8 +335,8 @@ func resourceAppgateEntitlementRuleCreate(ctx context.Context, d *schema.Resourc
 		}
 		args.SetAppShortcutScripts(scripts)
 	}
-
-	ent, _, err := api.EntitlementsPost(ctx).Entitlement(*args).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	ent, _, err := api.EntitlementsPost(ctx).Entitlement(*args).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not create entitlement %w", prettyPrintAPIError(err)))
 	}
@@ -360,8 +360,9 @@ func resourceAppgateEntitlementRuleRead(ctx context.Context, d *schema.ResourceD
 	}
 	api := meta.(*Client).API.EntitlementsApi
 
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.EntitlementsIdGet(ctx, d.Id())
-	entitlement, res, err := request.Authorization(token).Execute()
+	entitlement, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -472,8 +473,9 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 	}
 	api := meta.(*Client).API.EntitlementsApi
 	currentVersion := meta.(*Client).ApplianceVersion
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.EntitlementsIdGet(ctx, d.Id())
-	orginalEntitlment, response, err := request.Authorization(token).Execute()
+	orginalEntitlment, response, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if response != nil && response.StatusCode == http.StatusNotFound {
@@ -546,9 +548,10 @@ func resourceAppgateEntitlementRuleUpdate(ctx context.Context, d *schema.Resourc
 		orginalEntitlment.SetAppShortcutScripts(scripts)
 	}
 
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	req := api.EntitlementsIdPut(ctx, d.Id())
 	req = req.Entitlement(*orginalEntitlment)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Entitlement %w", prettyPrintAPIError(err)))
 	}
@@ -566,8 +569,8 @@ func resourceAppgateEntitlementRuleDelete(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.EntitlementsApi
-
-	if _, err := api.EntitlementsIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, err := api.EntitlementsIdDelete(ctx, d.Id()).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete Entitlement %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

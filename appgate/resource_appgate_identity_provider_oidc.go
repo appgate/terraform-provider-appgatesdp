@@ -1,12 +1,11 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -84,7 +83,7 @@ func resourceAppgateOidcProviderRuleCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	api := meta.(*Client).API.OidcIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderOidc
@@ -172,7 +171,7 @@ func resourceAppgateOidcProviderRuleCreate(d *schema.ResourceData, meta interfac
 	}
 
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderOidc, prettyPrintAPIError(err))
 	}
@@ -188,9 +187,9 @@ func resourceAppgateOidcProviderRuleRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	api := meta.(*Client).API.OidcIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	oidc, _, err := request.Authorization(token).Execute()
+	oidc, _, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
@@ -274,9 +273,9 @@ func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	api := meta.(*Client).API.OidcIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	originalOidcProvider, _, err := request.Authorization(token).Execute()
+	originalOidcProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read LDAP Identity provider, %w", err)
 	}
@@ -381,7 +380,7 @@ func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interfac
 
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
 	req = req.Body(*originalOidcProvider)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderRadius, prettyPrintAPIError(err))
 	}

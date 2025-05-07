@@ -2,12 +2,11 @@ package appgate
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -584,8 +583,8 @@ func identityProviderDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	api := meta.(*Client).API.IdentityProvidersApi
-
-	if _, err := api.IdentityProvidersIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
+	ctx := BaseAuthContext(token)
+	if _, err := api.IdentityProvidersIdDelete(ctx, d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete LdapProvider %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

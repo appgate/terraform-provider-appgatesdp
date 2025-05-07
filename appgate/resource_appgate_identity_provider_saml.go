@@ -1,12 +1,11 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -67,7 +66,7 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	api := meta.(*Client).API.SamlIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	currentVersion := meta.(*Client).ApplianceVersion
 	provider := &openapi.ConfigurableIdentityProvider{}
 	provider.Type = identityProviderSaml
@@ -145,7 +144,7 @@ func resourceAppgateSamlProviderRuleCreate(d *schema.ResourceData, meta interfac
 		args.SetForceAuthn(v.(bool))
 	}
 	request := api.IdentityProvidersPost(ctx)
-	p, _, err := request.Body(args).Authorization(token).Execute()
+	p, _, err := request.Body(args).Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create %s provider %w", identityProviderSaml, prettyPrintAPIError(err))
 	}
@@ -161,9 +160,9 @@ func resourceAppgateSamlProviderRuleRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	api := meta.(*Client).API.SamlIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	saml, _, err := request.Authorization(token).Execute()
+	saml, _, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		return fmt.Errorf("Failed to read Saml Identity provider, %w", err)
@@ -224,9 +223,9 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 	api := meta.(*Client).API.SamlIdentityProvidersApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.IdentityProvidersIdGet(ctx, d.Id())
-	originalSamlProvider, _, err := request.Authorization(token).Execute()
+	originalSamlProvider, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read Saml Identity provider, %w", err)
 	}
@@ -331,7 +330,7 @@ func resourceAppgateSamlProviderRuleUpdate(d *schema.ResourceData, meta interfac
 
 	req := api.IdentityProvidersIdPut(ctx, d.Id())
 	req = req.Body(*originalSamlProvider)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update %s provider %w", identityProviderSaml, prettyPrintAPIError(err))
 	}

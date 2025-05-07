@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -93,7 +92,7 @@ func testAccCheckUserClaimScriptDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.UserClaimScriptsApi
 
-		if _, _, err := api.UserScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.UserScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("user claim script still exists, %+v", err)
 		}
 	}
@@ -117,7 +116,7 @@ func testAccCheckUserClaimScriptExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.UserScriptsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.UserScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching user claim script with resource %s. %s", resource, err)
 		}
 		return nil

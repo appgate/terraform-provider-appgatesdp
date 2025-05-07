@@ -1,13 +1,12 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -82,10 +81,10 @@ func resourceAppgateEntitlementScriptCreate(d *schema.ResourceData, meta interfa
 	if v, ok := d.GetOk("type"); ok {
 		args.SetType(v.(string))
 	}
-
-	request := api.EntitlementScriptsPost(context.TODO())
+	ctx := BaseAuthContext(token)
+	request := api.EntitlementScriptsPost(ctx)
 	request = request.EntitlementScript(*args)
-	EntitlementScript, _, err := request.Authorization(token).Execute()
+	EntitlementScript, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create Entitlement script %w", prettyPrintAPIError(err))
 	}
@@ -103,9 +102,9 @@ func resourceAppgateEntitlementScriptRead(d *schema.ResourceData, meta interface
 		return err
 	}
 	api := meta.(*Client).API.EntitlementScriptsApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.EntitlementScriptsIdGet(ctx, d.Id())
-	EntitlementScript, res, err := request.Authorization(token).Execute()
+	EntitlementScript, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -132,9 +131,9 @@ func resourceAppgateEntitlementScriptUpdate(d *schema.ResourceData, meta interfa
 		return err
 	}
 	api := meta.(*Client).API.EntitlementScriptsApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.EntitlementScriptsIdGet(ctx, d.Id())
-	originalEntitlementScript, _, err := request.Authorization(token).Execute()
+	originalEntitlementScript, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read Entitlement script while updating, %w", err)
 	}
@@ -161,7 +160,7 @@ func resourceAppgateEntitlementScriptUpdate(d *schema.ResourceData, meta interfa
 
 	req := api.EntitlementScriptsIdPut(ctx, d.Id())
 	req = req.EntitlementScript(*originalEntitlementScript)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Entitlement script %w", prettyPrintAPIError(err))
 	}
@@ -176,8 +175,7 @@ func resourceAppgateEntitlementScriptDelete(d *schema.ResourceData, meta interfa
 		return err
 	}
 	api := meta.(*Client).API.EntitlementScriptsApi
-
-	if _, err := api.EntitlementScriptsIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.EntitlementScriptsIdDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Entitlement script %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

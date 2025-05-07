@@ -1,13 +1,12 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -76,9 +75,10 @@ func resourceAppgateCriteriaScriptCreate(d *schema.ResourceData, meta interface{
 		args.SetExpression(v.(string))
 	}
 
-	request := api.CriteriaScriptsPost(context.TODO())
+	ctx := BaseAuthContext(token)
+	request := api.CriteriaScriptsPost(ctx)
 	request = request.CriteriaScript(*args)
-	criteraScript, _, err := request.Authorization(token).Execute()
+	criteraScript, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create Criteria script %w", prettyPrintAPIError(err))
 	}
@@ -96,9 +96,9 @@ func resourceAppgateCriteriaScriptRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	api := meta.(*Client).API.CriteriaScriptsApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.CriteriaScriptsIdGet(ctx, d.Id())
-	criteraScript, res, err := request.Authorization(token).Execute()
+	criteraScript, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -124,9 +124,9 @@ func resourceAppgateCriteriaScriptUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 	api := meta.(*Client).API.CriteriaScriptsApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.CriteriaScriptsIdGet(ctx, d.Id())
-	originalCriteriaScript, _, err := request.Authorization(token).Execute()
+	originalCriteriaScript, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read Criteria script while updating, %w", err)
 	}
@@ -149,7 +149,7 @@ func resourceAppgateCriteriaScriptUpdate(d *schema.ResourceData, meta interface{
 
 	req := api.CriteriaScriptsIdPut(ctx, d.Id())
 	req = req.CriteriaScript(*originalCriteriaScript)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Criteria script %w", prettyPrintAPIError(err))
 	}
@@ -164,8 +164,7 @@ func resourceAppgateCriteriaScriptDelete(d *schema.ResourceData, meta interface{
 		return err
 	}
 	api := meta.(*Client).API.CriteriaScriptsApi
-
-	if _, err := api.CriteriaScriptsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.CriteriaScriptsIdDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Criteria script %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -61,7 +60,7 @@ func testAccCheckAdminMfaSettingsExists(resource string) resource.TestCheckFunc 
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.AdminMfaSettingsGet(context.Background()).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.AdminMfaSettingsGet(BaseAuthContext(token)).Execute(); err != nil {
 			return fmt.Errorf("error fetching AdminMfaSettings with resource %s. %s", resource, err)
 		}
 		return nil

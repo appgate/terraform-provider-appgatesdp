@@ -46,15 +46,8 @@ The following arguments are supported:
 * `backup_passphrase`: (Optional) The passphrase to encrypt Appliance Backups when backup API is used.
 * `geo_ip_updates`: (Optional) Whether the automatic GeoIp updates are enabled or not.
 * `audit_log_persistence_mode`: (Optional) Audit Log persistence mode.
-* `app_discovery_domains`: (Optional) Domains to monitor for App Discovery feature.
 * `registered_device_expiration_days`: (Optional) Number of days registered devices are kept in storage before being deleted.
 * `collective_id`: (Optional) A randomly generated ID during first installation to identify the Collective.
-
-
-### app_discovery_domains
-Domains to monitor for for App Discovery feature.
-
-
 
 
 ## Import

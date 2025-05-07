@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -68,7 +68,8 @@ func resourceAppgateUserClaimScriptCreate(ctx context.Context, d *schema.Resourc
 		args.SetExpression(v.(string))
 	}
 
-	UserClaimScript, _, err := api.UserScriptsPost(ctx).UserScript(*args).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	UserClaimScript, _, err := api.UserScriptsPost(ctx).UserScript(*args).Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not create User Claim Script %w", prettyPrintAPIError(err)))
 	}
@@ -86,8 +87,9 @@ func resourceAppgateUserClaimScriptRead(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.UserClaimScriptsApi
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.UserScriptsIdGet(ctx, d.Id())
-	UserClaimScript, res, err := request.Authorization(token).Execute()
+	UserClaimScript, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -113,8 +115,9 @@ func resourceAppgateUserClaimScriptUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(fmt.Errorf("Failed to read user claim script %w", err))
 	}
 	api := meta.(*Client).API.UserClaimScriptsApi
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	request := api.UserScriptsIdGet(ctx, d.Id())
-	originalUserClaimScript, _, err := request.Authorization(token).Execute()
+	originalUserClaimScript, _, err := request.Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Failed to read User Claim Script while updating, %w", err))
 	}
@@ -137,7 +140,7 @@ func resourceAppgateUserClaimScriptUpdate(ctx context.Context, d *schema.Resourc
 
 	req := api.UserScriptsIdPut(ctx, d.Id())
 	req = req.UserScript(*originalUserClaimScript)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update User Claim Script %w", prettyPrintAPIError(err)))
 	}
@@ -152,8 +155,8 @@ func resourceAppgateUserClaimScriptDelete(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.UserClaimScriptsApi
-
-	if _, err := api.UserScriptsIdDelete(ctx, d.Id()).Authorization(token).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, err := api.UserScriptsIdDelete(ctx, d.Id()).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete User Claim Script %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

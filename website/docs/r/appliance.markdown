@@ -88,9 +88,6 @@ resource "appgatesdp_appliance" "new_gateway" {
       "8.8.8.8",
       "1.1.1.1",
     ]
-    dns_domains = [
-      "aa.com"
-    ]
     routes {
       address = "0.0.0.0"
       netmask = 24
@@ -331,7 +328,6 @@ Networking configuration of the system.
 * `hosts`:  (Optional) /etc/hosts configuration
 * `nics`:  (Optional) System NIC configuration
 * `dns_servers`:  (Optional) DNS Server addresses. Example: 172.17.18.19,192.100.111.31.
-* `dns_domains`:  (Optional) DNS Search domains. Example: internal.company.com.
 * `routes`:  (Optional) System route settings.
 #### hosts
 &#x2F;etc&#x2F;hosts configuration
@@ -373,8 +369,6 @@ IPv6 static NIC configuration for the NIC.
 Virtual IP to use for IPv6.
 #### dns_servers
 DNS Server addresses.
-#### dns_domains
-DNS Search domains.
 #### routes
 System route settings.
 * `address`: (Required) Address to route. Example: 10.0.0.0.

@@ -6,14 +6,14 @@ import (
 	"log"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiService, id, token string) (*openapi.Entitlement, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source Entitlement get by UUID %s", id)
-	resource, _, err := api.EntitlementsIdGet(ctx, id).Authorization(token).Execute()
+	resource, _, err := api.EntitlementsIdGet(context.WithValue(ctx, openapi.ContextAccessToken, token), id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -24,7 +24,7 @@ func findEntitlementByName(ctx context.Context, api *openapi.EntitlementsApiServ
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source Entitlement get by name %s", name)
 
-	resource, _, err := api.EntitlementsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	resource, _, err := api.EntitlementsGet(context.WithValue(ctx, openapi.ContextAccessToken, token)).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -56,7 +56,7 @@ func ResolveEntitlementFromResourceData(ctx context.Context, d *schema.ResourceD
 
 func findAdministrativeRoleByUUID(ctx context.Context, api *openapi.AdminRolesApiService, id, token string) (*openapi.AdministrativeRole, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source AdministrativeRole get by UUID %s", id)
-	resource, _, err := api.AdministrativeRolesIdGet(ctx, id).Authorization(token).Execute()
+	resource, _, err := api.AdministrativeRolesIdGet(context.WithValue(ctx, openapi.ContextAccessToken, token), id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -67,7 +67,7 @@ func findAdministrativeRoleByName(ctx context.Context, api *openapi.AdminRolesAp
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source AdministrativeRole get by name %s", name)
 
-	resource, _, err := api.AdministrativeRolesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	resource, _, err := api.AdministrativeRolesGet(context.WithValue(ctx, openapi.ContextAccessToken, token)).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -99,7 +99,8 @@ func ResolveAdministrativeRoleFromResourceData(ctx context.Context, d *schema.Re
 
 func findApplianceCustomizationByUUID(ctx context.Context, api *openapi.ApplianceCustomizationsApiService, id, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source ApplianceCustomization get by UUID %s", id)
-	resource, _, err := api.ApplianceCustomizationsIdGet(ctx, id).Authorization(token).Execute()
+
+	resource, _, err := api.ApplianceCustomizationsIdGet(context.WithValue(ctx, openapi.ContextAccessToken, token), id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -109,8 +110,7 @@ func findApplianceCustomizationByUUID(ctx context.Context, api *openapi.Applianc
 func findApplianceCustomizationByName(ctx context.Context, api *openapi.ApplianceCustomizationsApiService, name, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source ApplianceCustomization get by name %s", name)
-
-	resource, _, err := api.ApplianceCustomizationsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	resource, _, err := api.ApplianceCustomizationsGet(context.WithValue(ctx, openapi.ContextAccessToken, token)).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -142,7 +142,8 @@ func ResolveApplianceCustomizationFromResourceData(ctx context.Context, d *schem
 
 func findApplianceByUUID(ctx context.Context, api *openapi.AppliancesApiService, id, token string) (*openapi.Appliance, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source Appliance get by UUID %s", id)
-	resource, _, err := api.AppliancesIdGet(ctx, id).Authorization(token).Execute()
+
+	resource, _, err := api.AppliancesIdGet(context.WithValue(ctx, openapi.ContextAccessToken, token), id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -152,8 +153,8 @@ func findApplianceByUUID(ctx context.Context, api *openapi.AppliancesApiService,
 func findApplianceByName(ctx context.Context, api *openapi.AppliancesApiService, name, token string) (*openapi.Appliance, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source Appliance get by name %s", name)
-
-	resource, _, err := api.AppliancesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.AppliancesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -185,7 +186,8 @@ func ResolveApplianceFromResourceData(ctx context.Context, d *schema.ResourceDat
 
 func findConditionByUUID(ctx context.Context, api *openapi.ConditionsApiService, id, token string) (*openapi.Condition, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source Condition get by UUID %s", id)
-	resource, _, err := api.ConditionsIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.ConditionsIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -195,8 +197,8 @@ func findConditionByUUID(ctx context.Context, api *openapi.ConditionsApiService,
 func findConditionByName(ctx context.Context, api *openapi.ConditionsApiService, name, token string) (*openapi.Condition, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source Condition get by name %s", name)
-
-	resource, _, err := api.ConditionsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.ConditionsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -228,7 +230,8 @@ func ResolveConditionFromResourceData(ctx context.Context, d *schema.ResourceDat
 
 func findCriteriaScriptByUUID(ctx context.Context, api *openapi.CriteriaScriptsApiService, id, token string) (*openapi.CriteriaScript, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source CriteriaScript get by UUID %s", id)
-	resource, _, err := api.CriteriaScriptsIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.CriteriaScriptsIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -238,8 +241,8 @@ func findCriteriaScriptByUUID(ctx context.Context, api *openapi.CriteriaScriptsA
 func findCriteriaScriptByName(ctx context.Context, api *openapi.CriteriaScriptsApiService, name, token string) (*openapi.CriteriaScript, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source CriteriaScript get by name %s", name)
-
-	resource, _, err := api.CriteriaScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.CriteriaScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -271,7 +274,8 @@ func ResolveCriteriaScriptFromResourceData(ctx context.Context, d *schema.Resour
 
 func findDeviceScriptByUUID(ctx context.Context, api *openapi.DeviceClaimScriptsApiService, id, token string) (*openapi.DeviceScript, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source DeviceScript get by UUID %s", id)
-	resource, _, err := api.DeviceScriptsIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.DeviceScriptsIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -281,8 +285,8 @@ func findDeviceScriptByUUID(ctx context.Context, api *openapi.DeviceClaimScripts
 func findDeviceScriptByName(ctx context.Context, api *openapi.DeviceClaimScriptsApiService, name, token string) (*openapi.DeviceScript, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source DeviceScript get by name %s", name)
-
-	resource, _, err := api.DeviceScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.DeviceScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -301,11 +305,10 @@ func ResolveDeviceScriptFromResourceData(ctx context.Context, d *schema.Resource
 	var diags diag.Diagnostics
 	resourceID, iok := d.GetOk("device_script_id")
 	resourceName, nok := d.GetOk("device_script_name")
-
 	if !iok && !nok {
 		return nil, AppendErrorf(diags, "please provide one of device_script_id or device_script_name attributes")
 	}
-
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	if iok {
 		return findDeviceScriptByUUID(ctx, api, resourceID.(string), token)
 	}
@@ -314,7 +317,8 @@ func ResolveDeviceScriptFromResourceData(ctx context.Context, d *schema.Resource
 
 func findEntitlementScriptByUUID(ctx context.Context, api *openapi.EntitlementScriptsApiService, id, token string) (*openapi.EntitlementScript, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source EntitlementScript get by UUID %s", id)
-	resource, _, err := api.EntitlementScriptsIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.EntitlementScriptsIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -324,8 +328,8 @@ func findEntitlementScriptByUUID(ctx context.Context, api *openapi.EntitlementSc
 func findEntitlementScriptByName(ctx context.Context, api *openapi.EntitlementScriptsApiService, name, token string) (*openapi.EntitlementScript, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source EntitlementScript get by name %s", name)
-
-	resource, _, err := api.EntitlementScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.EntitlementScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -357,7 +361,8 @@ func ResolveEntitlementScriptFromResourceData(ctx context.Context, d *schema.Res
 
 func findIpPoolByUUID(ctx context.Context, api *openapi.IPPoolsApiService, id, token string) (*openapi.IpPool, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source IpPool get by UUID %s", id)
-	resource, _, err := api.IpPoolsIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.IpPoolsIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -367,8 +372,8 @@ func findIpPoolByUUID(ctx context.Context, api *openapi.IPPoolsApiService, id, t
 func findIpPoolByName(ctx context.Context, api *openapi.IPPoolsApiService, name, token string) (*openapi.IpPool, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source IpPool get by name %s", name)
-
-	resource, _, err := api.IpPoolsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.IpPoolsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -400,7 +405,8 @@ func ResolveIpPoolFromResourceData(ctx context.Context, d *schema.ResourceData, 
 
 func findLocalUserByUUID(ctx context.Context, api *openapi.LocalUsersApiService, id, token string) (*openapi.LocalUser, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source LocalUser get by UUID %s", id)
-	resource, _, err := api.LocalUsersIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.LocalUsersIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -410,8 +416,8 @@ func findLocalUserByUUID(ctx context.Context, api *openapi.LocalUsersApiService,
 func findLocalUserByName(ctx context.Context, api *openapi.LocalUsersApiService, name, token string) (*openapi.LocalUser, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source LocalUser get by name %s", name)
-
-	resource, _, err := api.LocalUsersGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.LocalUsersGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -443,7 +449,8 @@ func ResolveLocalUserFromResourceData(ctx context.Context, d *schema.ResourceDat
 
 func findPolicyByUUID(ctx context.Context, api *openapi.PoliciesApiService, id, token string) (*openapi.Policy, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source Policy get by UUID %s", id)
-	resource, _, err := api.PoliciesIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.PoliciesIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -453,8 +460,8 @@ func findPolicyByUUID(ctx context.Context, api *openapi.PoliciesApiService, id, 
 func findPolicyByName(ctx context.Context, api *openapi.PoliciesApiService, name, token string) (*openapi.Policy, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source Policy get by name %s", name)
-
-	resource, _, err := api.PoliciesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.PoliciesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -486,7 +493,8 @@ func ResolvePolicyFromResourceData(ctx context.Context, d *schema.ResourceData, 
 
 func findRingfenceRuleByUUID(ctx context.Context, api *openapi.RingfenceRulesApiService, id, token string) (*openapi.RingfenceRule, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source RingfenceRule get by UUID %s", id)
-	resource, _, err := api.RingfenceRulesIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.RingfenceRulesIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -496,8 +504,8 @@ func findRingfenceRuleByUUID(ctx context.Context, api *openapi.RingfenceRulesApi
 func findRingfenceRuleByName(ctx context.Context, api *openapi.RingfenceRulesApiService, name, token string) (*openapi.RingfenceRule, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source RingfenceRule get by name %s", name)
-
-	resource, _, err := api.RingfenceRulesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.RingfenceRulesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -529,7 +537,8 @@ func ResolveRingfenceRuleFromResourceData(ctx context.Context, d *schema.Resourc
 
 func findSiteByUUID(ctx context.Context, api *openapi.SitesApiService, id, token string) (*openapi.Site, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source Site get by UUID %s", id)
-	resource, _, err := api.SitesIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.SitesIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -539,8 +548,7 @@ func findSiteByUUID(ctx context.Context, api *openapi.SitesApiService, id, token
 func findSiteByName(ctx context.Context, api *openapi.SitesApiService, name, token string) (*openapi.Site, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source Site get by name %s", name)
-
-	resource, _, err := api.SitesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	resource, _, err := api.SitesGet(context.WithValue(ctx, openapi.ContextAccessToken, token)).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -572,7 +580,8 @@ func ResolveSiteFromResourceData(ctx context.Context, d *schema.ResourceData, ap
 
 func findTrustedCertificateByUUID(ctx context.Context, api *openapi.TrustedCertificatesApiService, id, token string) (*openapi.TrustedCertificate, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source TrustedCertificate get by UUID %s", id)
-	resource, _, err := api.TrustedCertificatesIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.TrustedCertificatesIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -582,8 +591,8 @@ func findTrustedCertificateByUUID(ctx context.Context, api *openapi.TrustedCerti
 func findTrustedCertificateByName(ctx context.Context, api *openapi.TrustedCertificatesApiService, name, token string) (*openapi.TrustedCertificate, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source TrustedCertificate get by name %s", name)
-
-	resource, _, err := api.TrustedCertificatesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.TrustedCertificatesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -615,7 +624,8 @@ func ResolveTrustedCertificateFromResourceData(ctx context.Context, d *schema.Re
 
 func findUserScriptByUUID(ctx context.Context, api *openapi.UserClaimScriptsApiService, id, token string) (*openapi.UserScript, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source UserScript get by UUID %s", id)
-	resource, _, err := api.UserScriptsIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.UserScriptsIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -625,8 +635,8 @@ func findUserScriptByUUID(ctx context.Context, api *openapi.UserClaimScriptsApiS
 func findUserScriptByName(ctx context.Context, api *openapi.UserClaimScriptsApiService, name, token string) (*openapi.UserScript, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source UserScript get by name %s", name)
-
-	resource, _, err := api.UserScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.UserScriptsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -658,7 +668,8 @@ func ResolveUserScriptFromResourceData(ctx context.Context, d *schema.ResourceDa
 
 func findMfaProviderByUUID(ctx context.Context, api *openapi.MFAProvidersApiService, id, token string) (*openapi.MfaProvider, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source MfaProvider get by UUID %s", id)
-	resource, _, err := api.MfaProvidersIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.MfaProvidersIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -668,8 +679,8 @@ func findMfaProviderByUUID(ctx context.Context, api *openapi.MFAProvidersApiServ
 func findMfaProviderByName(ctx context.Context, api *openapi.MFAProvidersApiService, name, token string) (*openapi.MfaProvider, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source MfaProvider get by name %s", name)
-
-	resource, _, err := api.MfaProvidersGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.MfaProvidersGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -701,7 +712,8 @@ func ResolveMfaProviderFromResourceData(ctx context.Context, d *schema.ResourceD
 
 func findClientProfileByUUID(ctx context.Context, api *openapi.ClientProfilesApiService, id, token string) (*openapi.ClientProfile, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source ClientProfile get by UUID %s", id)
-	resource, _, err := api.ClientProfilesIdGet(ctx, id).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.ClientProfilesIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -760,8 +772,8 @@ func findClientProfileByUUID(ctx context.Context, api *openapi.ClientProfilesApi
 func findClientProfileByName(ctx context.Context, api *openapi.ClientProfilesApiService, name, token string) (*openapi.ClientProfile, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source ClientProfile get by name %s", name)
-
-	resource, _, err := api.ClientProfilesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.ClientProfilesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -789,7 +801,7 @@ func ResolveClientProfileFromResourceData(ctx context.Context, d *schema.Resourc
 	}
 
 	if iok {
-		return findClientProfileByUUID(ctx, api, resourceID.(string), token)
+		return findClientProfileByUUID(context.WithValue(ctx, openapi.ContextAccessToken, token), api, resourceID.(string), token)
 	}
 	return findClientProfileByName(ctx, api, resourceName.(string), token)
 }

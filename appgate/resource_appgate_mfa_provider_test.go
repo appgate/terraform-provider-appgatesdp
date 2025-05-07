@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -83,7 +82,7 @@ func testAccCheckMfaProviderExists(resource string) resource.TestCheckFunc {
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.MfaProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.MfaProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching mfa_provider with resource %s. %s", resource, err)
 		}
 		return nil
@@ -102,7 +101,7 @@ func testAccCheckMfaProviderDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.MFAProvidersApi
 
-		if _, _, err := api.MfaProvidersIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.MfaProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("mfa_provider still exists, %+v", err)
 		}
 	}

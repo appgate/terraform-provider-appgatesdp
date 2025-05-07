@@ -2,6 +2,7 @@ package appgate
 
 import (
 	"context"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -31,6 +32,7 @@ func dataSourceAppgateEntitlementScriptRead(ctx context.Context, d *schema.Resou
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.EntitlementScriptsApi
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
 	entitlementScript, diags := ResolveEntitlementScriptFromResourceData(ctx, d, api, token)
 	if diags != nil {
 		return diags

@@ -1,14 +1,13 @@
 package appgate
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -100,10 +99,11 @@ func resourceAppgateDeviceScriptCreate(d *schema.ResourceData, meta interface{})
 	encoded := base64.StdEncoding.EncodeToString(content)
 	args.SetFile(encoded)
 
-	request := api.DeviceScriptsPost(context.TODO())
+	ctx := BaseAuthContext(token)
+	request := api.DeviceScriptsPost(ctx)
 	request = request.DeviceScript(*args)
 
-	deviceScript, _, err := request.Authorization(token).Execute()
+	deviceScript, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create Device script %w", prettyPrintAPIError(err))
 	}
@@ -121,9 +121,9 @@ func resourceAppgateDeviceScriptRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
-	deviceScript, res, err := request.Authorization(token).Execute()
+	deviceScript, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -149,9 +149,9 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.DeviceScriptsIdGet(ctx, d.Id())
-	originalDeviceScript, _, err := request.Authorization(token).Execute()
+	originalDeviceScript, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read Device script while updating, %w", err)
 	}
@@ -180,7 +180,7 @@ func resourceAppgateDeviceScriptUpdate(d *schema.ResourceData, meta interface{})
 
 	req := api.DeviceScriptsIdPut(ctx, d.Id())
 	req = req.DeviceScript(*originalDeviceScript)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update Device script %w", prettyPrintAPIError(err))
 	}
@@ -195,8 +195,8 @@ func resourceAppgateDeviceScriptDelete(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	api := meta.(*Client).API.DeviceClaimScriptsApi
-
-	if _, err := api.DeviceScriptsIdDelete(context.Background(), d.Id()).Authorization(token).Execute(); err != nil {
+	ctx := BaseAuthContext(token)
+	if _, err := api.DeviceScriptsIdDelete(ctx, d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete Device script %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

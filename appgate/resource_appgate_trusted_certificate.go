@@ -1,13 +1,12 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -60,10 +59,10 @@ func resourceAppgateTrustedCertificateCreate(d *schema.ResourceData, meta interf
 		args.SetPem(v.(string))
 	}
 
-	request := api.TrustedCertificatesPost(context.TODO())
+	request := api.TrustedCertificatesPost(BaseAuthContext(token))
 	request = request.TrustedCertificate(*args)
 
-	trustedCertificate, _, err := request.Authorization(token).Execute()
+	trustedCertificate, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not create trusted certificate %w", prettyPrintAPIError(err))
 	}
@@ -81,9 +80,8 @@ func resourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 	api := meta.(*Client).API.TrustedCertificatesApi
-	ctx := context.TODO()
-	request := api.TrustedCertificatesIdGet(ctx, d.Id())
-	trustedCertificate, res, err := request.Authorization(token).Execute()
+	request := api.TrustedCertificatesIdGet(BaseAuthContext(token), d.Id())
+	trustedCertificate, res, err := request.Execute()
 	if err != nil {
 		d.SetId("")
 		if res != nil && res.StatusCode == http.StatusNotFound {
@@ -108,9 +106,9 @@ func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 	api := meta.(*Client).API.TrustedCertificatesApi
-	ctx := context.TODO()
+	ctx := BaseAuthContext(token)
 	request := api.TrustedCertificatesIdGet(ctx, d.Id())
-	originalTrustedCertificate, _, err := request.Authorization(token).Execute()
+	originalTrustedCertificate, _, err := request.Execute()
 	if err != nil {
 		return fmt.Errorf("Failed to read trusted certificate while updating, %w", err)
 	}
@@ -133,7 +131,7 @@ func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interf
 
 	req := api.TrustedCertificatesIdPut(ctx, d.Id())
 	req = req.TrustedCertificate(*originalTrustedCertificate)
-	_, _, err = req.Authorization(token).Execute()
+	_, _, err = req.Execute()
 	if err != nil {
 		return fmt.Errorf("Could not update trusted certificate %w", prettyPrintAPIError(err))
 	}
@@ -147,8 +145,7 @@ func resourceAppgateTrustedCertificateDelete(d *schema.ResourceData, meta interf
 		return err
 	}
 	api := meta.(*Client).API.TrustedCertificatesApi
-
-	if _, err := api.TrustedCertificatesIdDelete(context.TODO(), d.Id()).Authorization(token).Execute(); err != nil {
+	if _, err := api.TrustedCertificatesIdDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete trusted certificate %w", prettyPrintAPIError(err))
 	}
 	d.SetId("")

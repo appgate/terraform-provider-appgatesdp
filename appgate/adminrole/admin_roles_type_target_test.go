@@ -728,11 +728,6 @@ var actionMapJSONResponse = `
 			"name": "CaCertificate",
 			"scopable": false,
 			"scopableByIdp": false
-		},
-		{
-			"name": "TokenRecord",
-			"scopable": false,
-			"scopableByIdp": true
 		}
 	],
 	"Tag": [

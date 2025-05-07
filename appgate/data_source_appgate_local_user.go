@@ -2,6 +2,7 @@ package appgate
 
 import (
 	"context"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -33,7 +34,7 @@ func dataSourceAppgateLocalUserRead(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 	api := meta.(*Client).API.LocalUsersApi
-	localUser, diags := ResolveLocalUserFromResourceData(ctx, d, api, token)
+	localUser, diags := ResolveLocalUserFromResourceData(context.WithValue(ctx, openapi.ContextAccessToken, token), d, api, token)
 	if diags != nil {
 		return diags
 	}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/appgate/sdp-api-client-go/api/v21/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -109,7 +109,8 @@ func resourceAppgateLicenseCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 	args.SetLicense(d.Get("license").(string))
 
-	license, _, err := api.LicensePost(ctx).LicenseImport(args).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	license, _, err := api.LicensePost(ctx).LicenseImport(args).Execute()
 	if err != nil {
 		return AppendFromErr(diags, fmt.Errorf("Could not create license %w", prettyPrintAPIError(err)))
 	}
@@ -125,8 +126,8 @@ func resourceAppgateLicenseRead(ctx context.Context, d *schema.ResourceData, met
 	token, err := meta.(*Client).GetToken()
 	diags = AppendFromErr(diags, err)
 	api := meta.(*Client).API.LicenseApi
-
-	licenses, _, err := api.LicenseGet(ctx).Authorization(token).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	licenses, _, err := api.LicenseGet(ctx).Execute()
 	if err != nil {
 		d.SetId("")
 		return AppendFromErr(diags, fmt.Errorf("Failed to read license, %w", err))
@@ -181,7 +182,8 @@ func resourceAppgateLicenseDelete(ctx context.Context, d *schema.ResourceData, m
 	}
 	api := meta.(*Client).API.LicenseApi
 
-	if _, err := api.LicenseDelete(ctx).Authorization(token).Execute(); err != nil {
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	if _, err := api.LicenseDelete(ctx).Execute(); err != nil {
 		return diag.FromErr(fmt.Errorf("Could not delete license %w", prettyPrintAPIError(err)))
 	}
 	d.SetId("")

@@ -1,7 +1,6 @@
 package appgate
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -128,7 +127,7 @@ func testAccCheckApplianceCustomizationExists(resource string) resource.TestChec
 			return fmt.Errorf("No Record ID is set")
 		}
 
-		if _, _, err := api.ApplianceCustomizationsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err != nil {
+		if _, _, err := api.ApplianceCustomizationsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching appliance customization with resource %s. %s", resource, err)
 		}
 		return nil
@@ -147,7 +146,7 @@ func testAccCheckApplianceCustomizationDestroy(s *terraform.State) error {
 		}
 		api := testAccProvider.Meta().(*Client).API.ApplianceCustomizationsApi
 
-		if _, _, err := api.ApplianceCustomizationsIdGet(context.Background(), rs.Primary.ID).Authorization(token).Execute(); err == nil {
+		if _, _, err := api.ApplianceCustomizationsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Appliance customization still exists, %+v", err)
 		}
 	}
