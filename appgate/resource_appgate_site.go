@@ -755,7 +755,7 @@ func flattenNameResolution(currentVersion *version.Version, local map[string]int
 	}
 	if v, ok := in.GetAwsResolversOk(); ok {
 		l := getNSLocalChanges(local, "aws_resolvers")
-		m["aws_resolvers"] = flattenSiteAWSResolver(v, l)
+		m["aws_resolvers"] = flattenSiteAWSResolver(currentVersion, v, l)
 	}
 	if v, ok := in.GetAzureResolversOk(); ok {
 		l := getNSLocalChanges(local, "azure_resolvers")
@@ -866,7 +866,7 @@ func flattenSiteAzureResolver(in []openapi.SiteAllOfNameResolutionAzureResolvers
 	return out
 }
 
-func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers, local map[string]interface{}) []map[string]interface{} {
+func flattenSiteAWSResolver(version *version.Version, in []openapi.SiteAllOfNameResolutionAwsResolvers, local map[string]interface{}) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(in), len(in))
 	for i, v := range in {
 		m := make(map[string]interface{})
@@ -887,9 +887,11 @@ func flattenSiteAWSResolver(in []openapi.SiteAllOfNameResolutionAwsResolvers, lo
 		if vv, o := v.GetAssumedRolesOk(); o != false {
 			m["assumed_roles"] = flattenSiteAwsAssumedRoles(vv)
 		}
-		m["ec2"] = v.GetEc2()
-		m["eks"] = v.GetEks()
-		m["rds"] = v.GetRds()
+		if version.GreaterThanOrEqual(Appliance65Version) {
+			m["ec2"] = v.GetEc2()
+			m["eks"] = v.GetEks()
+			m["rds"] = v.GetRds()
+		}
 		out[i] = m
 	}
 	return out
@@ -1204,7 +1206,7 @@ func readSiteNameResolutionFromConfig(currentVersion *version.Version, nameresol
 			result.SetDnsResolvers(dnsResolvers)
 		}
 		if v, ok := raw["aws_resolvers"]; ok {
-			awsResolvers, err := readAWSResolversFromConfig(v.(*schema.Set).List())
+			awsResolvers, err := readAWSResolversFromConfig(currentVersion, v.(*schema.Set).List())
 			if err != nil {
 				return result, err
 			}
@@ -1293,7 +1295,7 @@ func readDNSResolversFromConfig(dnsConfigs []interface{}) ([]openapi.SiteAllOfNa
 	return result, nil
 }
 
-func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
+func readAWSResolversFromConfig(currentVersion *version.Version, awsConfigs []interface{}) ([]openapi.SiteAllOfNameResolutionAwsResolvers, error) {
 	result := make([]openapi.SiteAllOfNameResolutionAwsResolvers, 0)
 	for _, resolver := range awsConfigs {
 		raw := resolver.(map[string]interface{})
@@ -1337,14 +1339,16 @@ func readAWSResolversFromConfig(awsConfigs []interface{}) ([]openapi.SiteAllOfNa
 		if v, ok := raw["resolve_with_master_credentials"]; ok {
 			row.SetResolveWithMasterCredentials(v.(bool))
 		}
-		if v, ok := raw["ec2"]; ok {
-			row.SetEc2(v.(bool))
-		}
-		if v, ok := raw["eks"]; ok {
-			row.SetEks(v.(bool))
-		}
-		if v, ok := raw["rds"]; ok {
-			row.SetRds(v.(bool))
+		if currentVersion.GreaterThanOrEqual(Appliance65Version) {
+			if v, ok := raw["ec2"]; ok {
+				row.SetEc2(v.(bool))
+			}
+			if v, ok := raw["eks"]; ok {
+				row.SetEks(v.(bool))
+			}
+			if v, ok := raw["rds"]; ok {
+				row.SetRds(v.(bool))
+			}
 		}
 		if v, ok := raw["assumed_roles"]; ok {
 			assumedRoles, err := readAwsAssumedRolesFromConfig(v.([]interface{}))

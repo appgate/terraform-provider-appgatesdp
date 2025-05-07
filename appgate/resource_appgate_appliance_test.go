@@ -44,6 +44,12 @@ var (
 	testFor63AndAbove = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.3")
 	}
+	testFor64AndAbove = func(t *testing.T) {
+		applianceConstraintCheck(t, ">= 6.4")
+	}
+	testFor65AndAbove = func(t *testing.T) {
+		applianceConstraintCheck(t, ">= 6.5")
+	}
 	testFor61 = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.1, < 6.2")
 	}

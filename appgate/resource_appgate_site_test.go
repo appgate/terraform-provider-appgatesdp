@@ -616,6 +616,9 @@ func TestAccSiteBasicAwsResolverWithoutSecret(t *testing.T) {
 		CheckDestroy: testAccCheckSiteDestroy,
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					testFor65AndAbove(t)
+				},
 				Config: testAccSiteBasicAwsResolverConfig(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
@@ -739,6 +742,9 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 		CheckDestroy: testAccCheckSiteDestroy,
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					testFor65AndAbove(t)
+				},
 				Config: testAccSiteBasicAwsResolverConfiWithMasterCredentials(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
@@ -1357,7 +1363,9 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 		CheckDestroy: testAccCheckSiteDestroy,
 		Steps: []resource.TestStep{
 			{
-
+				PreConfig: func() {
+					testFor65AndAbove(t)
+				},
 				Config: testAccSiteVPNRouteViaIpv4Only(context),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
@@ -2155,7 +2163,7 @@ resource "appgatesdp_site" "illumio_site" {
 }`, rName)
 }
 
-func TestAccSiteNameResolverIllumio62(t *testing.T) {
+func TestAccSiteNameResolverIllumio(t *testing.T) {
 	resourceName := "appgatesdp_site.illumio_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	resource.Test(t, resource.TestCase{
@@ -2165,7 +2173,7 @@ func TestAccSiteNameResolverIllumio62(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					testFor62AndAbove(t)
+					testFor65AndAbove(t)
 				},
 				Config: testAccSiteNameResolverIllumio62(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -2511,6 +2519,9 @@ func TestAccSiteBasic3(t *testing.T) {
 		CheckDestroy: testAccCheckSiteDestroy,
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					testFor65AndAbove(t)
+				},
 				Config: testAccCheckSite3(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
