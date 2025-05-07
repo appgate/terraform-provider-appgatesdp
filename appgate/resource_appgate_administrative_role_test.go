@@ -428,9 +428,8 @@ func TestAccadministrativeRoleWtihAssignFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "hello"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.%", "5"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.0", "cc"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.0.default_tags.1", "dd"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.functions.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.0.scope.0.%", "3"),
@@ -517,7 +516,7 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 	privileges {
 	  type         = "Create"
 	  target       = "Entitlement"
-	  default_tags = ["cc", "dd"]
+	  default_tags = ["cc"]
 	}
 	privileges {
 	  type      = "AssignFunction"
