@@ -41,7 +41,7 @@ jobs:
       - uses: WillAbides/setup-go-faster@v1.14.0
         with:
           go-version: "1.23.x"
-      - run: "GO111MODULE=on go install honnef.co/go/tools/cmd/staticcheck@2023.1.2"
+      - run: "GO111MODULE=on go install honnef.co/go/tools/cmd/staticcheck@v0.6.1"
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
