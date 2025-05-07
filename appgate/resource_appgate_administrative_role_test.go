@@ -457,8 +457,8 @@ func TestAccadministrativeRoleWtihAssignFunction(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.all", "true"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.ids.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "privileges.2.scope.0.tags.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.2.target", "TokenRecord"),
-					resource.TestCheckResourceAttr(resourceName, "privileges.2.type", "Revoke"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.target", "Policy"),
+					resource.TestCheckResourceAttr(resourceName, "privileges.2.type", "Create"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "terraform"),
 				),
@@ -508,8 +508,8 @@ resource "appgatesdp_administrative_role" "test_administrative_role" {
 	  "terraform"
 	]
 	privileges {
-	  type   = "Revoke"
-	  target = "TokenRecord"
+	  type   = "Create"
+	  target = "Policy"
 	  scope {
 		all = true
 	  }
