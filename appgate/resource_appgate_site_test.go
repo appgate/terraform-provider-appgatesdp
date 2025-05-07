@@ -703,6 +703,9 @@ func testAccSiteBasicAwsResolverConfig(context map[string]interface{}) string {
 				vpc_auto_discovery              = true
 				use_iam_role                    = true
 				resolve_with_master_credentials = true
+				ec2 = true
+				eks = false
+				rds = false
 			}
 			dns_resolvers {
 				name = "Built-in Default DNS Resolver"
