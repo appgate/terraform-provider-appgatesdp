@@ -44,10 +44,3 @@ We actively maintain patches for the latest **three** SDP versions. Currently:
 
 > Earlier versions may still be available, but they are not guaranteed to receive further updates or support.
 
-## 🚀 Getting Started
-
-To get started with this provider, check out the [examples](https://github.com/appgate/terraform-provider-appgatesdp/tree/main/examples) directory or the official [Terraform Registry](https://registry.terraform.io/providers/appgate/appgatesdp/latest).
-
----
-
-Let me know if you'd like a `Usage` section or `Installation` instructions included as well.
