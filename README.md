@@ -34,7 +34,7 @@ v1.21.x
 
 ### ✅ Supported Versions
 
-We actively maintain patches for the latest **three** SDP versions. Currently:
+We actively maintain patches for the latest **three** SDP versions:
 
 | Appgate SDP Version | API Version | Terraform Provider |
 | ------------------- | ----------- | ------------------ |
@@ -44,3 +44,20 @@ We actively maintain patches for the latest **three** SDP versions. Currently:
 
 > Earlier versions may still be available, but they are not guaranteed to receive further updates or support.
 
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community!
+
+### Bug Fixes
+
+* All bug fixes should be made against the `master` branch first.
+* Once merged, they will be backported to each of the currently supported release branches (`release-1.22`, `release-1.21`, `release-1.20`).
+
+### Adding Support for a New API Version
+
+* All changes to support a new Appgate SDP version should be implemented in `master`.
+* After full support is verified and merged, create a new release branch in the form of `release-1.<API_VERSION>` (e.g., `release-1.23` for a future API version 23).
+
+Please open a pull request and include relevant testing or examples when possible.
