@@ -408,6 +408,7 @@ func waitForApplianceState(ctx context.Context, meta interface{}, applianceID, s
 		}
 		stats, _, err := appliancesAPI.AppliancesStatusGet(ctx).Authorization(token).Execute()
 		if err != nil {
+			log.Printf("[ERROR] Failed to get appliance status for %s: %s", applianceID, err)
 			return ApplianceStatsRetryableError{err: err}
 		}
 		var appliance openapi.ApplianceWithStatus
