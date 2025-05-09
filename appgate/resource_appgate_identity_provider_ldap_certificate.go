@@ -372,12 +372,12 @@ func resourceAppgateLdapCertificateProviderRuleUpdate(d *schema.ResourceData, me
 	}
 	if d.HasChange("claim_mappings") {
 		_, v := d.GetChange("claim_mappings")
-		claims := readIdentityProviderClaimMappingFromConfig(v.([]interface{}))
+		claims := readIdentityProviderClaimMappingFromConfig(v.(*schema.Set).List())
 		originalLdapCertificateProvider.SetClaimMappings(claims)
 	}
 	if d.HasChange("on_demand_claim_mappings") {
 		_, v := d.GetChange("on_demand_claim_mappings")
-		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.([]interface{}))
+		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.(*schema.Set).List())
 		originalLdapCertificateProvider.SetOnDemandClaimMappings(claims)
 	}
 
