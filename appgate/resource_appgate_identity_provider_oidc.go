@@ -268,7 +268,7 @@ func resourceAppgateOidcProviderRuleRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Updating radius identity provider id: %+v", d.Id())
+	log.Printf("[DEBUG] Updating oidc identity provider id: %+v", d.Id())
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return err
@@ -350,12 +350,12 @@ func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interfac
 	}
 	if d.HasChange("claim_mappings") {
 		_, v := d.GetChange("claim_mappings")
-		claims := readIdentityProviderClaimMappingFromConfig(v.([]interface{}))
+		claims := readIdentityProviderClaimMappingFromConfig(v.(*schema.Set).List())
 		originalOidcProvider.SetClaimMappings(claims)
 	}
 	if d.HasChange("on_demand_claim_mappings") {
 		_, v := d.GetChange("on_demand_claim_mappings")
-		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.([]interface{}))
+		claims := readIdentityProviderOnDemandClaimMappingFromConfig(v.(*schema.Set).List())
 		originalOidcProvider.SetOnDemandClaimMappings(claims)
 	}
 
