@@ -1,4 +1,5 @@
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+BIN_NAME=terraform-provider-appgatesdp
 TEST?=./appgate
 ACCTEST_PARALLELISM?=20
 TEST_COUNT?=1
@@ -8,7 +9,6 @@ HOSTNAME=appgate.com
 NAMESPACE=appgate
 NAME=appgatesdp
 VERSION=9.9.9
-BIN_NAME=terraform-provider-appgatesdp_v$(VERSION)
 
 commit=$$(git rev-parse HEAD)
 
