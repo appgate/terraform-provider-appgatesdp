@@ -155,7 +155,7 @@ func resourceAppgateConnectorProviderRuleUpdate(d *schema.ResourceData, meta int
 	}
 	if d.HasChange("claim_mappings") {
 		_, v := d.GetChange("claim_mappings")
-		claims := readIdentityProviderClaimMappingFromConfig(v.([]interface{}))
+		claims := readIdentityProviderClaimMappingFromConfig(v.(*schema.Set).List())
 		originalConnectorProvider.SetClaimMappings(claims)
 	}
 	// TODO is this needed?
