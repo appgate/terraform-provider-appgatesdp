@@ -267,7 +267,7 @@ func resourceAppgateOidcProviderRuleRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceAppgateOidcProviderRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Updating radius identity provider id: %+v", d.Id())
+	log.Printf("[DEBUG] Updating oidc identity provider id: %+v", d.Id())
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return err
