@@ -18,7 +18,7 @@ Always refer to the official Appgate support matrix to verify supported versions
 ### Choosing the Right Terraform Provider Version
 Each release of the provider follows the format:
 ```
-v1.<API_VERSION>.<PATCH_VERSION>
+v1.{API_VERSION}.{PATCH_VERSION}
 ```
 Where:
 - `API_VERSION` corresponds to the Appgate SDP API version (e.g., 22 for SDP 6.5),
