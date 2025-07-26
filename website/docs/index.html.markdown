@@ -7,6 +7,36 @@ description: |-
 
 # Appgate
 
+## Getting Started
+Before starting, please make sure you have the correct version of the Appgate SDP Terraform Provider. 
+
+Each release of the provider follows the format:
+```
+v1.<API_VERSION>.<PATCH_VERSION>
+```
+Where:
+- `API_VERSION` corresponds to the Appgate SDP API version (e.g., 22 for SDP 6.5),
+- `PATCH_VERSION` is the patch release for the provider.
+
+To select the correct Terraform provider version for your environment:
+1. Identify your Appgate SDP API version
+2. Choose a provider version in the format `v1.<API_VERSION>.<PATCH_VERSION>`
+
+Example:
+If your Appgate SDP API version is 22, use a provider version like `v1.22.x`. You can use the following version constraints in your Terraform configuration to pin the API version:
+
+```terraform
+terraform {
+  required_providers {
+    appgatesdp = {
+      source  = "appgate/appgatesdp"
+      version = ">= 1.22.0, < 1.23.0"
+    }
+  }
+}
+```
+
+
 ## Example Usage
 
 ```hcl

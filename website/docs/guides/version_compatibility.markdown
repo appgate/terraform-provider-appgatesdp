@@ -8,123 +8,51 @@ description: |-
 
 ## Version compatibility
 
-The terraform provider tries to maintain full support for all [supported version](https://www.appgate.com/support/software-defined-perimeter-support). Depending on your appgate SDP appliance version, the configuration is different.
-You need to specify the `client_version` if you are not running the latest supported version.
+### Support Policy
+Appgate SDP maintains full support for the three most recent major versions of the platform. Each supported version includes corresponding compatibility within the Terraform provider.
 
-The `client_version` tries to maintain backwards compatibility 2 versions back all the time.
-
-
-~> **NOTE:**  The `client_version` can be omitted from the provider `"appgatesdp" { }` configuration block. If its not set by either environment variable or configuration block, the provider will use the highest available version that the controller allows by default.
+Always refer to the official Appgate support matrix to verify supported versions:
+[SDP Supported Versions](https://www.appgate.com/support/software-defined-perimeter-support)
 
 
-
-
-|                         	|  client version 14 	| client version 15 	    | client version 16   | client version 17     |**client version 18**     |
-|-------------------------	|--------------------	|-------------------	    |-------------------	|-------------------   |-------------------   |
-| Appgate SDP 5.3.*     	| Full support  	|    |      	  |      |      |
-| Appgate SDP 5.4.*     	| Partial support   	| Full support  	      |    |  | | |
-| *Appgate SDP 5.5.*   	  | Partial support   	| Partial support   	    | Full support    |    | |
-| **Appgate SDP 6.0.***   | Partial support   	| Partial support   	    | Partial support     | **Full support**     | |
-| **Appgate SDP 6.1.***   | Partial support   	| Partial support   	    | Partial support     |   Full support  | **Full support**|
-
-
-
-
-####  Terraform 0.13+
-
-##### Example configuration for `6.0.X`
-
-```hcl
-terraform {
-  required_version = ">= 0.13"
-  required_providers {
-    appgatesdp = {
-      source = "appgate/appgatesdp"
-      version = "1.0.1"
-    }
-  }
-}
-
-provider "appgatesdp" {
-  provider = "local"
-  client_version = 17
-}
+### Choosing the Right Terraform Provider Version
+Each release of the provider follows the format:
 ```
-
-##### Example configuration for `5.5.X`
-
-```hcl
-terraform {
-  required_version = ">= 0.13"
-  required_providers {
-    appgatesdp = {
-      source = "appgate/appgatesdp"
-      version = "0.7.0"
-    }
-  }
-}
-
-provider "appgatesdp" {
-  provider = "local"
-  client_version = 16
-}
+v1.<API_VERSION>.<PATCH_VERSION>
 ```
+Where:
+- `API_VERSION` corresponds to the Appgate SDP API version (e.g., 22 for SDP 6.5),
+- `PATCH_VERSION` is the patch release for the provider.
 
-##### Example configuration for `5.4.X`
+To select the correct Terraform provider version for your environment:
+1. Identify your Appgate SDP API version
+2. Choose a provider version in the format `v1.<API_VERSION>.<PATCH_VERSION>`
 
-```hcl
+Example:
+If your Appgate SDP API version is 22, use a provider version like `v1.22.0`
+
+You can use the following version constraints in your Terraform configuration to pin the API version:
+
+```terraform
 terraform {
-  required_version = ">= 0.13"
   required_providers {
     appgatesdp = {
-      source = "appgate/appgatesdp"
-      version = "0.7.0"
+      source  = "appgate/appgatesdp"
+      version = ">= 1.22.0, < 1.23.0"
     }
   }
-}
-
-provider "appgatesdp" {
-  provider = "local"
-  client_version = 15
-}
-```
-
-##### Example configuration for `5.3.X`
-
-```hcl
-terraform {
-  required_version = ">= 0.13"
-  required_providers {
-    appgatesdp = {
-      source = "appgate/appgatesdp"
-      version = "0.7.0"
-    }
-  }
-}
-
-provider "appgatesdp" {
-  provider = "local"
-  client_version = 14
-}
-```
-
-##### Example configuration for `5.2.X`
-
-```hcl
-terraform {
-  required_version = ">= 0.13"
-  required_providers {
-    appgatesdp = {
-      source = "appgate/appgatesdp"
-      version = "0.7.0"
-    }
-  }
-}
-
-provider "appgatesdp" {
-  provider = "local"
-  client_version = 13
 }
 ```
 
 For additional configuration options, see [example usage](https://registry.terraform.io/providers/appgate/appgatesdp/latest/docs#example-usage).
+
+### Current Support Versions
+### ✅ Supported Versions
+
+We currently maintain patches for the latest **three** SDP versions which are the following:
+
+| Appgate SDP Version | API Version | Terraform Provider |
+| ------------------- | ----------- | ------------------ |
+| 6.5 (latest)        | v22         | `v1.22.x`          |
+| 6.4                 | v21         | `v1.21.x`          |
+| 6.3                 | v20         | `v1.20.x`          |
