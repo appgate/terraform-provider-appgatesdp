@@ -26,12 +26,10 @@ Where:
 
 To select the correct Terraform provider version for your environment:
 1. Identify your Appgate SDP API version
-2. Choose a provider version in the format `v1.<API_VERSION>.<PATCH_VERSION>`
+2. Choose a provider version in the format `v1.{API_VERSION}.{PATCH_VERSION}`
 
 Example:
-If your Appgate SDP API version is 22, use a provider version like `v1.22.0`
-
-You can use the following version constraints in your Terraform configuration to pin the API version:
+If your Appgate SDP API version is 22, you can use the following version constraints in your Terraform configuration to pin the API version:
 
 ```terraform
 terraform {
