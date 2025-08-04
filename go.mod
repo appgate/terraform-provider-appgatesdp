@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.3
 
 require (
-	github.com/appgate/sdp-api-client-go v1.2.9
+	github.com/appgate/sdp-api-client-go v1.3.2
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/denisbrodbeck/machineid v1.0.1
 	github.com/google/uuid v1.6.0
