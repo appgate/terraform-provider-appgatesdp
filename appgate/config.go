@@ -140,6 +140,11 @@ func (c *Config) Client() (*Client, error) {
 		Timeout:   ((timeoutDuration * 2) * time.Second),
 	}
 
+	serverURL, err := NormalizeConfigurationURL(c.URL)
+	if err != nil {
+		return nil, err
+	}
+
 	clientCfg := &openapi.Configuration{
 		DefaultHeader: map[string]string{
 			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", c.Version),
@@ -148,7 +153,7 @@ func (c *Config) Client() (*Client, error) {
 		Debug:     c.Debug,
 		Servers: []openapi.ServerConfiguration{
 			{
-				URL: c.URL,
+				URL: serverURL,
 			},
 		},
 		HTTPClient: httpclient,
@@ -165,6 +170,25 @@ func (c *Config) Client() (*Client, error) {
 	}
 
 	return client, nil
+}
+
+func NormalizeConfigurationURL(u string) (string, error) {
+	if len(u) <= 0 {
+		return "", errors.New("no address set")
+	}
+	url, err := url.ParseRequestURI(u)
+
+	if err != nil {
+		return "", err
+	}
+	if len(url.Port()) <= 0 {
+		url.Host = fmt.Sprintf("%s:%d", url.Hostname(), 8443)
+	}
+	if url.Path != "/admin" {
+		url.Path = "/admin"
+	}
+
+	return url.String(), nil
 }
 
 func guessVersion(clientVersion int) (*version.Version, error) {

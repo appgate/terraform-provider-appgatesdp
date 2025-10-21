@@ -98,7 +98,7 @@ func TestLoginInternalServerError(t *testing.T) {
 func TestLoginNotAcceptable(t *testing.T) {
 	_, _, mux, _, port, teardown := setup()
 	defer teardown()
-	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/admin/login", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotAcceptable)
 		fmt.Fprint(w, `{
@@ -339,7 +339,7 @@ func TestClient(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, _, mux, _, port, teardown := setup()
 			defer teardown()
-			mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+			mux.HandleFunc("/admin/login", func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
 				fmt.Fprint(w, tt.fields.ResponseBody)
