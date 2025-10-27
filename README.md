@@ -6,43 +6,17 @@ This repository contains the official Terraform provider for [Appgate SDP](https
 
 Our goal is to provide first-class support for **the latest version of Appgate SDP**, with compatibility and maintenance extending to the **two most recent versions** as well.
 
-## 📦 Versioning Strategy
-
-Each release of the provider follows the format:
-
-```
-v1.<API_VERSION>.<PATCH_VERSION>
-```
-
-Where:
-
-* `API_VERSION` corresponds to the Appgate SDP API version (e.g., `22` for SDP 6.5),
-* `PATCH_VERSION` is the patch release for the provider.
-
-### 🔍 Finding the Right Version
-
-To use a version of the provider that matches your Appgate SDP deployment:
-
-1. Visit the [GitHub Releases page](https://github.com/appgate/terraform-provider-appgatesdp/releases).
-2. Look for a version with the appropriate `API_VERSION`.
-
-For example, if you're using Appgate SDP 6.4 (API v21), you should use:
-
-```
-v1.21.x
-```
-
 ### ✅ Supported Versions
 
-We actively maintain patches for the latest **three** SDP versions:
+We actively maintain compatibility with the latest **three** SDP versions:
 
-| Appgate SDP Version | API Version | Terraform Provider |
-| ------------------- | ----------- | ------------------ |
-| 6.5 (latest)        | v22         | `v1.22.x`          |
-| 6.4                 | v21         | `v1.21.x`          |
-| 6.3                 | v20         | `v1.20.x`          |
+| Appgate SDP Version | API Version |
+| ------------------- | ----------- |
+| 6.5 (latest)        | v22         |
+| 6.4                 | v21         |
+| 6.3                 | v20         |
 
-> Earlier versions may still be available, but they are not guaranteed to receive further updates or support.
+> Earlier versions may still be compatible, but this is not guaranteed.
 
 ---
 
@@ -50,14 +24,52 @@ We actively maintain patches for the latest **three** SDP versions:
 
 We welcome contributions from the community!
 
-### Bug Fixes
+Requirements
+------------
 
-* All bug fixes should be made against the `master` branch first.
-* Once merged, they will be backported to each of the currently supported release branches (`release-1.22`, `release-1.21`, `release-1.20`).
+- [Terraform](https://www.terraform.io/downloads.html) v0.12.26
+- [Go](https://golang.org/doc/install) 1.20 (to build the provider plugin)
 
-### Adding Support for a New API Version
 
-* All changes to support a new Appgate SDP version should be implemented in `master`.
-* After full support is verified and merged, create a new release branch in the form of `release-1.<API_VERSION>` (e.g., `release-1.23` for a future API version 23).
 
-Please open a pull request and include relevant testing or examples when possible.
+Building the provider
+---------------------------
+
+
+```sh
+$ make build
+```
+
+Using the provider
+---------------------------
+
+Detailed documentation for the Appgate provider can be found in the docs directory, [here](./website/docs).
+
+Examples how to deploy Appgate to cloud platforms can be found [here](https://github.com/appgate/sdp-tf-reference-architecture).
+
+
+
+Testing the provider
+---------------------------
+
+
+```sh
+$ make test
+```
+
+Example how to run acceptance test on an existing Appgate environment.
+```bash
+APPGATE_ADDRESS="https://envy-10-97-168-40.devops:8443/admin" \
+APPGATE_USERNAME="admin" \
+APPGATE_PASSWORD="admin" \
+make testacc
+```
+
+test 1 acceptance test, for example
+```bash
+TF_ACC=1 \
+APPGATE_ADDRESS="https://ec2-54-80-224-21.compute-1.amazonaws.com:8443/admin" \
+APPGATE_USERNAME="admin" \
+APPGATE_PASSWORD="admin" \
+go test -v -timeout 120m github.com/appgate/terraform-provider-appgatesdp/appgate -run '^(TestAccApplianceBasicController)$'
+```
