@@ -16,7 +16,7 @@ We actively maintain compatibility with the latest **three** SDP versions:
 | 6.4                 | v21         |
 | 6.3                 | v20         |
 
-> Earlier versions may still be available, but they are not guaranteed to receive further updates or support.
+> Earlier versions may still be compatible, but this is not guaranteed.
 
 ---
 
