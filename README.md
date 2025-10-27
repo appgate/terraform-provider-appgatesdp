@@ -8,7 +8,7 @@ Our goal is to provide first-class support for **the latest version of Appgate S
 
 ### ✅ Supported Versions
 
-We actively maintain patches for the latest **three** SDP versions:
+We actively maintain compatibility with the latest **three** SDP versions:
 
 | Appgate SDP Version | API Version |
 | ------------------- | ----------- |
