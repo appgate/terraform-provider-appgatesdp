@@ -74,11 +74,11 @@ func testAccCheckItemDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.EntitlementsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.EntitlementsApi
 
 		if _, _, err := api.EntitlementsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Entitlement still exists, %+v", err)
@@ -134,11 +134,11 @@ resource "appgatesdp_entitlement" "test_ping_item" {
 
 func testAccCheckEntitlementExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.EntitlementsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.EntitlementsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -1164,13 +1164,16 @@ func testAccCheckEntitlementHTTPMethods(context map[string]interface{}) string {
 data "appgatesdp_site" "default_site" {
 	site_name = "Default Site"
 }
+data "appgatesdp_condition" "always" {
+	condition_name = "Always"
+}
 resource "appgatesdp_entitlement" "http_methods" {
 	condition_logic = "and"
 
 	name = "%{name}"
 	site = data.appgatesdp_site.default_site.id
 	tags = []
-	conditions = []
+	conditions = [data.appgatesdp_condition.always.id]
 	actions {
 		action = "allow"
 		hosts = [
@@ -1201,13 +1204,16 @@ func testAccCheckEntitlementHTTPMethodsUpdated(context map[string]interface{}) s
 data "appgatesdp_site" "default_site" {
 	site_name = "Default Site"
 }
+data "appgatesdp_condition" "always" {
+	condition_name = "Always"
+}
 resource "appgatesdp_entitlement" "http_methods" {
 	condition_logic = "and"
 
 	name = "%{name}"
 	site = data.appgatesdp_site.default_site.id
 	tags = []
-	conditions = []
+	conditions = [data.appgatesdp_condition.always.id]
 	actions {
 		action = "allow"
 		hosts = [
@@ -1235,13 +1241,16 @@ func testAccCheckEntitlementHTTPMethodsDeleted(context map[string]interface{}) s
 data "appgatesdp_site" "default_site" {
 	site_name = "Default Site"
 }
+data "appgatesdp_condition" "always" {
+	condition_name = "Always"
+}
 resource "appgatesdp_entitlement" "http_methods" {
 	condition_logic = "and"
 
 	name = "%{name}"
 	site = data.appgatesdp_site.default_site.id
 	tags = []
-	conditions = []
+	conditions = [data.appgatesdp_condition.always.id]
 	actions {
 		action = "allow"
 		hosts = [

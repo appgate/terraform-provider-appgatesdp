@@ -67,11 +67,11 @@ resource "appgatesdp_mfa_provider" "test_mfa_provider" {
 
 func testAccCheckMfaProviderExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.MFAProvidersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.MFAProvidersApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -95,11 +95,11 @@ func testAccCheckMfaProviderDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.MFAProvidersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.MFAProvidersApi
 
 		if _, _, err := api.MfaProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("mfa_provider still exists, %+v", err)

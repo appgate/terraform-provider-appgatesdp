@@ -86,11 +86,11 @@ func testAccCheckUserClaimScriptDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.UserClaimScriptsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.UserClaimScriptsApi
 
 		if _, _, err := api.UserScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("user claim script still exists, %+v", err)
@@ -101,11 +101,11 @@ func testAccCheckUserClaimScriptDestroy(s *terraform.State) error {
 
 func testAccCheckUserClaimScriptExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.UserClaimScriptsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.UserClaimScriptsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {

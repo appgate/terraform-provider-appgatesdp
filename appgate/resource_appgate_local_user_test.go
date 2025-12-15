@@ -105,11 +105,11 @@ resource "appgatesdp_local_user" "test_local_user" {
 
 func testAccCheckLocalUserExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.LocalUsersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.LocalUsersApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -133,11 +133,11 @@ func testAccCheckLocalUserDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.LocalUsersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.LocalUsersApi
 
 		if _, _, err := api.LocalUsersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("local user still exists, %+v", err)

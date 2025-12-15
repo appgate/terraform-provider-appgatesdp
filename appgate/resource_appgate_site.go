@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -53,12 +53,6 @@ func resourceAppgateSite() *schema.Resource {
 			},
 
 			"tags": tagsSchema(),
-
-			"short_name": {
-				Type:        schema.TypeString,
-				Description: "A short 4 letter name for the site",
-				Optional:    true,
-			},
 
 			"network_subnets": {
 				Type:        schema.TypeSet,
@@ -560,7 +554,6 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 		args.SetId(v.(string))
 	}
 	args.SetName(d.Get("name").(string))
-	args.SetShortName(d.Get("short_name").(string))
 	args.SetDescription(d.Get("description").(string))
 	args.SetNotes(d.Get("notes").(string))
 	args.SetTags(schemaExtractTags(d))
@@ -655,7 +648,6 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 	}
-	d.Set("short_name", site.ShortName)
 	d.Set("entitlement_based_routing", site.EntitlementBasedRouting)
 
 	if site.Vpn != nil {
@@ -977,9 +969,6 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("name") {
 		orginalSite.SetName(d.Get("name").(string))
-	}
-	if d.HasChange("short_name") {
-		orginalSite.SetShortName(d.Get("short_name").(string))
 	}
 	if d.HasChange("notes") {
 		orginalSite.SetNotes(d.Get("notes").(string))
@@ -1499,9 +1488,6 @@ func readDNSForwardingResolversFromConfig(dnsForwardingConfig []interface{}) (op
 				return result, err
 			}
 			result.SetAllowDestinations(destinations)
-		}
-		if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
-			result.SetDefaultTtlSeconds(int32(v))
 		}
 	}
 	return result, nil

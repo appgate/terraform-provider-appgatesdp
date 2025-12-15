@@ -244,11 +244,11 @@ resource "appgatesdp_policy" "test_policy" {
 
 func testAccCheckPolicyExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.PoliciesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.PoliciesApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -279,11 +279,11 @@ func testAccCheckPolicyDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.PoliciesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.PoliciesApi
 
 		if _, _, err := api.PoliciesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("policy %s still exists", rs.Primary.ID)

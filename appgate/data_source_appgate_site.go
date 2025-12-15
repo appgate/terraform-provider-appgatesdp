@@ -43,11 +43,6 @@ func dataSourceAppgateSite() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
-			"short_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -66,7 +61,6 @@ func dataSourceAppgateSiteRead(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(site.GetId())
 	d.Set("site_name", site.GetName())
-	d.Set("short_name", site.GetShortName())
 	d.Set("site_id", site.GetId())
 	d.Set("notes", site.GetNotes())
 	d.Set("tags", site.GetTags())

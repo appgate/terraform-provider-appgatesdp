@@ -79,7 +79,6 @@ func TestAccSiteBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
@@ -104,7 +103,6 @@ func TestAccSiteBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", "The test site"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.1", "10.20.0.0/24"),
@@ -208,7 +206,6 @@ func testAccCheckSite(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "test_site" {
     name       = "%s"
-    short_name = "ts0"
     tags = [
         "developer",
         "api-created"
@@ -288,7 +285,6 @@ func testAccCheckSiteUpdate() string {
 	return `
 resource "appgatesdp_site" "test_site" {
     name       = "The test site"
-    short_name = "ts1"
     tags = [
         "developer",
         "api-created",
@@ -368,7 +364,6 @@ func testAccCheckSiteNetworkDelete() string {
 	return `
 resource "appgatesdp_site" "test_site" {
     name       = "The test site"
-    short_name = "tst"
     tags = [
         "developer",
         "api-created",
@@ -443,7 +438,6 @@ func testAccCheckSiteTagsDelete() string {
 	return `
 resource "appgatesdp_site" "test_site" {
     name       = "The test site"
-    short_name = "tst"
     notes = "This object has been created for test purposes."
     entitlement_based_routing = false
     network_subnets = [
@@ -513,7 +507,6 @@ func testAccCheckSiteTagsAdd() string {
 	return `
 resource "appgatesdp_site" "test_site" {
     name       = "The test site"
-    short_name = "tst"
 	tags = ["qwerty"]
     notes = "This object has been created for test purposes."
     entitlement_based_routing = false
@@ -658,7 +651,6 @@ func TestAccSiteBasicAwsResolverWithoutSecret(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
@@ -717,7 +709,6 @@ func testAccSiteBasicAwsResolverConfig(context map[string]interface{}) string {
 				auto_client_dns = false
 			}
 			dns_forwarding {
-				default_ttl_seconds = 300
 				site_ipv4 = "192.168.1.1"
 				dns_servers = [
 					"1.1.1.1"
@@ -794,7 +785,6 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
@@ -860,7 +850,6 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", ""),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
@@ -969,7 +958,6 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentials(context map[string]in
 				auto_client_dns = false
 			}
 			dns_forwarding {
-				default_ttl_seconds = 300
 				site_ipv4 = "192.168.1.1"
 				dns_servers = [
 					"1.1.1.1"
@@ -1034,7 +1022,6 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentialsUpdated(context map[st
 				auto_client_dns = false
 			}
 			dns_forwarding {
-				default_ttl_seconds = 300
 				site_ipv4 = "192.168.1.1"
 				dns_servers = [
 					"1.1.1.1"
@@ -1099,7 +1086,6 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
@@ -1154,7 +1140,6 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
@@ -1209,7 +1194,6 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
@@ -1241,7 +1225,6 @@ func testAccSiteVPNRouteVia(context map[string]interface{}) string {
 	return Nprintf(`
     resource "appgatesdp_site" "default_test_site" {
         name                      = "%{name}"
-        short_name                = "DT"
         entitlement_based_routing = false
         notes                     = "Managed by terraform"
         default_gateway {
@@ -1281,7 +1264,6 @@ func testAccSiteVPNRouteViaUpdatedV4Route(context map[string]interface{}) string
 	return Nprintf(`
     resource "appgatesdp_site" "default_test_site" {
         name                      = "%{name}"
-        short_name                = "DT"
         entitlement_based_routing = false
         notes                     = "Managed by terraform"
         default_gateway {
@@ -1321,7 +1303,6 @@ func testAccSiteVPNRouteViaDeleted(context map[string]interface{}) string {
 	return Nprintf(`
     resource "appgatesdp_site" "default_test_site" {
         name                      = "%{name}"
-        short_name                = "DT"
         entitlement_based_routing = false
         notes                     = "Managed by terraform"
         default_gateway {
@@ -1390,7 +1371,6 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
@@ -1439,7 +1419,6 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
@@ -1488,7 +1467,6 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.gcp_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.use_hosts_file", "false"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "DT"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
@@ -1522,7 +1500,6 @@ func testAccSiteVPNRouteViaIpv4Only(context map[string]interface{}) string {
 	return Nprintf(`
 resource "appgatesdp_site" "d_test_site" {
 	name                      = "%{name}"
-	short_name                = "DT"
 	entitlement_based_routing = false
 	notes                     = "Managed by terraform"
 
@@ -1553,7 +1530,6 @@ func testAccSiteVPNRouteViaIpv4OnlyUpdated(context map[string]interface{}) strin
 	return Nprintf(`
 resource "appgatesdp_site" "d_test_site" {
 	name                      = "%{name}"
-	short_name                = "DT"
 	entitlement_based_routing = false
 	notes                     = "Managed by terraform"
 
@@ -1584,7 +1560,6 @@ func testAccSiteVPNRouteViaIpv4OnlyUpdatedWithIpv6(context map[string]interface{
 	return Nprintf(`
 resource "appgatesdp_site" "d_test_site" {
 	name                      = "%{name}"
-	short_name                = "DT"
 	entitlement_based_routing = false
 	notes                     = "Managed by terraform"
 
@@ -1653,7 +1628,6 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.address", "::"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.netmask", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.default_ttl_seconds", "15"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "1.2.3.4"),
@@ -1676,7 +1650,6 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "This object has been created for test purposes."),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
@@ -1716,7 +1689,6 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.address", "::"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.2.netmask", "0"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.default_ttl_seconds", "43199"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "1.2.3.4"),
@@ -1748,7 +1720,6 @@ func testAccSiteNameResolver6(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "test_site" {
 	name       = "%s"
-	short_name = "ts0"
 	tags = [
 	  "developer",
 	  "api-created"
@@ -1789,7 +1760,6 @@ resource "appgatesdp_site" "test_site" {
 		dns_servers = [
 		  "1.1.1.1"
 		]
-		default_ttl_seconds = 15
 		allow_destinations {
 		  address = "1.1.1.1"
 		  netmask = 32
@@ -1811,7 +1781,6 @@ func testAccSiteNameResolver6Updated(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "test_site" {
 	name       = "%s"
-	short_name = "ts0"
 	tags = [
 	  "developer",
 	  "api-created"
@@ -1852,7 +1821,6 @@ resource "appgatesdp_site" "test_site" {
 		dns_servers = [
 		  "1.1.1.1"
 		]
-		default_ttl_seconds = 43199
 		allow_destinations {
 		  address = "1.1.1.1"
 		  netmask = 32
@@ -1913,7 +1881,6 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
@@ -1964,7 +1931,6 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
@@ -2009,7 +1975,6 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
@@ -2037,7 +2002,6 @@ func testAccSiteNameResolverIllumio(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "illumio_site" {
 	name                      = "%s"
-	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
 		"10.0.0.0/16"
@@ -2066,7 +2030,6 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
-			default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2084,7 +2047,6 @@ func testAccSiteNameResolverIllumioUpdated(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "illumio_site" {
 	name                      = "%s"
-	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
 		"10.0.0.0/16"
@@ -2113,7 +2075,6 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
-			default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2131,7 +2092,6 @@ func testAccSiteNameResolverIllumioRemoved(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "illumio_site" {
 	name                      = "%s"
-	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
 		"10.0.0.0/16"
@@ -2152,7 +2112,6 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
-			default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2210,7 +2169,6 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
@@ -2262,7 +2220,6 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
@@ -2307,7 +2264,6 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts0"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
@@ -2335,7 +2291,6 @@ func testAccSiteNameResolverIllumio62(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "illumio_site" {
 	name                      = "%s"
-	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
 		"10.0.0.0/16"
@@ -2365,7 +2320,6 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
-			default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2383,7 +2337,6 @@ func testAccSiteNameResolverIllumioUpdated62(rName string) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "illumio_site" {
 	name                      = "%s"
-	short_name                = "ts0"
 	entitlement_based_routing = false
 	network_subnets = [
 		"10.0.0.0/16"
@@ -2413,7 +2366,6 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
-			default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2458,7 +2410,6 @@ func TestAccSiteBasic2(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", "The test site"),
-					resource.TestCheckResourceAttr(resourceName, "short_name", "ts1"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.1", "10.20.0.0/24"),
@@ -2494,7 +2445,6 @@ func testAccCheckSiteUpdate2() string {
 	return `
 resource "appgatesdp_site" "test_site" {
     name       = "The test site"
-    short_name = "ts1"
     tags = [
         "developer",
         "api-created",
@@ -2606,7 +2556,6 @@ resource "appgatesdp_site" "test_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
-            default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 			    "1.1.1.1"

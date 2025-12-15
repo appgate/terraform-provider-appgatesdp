@@ -112,11 +112,11 @@ resource "appgatesdp_appliance_customization" "test_acc_appliance_customization"
 
 func testAccCheckApplianceCustomizationExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.ApplianceCustomizationsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.ApplianceCustomizationsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -140,11 +140,11 @@ func testAccCheckApplianceCustomizationDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.ApplianceCustomizationsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.ApplianceCustomizationsApi
 
 		if _, _, err := api.ApplianceCustomizationsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Appliance customization still exists, %+v", err)

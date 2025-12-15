@@ -553,11 +553,11 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 
 		if _, _, err := api.AppliancesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Appliance still exists, %+v", err)
@@ -1245,11 +1245,11 @@ resource "appgatesdp_appliance" "connector" {
 
 func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -4654,7 +4654,7 @@ resource "appgatesdp_appliance" "appliancev62_metrics_aggregator" {
 				username = "foo"
 				password = "foo123"
 			}
-			allowed_users { 
+			allowed_users {
 				username = "boo"
 				password = "boo123"
 			}
@@ -5008,7 +5008,7 @@ resource "appgatesdp_appliance" "appliancev62" {
 			username = "foo"
 			password = "foo123"
 		}
-		allowed_users { 
+		allowed_users {
 			username = "boo"
 			password = "boo123"
 		}
@@ -5205,7 +5205,7 @@ resource "appgatesdp_appliance" "appliancev63" {
 			username = "foo"
 			password = "foo123"
 		}
-		allowed_users { 
+		allowed_users {
 			username = "boo"
 			password = "boo123"
 		}

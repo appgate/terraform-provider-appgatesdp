@@ -3,10 +3,11 @@ package appgate
 import (
 	"context"
 	"fmt"
-	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -96,7 +97,7 @@ func resourceGlobalSettings() *schema.Resource {
 				Sensitive:   true,
 			},
 			"geo_ip_updates": {
-				Type:        schema.TypeBool,
+				Type:        schema.TypeString,
 				Description: "Whether the automatic GeoIp updates are enabled or not.",
 				Optional:    true,
 				Computed:    true,
@@ -202,7 +203,7 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	} else {
 		d.Set("backup_passphrase", settings.GetBackupPassphrase())
 	}
-	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
+	d.Set("geo_ip_updates", settings.GeoIpSettings.GetUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())
 	d.Set("collective_id", settings.GetCollectiveId())
 
@@ -258,7 +259,7 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		originalsettings.SetBackupPassphrase(d.Get("backup_passphrase").(string))
 	}
 	if d.HasChange("geo_ip_updates") {
-		originalsettings.SetGeoIpUpdates(d.Get("geo_ip_updates").(bool))
+		originalsettings.GeoIpSettings.SetUpdates(d.Get("geo_ip_updates").(string))
 	}
 	if d.HasChange("audit_log_persistence_mode") {
 		originalsettings.SetAuditLogPersistenceMode(d.Get("audit_log_persistence_mode").(string))

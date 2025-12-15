@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 	"golang.org/x/net/http/httpproxy"
@@ -250,7 +250,6 @@ func (c *Client) GetToken() (string, error) {
 		}
 		c.API.GetConfig().DefaultHeader["Accept"] = fmt.Sprintf("application/vnd.appgate.peer-v%d+json", cfg.Version)
 	}
-
 	currentVersion, err := guessVersion(cfg.Version)
 	if err != nil {
 		return "", err

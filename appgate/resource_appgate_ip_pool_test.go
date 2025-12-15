@@ -112,11 +112,11 @@ resource "appgatesdp_ip_pool" "test_ip_pool_v6" {
 }
 func testAccCheckIPPoolExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.IPPoolsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.IPPoolsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -140,11 +140,11 @@ func testAccCheckIPPoolDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.IPPoolsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.IPPoolsApi
 
 		if _, _, err := api.IpPoolsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Device script still exists, %+v", err)

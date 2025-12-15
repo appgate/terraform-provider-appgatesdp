@@ -376,11 +376,11 @@ func TestAccLdapCertificateIdentityProvidervBasic55OrGreater(t *testing.T) {
 
 func testAccCheckLdapCertificateIdentityProvidervExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.LdapCertificateIdentityProvidersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.LdapCertificateIdentityProvidersApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -404,11 +404,11 @@ func testAccCheckLdapCertificateIdentityProvidervDestroy(s *terraform.State) err
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.LdapCertificateIdentityProvidersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.LdapCertificateIdentityProvidersApi
 
 		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("ldap identity provider still exists, %+v", err)

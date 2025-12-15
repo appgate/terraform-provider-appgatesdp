@@ -55,12 +55,11 @@ resource "appgatesdp_entitlement_script" "test_entitlement_script" {
 
 func testAccCheckEntitlementScriptExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.EntitlementScriptsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-
-		api := testAccProvider.Meta().(*Client).API.EntitlementScriptsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -84,11 +83,11 @@ func testAccCheckEntitlementScriptDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.EntitlementScriptsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.EntitlementScriptsApi
 
 		if _, _, err := api.EntitlementScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Criteria script still exists, %+v", err)
