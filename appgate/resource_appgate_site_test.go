@@ -8,6 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+func getTtl(shouldSet bool) string {
+	if shouldSet {
+		return "default_ttl_seconds = 300"
+	}
+	return ""
+}
+
 func TestAccSiteBasic(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
@@ -601,7 +608,11 @@ func TestAccSiteBasicAwsResolverWithoutSecret(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	context := map[string]interface{}{
-		"name": rName,
+		"name":    rName,
+		"set_ttl": "",
+	}
+	if applianceVersionCheck(t, "<= 6.5") {
+		context["set_ttl"] = "default_ttl_seconds = 300"
 	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -710,6 +721,7 @@ func testAccSiteBasicAwsResolverConfig(context map[string]interface{}) string {
 			}
 			dns_forwarding {
 				site_ipv4 = "192.168.1.1"
+				%{set_ttl}
 				dns_servers = [
 					"1.1.1.1"
 				]
@@ -728,7 +740,11 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
 	context := map[string]interface{}{
-		"name": rName,
+		"name":    rName,
+		"set_ttl": "",
+	}
+	if applianceVersionCheck(t, "<= 6.5") {
+		context["set_ttl"] = "default_ttl_seconds = 300"
 	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -959,6 +975,7 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentials(context map[string]in
 			}
 			dns_forwarding {
 				site_ipv4 = "192.168.1.1"
+				%{set_ttl}
 				dns_servers = [
 					"1.1.1.1"
 				]
@@ -1023,6 +1040,7 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentialsUpdated(context map[st
 			}
 			dns_forwarding {
 				site_ipv4 = "192.168.1.1"
+				%{set_ttl}
 				dns_servers = [
 					"1.1.1.1"
 				]
@@ -1755,6 +1773,7 @@ resource "appgatesdp_site" "test_site" {
 	  }
 
 	  dns_forwarding {
+		default_ttl_seconds = 300
 		site_ipv4 = "1.2.3.4"
 		site_ipv6 = "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
 		dns_servers = [
@@ -1816,6 +1835,7 @@ resource "appgatesdp_site" "test_site" {
 	  }
 
 	  dns_forwarding {
+	  	default_ttl_seconds = 300
 		site_ipv4 = "1.2.3.4"
 		site_ipv6 = "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
 		dns_servers = [
@@ -1951,7 +1971,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
 			},
 			{
-				Config: testAccSiteNameResolverIllumioRemoved(rName),
+				Config: testAccSiteNameResolverIllumioRemoved(rName, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
@@ -2030,6 +2050,7 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
+			default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2075,6 +2096,7 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
+			default_ttl_seconds = 300
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2088,7 +2110,7 @@ resource "appgatesdp_site" "illumio_site" {
 }`, rName)
 }
 
-func testAccSiteNameResolverIllumioRemoved(rName string) string {
+func testAccSiteNameResolverIllumioRemoved(rName string, setTtl bool) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "illumio_site" {
 	name                      = "%s"
@@ -2112,6 +2134,7 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
+			%s
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2122,12 +2145,13 @@ resource "appgatesdp_site" "illumio_site" {
 			}
 		}
 	}
-}`, rName)
+}`, rName, getTtl(setTtl))
 }
 
 func TestAccSiteNameResolverIllumio(t *testing.T) {
 	resourceName := "appgatesdp_site.illumio_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	setTtl := applianceVersionCheck(t, "<= 6.5")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -2137,7 +2161,7 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 				PreConfig: func() {
 					testFor65AndAbove(t)
 				},
-				Config: testAccSiteNameResolverIllumio62(rName),
+				Config: testAccSiteNameResolverIllumio62(rName, setTtl),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
@@ -2188,7 +2212,7 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
 			},
 			{
-				Config: testAccSiteNameResolverIllumioUpdated62(rName),
+				Config: testAccSiteNameResolverIllumioUpdated62(rName, setTtl),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
@@ -2240,7 +2264,7 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 				ImportStateCheck: testAccSiteImportStateCheckFunc(1),
 			},
 			{
-				Config: testAccSiteNameResolverIllumioRemoved(rName),
+				Config: testAccSiteNameResolverIllumioRemoved(rName, setTtl),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
@@ -2287,7 +2311,7 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 	})
 }
 
-func testAccSiteNameResolverIllumio62(rName string) string {
+func testAccSiteNameResolverIllumio62(rName string, setTtl bool) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "illumio_site" {
 	name                      = "%s"
@@ -2320,6 +2344,7 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
+			%s
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2330,10 +2355,10 @@ resource "appgatesdp_site" "illumio_site" {
 			}
 		}
 	}
-}`, rName)
+}`, rName, getTtl(setTtl))
 }
 
-func testAccSiteNameResolverIllumioUpdated62(rName string) string {
+func testAccSiteNameResolverIllumioUpdated62(rName string, setTtl bool) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "illumio_site" {
 	name                      = "%s"
@@ -2366,6 +2391,7 @@ resource "appgatesdp_site" "illumio_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
+			%s
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 				"1.1.1.1"
@@ -2376,7 +2402,7 @@ resource "appgatesdp_site" "illumio_site" {
 			}
 		}
 	}
-}`, rName)
+}`, rName, getTtl(setTtl))
 }
 
 func TestAccSiteBasic2(t *testing.T) {
@@ -2466,6 +2492,7 @@ resource "appgatesdp_site" "test_site" {
 func TestAccSiteBasic3(t *testing.T) {
 	resourceName := "appgatesdp_site.test_site"
 	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	setTtl := applianceVersionCheck(t, "<= 6.5")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -2493,7 +2520,7 @@ func TestAccSiteBasic3(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCheckSite3Updated(rName),
+				Config: testAccCheckSite3Updated(rName, setTtl),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSiteExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "default_gateway.#", "1"),
@@ -2534,7 +2561,7 @@ resource "appgatesdp_site" "test_site" {
 `, rName)
 }
 
-func testAccCheckSite3Updated(rName string) string {
+func testAccCheckSite3Updated(rName string, setTtl bool) string {
 	return fmt.Sprintf(`
 resource "appgatesdp_site" "test_site" {
     name       = "%s"
@@ -2556,6 +2583,7 @@ resource "appgatesdp_site" "test_site" {
 			auto_client_dns = false
 		}
 		dns_forwarding {
+			%s
 			site_ipv4 = "192.168.1.1"
 			dns_servers = [
 			    "1.1.1.1"
@@ -2567,5 +2595,5 @@ resource "appgatesdp_site" "test_site" {
 		}
 	}
 }
-`, rName)
+`, rName, getTtl(setTtl))
 }

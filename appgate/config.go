@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	v22 "github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
@@ -73,6 +74,7 @@ type Client struct {
 	ApplianceVersion *version.Version
 	ClientVersion    int
 	API              *openapi.APIClient
+	OldAPI           *v22.APIClient
 	Config           *Config
 }
 
@@ -162,9 +164,27 @@ func (c *Config) Client() (*Client, error) {
 	if apiClient == nil {
 		return nil, errors.New("failed to initialize api client")
 	}
+	oldClientCfg := &v22.Configuration{
+		DefaultHeader: map[string]string{
+			"Accept": fmt.Sprintf("application/vnd.appgate.peer-v%d+json", c.Version),
+		},
+		UserAgent: c.UserAgent,
+		Debug:     c.Debug,
+		Servers: []v22.ServerConfiguration{
+			{
+				URL: serverURL,
+			},
+		},
+		HTTPClient: httpclient,
+	}
+	oldApiClient := v22.NewAPIClient(oldClientCfg)
+	if oldApiClient == nil {
+		return nil, errors.New("failed to initialize old api client")
+	}
 
 	client := &Client{
 		API:           apiClient,
+		OldAPI:        oldApiClient,
 		ClientVersion: c.Version,
 		Config:        c,
 	}

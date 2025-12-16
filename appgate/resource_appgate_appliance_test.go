@@ -31,6 +31,29 @@ var applianceConstraintCheck = func(t *testing.T, constraint string) {
 	}
 }
 
+var applianceVersionCheck = func(t *testing.T, constraint string) bool {
+	c := testAccProvider.Meta().(*Client)
+	_, err := c.GetToken()
+	if err != nil {
+		t.Fatalf("Could not initiate the version control %s", err)
+		return false
+	}
+	currentVersion := c.ApplianceVersion
+	constraints, err := version.NewConstraint(constraint)
+	if err != nil {
+		t.Fatalf("could not parse version constraint %s %s", constraint, err)
+		return false
+	}
+	if currentVersion == nil {
+		t.Fatalf("could not determine current version for %s", constraint)
+		return false
+	}
+	if !constraints.Check(currentVersion) {
+		return false
+	}
+	return true
+}
+
 var (
 	testFor6AndAbove = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.0")
@@ -49,6 +72,9 @@ var (
 	}
 	testFor65AndAbove = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.5")
+	}
+	testFor66AndAbove = func(t *testing.T) {
+		applianceConstraintCheck(t, ">= 6.6")
 	}
 	testFor61 = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.1, < 6.2")
