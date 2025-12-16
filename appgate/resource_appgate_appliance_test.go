@@ -32,7 +32,11 @@ var applianceConstraintCheck = func(t *testing.T, constraint string) {
 }
 
 var applianceVersionCheck = func(t *testing.T, constraint string) bool {
-	c := testAccProvider.Meta().(*Client)
+	c, ok := testAccProvider.Meta().(*Client)
+	if !ok {
+		// If the client is not valid ignore the version check
+		return false
+	}
 	_, err := c.GetToken()
 	if err != nil {
 		t.Fatalf("Could not initiate the version control %s", err)
