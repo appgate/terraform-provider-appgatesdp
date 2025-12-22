@@ -13,10 +13,6 @@ In appliance >= 5.4.0 we can't create more then 1 controller at the time,
 it means that we must first create an appliance, seed it, then activate the controller function.
 
 
-For a full example see:
-- https://github.com/appgate/sdp-tf-reference-architecture/tree/main/deployment/aws/high-availability-controllers
-
-
 #### Create an appliance resource
 
 ```hcl

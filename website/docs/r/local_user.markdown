@@ -10,7 +10,7 @@ description: |-
 
 Create a new Local User.
 
-~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.2
+~> **NOTE:**  The resource documentation is based on the latest available appgate sdp appliance version, which currently is 6.6
 Some attributes may not be available if you are running an older version, if you try to use an attribute block that is not permitted in your current version, you will be prompted by an error message.
 
 
