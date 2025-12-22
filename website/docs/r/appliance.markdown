@@ -547,6 +547,11 @@ Prometheus Exporter settings
 * `basic_auth` (Optional) Enable basic auth for Prometheus Exporter
 * `allowed_users`: (Optional) Array of basic_auth users
 
+### connection broker
+Connection Broker settings.
+* `enabled`: (Optional) Default boolean value `false`. Enable connection broker on this appliance.
+* `sites`: (Optional) UUIDs of a site
+
 ### connector
 Connector settings.
 
