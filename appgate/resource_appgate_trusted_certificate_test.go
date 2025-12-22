@@ -69,11 +69,11 @@ EOF
 
 func testAccCheckTrustedCertificateExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.TrustedCertificatesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.TrustedCertificatesApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -97,11 +97,11 @@ func testAccCheckTrustedCertificateDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.TrustedCertificatesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.TrustedCertificatesApi
 
 		if _, _, err := api.TrustedCertificatesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("trusted certificate still exists, %+v", err)

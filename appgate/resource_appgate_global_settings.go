@@ -3,11 +3,12 @@ package appgate
 import (
 	"context"
 	"fmt"
-	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
 	"log"
 	"net/http"
 	"time"
 
+	v22 "github.com/appgate/sdp-api-client-go/api/v22/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -96,7 +97,7 @@ func resourceGlobalSettings() *schema.Resource {
 				Sensitive:   true,
 			},
 			"geo_ip_updates": {
-				Type:        schema.TypeBool,
+				Type:        schema.TypeString,
 				Description: "Whether the automatic GeoIp updates are enabled or not.",
 				Optional:    true,
 				Computed:    true,
@@ -175,19 +176,40 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	log.Printf("[DEBUG] Reading Global settings id: %+v", d.Id())
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
+
 		return diag.FromErr(err)
 	}
-	api := meta.(*Client).API.GlobalSettingsApi
-	currentVersion := meta.(*Client).ApplianceVersion
 	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
-	request := api.GlobalSettingsGet(ctx)
-	settings, res, err := request.Execute()
-	if err != nil {
-		d.SetId("")
-		if res != nil && res.StatusCode == http.StatusNotFound {
-			return nil
+	currentVersion := meta.(*Client).ApplianceVersion
+	var settings *openapi.GlobalSettings
+	if meta.(*Client).Config.Version < 23 {
+		ctx = context.WithValue(ctx, v22.ContextAccessToken, token)
+		oldApi := meta.(*Client).OldAPI.GlobalSettingsApi
+		request2 := oldApi.GlobalSettingsGet(ctx)
+		settings2, res, err := request2.Execute()
+		if err != nil {
+			if res != nil && res.StatusCode == http.StatusNotFound {
+				return nil
+			}
+			return diag.FromErr(fmt.Errorf("Failed to read Global settings, %w", err))
 		}
-		return diag.FromErr(fmt.Errorf("Failed to read Global settings, %w", err))
+		settings = ConvertGlobalSettings(settings2)
+	} else {
+		api := meta.(*Client).API.GlobalSettingsApi
+		request := api.GlobalSettingsGet(ctx)
+		var res *http.Response
+		settings, res, err = request.Execute()
+		if err != nil {
+			d.SetId("")
+			if res != nil && res.StatusCode == http.StatusNotFound {
+				return nil
+			}
+			if res != nil && res.StatusCode == http.StatusNotAcceptable {
+
+			} else {
+				return diag.FromErr(fmt.Errorf("Failed to read Global settings, %w", err))
+			}
+		}
 	}
 	d.SetId(settings.GetCollectiveId())
 	d.Set("claims_token_expiration", settings.GetClaimsTokenExpiration())
@@ -202,7 +224,7 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	} else {
 		d.Set("backup_passphrase", settings.GetBackupPassphrase())
 	}
-	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
+	d.Set("geo_ip_updates", settings.GeoIpSettings.GetUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())
 	d.Set("collective_id", settings.GetCollectiveId())
 
@@ -216,21 +238,98 @@ func resourceGlobalSettingsRead(ctx context.Context, d *schema.ResourceData, met
 	return diags
 }
 
+func ConvertGlobalSettings(settings *v22.GlobalSettings) *openapi.GlobalSettings {
+	geoIPSettings := ConvertGeoIPSettings(*settings.GeoIpUpdates)
+	return &openapi.GlobalSettings{
+		ClaimsTokenExpiration:          settings.ClaimsTokenExpiration,
+		EntitlementTokenExpiration:     settings.EntitlementTokenExpiration,
+		AdministrationTokenExpiration:  settings.AdministrationTokenExpiration,
+		VpnCertificateExpiration:       settings.VpnCertificateExpiration,
+		RegisteredDeviceExpirationDays: settings.RegisteredDeviceExpirationDays,
+		SpaMode:                        settings.SpaMode,
+		SpaTimeWindowSeconds:           settings.SpaTimeWindowSeconds,
+		LoginBannerMessage:             settings.LoginBannerMessage,
+		MessageOfTheDay:                settings.MessageOfTheDay,
+		BackupApiEnabled:               settings.BackupApiEnabled,
+		BackupPassphrase:               settings.BackupPassphrase,
+		GeoIpSettings: &openapi.GeoIpSettings{
+			Updates: &geoIPSettings,
+		},
+		AuditLogPersistenceMode: settings.AuditLogPersistenceMode,
+		ProfileHostname:         settings.ProfileHostname,
+		CollectiveName:          settings.CollectiveName,
+		CollectiveId:            settings.CollectiveId,
+	}
+}
+
+func revertGlobalSettings(settings *openapi.GlobalSettings) *v22.GlobalSettings {
+	return &v22.GlobalSettings{
+		ClaimsTokenExpiration:          settings.ClaimsTokenExpiration,
+		EntitlementTokenExpiration:     settings.EntitlementTokenExpiration,
+		AdministrationTokenExpiration:  settings.AdministrationTokenExpiration,
+		VpnCertificateExpiration:       settings.VpnCertificateExpiration,
+		RegisteredDeviceExpirationDays: settings.RegisteredDeviceExpirationDays,
+		SpaMode:                        settings.SpaMode,
+		SpaTimeWindowSeconds:           settings.SpaTimeWindowSeconds,
+		LoginBannerMessage:             settings.LoginBannerMessage,
+		MessageOfTheDay:                settings.MessageOfTheDay,
+		BackupApiEnabled:               settings.BackupApiEnabled,
+		BackupPassphrase:               settings.BackupPassphrase,
+		GeoIpUpdates:                   revertGeoIPSettings(settings.GeoIpSettings.Updates),
+		AuditLogPersistenceMode:        settings.AuditLogPersistenceMode,
+		ProfileHostname:                settings.ProfileHostname,
+		CollectiveName:                 settings.CollectiveName,
+		CollectiveId:                   settings.CollectiveId,
+	}
+}
+
+func ConvertGeoIPSettings(value bool) string {
+	if value {
+		return "Default"
+	}
+	return "Disabled"
+}
+
+func revertGeoIPSettings(value *string) *bool {
+	if value != nil && *value == "Default" {
+		v := true
+		return &v
+	}
+	v := false
+	return &v
+}
+
 func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[DEBUG] Updating Global settings")
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	api := meta.(*Client).API.GlobalSettingsApi
-	currentVersion := meta.(*Client).ApplianceVersion
-
 	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
-	request := api.GlobalSettingsGet(ctx)
+	currentVersion := meta.(*Client).ApplianceVersion
+	var originalsettings *openapi.GlobalSettings
+	oldApi := meta.(*Client).OldAPI.GlobalSettingsApi
+	api := meta.(*Client).API.GlobalSettingsApi
 
-	originalsettings, _, err := request.Execute()
-	if err != nil {
-		return diag.FromErr(fmt.Errorf("Failed to read Global settings while updating, %w", err))
+	if meta.(*Client).Config.Version < 23 {
+		ctx = context.WithValue(ctx, v22.ContextAccessToken, token)
+		request2 := oldApi.GlobalSettingsGet(ctx)
+		settings2, res, err := request2.Execute()
+		if err != nil {
+			if res != nil && res.StatusCode == http.StatusNotFound {
+				return nil
+			}
+			return diag.FromErr(fmt.Errorf("Failed to read Global settings while updating, %w", err))
+		}
+		originalsettings = ConvertGlobalSettings(settings2)
+	} else {
+		ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+		request := api.GlobalSettingsGet(ctx)
+
+		originalsettings, _, err = request.Execute()
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("Failed to read Global settings while updating, %w", err))
+		}
 	}
 
 	if d.HasChange("claims_token_expiration") {
@@ -258,7 +357,7 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 		originalsettings.SetBackupPassphrase(d.Get("backup_passphrase").(string))
 	}
 	if d.HasChange("geo_ip_updates") {
-		originalsettings.SetGeoIpUpdates(d.Get("geo_ip_updates").(bool))
+		originalsettings.GeoIpSettings.SetUpdates(d.Get("geo_ip_updates").(string))
 	}
 	if d.HasChange("audit_log_persistence_mode") {
 		originalsettings.SetAuditLogPersistenceMode(d.Get("audit_log_persistence_mode").(string))
@@ -281,8 +380,13 @@ func resourceGlobalSettingsUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 	log.Printf("[DEBUG] Updating Global settings %+v", originalsettings)
 	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
-	req := api.GlobalSettingsPut(ctx)
-	_, err = req.GlobalSettings(*originalsettings).Execute()
+	if meta.(*Client).Config.Version < 23 {
+		oldReq := oldApi.GlobalSettingsPut(ctx)
+		_, err = oldReq.GlobalSettings(*revertGlobalSettings(originalsettings)).Execute()
+	} else {
+		req := api.GlobalSettingsPut(ctx)
+		_, err = req.GlobalSettings(*originalsettings).Execute()
+	}
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("Could not update Global settings %w", prettyPrintAPIError(err)))
 	}

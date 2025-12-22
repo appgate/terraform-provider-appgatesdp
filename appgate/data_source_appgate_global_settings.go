@@ -1,9 +1,11 @@
 package appgate
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
+	v22 "github.com/appgate/sdp-api-client-go/api/v22/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -53,7 +55,7 @@ func dataSourceGlobalSettings() *schema.Resource {
 				Computed:   true,
 			},
 			"geo_ip_updates": {
-				Type:        schema.TypeBool,
+				Type:        schema.TypeString,
 				Description: "Whether the automatic GeoIp updates are enabled or not.",
 				Computed:    true,
 			},
@@ -82,9 +84,15 @@ func dataSourceAppgateGlobalSettingsRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	api := meta.(*Client).API.GlobalSettingsApi
 
-	settings, err := getGlobalSettings(api, token)
+	api := meta.(*Client).API.GlobalSettingsApi
+	oldApi := meta.(*Client).OldAPI.GlobalSettingsApi
+	var settings *openapi.GlobalSettings
+	if meta.(*Client).Config.Version < 23 {
+		settings, err = getGlobalSettings22(oldApi, token)
+	} else {
+		settings, err = getGlobalSettings(api, token)
+	}
 	if err != nil {
 		return fmt.Errorf("Could not read global settings %w", err)
 	}
@@ -96,7 +104,7 @@ func dataSourceAppgateGlobalSettingsRead(d *schema.ResourceData, meta interface{
 	d.Set("login_banner_message", settings.GetLoginBannerMessage())
 	d.Set("message_of_the_day", settings.GetMessageOfTheDay())
 	d.Set("backup_api_enabled", settings.GetBackupApiEnabled())
-	d.Set("geo_ip_updates", settings.GetGeoIpUpdates())
+	d.Set("geo_ip_updates", settings.GeoIpSettings.GetUpdates())
 	d.Set("audit_log_persistence_mode", settings.GetAuditLogPersistenceMode())
 	d.Set("collective_id", settings.GetCollectiveId())
 	return nil
@@ -109,4 +117,13 @@ func getGlobalSettings(api *openapi.GlobalSettingsApiService, token string) (*op
 		return nil, err
 	}
 	return globalSettings, nil
+}
+
+func getGlobalSettings22(api *v22.GlobalSettingsApiService, token string) (*openapi.GlobalSettings, error) {
+	ctx := context.WithValue(context.Background(), v22.ContextAccessToken, token)
+	globalSettings, _, err := api.GlobalSettingsGet(ctx).Execute()
+	if err != nil {
+		return nil, err
+	}
+	return ConvertGlobalSettings(globalSettings), nil
 }

@@ -31,6 +31,33 @@ var applianceConstraintCheck = func(t *testing.T, constraint string) {
 	}
 }
 
+var applianceVersionCheck = func(t *testing.T, constraint string) bool {
+	c, ok := testAccProvider.Meta().(*Client)
+	if !ok {
+		// If the client is not valid ignore the version check
+		return false
+	}
+	_, err := c.GetToken()
+	if err != nil {
+		t.Fatalf("Could not initiate the version control %s", err)
+		return false
+	}
+	currentVersion := c.ApplianceVersion
+	constraints, err := version.NewConstraint(constraint)
+	if err != nil {
+		t.Fatalf("could not parse version constraint %s %s", constraint, err)
+		return false
+	}
+	if currentVersion == nil {
+		t.Fatalf("could not determine current version for %s", constraint)
+		return false
+	}
+	if !constraints.Check(currentVersion) {
+		return false
+	}
+	return true
+}
+
 var (
 	testFor6AndAbove = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.0")
@@ -49,6 +76,9 @@ var (
 	}
 	testFor65AndAbove = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.5")
+	}
+	testFor66AndAbove = func(t *testing.T) {
+		applianceConstraintCheck(t, ">= 6.6")
 	}
 	testFor61 = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.1, < 6.2")
@@ -553,11 +583,11 @@ func testAccCheckApplianceDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 
 		if _, _, err := api.AppliancesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Appliance still exists, %+v", err)
@@ -1245,11 +1275,11 @@ resource "appgatesdp_appliance" "connector" {
 
 func testAccCheckApplianceExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.AppliancesApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -4654,7 +4684,7 @@ resource "appgatesdp_appliance" "appliancev62_metrics_aggregator" {
 				username = "foo"
 				password = "foo123"
 			}
-			allowed_users { 
+			allowed_users {
 				username = "boo"
 				password = "boo123"
 			}
@@ -5008,7 +5038,7 @@ resource "appgatesdp_appliance" "appliancev62" {
 			username = "foo"
 			password = "foo123"
 		}
-		allowed_users { 
+		allowed_users {
 			username = "boo"
 			password = "boo123"
 		}
@@ -5205,7 +5235,7 @@ resource "appgatesdp_appliance" "appliancev63" {
 			username = "foo"
 			password = "foo123"
 		}
-		allowed_users { 
+		allowed_users {
 			username = "boo"
 			password = "boo123"
 		}

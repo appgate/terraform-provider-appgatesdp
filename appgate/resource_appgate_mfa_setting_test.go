@@ -45,11 +45,11 @@ resource "appgatesdp_admin_mfa_settings" "test_example_mfa_settings" {
 
 func testAccCheckAdminMfaSettingsExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.MFAForAdminsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.MFAForAdminsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {

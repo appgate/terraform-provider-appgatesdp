@@ -60,11 +60,11 @@ EOF
 
 func testAccCheckDeviceScriptExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.DeviceClaimScriptsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.DeviceClaimScriptsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -88,11 +88,11 @@ func testAccCheckDeviceScriptDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.DeviceClaimScriptsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.DeviceClaimScriptsApi
 
 		if _, _, err := api.DeviceScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Device script still exists, %+v", err)

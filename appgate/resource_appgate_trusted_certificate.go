@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -101,11 +101,11 @@ func resourceAppgateTrustedCertificateRead(d *schema.ResourceData, meta interfac
 
 func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Updating trusted certificate: %s", d.Get("name").(string))
+	api := meta.(*Client).API.TrustedCertificatesApi
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return err
 	}
-	api := meta.(*Client).API.TrustedCertificatesApi
 	ctx := BaseAuthContext(token)
 	request := api.TrustedCertificatesIdGet(ctx, d.Id())
 	originalTrustedCertificate, _, err := request.Execute()
@@ -140,11 +140,11 @@ func resourceAppgateTrustedCertificateUpdate(d *schema.ResourceData, meta interf
 
 func resourceAppgateTrustedCertificateDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete trusted certificate: %s", d.Get("name").(string))
+	api := meta.(*Client).API.TrustedCertificatesApi
 	token, err := meta.(*Client).GetToken()
 	if err != nil {
 		return err
 	}
-	api := meta.(*Client).API.TrustedCertificatesApi
 	if _, err := api.TrustedCertificatesIdDelete(BaseAuthContext(token), d.Id()).Execute(); err != nil {
 		return fmt.Errorf("Could not delete trusted certificate %w", prettyPrintAPIError(err))
 	}

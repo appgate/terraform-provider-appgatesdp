@@ -3,7 +3,7 @@ package appgate
 import (
 	"context"
 	"fmt"
-	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 	"log"
 	"net/http"
 	"time"

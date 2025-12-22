@@ -137,11 +137,11 @@ resource "appgatesdp_condition" "test_condition" {
 
 func testAccCheckConditionExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.ConditionsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.ConditionsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -165,11 +165,11 @@ func testAccCheckConditionDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.ConditionsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.ConditionsApi
 
 		if _, _, err := api.ConditionsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Condition still exists, %+v", err)

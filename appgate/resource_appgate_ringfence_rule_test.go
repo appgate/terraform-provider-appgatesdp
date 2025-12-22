@@ -142,11 +142,11 @@ resource "appgatesdp_ringfence_rule" "test_ringfence_rule_tcp" {
 
 func testAccCheckRingfenceRuleExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.RingfenceRulesApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.RingfenceRulesApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -156,7 +156,6 @@ func testAccCheckRingfenceRuleExists(resource string) resource.TestCheckFunc {
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No Record ID is set")
 		}
-
 		if _, _, err := api.RingfenceRulesIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err != nil {
 			return fmt.Errorf("error fetching ringfence rule with resource %s. %s", resource, err)
 		}

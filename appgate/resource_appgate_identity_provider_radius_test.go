@@ -10,11 +10,11 @@ import (
 
 func testAccCheckRadiusIdentityProviderExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -38,11 +38,11 @@ func testAccCheckRadiusIdentityProviderDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.RadiusIdentityProvidersApi
 
 		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("radius identity provider still exists, %+v", err)

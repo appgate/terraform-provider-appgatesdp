@@ -123,7 +123,7 @@ resource "appgatesdp_oidc_identity_provider" "oidc_test_resource" {
   issuer = "https://example.com/oidc/issuer"
   audience = "oidc_test_audience"
   scope = "oidc_test_scope"
-  google { 
+  google {
     enabled = true
     client_secret = "oidc_test_client_secret"
     refresh_token = true
@@ -201,11 +201,11 @@ resource "appgatesdp_oidc_identity_provider" "oidc_test_resource" {
 
 func testAccCheckOidcIdentityProviderExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.OidcIdentityProvidersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.OidcIdentityProvidersApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -229,11 +229,11 @@ func testAccCheckOidcIdentityProviderDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.OidcIdentityProvidersApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.OidcIdentityProvidersApi
 
 		if _, _, err := api.IdentityProvidersIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("oidc identity provider still exists, %+v", err)

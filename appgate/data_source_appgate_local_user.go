@@ -2,7 +2,7 @@ package appgate
 
 import (
 	"context"
-	"github.com/appgate/sdp-api-client-go/api/v22/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"

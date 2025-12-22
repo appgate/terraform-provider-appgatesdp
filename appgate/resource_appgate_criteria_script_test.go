@@ -53,11 +53,11 @@ resource "appgatesdp_criteria_script" "test_criteria_script" {
 
 func testAccCheckCriteriaScriptExists(resource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+		api := testAccProvider.Meta().(*Client).API.CriteriaScriptsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.CriteriaScriptsApi
 
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -81,11 +81,11 @@ func testAccCheckCriteriaScriptDestroy(s *terraform.State) error {
 			continue
 		}
 
+		api := testAccProvider.Meta().(*Client).API.CriteriaScriptsApi
 		token, err := testAccProvider.Meta().(*Client).GetToken()
 		if err != nil {
 			return err
 		}
-		api := testAccProvider.Meta().(*Client).API.CriteriaScriptsApi
 
 		if _, _, err := api.CriteriaScriptsIdGet(BaseAuthContext(token), rs.Primary.ID).Execute(); err == nil {
 			return fmt.Errorf("Criteria script still exists, %+v", err)
