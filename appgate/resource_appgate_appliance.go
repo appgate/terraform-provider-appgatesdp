@@ -1005,6 +1005,27 @@ func resourceAppgateAppliance() *schema.Resource {
 					},
 				},
 			},
+			"connection_broker": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"sites": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 
 			"metrics_aggregator": {
 				Type:     schema.TypeList,
@@ -1515,6 +1536,14 @@ func resourceAppgateApplianceCreate(ctx context.Context, d *schema.ResourceData,
 		args.SetMetricsAggregator(metricsAggr)
 	}
 
+	if v, ok := d.GetOk("connection_broker"); ok {
+		cb, err := readConnectionBrokerFromConfig(v.([]interface{}))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		args.SetConnectionBroker(cb)
+	}
+
 	if v, ok := d.GetOk("connector"); ok {
 		connector, err := readApplianceConnectorFromConfig(v.([]interface{}))
 		if err != nil {
@@ -2014,6 +2043,18 @@ func resourceAppgateApplianceRead(ctx context.Context, d *schema.ResourceData, m
 		}
 		if err := d.Set("metrics_aggregator", metricsAggr); err != nil {
 			return diag.Errorf("Unable to read metrics aggregator %s", err)
+		}
+	}
+
+	if v, ok := appliance.GetConnectionBrokerOk(); ok {
+		connectionBroker := make(map[string]interface{})
+		enabledConnectionBroker := v.GetEnabled()
+		if enabledConnectionBroker {
+			connectionBroker["enabled"] = enabledConnectionBroker
+			connectionBroker["sites"] = v.GetSites()
+			if err := d.Set("connection_broker", []interface{}{connectionBroker}); err != nil {
+				return diag.Errorf("Unable to read connection broker %s", err)
+			}
 		}
 	}
 
@@ -2866,6 +2907,15 @@ func resourceAppgateApplianceUpdate(ctx context.Context, d *schema.ResourceData,
 		originalAppliance.SetMetricsAggregator(ma)
 	}
 
+	if d.HasChange("connection_broker") {
+		_, v := d.GetChange("connection_broker")
+		cb, err := readConnectionBrokerFromConfig(v.([]interface{}))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		originalAppliance.SetConnectionBroker(cb)
+	}
+
 	if d.HasChange("connector") {
 		_, v := d.GetChange("connector")
 		iot, err := readApplianceConnectorFromConfig(v.([]interface{}))
@@ -3172,6 +3222,24 @@ func readLogServerFromConfig(logServers []interface{}) (openapi.ApplianceAllOfLo
 		}
 		if v, ok := r["retention_days"]; ok {
 			srv.SetRetentionDays(int32(v.(int)))
+		}
+	}
+	return srv, nil
+}
+
+func readConnectionBrokerFromConfig(connectionBrokers []interface{}) (openapi.ApplianceAllOfConnectionBroker, error) {
+	srv := openapi.ApplianceAllOfConnectionBroker{}
+	for _, raw := range connectionBrokers {
+		r := raw.(map[string]interface{})
+		if v, ok := r["enabled"].(bool); ok {
+			srv.SetEnabled(v)
+		}
+		if v, ok := r["sites"]; ok {
+			var sites []string
+			for _, site := range v.(*schema.Set).List() {
+				sites = append(sites, site.(string))
+			}
+			srv.SetSites(sites)
 		}
 	}
 	return srv, nil
