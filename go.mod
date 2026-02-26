@@ -1,6 +1,6 @@
 module github.com/appgate/terraform-provider-appgatesdp
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/appgate/sdp-api-client-go v1.4.3-beta
@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/go-version v1.8.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.2
 	github.com/imdario/mergo v0.3.16
-	golang.org/x/net v0.50.0
+	golang.org/x/net v0.51.0
 )
 
 require (
