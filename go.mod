@@ -1,6 +1,6 @@
 module github.com/appgate/terraform-provider-appgatesdp
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/appgate/sdp-api-client-go v1.4.3-beta
@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/go-version v1.9.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.2
 	github.com/imdario/mergo v0.3.16
-	golang.org/x/net v0.50.0
+	golang.org/x/net v0.53.0
 )
 
 require (
@@ -52,13 +52,13 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/zclconf/go-cty v1.17.0 // indirect
-	golang.org/x/crypto v0.48.0 // indirect
-	golang.org/x/mod v0.32.0 // indirect
+	golang.org/x/crypto v0.50.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
-	golang.org/x/tools v0.41.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/tools v0.43.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/grpc v1.79.3 // indirect
