@@ -15,7 +15,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v24/openapi"
 )
 
 type Resource struct {
@@ -91,6 +91,9 @@ var (
 		},
 		{
 			Name: "ClientProfile",
+		},
+		{
+			Name: "ReplicationTarget",
 		},
 	}
 )

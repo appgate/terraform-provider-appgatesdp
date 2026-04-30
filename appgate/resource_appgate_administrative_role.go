@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v24/openapi"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/adminrole"
 	"github.com/appgate/terraform-provider-appgatesdp/appgate/hashcode"
 

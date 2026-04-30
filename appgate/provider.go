@@ -164,6 +164,7 @@ func Provider() *schema.Provider {
 			"appgatesdp_appliance_seed":          dataSourceAppgateApplianceSeed(),
 			"appgatesdp_certificate_authority":   dataSourceAppgateCertificateAuthority(),
 			"appgatesdp_client_profile":          dataSourceClientProfile(),
+			"appgatesdp_replication_target":      dataSourceAppgateReplicationTarget(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"appgatesdp_appliance":                          resourceAppgateAppliance(),
@@ -200,6 +201,8 @@ func Provider() *schema.Provider {
 			"appgatesdp_connector_identity_provider":        resourceAppgateConnectorProvider(),
 			"appgatesdp_client_profile":                     resourceAppgateClientProfile(),
 			"appgatesdp_stop_policy":                        resourceAppgateStopPolicy(),
+			"appgatesdp_replication_target":                 resourceAppgateReplicationTarget(),
+			"appgatesdp_replication_source":                 resourceAppgateReplicationSource(),
 		},
 	}
 

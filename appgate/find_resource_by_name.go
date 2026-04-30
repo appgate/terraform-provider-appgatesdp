@@ -3,17 +3,17 @@ package appgate
 
 import (
 	"context"
-	"log"
-	"time"
-
-	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v24/openapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
+	"time"
 )
 
 func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiService, id, token string) (*openapi.Entitlement, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source Entitlement get by UUID %s", id)
-	resource, _, err := api.EntitlementsIdGet(context.WithValue(ctx, openapi.ContextAccessToken, token), id).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.EntitlementsIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -23,8 +23,8 @@ func findEntitlementByUUID(ctx context.Context, api *openapi.EntitlementsApiServ
 func findEntitlementByName(ctx context.Context, api *openapi.EntitlementsApiService, name, token string) (*openapi.Entitlement, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source Entitlement get by name %s", name)
-
-	resource, _, err := api.EntitlementsGet(context.WithValue(ctx, openapi.ContextAccessToken, token)).Query(name).OrderBy("name").Range_("0-10").Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.EntitlementsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -56,7 +56,8 @@ func ResolveEntitlementFromResourceData(ctx context.Context, d *schema.ResourceD
 
 func findAdministrativeRoleByUUID(ctx context.Context, api *openapi.AdminRolesApiService, id, token string) (*openapi.AdministrativeRole, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source AdministrativeRole get by UUID %s", id)
-	resource, _, err := api.AdministrativeRolesIdGet(context.WithValue(ctx, openapi.ContextAccessToken, token), id).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.AdministrativeRolesIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -66,8 +67,8 @@ func findAdministrativeRoleByUUID(ctx context.Context, api *openapi.AdminRolesAp
 func findAdministrativeRoleByName(ctx context.Context, api *openapi.AdminRolesApiService, name, token string) (*openapi.AdministrativeRole, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source AdministrativeRole get by name %s", name)
-
-	resource, _, err := api.AdministrativeRolesGet(context.WithValue(ctx, openapi.ContextAccessToken, token)).Query(name).OrderBy("name").Range_("0-10").Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.AdministrativeRolesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -99,8 +100,8 @@ func ResolveAdministrativeRoleFromResourceData(ctx context.Context, d *schema.Re
 
 func findApplianceCustomizationByUUID(ctx context.Context, api *openapi.ApplianceCustomizationsApiService, id, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source ApplianceCustomization get by UUID %s", id)
-
-	resource, _, err := api.ApplianceCustomizationsIdGet(context.WithValue(ctx, openapi.ContextAccessToken, token), id).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.ApplianceCustomizationsIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -110,7 +111,8 @@ func findApplianceCustomizationByUUID(ctx context.Context, api *openapi.Applianc
 func findApplianceCustomizationByName(ctx context.Context, api *openapi.ApplianceCustomizationsApiService, name, token string) (*openapi.ApplianceCustomization, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source ApplianceCustomization get by name %s", name)
-	resource, _, err := api.ApplianceCustomizationsGet(context.WithValue(ctx, openapi.ContextAccessToken, token)).Query(name).OrderBy("name").Range_("0-10").Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.ApplianceCustomizationsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -142,8 +144,8 @@ func ResolveApplianceCustomizationFromResourceData(ctx context.Context, d *schem
 
 func findApplianceByUUID(ctx context.Context, api *openapi.AppliancesApiService, id, token string) (*openapi.Appliance, diag.Diagnostics) {
 	log.Printf("[DEBUG] Data source Appliance get by UUID %s", id)
-
-	resource, _, err := api.AppliancesIdGet(context.WithValue(ctx, openapi.ContextAccessToken, token), id).Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.AppliancesIdGet(ctx, id).Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -305,10 +307,11 @@ func ResolveDeviceScriptFromResourceData(ctx context.Context, d *schema.Resource
 	var diags diag.Diagnostics
 	resourceID, iok := d.GetOk("device_script_id")
 	resourceName, nok := d.GetOk("device_script_name")
+
 	if !iok && !nok {
 		return nil, AppendErrorf(diags, "please provide one of device_script_id or device_script_name attributes")
 	}
-	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+
 	if iok {
 		return findDeviceScriptByUUID(ctx, api, resourceID.(string), token)
 	}
@@ -548,7 +551,8 @@ func findSiteByUUID(ctx context.Context, api *openapi.SitesApiService, id, token
 func findSiteByName(ctx context.Context, api *openapi.SitesApiService, name, token string) (*openapi.Site, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	log.Printf("[DEBUG] Data source Site get by name %s", name)
-	resource, _, err := api.SitesGet(context.WithValue(ctx, openapi.ContextAccessToken, token)).Query(name).OrderBy("name").Range_("0-10").Execute()
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.SitesGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -801,7 +805,51 @@ func ResolveClientProfileFromResourceData(ctx context.Context, d *schema.Resourc
 	}
 
 	if iok {
-		return findClientProfileByUUID(context.WithValue(ctx, openapi.ContextAccessToken, token), api, resourceID.(string), token)
+		return findClientProfileByUUID(ctx, api, resourceID.(string), token)
 	}
 	return findClientProfileByName(ctx, api, resourceName.(string), token)
+}
+
+func findReplicationTargetByUUID(ctx context.Context, api *openapi.ReplicationTargetsApiService, id, token string) (*openapi.ReplicationTarget, diag.Diagnostics) {
+	log.Printf("[DEBUG] Data source ReplicationTarget get by UUID %s", id)
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.ReplicationTargetsIdGet(ctx, id).Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	return resource, nil
+}
+
+func findReplicationTargetByName(ctx context.Context, api *openapi.ReplicationTargetsApiService, name, token string) (*openapi.ReplicationTarget, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	log.Printf("[DEBUG] Data source ReplicationTarget get by name %s", name)
+	ctx = context.WithValue(ctx, openapi.ContextAccessToken, token)
+	resource, _, err := api.ReplicationTargetsGet(ctx).Query(name).OrderBy("name").Range_("0-10").Execute()
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	for _, r := range resource.GetData() {
+		if r.GetName() == name {
+			return &r, nil
+		}
+	}
+	if len(resource.GetData()) > 1 {
+		return nil, AppendErrorf(diags, "multiple ReplicationTarget matched; use additional constraints to reduce matches to a single ReplicationTarget")
+	}
+	return nil, AppendErrorf(diags, "could not find ReplicationTarget %s - please note that Names are case sensitive", name)
+}
+
+func ResolveReplicationTargetFromResourceData(ctx context.Context, d *schema.ResourceData, api *openapi.ReplicationTargetsApiService, token string) (*openapi.ReplicationTarget, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	resourceID, iok := d.GetOk("replication_target_id")
+	resourceName, nok := d.GetOk("replication_target_name")
+
+	if !iok && !nok {
+		return nil, AppendErrorf(diags, "please provide one of replication_target_id or replication_target_name attributes")
+	}
+
+	if iok {
+		return findReplicationTargetByUUID(ctx, api, resourceID.(string), token)
+	}
+	return findReplicationTargetByName(ctx, api, resourceName.(string), token)
 }
