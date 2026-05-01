@@ -73,29 +73,6 @@ func testAccCheckReplicationTargetExists(resource string) resource.TestCheckFunc
 	}
 }
 
-func testAccCheckReplicationSourceExists(resource string) resource.TestCheckFunc {
-	return func(state *terraform.State) error {
-		api := testAccProvider.Meta().(*Client).API.ReplicationSourceApi
-		token, err := testAccProvider.Meta().(*Client).GetToken()
-		if err != nil {
-			return err
-		}
-
-		rs, ok := state.RootModule().Resources[resource]
-		if !ok {
-			return fmt.Errorf("Not found: %s", resource)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No Record ID is set")
-		}
-		if _, _, err := api.ReplicationSourceGet(BaseAuthContext(token)).Execute(); err != nil {
-			return fmt.Errorf("error fetching replication source with resource %s. %s", resource, err)
-		}
-		return nil
-	}
-}
-
 func testReplicationCleanup(s *terraform.State) error {
 	var errors *multierror.Error
 	err := testAccCheckReplicationTargetDestroy(s)
