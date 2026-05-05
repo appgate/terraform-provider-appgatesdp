@@ -16,7 +16,7 @@ import (
 	"time"
 
 	v22 "github.com/appgate/sdp-api-client-go/api/v22/openapi"
-	"github.com/appgate/sdp-api-client-go/api/v23/openapi"
+	"github.com/appgate/sdp-api-client-go/api/v24/openapi"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/go-version"
 	"golang.org/x/net/http/httpproxy"
@@ -306,7 +306,7 @@ func (e *minMaxError) Error() string {
 	return e.Err.Error()
 }
 
-func (c *Client) login(ctx context.Context) (*openapi.LoginResponse, error) {
+func (c *Client) login(ctx context.Context) (*openapi.LoginAuthorizationResponse, error) {
 	loginOpts := openapi.LoginRequest{
 		ProviderName: c.Config.Provider,
 		Username:     openapi.PtrString(c.Config.Username),
@@ -320,7 +320,7 @@ func (c *Client) login(ctx context.Context) (*openapi.LoginResponse, error) {
 	// these status code is treated as retryable errors, during exponentialBackOff.MaxElapsedTime window.
 	// we will use this exponential backoff to retry until we get a 200-400 HTTP response from /login
 	exponentialBackOff.MaxElapsedTime = c.Config.LoginTimeout
-	loginResponse := &openapi.LoginResponse{}
+	loginResponse := &openapi.LoginAuthorizationResponse{}
 	err := backoff.Retry(func() error {
 		login, response, err := c.API.LoginApi.LoginPost(ctx).LoginRequest(loginOpts).Execute()
 		if response == nil {

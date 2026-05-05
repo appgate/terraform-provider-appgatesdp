@@ -80,6 +80,9 @@ var (
 	testFor66AndAbove = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.6")
 	}
+	testFor67AndAbove = func(t *testing.T) {
+		applianceConstraintCheck(t, ">= 6.7")
+	}
 	testFor61 = func(t *testing.T) {
 		applianceConstraintCheck(t, ">= 6.1, < 6.2")
 	}
