@@ -441,10 +441,10 @@ func resourceAppgatePolicyCreate(ctx context.Context, d *schema.ResourceData, me
 	if v, ok := d.GetOk("override_site_claim"); ok {
 		args.SetOverrideSiteClaim(v.(string))
 	}
-	if v, ok := d.GetOk("override_nearest_site"); ok {
+	if v, ok := d.GetOkExists("override_nearest_site"); ok {
 		args.SetOverrideNearestSite(v.(bool))
 	}
-	if v, ok := d.GetOk("apply_fallback_site"); ok {
+	if v, ok := d.GetOkExists("apply_fallback_site"); ok {
 		args.SetApplyFallbackSite(v.(bool))
 	}
 	if v, ok := d.GetOk("dns_settings"); ok {
@@ -751,12 +751,8 @@ func resourceAppgatePolicyRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
-		if v := d.Get("override_nearest_site"); v != nil {
-			d.Set("override_nearest_site", v.(bool))
-		}
-		if v := d.Get("apply_fallback_site"); v != nil {
-			d.Set("apply_fallback_site", v.(bool))
-		}
+		d.Set("override_nearest_site", policy.GetOverrideNearestSite())
+		d.Set("apply_fallback_site", policy.GetApplyFallbackSite())
 	}
 
 	return diags
@@ -1000,6 +996,14 @@ func resourceAppgatePolicyUpdate(ctx context.Context, d *schema.ResourceData, me
 		}
 		if d.HasChange("custom_client_help_url") {
 			orginalPolicy.SetCustomClientHelpUrl(d.Get("custom_client_help_url").(string))
+		}
+	}
+	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
+		if d.HasChange("override_nearest_site") {
+			orginalPolicy.SetOverrideNearestSite(d.Get("override_nearest_site").(bool))
+		}
+		if d.HasChange("apply_fallback_site") {
+			orginalPolicy.SetApplyFallbackSite(d.Get("apply_fallback_site").(bool))
 		}
 	}
 	req := api.PoliciesIdPut(ctx, d.Id())
