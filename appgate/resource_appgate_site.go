@@ -147,6 +147,20 @@ func resourceAppgateSite() *schema.Resource {
 							},
 						},
 
+						"quic": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+								},
+							},
+						},
+
 						"dtls": {
 							Type:     schema.TypeSet,
 							Optional: true,
@@ -730,6 +744,13 @@ func flattenSiteVPN(in openapi.SiteAllOfVpn) []interface{} {
 		}
 		m["tls"] = []interface{}{tls}
 	}
+	if in.HasQuic() {
+		quic := make(map[string]interface{})
+		if _, ok := in.Quic.GetEnabledOk(); ok {
+			quic["enabled"] = in.Quic.GetEnabled()
+		}
+		m["quic"] = []interface{}{quic}
+	}
 	if in.HasRouteVia() && (in.RouteVia.Ipv4 != nil || in.RouteVia.Ipv6 != nil) {
 		routeVia := make(map[string]interface{})
 		if v, o := in.RouteVia.GetIpv4Ok(); o && len(*v) > 0 {
@@ -1139,6 +1160,18 @@ func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 				}
 			}
 			result.SetTls(tls)
+		}
+
+		if v, ok := raw["quic"]; ok {
+			quic := openapi.SiteAllOfVpnQuic{}
+			rawQuic := v.(*schema.Set).List()
+			for _, d := range rawQuic {
+				raw := d.(map[string]interface{})
+				if v, ok := raw["enabled"]; ok {
+					quic.SetEnabled(v.(bool))
+				}
+			}
+			result.SetQuic(quic)
 		}
 
 		if v, ok := raw["dtls"]; ok {
