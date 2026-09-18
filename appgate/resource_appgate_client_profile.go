@@ -141,10 +141,10 @@ func resourceAppgateClientProfileRead(ctx context.Context, d *schema.ResourceDat
 	if notes, ok := profile["notes"].(string); ok {
 		d.Set("notes", notes)
 	}
-	if spaKeyName, ok := profile["spa_key_name"].(string); ok {
+	if spaKeyName, ok := profile["spaKeyName"].(string); ok {
 		d.Set("spa_key_name", spaKeyName)
 	}
-	if identityProviderName, ok := profile["identity_provider_name"].(string); ok {
+	if identityProviderName, ok := profile["identityProviderName"].(string); ok {
 		d.Set("identity_provider_name", identityProviderName)
 	}
 	if hostname, ok := profile["hostname"].(string); ok {
@@ -195,10 +195,10 @@ func resourceAppgateClientProfileUpdate(ctx context.Context, d *schema.ResourceD
 		originalProfile["tags"] = schemaExtractTags(d)
 	}
 	if d.HasChange("spa_key_name") {
-		originalProfile["spa_key_name"] = d.Get("spa_key_name").(string)
+		originalProfile["spaKeyName"] = d.Get("spa_key_name").(string)
 	}
 	if d.HasChange("identity_provider_name") {
-		originalProfile["identity_provider_name"] = d.Get("identity_provider_name").(string)
+		originalProfile["identityProviderName"] = d.Get("identity_provider_name").(string)
 	}
 	if d.HasChange("hostname") {
 		originalProfile["hostname"] = d.Get("hostname").(string)
