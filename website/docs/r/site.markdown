@@ -115,6 +115,10 @@ resource "appgatesdp_site" "gbg_site" {
             dns_servers = [
                 "dns_server1"
             ]
+            match_domains = [
+                "internal.example.com"
+            ]
+            auto_client_dns = true
             allow_destinations {
                 address = "192.168.1.1"
                 netmask = 32
@@ -249,6 +253,8 @@ Enable DNS Forwarding feature.
 * `dns_servers`: (Required) DNS Servers to use for resolving endpoints. Example: 172.17.18.19,192.100.111.31.
 * `allow_destinations`: (Required) A list of subnets to allow access.
 * `default_ttl_seconds`: (Optional) This will apply whenever Gateway gets a DNS response which has no TTL set.
+* `match_domains`: (Optional) The match domains to use for automatic Client DNS configuration.
+* `auto_client_dns`: (Optional) This will configure Client machines' DNS according to this forwarder if the Client connects to this Site.
 
 #### illumio_resolvers
 Resolvers to resolve names by querying Appgate Illumio Resolver.

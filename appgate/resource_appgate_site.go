@@ -492,6 +492,16 @@ func resourceAppgateSite() *schema.Resource {
 										Optional: true,
 										Computed: true,
 									},
+									"match_domains": {
+										Type:     schema.TypeSet,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"auto_client_dns": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
 								},
 							},
 						},
@@ -930,6 +940,8 @@ func flattenSiteDnsForwading(in openapi.SiteAllOfNameResolutionDnsForwarding) ([
 	}
 	m["allow_destinations"] = ad
 	m["default_ttl_seconds"] = in.GetDefaultTtlSeconds()
+	m["match_domains"] = in.GetMatchDomains()
+	m["auto_client_dns"] = in.GetAutoClientDns()
 
 	return []map[string]interface{}{m}, nil
 }
@@ -1493,6 +1505,16 @@ func readDNSForwardingResolversFromConfig(currentVersion *version.Version, dnsFo
 			if v, ok := raw["default_ttl_seconds"].(int); ok && v > 0 {
 				result.SetDefaultTtlSeconds(int32(v))
 			}
+		}
+		if v, ok := raw["match_domains"]; ok {
+			domains, err := readArrayOfStringsFromConfig(v.(*schema.Set).List())
+			if err != nil {
+				return result, err
+			}
+			result.SetMatchDomains(domains)
+		}
+		if v, ok := raw["auto_client_dns"].(bool); ok {
+			result.SetAutoClientDns(v)
 		}
 	}
 	return result, nil

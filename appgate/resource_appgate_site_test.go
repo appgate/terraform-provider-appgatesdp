@@ -1635,7 +1635,7 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.address", "0.0.0.0"),
@@ -1650,6 +1650,9 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "1.2.3.4"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv6", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.match_domains.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.match_domains.0", "internal.example.com"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.auto_client_dns", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.default_ttl_seconds", "99"),
@@ -1696,7 +1699,7 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.aws_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.azure_resolvers.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.%", "7"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.allow_destinations.0.address", "0.0.0.0"),
@@ -1711,6 +1714,9 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.dns_servers.0", "1.1.1.1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv4", "1.2.3.4"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.site_ipv6", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.match_domains.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.match_domains.0", "internal.example.com"),
+					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_forwarding.0.auto_client_dns", "true"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "name_resolution.0.dns_resolvers.0.default_ttl_seconds", "5"),
@@ -1779,6 +1785,10 @@ resource "appgatesdp_site" "test_site" {
 		dns_servers = [
 		  "1.1.1.1"
 		]
+		match_domains = [
+		  "internal.example.com"
+		]
+		auto_client_dns = true
 		allow_destinations {
 		  address = "1.1.1.1"
 		  netmask = 32
@@ -1841,6 +1851,10 @@ resource "appgatesdp_site" "test_site" {
 		dns_servers = [
 		  "1.1.1.1"
 		]
+		match_domains = [
+		  "internal.example.com"
+		]
+		auto_client_dns = true
 		allow_destinations {
 		  address = "1.1.1.1"
 		  netmask = 32
