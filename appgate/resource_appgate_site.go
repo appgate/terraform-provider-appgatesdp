@@ -281,6 +281,7 @@ func resourceAppgateSite() *schema.Resource {
 									"vpc_auto_discovery": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"regions": {
 										Type:     schema.TypeList,
@@ -290,6 +291,7 @@ func resourceAppgateSite() *schema.Resource {
 									"use_iam_role": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"access_key_id": {
 										Type:     schema.TypeString,

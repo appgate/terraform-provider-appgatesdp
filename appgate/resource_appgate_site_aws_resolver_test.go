@@ -1,11 +1,14 @@
 package appgate
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestReadAWSResolversFromConfigBooleans(t *testing.T) {
@@ -56,6 +59,104 @@ func TestReadAWSResolversFromConfigBooleans(t *testing.T) {
 			if rows[0].HasVpcAutoDiscovery() || rows[0].HasUseIAMRole() {
 				t.Fatal("absent/nil flags must remain unset")
 			}
+		})
+	}
+}
+
+func TestAWSResolverBooleansSiteLifecycle(t *testing.T) {
+	api, _, mux, _, _, teardown := setup()
+	defer teardown()
+	client := &Client{API: api, Config: &Config{BearerToken: "test-token"}, ApplianceVersion: Appliance65Version}
+	var stored map[string]interface{}
+	var writes []map[string]interface{}
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.Method {
+		case http.MethodPost, http.MethodPut:
+			var body map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				t.Error(err)
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			writes = append(writes, body)
+			stored = body
+			stored["id"] = "test-site"
+			stored["vpn"] = map[string]interface{}{"snat": false}
+		case http.MethodGet:
+		default:
+			t.Errorf("unexpected method: %s", r.Method)
+		}
+		if err := json.NewEncoder(w).Encode(stored); err != nil {
+			t.Error(err)
+		}
+	}
+	mux.HandleFunc("/sites", handler)
+	mux.HandleFunc("/sites/test-site", handler)
+	resource := resourceAppgateSite()
+	ctx := context.Background()
+	var state *terraform.InstanceState
+	for _, tc := range []struct {
+		name      string
+		flags     map[string]interface{}
+		discovery bool
+		iam       bool
+	}{
+		{"create omitted", nil, false, false},
+		{"enable both", map[string]interface{}{"vpc_auto_discovery": true, "use_iam_role": true}, true, true},
+		{"disable discovery", map[string]interface{}{"vpc_auto_discovery": false, "use_iam_role": true}, false, true},
+		{"disable IAM", map[string]interface{}{"vpc_auto_discovery": true, "use_iam_role": false}, true, false},
+		{"disable both", map[string]interface{}{"vpc_auto_discovery": false, "use_iam_role": false}, false, false},
+		{"re-enable both", map[string]interface{}{"vpc_auto_discovery": true, "use_iam_role": true}, true, true},
+		{"omit after true", nil, false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			resolver := map[string]interface{}{
+				"name": "test", "update_interval": 60,
+				"vpcs": []interface{}{"vpc-test"}, "regions": []interface{}{"us-east-1"},
+			}
+			for key, value := range tc.flags {
+				resolver[key] = value
+			}
+			config := terraform.NewResourceConfigRaw(map[string]interface{}{
+				"name": "test", "name_resolution": []interface{}{map[string]interface{}{
+					"aws_resolvers": []interface{}{resolver},
+				}},
+			})
+			diff, err := resource.Diff(ctx, state, config, client)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff == nil || diff.Empty() {
+				t.Fatal("expected create/update diff")
+			}
+			previousWrites := len(writes)
+			applied, diagnostics := resource.Apply(ctx, state, diff, client)
+			if diagnostics.HasError() {
+				t.Fatalf("apply failed: %v", diagnostics)
+			}
+			if len(writes) != previousWrites+1 {
+				t.Fatal("expected exactly one POST/PUT")
+			}
+			payload := stored["nameResolution"].(map[string]interface{})["awsResolvers"].([]interface{})[0].(map[string]interface{})
+			for key, want := range map[string]bool{"vpcAutoDiscovery": tc.discovery, "useIAMRole": tc.iam} {
+				if got, present := payload[key]; !present || got != want {
+					t.Errorf("request %s = %v (present=%t), want %t", key, got, present, want)
+				}
+			}
+			refreshed, diagnostics := resource.RefreshWithoutUpgrade(ctx, applied, client)
+			if diagnostics.HasError() {
+				t.Fatalf("refresh failed: %v", diagnostics)
+			}
+			diff, err = resource.Diff(ctx, refreshed, config, client)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff != nil && !diff.Empty() {
+				t.Fatalf("unexpected drift after refresh: %#v", diff.Attributes)
+			}
+			// Each next step must start from the refreshed SDK state.
+			state = refreshed
 		})
 	}
 }
