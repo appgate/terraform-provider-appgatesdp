@@ -1349,7 +1349,7 @@ func readAWSResolversFromConfig(currentVersion *version.Version, awsConfigs []in
 			}
 			row.SetVpcs(vpcs)
 		}
-		if v, ok := raw["vpc_auto_discovery"]; ok && v.(bool) {
+		if v, ok := raw["vpc_auto_discovery"]; ok && v != nil {
 			row.SetVpcAutoDiscovery(v.(bool))
 		}
 		if v := raw["regions"]; len(v.([]interface{})) > 0 && v.([]interface{}) != nil {
@@ -1359,7 +1359,7 @@ func readAWSResolversFromConfig(currentVersion *version.Version, awsConfigs []in
 			}
 			row.SetRegions(regions)
 		}
-		if v, ok := raw["use_iam_role"]; ok && v.(bool) {
+		if v, ok := raw["use_iam_role"]; ok && v != nil {
 			row.SetUseIAMRole(v.(bool))
 		}
 		if v, ok := raw["access_key_id"].(string); ok && len(v) > 0 {
