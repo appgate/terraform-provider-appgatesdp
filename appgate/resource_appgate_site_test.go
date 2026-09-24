@@ -1,12 +1,53 @@
 package appgate
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+func TestReadSiteVPNFromConfigQUIC(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		present bool
+		enabled bool
+		want    string
+	}{
+		{name: "omitted"},
+		{name: "enabled", present: true, enabled: true, want: `{"enabled":true}`},
+		{name: "disabled", present: true, enabled: false, want: `{"enabled":false}`},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			vpnConfig := map[string]interface{}{"snat": false}
+			if tt.present {
+				vpnConfig["quic"] = []interface{}{map[string]interface{}{"enabled": tt.enabled}}
+			}
+			d := schema.TestResourceDataRaw(t, resourceAppgateSite().Schema, map[string]interface{}{
+				"name": "test-site",
+				"vpn":  []interface{}{vpnConfig},
+			})
+			vpn, err := readSiteVPNFromConfig(d.Get("vpn").([]interface{}))
+			if err != nil {
+				t.Fatal(err)
+			}
+			payload, err := json.Marshal(vpn)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var fields map[string]json.RawMessage
+			if err := json.Unmarshal(payload, &fields); err != nil {
+				t.Fatal(err)
+			}
+			if got := string(fields["quic"]); got != tt.want {
+				t.Fatalf("serialized quic = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
 
 func getTtl(shouldSet bool) string {
 	if shouldSet {

@@ -1163,7 +1163,7 @@ func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 			result.SetTls(tls)
 		}
 
-		if v, ok := raw["quic"]; ok {
+		if v, ok := raw["quic"]; ok && v.(*schema.Set).Len() > 0 {
 			quic := openapi.SiteAllOfVpnQuic{}
 			rawQuic := v.(*schema.Set).List()
 			for _, d := range rawQuic {
