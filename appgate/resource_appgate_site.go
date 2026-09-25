@@ -281,6 +281,7 @@ func resourceAppgateSite() *schema.Resource {
 									"vpc_auto_discovery": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"regions": {
 										Type:     schema.TypeList,
@@ -290,6 +291,7 @@ func resourceAppgateSite() *schema.Resource {
 									"use_iam_role": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Default:  false,
 									},
 									"access_key_id": {
 										Type:     schema.TypeString,
@@ -1349,7 +1351,7 @@ func readAWSResolversFromConfig(currentVersion *version.Version, awsConfigs []in
 			}
 			row.SetVpcs(vpcs)
 		}
-		if v, ok := raw["vpc_auto_discovery"]; ok && v.(bool) {
+		if v, ok := raw["vpc_auto_discovery"]; ok && v != nil {
 			row.SetVpcAutoDiscovery(v.(bool))
 		}
 		if v := raw["regions"]; len(v.([]interface{})) > 0 && v.([]interface{}) != nil {
@@ -1359,7 +1361,7 @@ func readAWSResolversFromConfig(currentVersion *version.Version, awsConfigs []in
 			}
 			row.SetRegions(regions)
 		}
-		if v, ok := raw["use_iam_role"]; ok && v.(bool) {
+		if v, ok := raw["use_iam_role"]; ok && v != nil {
 			row.SetUseIAMRole(v.(bool))
 		}
 		if v, ok := raw["access_key_id"].(string); ok && len(v) > 0 {
