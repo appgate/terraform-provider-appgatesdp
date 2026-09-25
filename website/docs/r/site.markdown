@@ -42,6 +42,9 @@ resource "appgatesdp_site" "gbg_site" {
         snat                           = false
         ip_access_log_interval_seconds = 120
         tls {
+            enabled = false
+        }
+        quic {
             enabled = true
         }
         dtls {
@@ -168,6 +171,7 @@ Default Gateway configuration.
 VPN configuration for this Site.
 * `snat`:  (Required)  default value `false` Source NAT.
 * `tls`:  (Optional) VPN over TLS protocol configuration.
+* `quic`:  (Optional) VPN over QUIC protocol configuration. Supports at most one block. Requires Appgate SDP 6.7 or later.
 * `dtls`:  (Optional) VPN over DTLS protocol configuration.
 * `route_via`:  (Optional) Override routing for tunnel traffic.
 * `ip_access_log_interval_seconds`:  (Optional)  default value `120` Frequency configuration for generating IP Access audit logs for a connection.
@@ -175,6 +179,10 @@ VPN configuration for this Site.
 #### tls
 VPN over TLS protocol configuration.
 * `enabled`: (Required) Whether to enable tls
+
+#### quic
+VPN over QUIC protocol configuration.
+* `enabled`: (Required) Whether to enable QUIC.
 
 #### dtls
 VPN over DTLS protocol configuration.

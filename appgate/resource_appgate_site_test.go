@@ -1,12 +1,53 @@
 package appgate
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+func TestReadSiteVPNFromConfigQUIC(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		present bool
+		enabled bool
+		want    string
+	}{
+		{name: "omitted"},
+		{name: "enabled", present: true, enabled: true, want: `{"enabled":true}`},
+		{name: "disabled", present: true, enabled: false, want: `{"enabled":false}`},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			vpnConfig := map[string]interface{}{"snat": false}
+			if tt.present {
+				vpnConfig["quic"] = []interface{}{map[string]interface{}{"enabled": tt.enabled}}
+			}
+			d := schema.TestResourceDataRaw(t, resourceAppgateSite().Schema, map[string]interface{}{
+				"name": "test-site",
+				"vpn":  []interface{}{vpnConfig},
+			})
+			vpn, err := readSiteVPNFromConfig(d.Get("vpn").([]interface{}))
+			if err != nil {
+				t.Fatal(err)
+			}
+			payload, err := json.Marshal(vpn)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var fields map[string]json.RawMessage
+			if err := json.Unmarshal(payload, &fields); err != nil {
+				t.Fatal(err)
+			}
+			if got := string(fields["quic"]); got != tt.want {
+				t.Fatalf("serialized quic = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
 
 func getTtl(shouldSet bool) string {
 	if shouldSet {
@@ -805,7 +846,7 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -870,7 +911,7 @@ func TestAccSiteBasicAwsResolverresolveWithMasterCredentials(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1054,6 +1095,57 @@ func testAccSiteBasicAwsResolverConfiWithMasterCredentialsUpdated(context map[st
     `, context)
 }
 
+func TestAccSiteVPNQUIC(t *testing.T) {
+	resourceName := "appgatesdp_site.test_site"
+	rName := RandStringFromCharSet(10, CharSetAlphaNum)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSiteDestroy,
+		Steps: []resource.TestStep{
+			{
+				PreConfig: func() { testFor67AndAbove(t) },
+				Config:    testAccCheckSiteVPNQUIC(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSiteExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.tls.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "vpn.0.tls.*", map[string]string{
+						"enabled": "false",
+					}),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.quic.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "vpn.0.quic.*", map[string]string{
+						"enabled": "true",
+					}),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCheckSiteVPNQUIC(rName string) string {
+	return fmt.Sprintf(`
+resource "appgatesdp_site" "test_site" {
+    name = "%s"
+    vpn {
+        snat = false
+        tls {
+            enabled = false
+        }
+        quic {
+            enabled = true
+        }
+    }
+}
+`, rName)
+}
+
 // Test for
 // https://github.com/appgate/terraform-provider-appgatesdp/pull/201
 // https://github.com/appgate/terraform-provider-appgatesdp/issues/203
@@ -1109,7 +1201,7 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1163,7 +1255,7 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1217,7 +1309,7 @@ func TestAccSiteVPNRouteVia(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test_site"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1394,7 +1486,7 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1442,7 +1534,7 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1490,7 +1582,7 @@ func TestAccSiteVPNRouteViaIpv4Only(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "default_test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.2", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1675,7 +1767,7 @@ func TestAccSiteNameResolver6(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.0", "api-created"),
 					resource.TestCheckResourceAttr(resourceName, "tags.1", "developer"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1916,7 +2008,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -1967,7 +2059,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -2011,7 +2103,7 @@ func TestAccSiteNameResolverIllumio61(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -2208,7 +2300,7 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "network_subnets.0", "10.0.0.0/16"),
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -2260,7 +2352,7 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
@@ -2304,7 +2396,7 @@ func TestAccSiteNameResolverIllumio(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "notes", "Managed by terraform"),
 					resource.TestCheckResourceAttr(resourceName, "tags.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "5"),
+					resource.TestCheckResourceAttr(resourceName, "vpn.0.%", "6"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "vpn.0.dtls.0.enabled", "false"),
