@@ -218,9 +218,9 @@ Resolvers to resolve Amazon machines by querying Amazon Web Services.
 * `name`: (Required) Identifier name. Has no functional effect. Example: AWS Resolver 1.
 * `update_interval`: (Optional) How often will the resolver poll the server. In seconds.
 * `vpcs`: (Optional) VPC IDs to resolve names.
-* `vpc_auto_discovery`: (Optional) Use VPC auto discovery.
+* `vpc_auto_discovery`: (Optional) Use VPC auto discovery. Defaults to `false`.
 * `regions`: (Optional) Amazon regions.
-* `use_iamrole`: (Optional) Uses the built-in IAM role in AWS instances to authenticate against the API.
+* `use_iam_role`: (Optional) Uses the built-in IAM role in AWS instances to authenticate against the API. Defaults to `false`; set to `true` to use instance-role credentials.
 * `access_key_id`: (Optional) ID of the access key.
 * `secret_access_key`: (Optional) Secret access key for accessKeyId.
 * `https_proxy`: (Optional) Proxy address to use while communicating with AWS. format: username:password@ip/hostname:port
