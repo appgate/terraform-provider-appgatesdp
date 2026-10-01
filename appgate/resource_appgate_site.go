@@ -1153,7 +1153,7 @@ func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 		if v, ok := raw["snat"]; ok {
 			result.SetSnat(v.(bool))
 		}
-		if v, ok := raw["tls"]; ok {
+		if v, ok := raw["tls"]; ok && v.(*schema.Set).Len() > 0 {
 			tls := openapi.SiteAllOfVpnTls{}
 			rawTLS := v.(*schema.Set).List()
 			for _, d := range rawTLS {
@@ -1177,7 +1177,7 @@ func readSiteVPNFromConfig(vpns []interface{}) (openapi.SiteAllOfVpn, error) {
 			result.SetQuic(quic)
 		}
 
-		if v, ok := raw["dtls"]; ok {
+		if v, ok := raw["dtls"]; ok && v.(*schema.Set).Len() > 0 {
 			dtls := openapi.NewSiteAllOfVpnDtlsWithDefaults()
 			rawDTLS := v.(*schema.Set).List()
 			for _, d := range rawDTLS {
