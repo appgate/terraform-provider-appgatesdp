@@ -191,6 +191,10 @@ func resourceAppgateEntitlement() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
+						"group_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -409,6 +413,7 @@ func flattenEntitlementAppShortcut(in []openapi.AppShortcut) []map[string]interf
 		m["description"] = v.GetDescription()
 		m["url"] = v.GetUrl()
 		m["color_code"] = v.GetColorCode()
+		m["group_name"] = v.GetGroupName()
 
 		out[i] = m
 	}
@@ -667,6 +672,9 @@ func readAppShortcutFromConfig(shortcuts []interface{}) ([]openapi.AppShortcut, 
 		}
 		if v, ok := raw["color_code"]; ok {
 			row.SetColorCode(int32(v.(int)))
+		}
+		if v, ok := raw["group_name"]; ok && v.(string) != "" {
+			row.SetGroupName(v.(string))
 		}
 		result = append(result, row)
 	}

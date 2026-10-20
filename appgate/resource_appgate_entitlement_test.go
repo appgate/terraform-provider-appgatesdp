@@ -37,6 +37,7 @@ func TestAccEntitlementBasicPing(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.color_code", "5"),
+					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.group_name", "test-group"),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.name", rName),
 					resource.TestCheckResourceAttr(resourceName, "app_shortcuts.0.url", "https://www.google.com"),
 					resource.TestCheckResourceAttr(resourceName, "condition_logic", "and"),
@@ -127,6 +128,7 @@ resource "appgatesdp_entitlement" "test_ping_item" {
     name       = "%s"
     url        = "https://www.google.com"
     color_code = 5
+    group_name = "test-group"
   }
 }
 `, rName, rName)

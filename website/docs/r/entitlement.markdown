@@ -55,6 +55,7 @@ resource "appgatesdp_entitlement" "ping_entitlement" {
     name       = "ping"
     url        = "https://www.google.com"
     color_code = 5
+    group_name = "tools"
   }
 
   app_shortcut_scripts = [
@@ -107,6 +108,7 @@ Array of App Shortcuts.
 * `name`: (Required) Name for the App Shortcut which will be visible on the Client UI.
 * `description`:  (Optional) Description for the App Shortcut which will be visible on the Client UI.
 * `url`: (Required) The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL.
+* `group_name`:  (Optional) The group name this App Shortcut is grouped by on the Client UI.
 * `color_code`:  (Optional)  default value `1` The code of the published app on the client.
 - 1: Light Green
 - 2: Green
