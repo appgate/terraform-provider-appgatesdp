@@ -15,6 +15,7 @@ package acctest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -31,8 +32,12 @@ import (
 	"github.com/appgate/terraform-provider-appgatesdp/internal/sdp"
 )
 
-// NamePrefix marks objects created by acceptance tests.
-const NamePrefix = "tf-acc-"
+// NamePrefix marks objects created by acceptance tests. IdentifierPrefix is
+// used where names must be JavaScript identifiers (e.g. criteria scripts).
+const (
+	NamePrefix       = "tf-acc-"
+	IdentifierPrefix = "tf_acc_"
+)
 
 // Env is one configured SDP environment.
 type Env struct {
@@ -101,6 +106,28 @@ func Name(kind string) string {
 	return NamePrefix + kind + "-" + uuid.NewString()[:8]
 }
 
+// Identifier returns a unique JavaScript identifier with IdentifierPrefix.
+func Identifier(kind string) string {
+	return IdentifierPrefix + strings.ReplaceAll(kind, "-", "_") + "_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
+}
+
+// isTestObject reports whether a name or identifier was created by tests.
+func isTestObject(s string) bool {
+	return strings.HasPrefix(s, NamePrefix) || strings.HasPrefix(s, IdentifierPrefix) || strings.Contains(s, NamePrefix)
+}
+
+// SkipUnlicensed is a TestCase.ErrorCheck that skips the test when the
+// collective's license does not include the feature (HTTP 402); that is a
+// property of the environment, not of the provider.
+func SkipUnlicensed(t *testing.T) func(error) error {
+	return func(err error) error {
+		if err != nil && strings.Contains(err.Error(), "HTTP 402 insufficient license") {
+			t.Skipf("feature not licensed in this environment: %v", err)
+		}
+		return err
+	}
+}
+
 // ProviderConfig renders the provider block of an environment.
 func (e Env) ProviderConfig() string {
 	pem := ""
@@ -153,8 +180,16 @@ func Sweep(ctx context.Context, c *sdp.Client, api *apimeta.API) error {
 			q = nil
 		}
 		var list map[string]any
+		if r.ReadList == "" {
+			// The search query matches names; test identifiers use a second prefix.
+			q.Set("query", "tf")
+		}
 		if err := c.Do(ctx, http.MethodGet, r.Path, q, nil, &list); err != nil {
-			errs = append(errs, err.Error())
+			// Unlicensed features (HTTP 402) cannot hold test objects.
+			var apiErr *sdp.Error
+			if !errors.As(err, &apiErr) || apiErr.Status != http.StatusPaymentRequired {
+				errs = append(errs, err.Error())
+			}
 			continue
 		}
 		items, _ := list[r.ListProperty()].([]any)
@@ -164,7 +199,7 @@ func Sweep(ctx context.Context, c *sdp.Client, api *apimeta.API) error {
 			id := fmt.Sprint(obj[r.ID()])
 			// Objects without a name (e.g. blacklist entries) carry the
 			// prefix in their identifier.
-			if !strings.HasPrefix(name, NamePrefix) && !strings.Contains(id, NamePrefix) {
+			if !isTestObject(name) && !isTestObject(id) {
 				continue
 			}
 			if err := c.Do(ctx, http.MethodDelete, r.DeleteObjectPath(url.PathEscape(id)), nil, nil, nil); err != nil && !sdp.IsNotFound(err) {

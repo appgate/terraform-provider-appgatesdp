@@ -2,10 +2,13 @@ package acctest_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -13,8 +16,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/appgate/terraform-provider-appgatesdp/internal/acctest"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/apiversion"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/apiversion/generated"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/sdp"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/sdptest"
 )
 
@@ -36,6 +41,7 @@ func TestAccSchemaConformance(t *testing.T) {
 				if r.Singleton {
 					var obj map[string]any
 					if err := c.Do(ctx, http.MethodGet, r.Path, nil, nil, &obj); err != nil {
+						skipUnlicensed(t, err)
 						t.Fatal(err)
 					}
 					objects = append(objects, obj)
@@ -44,6 +50,7 @@ func TestAccSchemaConformance(t *testing.T) {
 						Data []map[string]any `json:"data"`
 					}
 					if err := c.Do(ctx, http.MethodGet, r.Path, url.Values{"range": {"0-20"}}, nil, &list); err != nil {
+						skipUnlicensed(t, err)
 						t.Fatal(err)
 					}
 					objects = list.Data
@@ -83,6 +90,7 @@ resource "appgatesdp_condition" "test" {
 		sweepAfter(t, env)
 		resource.Test(t, resource.TestCase{
 			ProtoV6ProviderFactories: factories,
+			ErrorCheck:               acctest.SkipUnlicensed(t),
 			Steps: []resource.TestStep{
 				{Config: cfg("return true;"), Check: resource.TestCheckResourceAttr("appgatesdp_condition.test", "name", name)},
 				{Config: cfg("return false;"), Check: resource.TestCheckResourceAttr("appgatesdp_condition.test", "expression", "return false;")},
@@ -100,15 +108,22 @@ func TestAccPolicyAndEntitlement(t *testing.T) {
 		sweepAfter(t, env)
 		resource.Test(t, resource.TestCase{
 			ProtoV6ProviderFactories: factories,
+			ErrorCheck:               acctest.SkipUnlicensed(t),
 			Steps: []resource.TestStep{{
 				Config: env.ProviderConfig() + fmt.Sprintf(`
-resource "appgatesdp_site" "test" {
-  name = %q
+# Every collective has the default site; creating sites may exceed the
+# license (sites are covered by TestAccResourceMatrix).
+data "appgatesdp_site" "default" {
+  name = "Default Site"
+}
+resource "appgatesdp_condition" "test" {
+  name       = %q
+  expression = "return true;"
 }
 resource "appgatesdp_entitlement" "test" {
   name       = %q
-  site       = appgatesdp_site.test.id
-  conditions = []
+  site       = data.appgatesdp_site.default.id
+  conditions = [appgatesdp_condition.test.id]
   actions = [{
     subtype = "tcp_up"
     action  = "allow"
@@ -121,7 +136,7 @@ resource "appgatesdp_access_policy" "test" {
   expression   = "return true;"
   entitlements = [appgatesdp_entitlement.test.id]
 }
-`, acctest.Name("site"), acctest.Name("entitlement"), acctest.Name("policy")),
+`, acctest.Name("condition"), acctest.Name("entitlement"), acctest.Name("policy")),
 				Check: resource.TestCheckResourceAttrPair("appgatesdp_access_policy.test", "entitlements.0", "appgatesdp_entitlement.test", "id"),
 			}},
 		})
@@ -136,6 +151,7 @@ func TestAccBlacklistUser(t *testing.T) {
 		dn := fmt.Sprintf("CN=%s,OU=local", acctest.Name("user"))
 		resource.Test(t, resource.TestCase{
 			ProtoV6ProviderFactories: factories,
+			ErrorCheck:               acctest.SkipUnlicensed(t),
 			Steps: []resource.TestStep{
 				{
 					Config: env.ProviderConfig() + fmt.Sprintf(`
@@ -161,6 +177,16 @@ func TestAccSweep(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+}
+
+// skipUnlicensed skips when the collective's license lacks the feature
+// (HTTP 402); that is a property of the environment, not of the provider.
+func skipUnlicensed(t *testing.T, err error) {
+	t.Helper()
+	var apiErr *sdp.Error
+	if errors.As(err, &apiErr) && apiErr.Status == http.StatusPaymentRequired {
+		t.Skipf("feature not licensed in this environment: %v", err)
+	}
 }
 
 func sweepAfter(t *testing.T, env acctest.Env) {
@@ -190,6 +216,11 @@ func TestAcceptanceSuiteAgainstMock(t *testing.T) {
 	}
 	srv := sdptest.New(t, api)
 	srv.Seed("/conditions", map[string]any{"name": "existing", "expression": "return true;"})
+	srv.Seed("/sites", map[string]any{"name": "Default Site", "networkSubnets": []any{}, "entitlementBasedRouting": true})
+	// Only the mock may be targeted, whatever live environments are configured.
+	for _, v := range apiversion.Default().Versions {
+		t.Setenv("SDP_ACC_"+strings.ToUpper(v.APIVersion)+"_URL", "")
+	}
 	t.Setenv("TF_ACC", "1")
 	t.Setenv("SDP_ACC_ALLOW_DESTRUCTIVE", "1")
 	t.Setenv("SDP_ACC_V25_URL", srv.URL)
@@ -204,8 +235,60 @@ func TestAcceptanceSuiteAgainstMock(t *testing.T) {
 		t.Run(name, test)
 	}
 	for _, path := range []string{"/conditions", "/sites", "/entitlements", "/policies", "/blacklist"} {
-		if n := srv.Count(path); path != "/conditions" && n != 0 || path == "/conditions" && n != 1 {
+		want := 0
+		if path == "/conditions" || path == "/sites" {
+			want = 1 // seeded objects must survive the suite
+		}
+		if n := srv.Count(path); n != want {
 			t.Errorf("%s holds %d objects after the suite; test objects must be cleaned up", path, n)
 		}
 	}
+}
+
+// TestAccReplicationSourceStatus reads the replication source status
+// (API v24+) and compares it with the generated metadata. Read-only.
+func TestAccReplicationSourceStatus(t *testing.T) {
+	acctest.ForEachEnv(t, func(t *testing.T, env acctest.Env) {
+		c, api := env.Client(t)
+		r, ok := api.Resources["replication_source"]
+		if !ok {
+			t.Skipf("replication source is not available in %s", env.Version.APIVersion)
+		}
+		var status map[string]any
+		if err := c.Do(context.Background(), http.MethodGet, r.Path, nil, nil, &status); err != nil {
+			skipUnlicensed(t, err)
+			t.Fatal(err)
+		}
+		for _, f := range acctest.Conformance("replication_source", status, r.Fields) {
+			if f.Severity == "error" {
+				t.Error(f)
+			} else {
+				t.Log(f)
+			}
+		}
+	})
+}
+
+// TestAccReplicationSourceInvalidToken registers with a token the
+// controller rejects. It exercises the replication source request without
+// turning the collective into a replica, which a valid token would do.
+func TestAccReplicationSourceInvalidToken(t *testing.T) {
+	acctest.ForEachEnv(t, func(t *testing.T, env acctest.Env) {
+		acctest.RequireDestructive(t)
+		if _, api := env.Client(t); api.Resources["replication_source"] == nil {
+			t.Skipf("replication source is not available in %s", env.Version.APIVersion)
+		}
+		resource.Test(t, resource.TestCase{
+			ProtoV6ProviderFactories: factories,
+			ErrorCheck:               acctest.SkipUnlicensed(t),
+			Steps: []resource.TestStep{{
+				Config: env.ProviderConfig() + `
+resource "appgatesdp_replication_source" "test" {
+  token = "tf-acc-invalid-token"
+}
+`,
+				ExpectError: regexp.MustCompile(`(?s)HTTP 422.*token: Invalid replication registration\s+token`),
+			}},
+		})
+	})
 }
