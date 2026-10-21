@@ -76,7 +76,8 @@ func ConditionResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Suffix to be added to the claim. Required for OtpAuthentication, PasswordAuthentication and Reason remedy methods.",
 						},
 						"message": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "Message to be shown to the user. Required for all remedy method.",
 							MarkdownDescription: "Message to be shown to the user. Required for all remedy method.",
 						},
@@ -87,7 +88,8 @@ func ConditionResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "MFA Provider Id or Identity Provider Id. Required for some remedy method.",
 						},
 						"type": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "User Action type.",
 							MarkdownDescription: "User Action type.",
 							Validators: []validator.String{

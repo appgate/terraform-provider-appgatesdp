@@ -59,15 +59,12 @@ resource "appgatesdp_condition" "business_hours" {
 <a id="nestedatt--remedy_methods"></a>
 ### Nested Schema for `remedy_methods`
 
-Required:
-
-- `message` (String) Message to be shown to the user. Required for all remedy method.
-- `type` (String) User Action type.
-
 Optional:
 
 - `claim_suffix` (String) Suffix to be added to the claim. Required for OtpAuthentication, PasswordAuthentication and Reason remedy methods.
+- `message` (String) Message to be shown to the user. Required for all remedy method.
 - `provider_id` (String) MFA Provider Id or Identity Provider Id. Required for some remedy method.
+- `type` (String) User Action type.
 
 ## Import
 

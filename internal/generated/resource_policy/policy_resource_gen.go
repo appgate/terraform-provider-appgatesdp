@@ -50,7 +50,6 @@ func PolicyResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Makes the client skip the user prompt and apply the profiles immediately. Required to be true to apply the settings when authorization fails, such as in case of Stop Policies.",
 						MarkdownDescription: "Makes the client skip the user prompt and apply the profiles immediately. Required to be true to apply the settings when authorization fails, such as in case of Stop Policies.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"profiles": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -112,7 +111,6 @@ func PolicyResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Enable Client Settings for this Policy.",
 						MarkdownDescription: "Enable Client Settings for this Policy.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"entitlements_list": schema.StringAttribute{
 						Optional:            true,
@@ -229,7 +227,8 @@ func PolicyResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"domain": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The domain for which the DNS servers should be used by the client.",
 							MarkdownDescription: "The domain for which the DNS servers should be used by the client.",
 						},
@@ -241,7 +240,8 @@ func PolicyResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"servers": schema.ListAttribute{
 							ElementType: types.StringType,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 						},
 					},
 				},
@@ -313,7 +313,6 @@ func PolicyResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"persist": schema.BoolAttribute{
 						Optional:            true,
@@ -377,7 +376,6 @@ func PolicyResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 				},
 

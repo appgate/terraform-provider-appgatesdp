@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -53,14 +52,12 @@ func EntitlementResourceSchema(ctx context.Context) schema.Schema {
 								"enabled": schema.BoolAttribute{
 									Optional: true,
 									Computed: true,
-									Default:  booldefault.StaticBool(false),
 								},
 								"timeout": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
 									Description:         "Number of seconds the action needs to be unresponsive to mark the action unhealthy.",
 									MarkdownDescription: "Number of seconds the action needs to be unresponsive to mark the action unhealthy.",
-									Default:             int64default.StaticInt64(30),
 								},
 							},
 
@@ -157,7 +154,6 @@ func EntitlementResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "The color code of the shortcut on the client.\n- 1: Light Green\n- 2: Green\n- 3: Indigo\n- 4: Deep Purple\n- 5: Yellow\n- 6: Lime\n- 7: Light Blue\n- 8: Blue\n- 9: Amber\n- 10: Orange\n- 11: Cyan\n- 12: Teal\n- 13: Deep Orange\n- 14: Red\n- 15: Gray\n- 16: Brown\n- 17: Pink\n- 18: Purple\n- 19: Blue Gray\n- 20: Near Black\n",
 							MarkdownDescription: "The color code of the shortcut on the client.\n- 1: Light Green\n- 2: Green\n- 3: Indigo\n- 4: Deep Purple\n- 5: Yellow\n- 6: Lime\n- 7: Light Blue\n- 8: Blue\n- 9: Amber\n- 10: Orange\n- 11: Cyan\n- 12: Teal\n- 13: Deep Orange\n- 14: Red\n- 15: Gray\n- 16: Brown\n- 17: Pink\n- 18: Purple\n- 19: Blue Gray\n- 20: Near Black\n",
-							Default:             int64default.StaticInt64(1),
 						},
 						"description": schema.StringAttribute{
 							Optional:            true,
@@ -172,12 +168,14 @@ func EntitlementResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "The group name this shortcut is to be grouped by Supported in API versions: v22, v23, v24, v25.",
 						},
 						"name": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "Name for the App Shortcut which will be visible on the Client UI.",
 							MarkdownDescription: "Name for the App Shortcut which will be visible on the Client UI.",
 						},
 						"url": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL.",
 							MarkdownDescription: "The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL.",
 						},

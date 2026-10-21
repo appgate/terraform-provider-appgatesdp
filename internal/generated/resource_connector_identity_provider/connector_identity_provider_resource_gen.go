@@ -6,7 +6,6 @@ package resource_connector_identity_provider
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -19,12 +18,14 @@ func ConnectorIdentityProviderResourceSchema(ctx context.Context) schema.Schema 
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"attribute_name": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The name of the attribute coming from the Identity Provider.",
 							MarkdownDescription: "The name of the attribute coming from the Identity Provider.",
 						},
 						"claim_name": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The name of the user claim to be used in AppGate SDP.",
 							MarkdownDescription: "The name of the user claim to be used in AppGate SDP.",
 						},
@@ -33,14 +34,12 @@ func ConnectorIdentityProviderResourceSchema(ctx context.Context) schema.Schema 
 							Computed:            true,
 							Description:         "Whether the claim should be encrypted or not.",
 							MarkdownDescription: "Whether the claim should be encrypted or not.",
-							Default:             booldefault.StaticBool(false),
 						},
 						"list": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
 							Description:         "Whether the claim is expected to be a list and have multiple values or not.",
 							MarkdownDescription: "Whether the claim is expected to be a list and have multiple values or not.",
-							Default:             booldefault.StaticBool(false),
 						},
 					},
 				},

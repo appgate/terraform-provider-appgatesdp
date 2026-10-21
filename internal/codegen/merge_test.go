@@ -177,3 +177,28 @@ func (t AType) String() string { return "" }
 		t.Errorf("schema function or generated header lost:\n%s", s)
 	}
 }
+
+func TestMergeIRNestedOverlay(t *testing.T) {
+	nested := attr("vpn", "single_nested", computedOptional, map[string]any{"attributes": []any{
+		attr("snat", "bool", computedOptional, map[string]any{"default": map[string]any{"static": false}}),
+		attr("name", "string", required, nil),
+	}})
+	root := attr("mode", "string", computedOptional, map[string]any{"default": map[string]any{"static": "a"}})
+	ir := map[string]any{"resources": []any{map[string]any{"name": "site", "schema": map[string]any{"attributes": []any{nested, root}}}}}
+	merged, err := mergeIR([]versionedIR{{"v1", ir}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	attrs := listOf(merged["resources"].([]any)[0].(map[string]any)["schema"].(map[string]any)["attributes"])
+	_, vpn := attrType(findAttr(attrs, "vpn"))
+	_, snat := attrType(vpn["attributes"].([]any)[0].(map[string]any))
+	if _, ok := snat["default"]; ok {
+		t.Error("nested defaults must be removed")
+	}
+	if _, name := attrType(vpn["attributes"].([]any)[1].(map[string]any)); name["computed_optional_required"] != computedOptional {
+		t.Error("children of computed parents must be computed")
+	}
+	if _, mode := attrType(findAttr(attrs, "mode")); mode["default"] == nil {
+		t.Error("root defaults must be kept")
+	}
+}

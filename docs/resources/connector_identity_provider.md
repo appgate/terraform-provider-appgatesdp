@@ -38,12 +38,9 @@ Supported SDP Admin API versions: v21, v22, v23, v24, v25.
 <a id="nestedatt--claim_mappings"></a>
 ### Nested Schema for `claim_mappings`
 
-Required:
+Optional:
 
 - `attribute_name` (String) The name of the attribute coming from the Identity Provider.
 - `claim_name` (String) The name of the user claim to be used in AppGate SDP.
-
-Optional:
-
 - `encrypt` (Boolean) Whether the claim should be encrypted or not.
 - `list` (Boolean) Whether the claim is expected to be a list and have multiple values or not.

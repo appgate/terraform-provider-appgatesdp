@@ -82,14 +82,11 @@ Optional:
 <a id="nestedatt--dns_settings"></a>
 ### Nested Schema for `dns_settings`
 
-Required:
-
-- `domain` (String) The domain for which the DNS servers should be used by the client.
-- `servers` (List of String)
-
 Optional:
 
+- `domain` (String) The domain for which the DNS servers should be used by the client.
 - `register_tun_ips_to_active_directory` (Boolean) Enables a Windows feature to register Appgate TUN IPs to the Active Directory for this domain.
+- `servers` (List of String)
 
 
 <a id="nestedatt--proxy_auto_config"></a>

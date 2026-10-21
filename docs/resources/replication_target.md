@@ -66,7 +66,7 @@ Optional:
 <a id="nestedatt--last_replication_details--items--administrative_roles"></a>
 ### Nested Schema for `last_replication_details.items.administrative_roles`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--administrative_roles--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -75,22 +75,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--administrative_roles--errors"></a>
 ### Nested Schema for `last_replication_details.items.administrative_roles.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--client_profiles"></a>
 ### Nested Schema for `last_replication_details.items.client_profiles`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--client_profiles--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -99,22 +96,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--client_profiles--errors"></a>
 ### Nested Schema for `last_replication_details.items.client_profiles.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--conditions"></a>
 ### Nested Schema for `last_replication_details.items.conditions`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--conditions--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -123,22 +117,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--conditions--errors"></a>
 ### Nested Schema for `last_replication_details.items.conditions.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--criteria_scripts"></a>
 ### Nested Schema for `last_replication_details.items.criteria_scripts`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--criteria_scripts--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -147,22 +138,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--criteria_scripts--errors"></a>
 ### Nested Schema for `last_replication_details.items.criteria_scripts.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--device_claim_scripts"></a>
 ### Nested Schema for `last_replication_details.items.device_claim_scripts`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--device_claim_scripts--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -171,22 +159,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--device_claim_scripts--errors"></a>
 ### Nested Schema for `last_replication_details.items.device_claim_scripts.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--entitlement_scripts"></a>
 ### Nested Schema for `last_replication_details.items.entitlement_scripts`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--entitlement_scripts--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -195,22 +180,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--entitlement_scripts--errors"></a>
 ### Nested Schema for `last_replication_details.items.entitlement_scripts.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--entitlements"></a>
 ### Nested Schema for `last_replication_details.items.entitlements`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--entitlements--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -219,22 +201,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--entitlements--errors"></a>
 ### Nested Schema for `last_replication_details.items.entitlements.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--identity_providers"></a>
 ### Nested Schema for `last_replication_details.items.identity_providers`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--identity_providers--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -243,22 +222,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--identity_providers--errors"></a>
 ### Nested Schema for `last_replication_details.items.identity_providers.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--ip_pools"></a>
 ### Nested Schema for `last_replication_details.items.ip_pools`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--ip_pools--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -267,22 +243,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--ip_pools--errors"></a>
 ### Nested Schema for `last_replication_details.items.ip_pools.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--mfa_providers"></a>
 ### Nested Schema for `last_replication_details.items.mfa_providers`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--mfa_providers--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -291,22 +264,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--mfa_providers--errors"></a>
 ### Nested Schema for `last_replication_details.items.mfa_providers.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--policies"></a>
 ### Nested Schema for `last_replication_details.items.policies`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--policies--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -315,22 +285,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--policies--errors"></a>
 ### Nested Schema for `last_replication_details.items.policies.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--ringfence_rules"></a>
 ### Nested Schema for `last_replication_details.items.ringfence_rules`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--ringfence_rules--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -339,22 +306,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--ringfence_rules--errors"></a>
 ### Nested Schema for `last_replication_details.items.ringfence_rules.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--sites"></a>
 ### Nested Schema for `last_replication_details.items.sites`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--sites--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -363,22 +327,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--sites--errors"></a>
 ### Nested Schema for `last_replication_details.items.sites.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--tags"></a>
 ### Nested Schema for `last_replication_details.items.tags`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--tags--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -387,22 +348,19 @@ Required:
 <a id="nestedatt--last_replication_details--items--tags--errors"></a>
 ### Nested Schema for `last_replication_details.items.tags.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.
 
 
 
 <a id="nestedatt--last_replication_details--items--user_claim_scripts"></a>
 ### Nested Schema for `last_replication_details.items.user_claim_scripts`
 
-Required:
+Optional:
 
 - `errors` (Attributes List) Errors for individual objects that failed to replicate. (see [below for nested schema](#nestedatt--last_replication_details--items--user_claim_scripts--errors))
 - `failure_count` (Number) Number of failed replications for this object type.
@@ -411,12 +369,9 @@ Required:
 <a id="nestedatt--last_replication_details--items--user_claim_scripts--errors"></a>
 ### Nested Schema for `last_replication_details.items.user_claim_scripts.errors`
 
-Required:
-
-- `message` (String) Failure reason.
-- `name` (String) Name of the object that failed to replicate.
-
 Optional:
 
 - `field` (String) Optional field name that caused the failure, if applicable.
 - `id` (String) ID of the object that failed, if available.
+- `message` (String) Failure reason.
+- `name` (String) Name of the object that failed to replicate.

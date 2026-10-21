@@ -52,13 +52,10 @@ Supported SDP Admin API versions: v21, v22, v23, v24, v25.
 <a id="nestedatt--claim_mappings"></a>
 ### Nested Schema for `claim_mappings`
 
-Required:
+Optional:
 
 - `attribute_name` (String) The name of the attribute coming from the Identity Provider.
 - `claim_name` (String) The name of the user claim to be used in AppGate SDP.
-
-Optional:
-
 - `encrypt` (Boolean) Whether the claim should be encrypted or not.
 - `list` (Boolean) Whether the claim is expected to be a list and have multiple values or not.
 
@@ -76,29 +73,23 @@ Optional:
 <a id="nestedatt--on_boarding2fa"></a>
 ### Nested Schema for `on_boarding2fa`
 
-Required:
-
-- `mfa_provider_id` (String) MFA provider ID to use for the authentication.
-
 Optional:
 
 - `always_required` (Boolean) If enabled, MFA will be required on every authentication.
 - `claim_suffix` (String) Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled.
 - `message` (String) On-boarding MFA message to be displayed on the Client UI during the second-factor authentication.
+- `mfa_provider_id` (String) MFA provider ID to use for the authentication.
 
 
 <a id="nestedatt--on_demand_claim_mappings"></a>
 ### Nested Schema for `on_demand_claim_mappings`
 
-Required:
+Optional:
 
 - `claim_name` (String) The name of the device claim to be used in Appgate SDP.
 - `command` (String) The name of the command.
-- `platform` (String) The platform(s) to run the on-demand claim.
-
-Optional:
-
 - `parameters` (Attributes) Depending on the command type, extra parameters to pass to the on-demand claim. (see [below for nested schema](#nestedatt--on_demand_claim_mappings--parameters))
+- `platform` (String) The platform(s) to run the on-demand claim.
 
 <a id="nestedatt--on_demand_claim_mappings--parameters"></a>
 ### Nested Schema for `on_demand_claim_mappings.parameters`

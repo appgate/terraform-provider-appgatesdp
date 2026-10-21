@@ -7369,9 +7369,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Makes the client skip the user prompt and apply the profiles immediately. Required to be true to apply the settings when authorization fails, such as in case of Stop Policies."
                   },
                   "name": "force"
@@ -7455,9 +7452,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Enable Client Settings for this Policy."
                   },
                   "name": "enabled"
@@ -7633,7 +7627,7 @@
                   {
                     "name": "domain",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The domain for which the DNS servers should be used by the client."
                     }
                   },
@@ -7646,7 +7640,7 @@
                   },
                   {
                     "list": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "element_type": {
                         "string": {}
                       }
@@ -7755,10 +7749,7 @@
               "attributes": [
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 },
@@ -7838,10 +7829,7 @@
                 },
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 }
@@ -7947,9 +7935,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Makes the client skip the user prompt and apply the profiles immediately. Required to be true to apply the settings when authorization fails, such as in case of Stop Policies."
                   },
                   "name": "force"
@@ -8033,9 +8018,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Enable Client Settings for this Policy."
                   },
                   "name": "enabled"
@@ -8211,7 +8193,7 @@
                   {
                     "name": "domain",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The domain for which the DNS servers should be used by the client."
                     }
                   },
@@ -8224,7 +8206,7 @@
                   },
                   {
                     "list": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "element_type": {
                         "string": {}
                       }
@@ -8333,10 +8315,7 @@
               "attributes": [
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 },
@@ -8416,10 +8395,7 @@
                 },
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 }
@@ -8664,7 +8640,7 @@
                 {
                   "name": "hostname",
                   "string": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "computed_optional",
                     "description": "Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Set it to \"automatic.hostname.assignment\" for cloud appliances in order for it to automatically configure the hostname on activation."
                   }
                 },
@@ -8677,7 +8653,7 @@
                 },
                 {
                   "list": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "computed_optional",
                     "description": "The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.",
                     "element_type": {
                       "string": {}
@@ -8726,9 +8702,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 8443
-                    },
                     "description": "Port to connect for admin services."
                   },
                   "name": "https_port"
@@ -8785,9 +8758,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 443
-                    },
                     "description": "Port to connect for the Clients that connect to Gateways on QUIC if enabled."
                   },
                   "name": "dtls_port"
@@ -8802,9 +8772,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 443
-                    },
                     "description": "Port to connect for the Client specific services."
                   },
                   "name": "https_port"
@@ -8838,9 +8805,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "To enable/disable Proxy protocol on this Appliance."
                   },
                   "name": "proxy_protocol"
@@ -8887,9 +8851,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Connection Broker is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -8954,9 +8915,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": false
-                            },
                             "description": "Use this connector client as a default gw for local resources"
                           },
                           "name": "default_gateway"
@@ -8990,9 +8948,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": false
-                            },
                             "description": "Apply destination NAT to traffic from tunnel into a resource"
                           },
                           "name": "dnat_to_resource"
@@ -9000,16 +8955,13 @@
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Name for the Client. It will be mapped to the user claim 'clientName'."
                           }
                         },
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": true
-                            },
                             "description": "Use Source NAT for the resources."
                           },
                           "name": "snat_to_resources"
@@ -9017,9 +8969,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": true
-                            },
                             "description": "Use Source NAT for the Client tunnel."
                           },
                           "name": "snat_to_tunnel"
@@ -9032,9 +8981,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Connector is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -9054,13 +9000,13 @@
                                 {
                                   "name": "address",
                                   "string": {
-                                    "computed_optional_required": "required",
+                                    "computed_optional_required": "computed_optional",
                                     "description": "IP address"
                                   }
                                 },
                                 {
                                   "int64": {
-                                    "computed_optional_required": "required",
+                                    "computed_optional_required": "computed_optional",
                                     "description": "netmask"
                                   },
                                   "name": "netmask"
@@ -9080,9 +9026,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": false
-                            },
                             "description": "Apply destination NAT to traffic from tunnel into a resource"
                           },
                           "name": "dnat_to_resource"
@@ -9090,16 +9033,13 @@
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Name for the Client. It will be mapped to the user claim 'clientName'."
                           }
                         },
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": true
-                            },
                             "description": "Use SNAT for outgoing traffic from the Express Connector, endpoints will see traffic as coming from the Connector itself"
                           },
                           "name": "snat_to_resources"
@@ -9121,9 +9061,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Controller is enabled on this appliance or not. Cannot be enabled on an inactive Appliance since some checks need to be done first."
                   },
                   "name": "enabled"
@@ -9154,9 +9091,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Gateway is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -9164,9 +9098,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Gateway is in suspended mode or not. Suspended state will keep the existing Client connections but will reject new ones."
                   },
                   "name": "suspended"
@@ -9198,7 +9129,7 @@
                               {
                                 "name": "nic",
                                 "string": {
-                                  "computed_optional_required": "required",
+                                  "computed_optional_required": "computed_optional",
                                   "description": "NIC name to accept connections on."
                                 }
                               }
@@ -9217,9 +9148,6 @@
                       {
                         "int64": {
                           "computed_optional_required": "computed_optional",
-                          "default": {
-                            "static": 100
-                          },
                           "description": "Load balancing weight."
                         },
                         "name": "weight"
@@ -9273,9 +9201,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Healthcheck Server is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -9283,9 +9208,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 5555
-                    },
                     "description": "Port to connect for Healthcheck Server."
                   },
                   "name": "port"
@@ -9376,9 +9298,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 400
-                            },
                             "description": "Batch size for the stream. Used only for \"Stream\" type."
                           },
                           "name": "batch_size"
@@ -9393,9 +9312,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 10
-                            },
                             "description": "Number of partition keys to use for the stream. Used only for \"Stream\" type."
                           },
                           "name": "number_of_partition_keys"
@@ -9403,14 +9319,14 @@
                         {
                           "name": "stream_name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Name of the stream."
                           }
                         },
                         {
                           "name": "type",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "AWS Kinesis type",
                             "validators": [
                               {
@@ -9447,7 +9363,7 @@
                         {
                           "name": "app_id",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "App ID to use for authentication."
                           }
                         },
@@ -9462,7 +9378,7 @@
                         {
                           "name": "log_destination_url",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "URL of Azure Monitor to forward logs to."
                           }
                         },
@@ -9470,16 +9386,13 @@
                           "name": "scope",
                           "string": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": "https://monitor.azure.com/.default"
-                            },
                             "description": "Scope that the log forwarder will use in its tokens requests."
                           }
                         },
                         {
                           "name": "token_request_url",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "URL for Azure Monitor to request token from."
                           }
                         }
@@ -9497,14 +9410,14 @@
                         {
                           "name": "application_name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Application name to use for the logs."
                           }
                         },
                         {
                           "name": "private_key",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Private key to use for authentication.",
                             "sensitive": true
                           }
@@ -9512,21 +9425,21 @@
                         {
                           "name": "subsystem_name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Subsystem name to use for the logs."
                           }
                         },
                         {
                           "name": "url",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "URL of the Coralogix collector to connect to."
                           }
                         },
                         {
                           "name": "uuid",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "UUID of the Coralogix collector to connect to."
                           }
                         }
@@ -9544,7 +9457,7 @@
                         {
                           "name": "api_key",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "API key to use for authentication.",
                             "sensitive": true
                           }
@@ -9552,14 +9465,14 @@
                         {
                           "name": "site",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Datadog site to send logs to."
                           }
                         },
                         {
                           "name": "source",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Source to use for the logs."
                           }
                         },
@@ -9589,7 +9502,7 @@
                             {
                               "name": "token",
                               "string": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "The token to be used for authentication.",
                                 "sensitive": true
                               }
@@ -9597,7 +9510,7 @@
                             {
                               "name": "type",
                               "string": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "The type of authentication to use.",
                                 "validators": [
                                   {
@@ -9643,9 +9556,6 @@
                       {
                         "int64": {
                           "computed_optional_required": "computed_optional",
-                          "default": {
-                            "static": 6
-                          },
                           "description": "Which version of Elasticsearch that logs are forwarded to."
                         },
                         "name": "compatibility_mode"
@@ -9660,7 +9570,7 @@
                       {
                         "name": "url",
                         "string": {
-                          "computed_optional_required": "required",
+                          "computed_optional_required": "computed_optional",
                           "description": "The URL of the elasticsearch server."
                         }
                       },
@@ -9679,9 +9589,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the LogForwarder is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -9695,7 +9602,7 @@
                         {
                           "name": "collector_url",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "URL of the Falcon LogScale collector."
                           }
                         },
@@ -9743,9 +9650,6 @@
                           "name": "authentication_type",
                           "string": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": "none"
-                            },
                             "description": "Authentication mode used for Kafka.",
                             "validators": [
                               {
@@ -9772,7 +9676,7 @@
                         {
                           "name": "bootstrap_servers",
                           "set": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "List of Kafka bootstrap servers (hostname or IP).",
                             "element_type": {
                               "string": {}
@@ -9828,9 +9732,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": true
-                            },
                             "description": "Whether to use TLS for Kafka connections."
                           },
                           "name": "use_tls"
@@ -9873,7 +9774,7 @@
                         {
                           "name": "url",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "URL of the Splunk collector to connect to."
                           }
                         }
@@ -9891,7 +9792,7 @@
                         {
                           "name": "url",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "URL of the Sumo Logic collector to connect to."
                           }
                         }
@@ -9916,7 +9817,7 @@
                         {
                           "name": "format",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "The format to send the audit logs.",
                             "validators": [
                               {
@@ -9935,20 +9836,20 @@
                         {
                           "name": "host",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Hostname or the IP address of the endpoint."
                           }
                         },
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Name of the endpoint."
                           }
                         },
                         {
                           "int64": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Port of the endpoint."
                           },
                           "name": "port"
@@ -9977,9 +9878,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Log Server is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -9987,9 +9885,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 30
-                    },
                     "description": "How many days of audit logs will be kept."
                   },
                   "name": "retention_days"
@@ -10006,9 +9901,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Metrics Aggregator is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -10076,9 +9968,6 @@
                       {
                         "bool": {
                           "computed_optional_required": "computed_optional",
-                          "default": {
-                            "static": false
-                          },
                           "description": "Enable basic auth for Prometheus Exporter."
                         },
                         "name": "basic_auth"
@@ -10086,9 +9975,6 @@
                       {
                         "bool": {
                           "computed_optional_required": "computed_optional",
-                          "default": {
-                            "static": false
-                          },
                           "description": "Whether the Prometheus Exporter is enabled on this appliance or not."
                         },
                         "name": "enabled"
@@ -10144,9 +10030,6 @@
                       {
                         "int64": {
                           "computed_optional_required": "computed_optional",
-                          "default": {
-                            "static": 5556
-                          },
                           "description": "Port to connect for Prometheus Exporter."
                         },
                         "name": "port"
@@ -10513,7 +10396,7 @@
                         {
                           "name": "hostname",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Hostname or IP of the NTP server."
                           }
                         },
@@ -10623,9 +10506,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Portal is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -10673,9 +10553,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": true
-                    },
                     "description": "Automatic 80-\u003e443 redirection for Portal."
                   },
                   "name": "http_redirect"
@@ -10776,9 +10653,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": true
-                            },
                             "description": "Portal will verify upstream certificate of the endpoints."
                           },
                           "name": "verify_upstream"
@@ -10858,23 +10732,20 @@
                         {
                           "name": "app_domain",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "The fully-qualified internal app domain that traffic is proxied to. Does not need to be publicly resolvable. It is resolved through the client's VPN tunnel."
                           }
                         },
                         {
                           "name": "subdomain",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "The leftmost DNS label of the public alias (e.g. 'crm'). Must be a valid DNS label: letters, digits, and hyphens only, no leading or trailing hyphen, maximum 63 characters."
                           }
                         },
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": true
-                            },
                             "description": "Whether to verify the app domain's TLS certificate when proxying. Set to false if the app server uses a self-signed or internally-signed certificate. Defaults to true."
                           },
                           "name": "verify_upstream_certificate"
@@ -10952,9 +10823,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Enable basic auth for Prometheus Exporter."
                   },
                   "name": "basic_auth"
@@ -10962,9 +10830,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the Prometheus Exporter is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -11020,9 +10885,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 5556
-                    },
                     "description": "Port to connect for Prometheus Exporter."
                   },
                   "name": "port"
@@ -11055,7 +10917,7 @@
                   {
                     "name": "destination",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "Rsyslog server destination."
                     }
                   },
@@ -11063,9 +10925,6 @@
                     "name": "selector",
                     "string": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": "*.*"
-                      },
                       "description": "Rsyslog selector."
                     }
                   },
@@ -11073,9 +10932,6 @@
                     "name": "template",
                     "string": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": "%HOSTNAME% %msg%"
-                      },
                       "description": "Rsyslog template to forward logs with."
                     }
                   }
@@ -11137,9 +10993,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the SNMP Server os enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -11209,9 +11062,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether the SSH Server is enabled on this appliance or not."
                   },
                   "name": "enabled"
@@ -11219,9 +11069,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": true
-                    },
                     "description": "Whether SSH allows password authentication or not."
                   },
                   "name": "password_authentication"
@@ -11229,9 +11076,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 22
-                    },
                     "description": "SSH port."
                   },
                   "name": "port"
@@ -11272,14 +11116,14 @@
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Name used to identify the exporter, must be unique."
                           }
                         },
                         {
                           "name": "site",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "The Datadog site to export telemetry to."
                           }
                         }
@@ -11291,9 +11135,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether TelemetryAggregator is enabled on this appliance or not. Enabling it requires the Observability license."
                   },
                   "name": "enabled"
@@ -11307,9 +11148,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": true
-                            },
                             "description": "Whether to enable compression on the OTLP transport."
                           },
                           "name": "compression"
@@ -11318,9 +11156,6 @@
                           "name": "encoding",
                           "string": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": "proto"
-                            },
                             "description": "The OTLP payload encoding.",
                             "validators": [
                               {
@@ -11339,7 +11174,7 @@
                         {
                           "name": "endpoint",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "The OTLP endpoint to export telemetry to."
                           }
                         },
@@ -11352,7 +11187,7 @@
                                 {
                                   "name": "name",
                                   "string": {
-                                    "computed_optional_required": "required",
+                                    "computed_optional_required": "computed_optional",
                                     "description": "The header name."
                                   }
                                 },
@@ -11372,7 +11207,7 @@
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Name used to identify the exporter, must be unique."
                           }
                         },
@@ -11380,9 +11215,6 @@
                           "name": "protocol",
                           "string": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": "http"
-                            },
                             "description": "The OTLP transport protocol.",
                             "validators": [
                               {
@@ -11814,7 +11646,7 @@
                   {
                     "name": "message",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "Message to be shown to the user. Required for all remedy method."
                     }
                   },
@@ -11828,7 +11660,7 @@
                   {
                     "name": "type",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "User Action type.",
                       "validators": [
                         {
@@ -11893,23 +11725,20 @@
                   {
                     "name": "attribute_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the attribute coming from the Identity Provider."
                     }
                   },
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the user claim to be used in AppGate SDP."
                     }
                   },
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim should be encrypted or not."
                     },
                     "name": "encrypt"
@@ -11917,9 +11746,6 @@
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim is expected to be a list and have multiple values or not."
                     },
                     "name": "list"
@@ -12162,9 +11988,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Makes the client skip the user prompt and apply the profiles immediately. Required to be true to apply the settings when authorization fails, such as in case of Stop Policies."
                   },
                   "name": "force"
@@ -12248,9 +12071,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Enable Client Settings for this Policy."
                   },
                   "name": "enabled"
@@ -12426,7 +12246,7 @@
                   {
                     "name": "domain",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The domain for which the DNS servers should be used by the client."
                     }
                   },
@@ -12439,7 +12259,7 @@
                   },
                   {
                     "list": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "element_type": {
                         "string": {}
                       }
@@ -12548,10 +12368,7 @@
               "attributes": [
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 },
@@ -12631,10 +12448,7 @@
                 },
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 }
@@ -12799,9 +12613,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Makes the client skip the user prompt and apply the profiles immediately. Required to be true to apply the settings when authorization fails, such as in case of Stop Policies."
                   },
                   "name": "force"
@@ -12885,9 +12696,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Enable Client Settings for this Policy."
                   },
                   "name": "enabled"
@@ -13063,7 +12871,7 @@
                   {
                     "name": "domain",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The domain for which the DNS servers should be used by the client."
                     }
                   },
@@ -13076,7 +12884,7 @@
                   },
                   {
                     "list": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "element_type": {
                         "string": {}
                       }
@@ -13185,10 +12993,7 @@
               "attributes": [
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 },
@@ -13268,10 +13073,7 @@
                 },
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 }
@@ -13346,19 +13148,13 @@
                       "attributes": [
                         {
                           "bool": {
-                            "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": false
-                            }
+                            "computed_optional_required": "computed_optional"
                           },
                           "name": "enabled"
                         },
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 30
-                            },
                             "description": "Number of seconds the action needs to be unresponsive to mark the action unhealthy."
                           },
                           "name": "timeout"
@@ -13471,9 +13267,6 @@
                   {
                     "int64": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": 1
-                      },
                       "description": "The color code of the shortcut on the client.\n- 1: Light Green\n- 2: Green\n- 3: Indigo\n- 4: Deep Purple\n- 5: Yellow\n- 6: Lime\n- 7: Light Blue\n- 8: Blue\n- 9: Amber\n- 10: Orange\n- 11: Cyan\n- 12: Teal\n- 13: Deep Orange\n- 14: Red\n- 15: Gray\n- 16: Brown\n- 17: Pink\n- 18: Purple\n- 19: Blue Gray\n- 20: Near Black\n"
                     },
                     "name": "color_code"
@@ -13495,14 +13288,14 @@
                   {
                     "name": "name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "Name for the App Shortcut which will be visible on the Client UI."
                     }
                   },
                   {
                     "name": "url",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL."
                     }
                   }
@@ -13963,9 +13756,6 @@
                   "name": "updates",
                   "string": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": "Disabled"
-                    },
                     "description": "Selected GeoIP provider when enabled.",
                     "validators": [
                       {
@@ -14431,9 +14221,6 @@
                     "name": "type",
                     "string": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": "Template"
-                      },
                       "description": "Which attribute to compare.",
                       "validators": [
                         {
@@ -14452,7 +14239,7 @@
                   {
                     "name": "value",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The value to compare to the certificate attribute."
                     }
                   }
@@ -14499,23 +14286,20 @@
                   {
                     "name": "attribute_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the attribute coming from the Identity Provider."
                     }
                   },
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the user claim to be used in AppGate SDP."
                     }
                   },
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim should be encrypted or not."
                     },
                     "name": "encrypt"
@@ -14523,9 +14307,6 @@
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim is expected to be a list and have multiple values or not."
                     },
                     "name": "list"
@@ -14705,9 +14486,6 @@
                   "name": "claim_suffix",
                   "string": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": "onBoarding"
-                    },
                     "description": "Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled."
                   }
                 },
@@ -14721,7 +14499,7 @@
                 {
                   "name": "mfa_provider_id",
                   "string": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "computed_optional",
                     "description": "MFA provider ID to use for the authentication."
                   }
                 }
@@ -14739,14 +14517,14 @@
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the device claim to be used in Appgate SDP."
                     }
                   },
                   {
                     "name": "command",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the command.",
                       "validators": [
                         {
@@ -14795,7 +14573,7 @@
                   {
                     "name": "platform",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The platform(s) to run the on-demand claim.",
                       "validators": [
                         {
@@ -14837,9 +14615,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 5
-                    },
                     "description": "How many days before the password warning to be displayed to the user."
                   },
                   "name": "threshold_days"
@@ -14980,23 +14755,20 @@
                   {
                     "name": "attribute_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the attribute coming from the Identity Provider."
                     }
                   },
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the user claim to be used in AppGate SDP."
                     }
                   },
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim should be encrypted or not."
                     },
                     "name": "encrypt"
@@ -15004,9 +14776,6 @@
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim is expected to be a list and have multiple values or not."
                     },
                     "name": "list"
@@ -15186,9 +14955,6 @@
                   "name": "claim_suffix",
                   "string": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": "onBoarding"
-                    },
                     "description": "Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled."
                   }
                 },
@@ -15202,7 +14968,7 @@
                 {
                   "name": "mfa_provider_id",
                   "string": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "computed_optional",
                     "description": "MFA provider ID to use for the authentication."
                   }
                 }
@@ -15220,14 +14986,14 @@
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the device claim to be used in Appgate SDP."
                     }
                   },
                   {
                     "name": "command",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the command.",
                       "validators": [
                         {
@@ -15276,7 +15042,7 @@
                   {
                     "name": "platform",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The platform(s) to run the on-demand claim.",
                       "validators": [
                         {
@@ -15318,9 +15084,6 @@
                 {
                   "int64": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": 5
-                    },
                     "description": "How many days before the password warning to be displayed to the user."
                   },
                   "name": "threshold_days"
@@ -15685,23 +15448,20 @@
                   {
                     "name": "attribute_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the attribute coming from the Identity Provider."
                     }
                   },
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the user claim to be used in AppGate SDP."
                     }
                   },
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim should be encrypted or not."
                     },
                     "name": "encrypt"
@@ -15709,9 +15469,6 @@
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim is expected to be a list and have multiple values or not."
                     },
                     "name": "list"
@@ -15867,9 +15624,6 @@
                   "name": "claim_suffix",
                   "string": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": "onBoarding"
-                    },
                     "description": "Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled."
                   }
                 },
@@ -15883,7 +15637,7 @@
                 {
                   "name": "mfa_provider_id",
                   "string": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "computed_optional",
                     "description": "MFA provider ID to use for the authentication."
                   }
                 }
@@ -15901,14 +15655,14 @@
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the device claim to be used in Appgate SDP."
                     }
                   },
                   {
                     "name": "command",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the command.",
                       "validators": [
                         {
@@ -15957,7 +15711,7 @@
                   {
                     "name": "platform",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The platform(s) to run the on-demand claim.",
                       "validators": [
                         {
@@ -16436,23 +16190,20 @@
                   {
                     "name": "attribute_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the attribute coming from the Identity Provider."
                     }
                   },
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the user claim to be used in AppGate SDP."
                     }
                   },
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim should be encrypted or not."
                     },
                     "name": "encrypt"
@@ -16460,9 +16211,6 @@
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim is expected to be a list and have multiple values or not."
                     },
                     "name": "list"
@@ -16531,9 +16279,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether to enable Google OIDC settings or not."
                   },
                   "name": "enabled"
@@ -16649,9 +16394,6 @@
                   "name": "claim_suffix",
                   "string": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": "onBoarding"
-                    },
                     "description": "Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled."
                   }
                 },
@@ -16665,7 +16407,7 @@
                 {
                   "name": "mfa_provider_id",
                   "string": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "computed_optional",
                     "description": "MFA provider ID to use for the authentication."
                   }
                 }
@@ -16683,14 +16425,14 @@
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the device claim to be used in Appgate SDP."
                     }
                   },
                   {
                     "name": "command",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the command.",
                       "validators": [
                         {
@@ -16739,7 +16481,7 @@
                   {
                     "name": "platform",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The platform(s) to run the on-demand claim.",
                       "validators": [
                         {
@@ -16850,9 +16592,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Makes the client skip the user prompt and apply the profiles immediately. Required to be true to apply the settings when authorization fails, such as in case of Stop Policies."
                   },
                   "name": "force"
@@ -16936,9 +16675,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Enable Client Settings for this Policy."
                   },
                   "name": "enabled"
@@ -17114,7 +16850,7 @@
                   {
                     "name": "domain",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The domain for which the DNS servers should be used by the client."
                     }
                   },
@@ -17127,7 +16863,7 @@
                   },
                   {
                     "list": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "element_type": {
                         "string": {}
                       }
@@ -17236,10 +16972,7 @@
               "attributes": [
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 },
@@ -17319,10 +17052,7 @@
                 },
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 }
@@ -17416,23 +17146,20 @@
                   {
                     "name": "attribute_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the attribute coming from the Identity Provider."
                     }
                   },
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the user claim to be used in AppGate SDP."
                     }
                   },
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim should be encrypted or not."
                     },
                     "name": "encrypt"
@@ -17440,9 +17167,6 @@
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim is expected to be a list and have multiple values or not."
                     },
                     "name": "list"
@@ -17598,9 +17322,6 @@
                   "name": "claim_suffix",
                   "string": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": "onBoarding"
-                    },
                     "description": "Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled."
                   }
                 },
@@ -17614,7 +17335,7 @@
                 {
                   "name": "mfa_provider_id",
                   "string": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "computed_optional",
                     "description": "MFA provider ID to use for the authentication."
                   }
                 }
@@ -17632,14 +17353,14 @@
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the device claim to be used in Appgate SDP."
                     }
                   },
                   {
                     "name": "command",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the command.",
                       "validators": [
                         {
@@ -17688,7 +17409,7 @@
                   {
                     "name": "platform",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The platform(s) to run the on-demand claim.",
                       "validators": [
                         {
@@ -18827,7 +18548,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -18848,14 +18569,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -18867,14 +18588,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -18888,7 +18609,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -18909,14 +18630,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -18928,14 +18649,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -18949,7 +18670,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -18970,14 +18691,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -18989,14 +18710,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19010,7 +18731,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19031,14 +18752,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19050,14 +18771,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19071,7 +18792,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19092,14 +18813,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19111,14 +18832,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19132,7 +18853,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19153,14 +18874,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19172,14 +18893,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19193,7 +18914,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19214,14 +18935,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19233,14 +18954,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19254,7 +18975,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19275,14 +18996,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19294,14 +19015,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19315,7 +19036,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19336,14 +19057,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19355,14 +19076,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19376,7 +19097,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19397,14 +19118,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19416,14 +19137,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19437,7 +19158,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19458,14 +19179,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19477,14 +19198,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19498,7 +19219,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19519,14 +19240,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19538,14 +19259,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19559,7 +19280,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19580,14 +19301,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19599,14 +19320,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19620,7 +19341,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19641,14 +19362,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19660,14 +19381,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -19681,7 +19402,7 @@
                           "attributes": [
                             {
                               "list_nested": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Errors for individual objects that failed to replicate.",
                                 "nested_object": {
                                   "attributes": [
@@ -19702,14 +19423,14 @@
                                     {
                                       "name": "message",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Failure reason."
                                       }
                                     },
                                     {
                                       "name": "name",
                                       "string": {
-                                        "computed_optional_required": "required",
+                                        "computed_optional_required": "computed_optional",
                                         "description": "Name of the object that failed to replicate."
                                       }
                                     }
@@ -19721,14 +19442,14 @@
                             {
                               "name": "failure_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of failed replications for this object type."
                               }
                             },
                             {
                               "name": "success_count",
                               "number": {
-                                "computed_optional_required": "required",
+                                "computed_optional_required": "computed_optional",
                                 "description": "Number of successful replications for this object type."
                               }
                             }
@@ -20017,23 +19738,20 @@
                   {
                     "name": "attribute_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the attribute coming from the Identity Provider."
                     }
                   },
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the user claim to be used in AppGate SDP."
                     }
                   },
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim should be encrypted or not."
                     },
                     "name": "encrypt"
@@ -20041,9 +19759,6 @@
                   {
                     "bool": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": false
-                      },
                       "description": "Whether the claim is expected to be a list and have multiple values or not."
                     },
                     "name": "list"
@@ -20211,9 +19926,6 @@
                   "name": "claim_suffix",
                   "string": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": "onBoarding"
-                    },
                     "description": "Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled."
                   }
                 },
@@ -20227,7 +19939,7 @@
                 {
                   "name": "mfa_provider_id",
                   "string": {
-                    "computed_optional_required": "required",
+                    "computed_optional_required": "computed_optional",
                     "description": "MFA provider ID to use for the authentication."
                   }
                 }
@@ -20245,14 +19957,14 @@
                   {
                     "name": "claim_name",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the device claim to be used in Appgate SDP."
                     }
                   },
                   {
                     "name": "command",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The name of the command.",
                       "validators": [
                         {
@@ -20301,7 +20013,7 @@
                   {
                     "name": "platform",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The platform(s) to run the on-demand claim.",
                       "validators": [
                         {
@@ -20392,9 +20104,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "When enabled, the Client uses this Site as the Default Default for all IPV4 traffic."
                   },
                   "name": "enabled_v4"
@@ -20402,9 +20111,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "When enabled, the Client uses this Site as the Default Default for all IPv6 traffic."
                   },
                   "name": "enabled_v6"
@@ -20522,9 +20228,6 @@
                     "name": "type",
                     "string": {
                       "computed_optional_required": "computed_optional",
-                      "default": {
-                        "static": "Translation"
-                      },
                       "description": "Mapping type.",
                       "validators": [
                         {
@@ -20552,9 +20255,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Enables the Local Site Detection feature."
                   },
                   "name": "enabled"
@@ -20671,7 +20371,7 @@
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Identifier name. Has no functional effect."
                           }
                         },
@@ -20679,9 +20379,6 @@
                           "name": "partition",
                           "string": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": "aws"
-                            },
                             "description": "What AWS partition to use such as 'aws-cn' or 'aws-us-gov'"
                           }
                         },
@@ -20720,9 +20417,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 60
-                            },
                             "description": "How often will the resolver poll the server. In seconds."
                           },
                           "name": "update_interval"
@@ -20772,7 +20466,7 @@
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Identifier name. Has no functional effect."
                           }
                         },
@@ -20811,9 +20505,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 60
-                            },
                             "description": "How often will the resolver poll the server. In seconds."
                           },
                           "name": "update_interval"
@@ -20821,9 +20512,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": false
-                            },
                             "description": "Uses the built-in Managed Identities in Azure instances to authenticate against the API."
                           },
                           "name": "use_managed_identities"
@@ -20842,14 +20530,14 @@
                         {
                           "name": "hostname",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Hostname of the Claroty CTD server."
                           }
                         },
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Identifier name. Has no functional effect."
                           }
                         },
@@ -20864,9 +20552,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 443
-                            },
                             "description": "Port number of the Claroty CTD server."
                           },
                           "name": "port"
@@ -20874,9 +20559,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 60
-                            },
                             "description": "How often will the resolver poll the server. In seconds."
                           },
                           "name": "update_interval"
@@ -20884,7 +20566,7 @@
                         {
                           "name": "username",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Username with access to the Claroty CTD server."
                           }
                         }
@@ -20902,21 +20584,21 @@
                         {
                           "name": "cluster_name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "The hostname of the ColorTokens cluster used as the base URL for API requests."
                           }
                         },
                         {
                           "name": "fingerprint",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Key fingerprint of the ColorTokens Resolver."
                           }
                         },
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Identifier name. Has no functional effect."
                           }
                         },
@@ -20931,16 +20613,13 @@
                         {
                           "name": "tenant_id",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Tenant ID of the ColorTokens Resolver."
                           }
                         },
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 60
-                            },
                             "description": "How often will the resolver poll the server. In seconds."
                           },
                           "name": "update_interval"
@@ -20948,7 +20627,7 @@
                         {
                           "name": "user_id",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "User ID of the ColorTokens Resolver."
                           }
                         }
@@ -20963,20 +20642,20 @@
                     "attributes": [
                       {
                         "list_nested": {
-                          "computed_optional_required": "required",
+                          "computed_optional_required": "computed_optional",
                           "description": "A list of subnets to allow access.",
                           "nested_object": {
                             "attributes": [
                               {
                                 "name": "address",
                                 "string": {
-                                  "computed_optional_required": "required",
+                                  "computed_optional_required": "computed_optional",
                                   "description": "IP address"
                                 }
                               },
                               {
                                 "int64": {
-                                  "computed_optional_required": "required",
+                                  "computed_optional_required": "computed_optional",
                                   "description": "netmask"
                                 },
                                 "name": "netmask"
@@ -21072,16 +20751,13 @@
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Identifier name. Has no functional effect."
                           }
                         },
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": false
-                            },
                             "description": "Perform AAAA lookups."
                           },
                           "name": "query_aaaa"
@@ -21099,9 +20775,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 60
-                            },
                             "description": "How often will the resolver poll the server. In seconds."
                           },
                           "name": "update_interval"
@@ -21109,9 +20782,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": false
-                            },
                             "description": "Perform zones transfer."
                           },
                           "name": "zones_transfers"
@@ -21130,14 +20800,14 @@
                         {
                           "name": "hostname",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Hostname of the vCenter."
                           }
                         },
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Identifier name. Has no functional effect."
                           }
                         },
@@ -21152,9 +20822,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 60
-                            },
                             "description": "How often will the resolver poll the server. In seconds."
                           },
                           "name": "update_interval"
@@ -21162,7 +20829,7 @@
                         {
                           "name": "username",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Username with admin access to the vCenter."
                           }
                         }
@@ -21194,7 +20861,7 @@
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Identifier name. Has no functional effect."
                           }
                         },
@@ -21208,9 +20875,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 60
-                            },
                             "description": "How often will the resolver poll the server. In seconds."
                           },
                           "name": "update_interval"
@@ -21229,21 +20893,21 @@
                         {
                           "name": "hostname",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Hostname of the Illumio Resolver."
                           }
                         },
                         {
                           "name": "name",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Identifier name. Has no functional effect."
                           }
                         },
                         {
                           "name": "org_id",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Organization ID of the Illumio Resolver."
                           }
                         },
@@ -21257,7 +20921,7 @@
                         },
                         {
                           "int64": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Port number of the Illumio Resolver."
                           },
                           "name": "port"
@@ -21265,9 +20929,6 @@
                         {
                           "int64": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": 60
-                            },
                             "description": "How often will the resolver poll the server. In seconds."
                           },
                           "name": "update_interval"
@@ -21275,7 +20936,7 @@
                         {
                           "name": "username",
                           "string": {
-                            "computed_optional_required": "required",
+                            "computed_optional_required": "computed_optional",
                             "description": "Username with access to the Illumio Resolver."
                           }
                         }
@@ -21287,9 +20948,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Name resolution to use Appliance's /etc/hosts file."
                   },
                   "name": "use_hosts_file"
@@ -21364,10 +21022,7 @@
                     "attributes": [
                       {
                         "bool": {
-                          "computed_optional_required": "computed_optional",
-                          "default": {
-                            "static": false
-                          }
+                          "computed_optional_required": "computed_optional"
                         },
                         "name": "enabled"
                       }
@@ -21386,9 +21041,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Whether to log NAT traffic or not."
                   },
                   "name": "log_nat_ip_and_nat_port"
@@ -21399,10 +21051,7 @@
                     "attributes": [
                       {
                         "bool": {
-                          "computed_optional_required": "computed_optional",
-                          "default": {
-                            "static": false
-                          }
+                          "computed_optional_required": "computed_optional"
                         },
                         "name": "enabled"
                       }
@@ -21437,9 +21086,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Source NAT."
                   },
                   "name": "snat"
@@ -21450,10 +21096,7 @@
                     "attributes": [
                       {
                         "bool": {
-                          "computed_optional_required": "computed_optional",
-                          "default": {
-                            "static": true
-                          }
+                          "computed_optional_required": "computed_optional"
                         },
                         "name": "enabled"
                       },
@@ -21514,9 +21157,6 @@
                         {
                           "bool": {
                             "computed_optional_required": "computed_optional",
-                            "default": {
-                              "static": true
-                            },
                             "description": "Gateway will verify upstream certificate of the endpoints."
                           },
                           "name": "verify_upstream"
@@ -21577,9 +21217,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Makes the client skip the user prompt and apply the profiles immediately. Required to be true to apply the settings when authorization fails, such as in case of Stop Policies."
                   },
                   "name": "force"
@@ -21663,9 +21300,6 @@
                 {
                   "bool": {
                     "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    },
                     "description": "Enable Client Settings for this Policy."
                   },
                   "name": "enabled"
@@ -21841,7 +21475,7 @@
                   {
                     "name": "domain",
                     "string": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "description": "The domain for which the DNS servers should be used by the client."
                     }
                   },
@@ -21854,7 +21488,7 @@
                   },
                   {
                     "list": {
-                      "computed_optional_required": "required",
+                      "computed_optional_required": "computed_optional",
                       "element_type": {
                         "string": {}
                       }
@@ -21963,10 +21597,7 @@
               "attributes": [
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 },
@@ -22046,10 +21677,7 @@
                 },
                 {
                   "bool": {
-                    "computed_optional_required": "computed_optional",
-                    "default": {
-                      "static": false
-                    }
+                    "computed_optional_required": "computed_optional"
                   },
                   "name": "enabled"
                 }

@@ -207,14 +207,11 @@ Optional:
 <a id="nestedatt--admin_interface"></a>
 ### Nested Schema for `admin_interface`
 
-Required:
-
-- `hostname` (String) Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Set it to "automatic.hostname.assignment" for cloud appliances in order for it to automatically configure the hostname on activation.
-- `https_ciphers` (List of String) The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.
-
 Optional:
 
 - `allow_sources` (Attributes List) Source configuration to allow via iptables. (see [below for nested schema](#nestedatt--admin_interface--allow_sources))
+- `hostname` (String) Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Set it to "automatic.hostname.assignment" for cloud appliances in order for it to automatically configure the hostname on activation.
+- `https_ciphers` (List of String) The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.
 - `https_p12` (Attributes) PKCS12 object with X.509 certificate and private key. (see [below for nested schema](#nestedatt--admin_interface--https_p12))
 - `https_port` (Number) Port to connect for admin services.
 - `https_signed_certificate_pem` (String, Sensitive) A PEM-encoded signed certificate to complete a pending CSR flow. Provide this field when submitting the CA-signed certificate obtained after generating a CSR. Requires a pending CSR key pair (generated via POST /appliances/{id}/admin-interface/csr). The certificate must match the public key from the CSR and cover the appliance hostname. Supported in API versions: v25.
@@ -269,10 +266,6 @@ Optional:
 <a id="nestedatt--connector--advanced_clients"></a>
 ### Nested Schema for `connector.advanced_clients`
 
-Required:
-
-- `name` (String) Name for the Client. It will be mapped to the user claim 'clientName'.
-
 Optional:
 
 - `allow_resources` (Attributes List) Source configuration to allow via iptables. (see [below for nested schema](#nestedatt--connector--advanced_clients--allow_resources))
@@ -280,6 +273,7 @@ Optional:
 - `device_id` (String) The device ID to assign to this Client. It will be used to generate device distinguished name.
 - `dhcp_relay` (Attributes) Enable DHCP relay for this Connector. (see [below for nested schema](#nestedatt--connector--advanced_clients--dhcp_relay))
 - `dnat_to_resource` (Boolean) Apply destination NAT to traffic from tunnel into a resource
+- `name` (String) Name for the Client. It will be mapped to the user claim 'clientName'.
 - `snat_to_resources` (Boolean) Use Source NAT for the resources.
 - `snat_to_tunnel` (Boolean) Use Source NAT for the Client tunnel.
 
@@ -305,21 +299,18 @@ Optional:
 <a id="nestedatt--connector--express_clients"></a>
 ### Nested Schema for `connector.express_clients`
 
-Required:
-
-- `name` (String) Name for the Client. It will be mapped to the user claim 'clientName'.
-
 Optional:
 
 - `allow_resources` (Attributes List) A list of subnets to allow access. (see [below for nested schema](#nestedatt--connector--express_clients--allow_resources))
 - `device_id` (String) The device ID to assign to this Client. It will be used to generate device distinguished name.
 - `dnat_to_resource` (Boolean) Apply destination NAT to traffic from tunnel into a resource
+- `name` (String) Name for the Client. It will be mapped to the user claim 'clientName'.
 - `snat_to_resources` (Boolean) Use SNAT for outgoing traffic from the Express Connector, endpoints will see traffic as coming from the Connector itself
 
 <a id="nestedatt--connector--express_clients--allow_resources"></a>
 ### Nested Schema for `connector.express_clients.allow_resources`
 
-Required:
+Optional:
 
 - `address` (String) IP address
 - `netmask` (Number) netmask
@@ -356,14 +347,11 @@ Optional:
 <a id="nestedatt--gateway--vpn--allow_destinations"></a>
 ### Nested Schema for `gateway.vpn.allow_destinations`
 
-Required:
-
-- `nic` (String) NIC name to accept connections on.
-
 Optional:
 
 - `address` (String) IP address to allow connection.
 - `netmask` (Number) Netmask to use with address for allowing connections.
+- `nic` (String) NIC name to accept connections on.
 
 
 
@@ -409,11 +397,6 @@ Optional:
 <a id="nestedatt--log_forwarder--aws_kineses"></a>
 ### Nested Schema for `log_forwarder.aws_kineses`
 
-Required:
-
-- `stream_name` (String) Name of the stream.
-- `type` (String) AWS Kinesis type
-
 Optional:
 
 - `aws_id` (String) AWS ID to login. Only required if AWS Access Keys are being used to authenticate.
@@ -422,28 +405,27 @@ Optional:
 - `batch_size` (Number) Batch size for the stream. Used only for "Stream" type.
 - `filter` (String) JMESPath expression to filter audit logs to forward.
 - `number_of_partition_keys` (Number) Number of partition keys to use for the stream. Used only for "Stream" type.
+- `stream_name` (String) Name of the stream.
+- `type` (String) AWS Kinesis type
 - `use_instance_credentials` (Boolean) Whether to use the credentials from the AWS instance or not.
 
 
 <a id="nestedatt--log_forwarder--azure_monitors"></a>
 ### Nested Schema for `log_forwarder.azure_monitors`
 
-Required:
-
-- `app_id` (String) App ID to use for authentication.
-- `log_destination_url` (String) URL of Azure Monitor to forward logs to.
-- `token_request_url` (String) URL for Azure Monitor to request token from.
-
 Optional:
 
+- `app_id` (String) App ID to use for authentication.
 - `app_secret` (String, Sensitive) App secret to use for authentication.
+- `log_destination_url` (String) URL of Azure Monitor to forward logs to.
 - `scope` (String) Scope that the log forwarder will use in its tokens requests.
+- `token_request_url` (String) URL for Azure Monitor to request token from.
 
 
 <a id="nestedatt--log_forwarder--coralogixs"></a>
 ### Nested Schema for `log_forwarder.coralogixs`
 
-Required:
+Optional:
 
 - `application_name` (String) Application name to use for the logs.
 - `private_key` (String, Sensitive) Private key to use for authentication.
@@ -455,23 +437,16 @@ Required:
 <a id="nestedatt--log_forwarder--datadogs"></a>
 ### Nested Schema for `log_forwarder.datadogs`
 
-Required:
+Optional:
 
 - `api_key` (String, Sensitive) API key to use for authentication.
 - `site` (String) Datadog site to send logs to.
 - `source` (String) Source to use for the logs.
-
-Optional:
-
 - `tags` (List of String) Tags to add to the logs.
 
 
 <a id="nestedatt--log_forwarder--elasticsearch"></a>
 ### Nested Schema for `log_forwarder.elasticsearch`
-
-Required:
-
-- `url` (String) The URL of the elasticsearch server.
 
 Optional:
 
@@ -481,12 +456,13 @@ Optional:
 - `aws_secret` (String, Sensitive) AWS secret to login. Only required if AWS Access Keys are being used to authenticate.
 - `compatibility_mode` (Number) Which version of Elasticsearch that logs are forwarded to.
 - `retention_days` (Number) Optional field to enable log retention on the configured AWS elasticsearch. Defines how many days the audit logs will be kept.
+- `url` (String) The URL of the elasticsearch server.
 - `use_instance_credentials` (Boolean) Whether to use the credentials from the AWS instance or not.
 
 <a id="nestedatt--log_forwarder--elasticsearch--authentication"></a>
 ### Nested Schema for `log_forwarder.elasticsearch.authentication`
 
-Required:
+Optional:
 
 - `token` (String, Sensitive) The token to be used for authentication.
 - `type` (String) The type of authentication to use.
@@ -496,12 +472,9 @@ Required:
 <a id="nestedatt--log_forwarder--falcon_log_scales"></a>
 ### Nested Schema for `log_forwarder.falcon_log_scales`
 
-Required:
-
-- `collector_url` (String) URL of the Falcon LogScale collector.
-
 Optional:
 
+- `collector_url` (String) URL of the Falcon LogScale collector.
 - `index` (String) Optional name of the repository to ingest into.
 - `source` (String) Translated to the @source field in Humio.
 - `source_type` (String) Translated to \#type inside Humio. If set, this is used to choose which Humio parser to use for extracting fields.
@@ -511,14 +484,11 @@ Optional:
 <a id="nestedatt--log_forwarder--kafka_clients"></a>
 ### Nested Schema for `log_forwarder.kafka_clients`
 
-Required:
-
-- `bootstrap_servers` (Set of String) List of Kafka bootstrap servers (hostname or IP).
-
 Optional:
 
 - `authentication_type` (String) Authentication mode used for Kafka.
 - `authorization_token` (String, Sensitive) Authorization token used when authenticationType is token.
+- `bootstrap_servers` (Set of String) List of Kafka bootstrap servers (hostname or IP).
 - `compression` (String) Compression codec to use when sending Kafka messages.
 - `password` (String, Sensitive) Password used when authenticationType is basic.
 - `topic` (String) Topic to publish logs to.
@@ -529,19 +499,16 @@ Optional:
 <a id="nestedatt--log_forwarder--splunk_clients"></a>
 ### Nested Schema for `log_forwarder.splunk_clients`
 
-Required:
-
-- `url` (String) URL of the Splunk collector to connect to.
-
 Optional:
 
 - `token` (String) Token to use for authentication.
+- `url` (String) URL of the Splunk collector to connect to.
 
 
 <a id="nestedatt--log_forwarder--sumo_logic_clients"></a>
 ### Nested Schema for `log_forwarder.sumo_logic_clients`
 
-Required:
+Optional:
 
 - `url` (String) URL of the Sumo Logic collector to connect to.
 
@@ -549,16 +516,13 @@ Required:
 <a id="nestedatt--log_forwarder--tcp_clients"></a>
 ### Nested Schema for `log_forwarder.tcp_clients`
 
-Required:
+Optional:
 
+- `filter` (String) JMESPath expression to filter audit logs to forward.
 - `format` (String) The format to send the audit logs.
 - `host` (String) Hostname or the IP address of the endpoint.
 - `name` (String) Name of the endpoint.
 - `port` (Number) Port of the endpoint.
-
-Optional:
-
-- `filter` (String) JMESPath expression to filter audit logs to forward.
 - `use_tls` (Boolean) Whether to use TLS to connect to endpoint or not. If enabled, make sure the LogForwarder appliance trusts the certificate of the endpoint.
 
 
@@ -640,12 +604,9 @@ Optional:
 <a id="nestedatt--ntp--servers"></a>
 ### Nested Schema for `ntp.servers`
 
-Required:
-
-- `hostname` (String) Hostname or IP of the NTP server.
-
 Optional:
 
+- `hostname` (String) Hostname or IP of the NTP server.
 - `key` (String, Sensitive) Key to use for secure NTP communication.
 - `key_no` (Number) Identifier number for the key.
 - `key_type` (String) Type of key to use for secure NTP communication.
@@ -746,13 +707,10 @@ Optional:
 <a id="nestedatt--portal--subdomain_mappings"></a>
 ### Nested Schema for `portal.subdomain_mappings`
 
-Required:
+Optional:
 
 - `app_domain` (String) The fully-qualified internal app domain that traffic is proxied to. Does not need to be publicly resolvable. It is resolved through the client's VPN tunnel.
 - `subdomain` (String) The leftmost DNS label of the public alias (e.g. 'crm'). Must be a valid DNS label: letters, digits, and hyphens only, no leading or trailing hyphen, maximum 63 characters.
-
-Optional:
-
 - `verify_upstream_certificate` (Boolean) Whether to verify the app domain's TLS certificate when proxying. Set to false if the app server uses a self-signed or internally-signed certificate. Defaults to true.
 
 
@@ -808,12 +766,9 @@ Read-Only:
 <a id="nestedatt--rsyslog_destinations"></a>
 ### Nested Schema for `rsyslog_destinations`
 
-Required:
-
-- `destination` (String) Rsyslog server destination.
-
 Optional:
 
+- `destination` (String) Rsyslog server destination.
 - `selector` (String) Rsyslog selector.
 - `template` (String) Rsyslog template to forward logs with.
 
@@ -873,40 +828,31 @@ Optional:
 <a id="nestedatt--telemetry_aggregator--datadog_exporters"></a>
 ### Nested Schema for `telemetry_aggregator.datadog_exporters`
 
-Required:
-
-- `name` (String) Name used to identify the exporter, must be unique.
-- `site` (String) The Datadog site to export telemetry to.
-
 Optional:
 
 - `api_key` (String, Sensitive) The Datadog API key.
+- `name` (String) Name used to identify the exporter, must be unique.
+- `site` (String) The Datadog site to export telemetry to.
 
 
 <a id="nestedatt--telemetry_aggregator--otlp_exporters"></a>
 ### Nested Schema for `telemetry_aggregator.otlp_exporters`
 
-Required:
-
-- `endpoint` (String) The OTLP endpoint to export telemetry to.
-- `name` (String) Name used to identify the exporter, must be unique.
-
 Optional:
 
 - `compression` (Boolean) Whether to enable compression on the OTLP transport.
 - `encoding` (String) The OTLP payload encoding.
+- `endpoint` (String) The OTLP endpoint to export telemetry to.
 - `headers` (Attributes List) Additional HTTP headers to send with each OTLP request. Header names must be unique within an exporter. (see [below for nested schema](#nestedatt--telemetry_aggregator--otlp_exporters--headers))
+- `name` (String) Name used to identify the exporter, must be unique.
 - `protocol` (String) The OTLP transport protocol.
 
 <a id="nestedatt--telemetry_aggregator--otlp_exporters--headers"></a>
 ### Nested Schema for `telemetry_aggregator.otlp_exporters.headers`
 
-Required:
-
-- `name` (String) The header name.
-
 Optional:
 
+- `name` (String) The header name.
 - `value` (String, Sensitive) The header value. Treated as a secret; write-only.
 
 

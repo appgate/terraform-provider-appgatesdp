@@ -54,12 +54,14 @@ func LdapIdentityProviderResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"attribute_name": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The name of the attribute coming from the Identity Provider.",
 							MarkdownDescription: "The name of the attribute coming from the Identity Provider.",
 						},
 						"claim_name": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The name of the user claim to be used in AppGate SDP.",
 							MarkdownDescription: "The name of the user claim to be used in AppGate SDP.",
 						},
@@ -68,14 +70,12 @@ func LdapIdentityProviderResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Whether the claim should be encrypted or not.",
 							MarkdownDescription: "Whether the claim should be encrypted or not.",
-							Default:             booldefault.StaticBool(false),
 						},
 						"list": schema.BoolAttribute{
 							Optional:            true,
 							Computed:            true,
 							Description:         "Whether the claim is expected to be a list and have multiple values or not.",
 							MarkdownDescription: "Whether the claim is expected to be a list and have multiple values or not.",
-							Default:             booldefault.StaticBool(false),
 						},
 					},
 				},
@@ -201,7 +201,6 @@ func LdapIdentityProviderResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled.",
 						MarkdownDescription: "Upon successful on-boarding, the claim will be added as if MFA remedy action is fulfilled.",
-						Default:             stringdefault.StaticString("onBoarding"),
 					},
 					"message": schema.StringAttribute{
 						Optional:            true,
@@ -210,7 +209,8 @@ func LdapIdentityProviderResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "On-boarding MFA message to be displayed on the Client UI during the second-factor authentication.",
 					},
 					"mfa_provider_id": schema.StringAttribute{
-						Required:            true,
+						Optional:            true,
+						Computed:            true,
 						Description:         "MFA provider ID to use for the authentication.",
 						MarkdownDescription: "MFA provider ID to use for the authentication.",
 					},
@@ -225,12 +225,14 @@ func LdapIdentityProviderResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"claim_name": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The name of the device claim to be used in Appgate SDP.",
 							MarkdownDescription: "The name of the device claim to be used in Appgate SDP.",
 						},
 						"command": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The name of the command.",
 							MarkdownDescription: "The name of the command.",
 							Validators: []validator.String{
@@ -277,7 +279,8 @@ func LdapIdentityProviderResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Depending on the command type, extra parameters to pass to the on-demand claim.",
 						},
 						"platform": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "The platform(s) to run the on-demand claim.",
 							MarkdownDescription: "The platform(s) to run the on-demand claim.",
 							Validators: []validator.String{
@@ -319,7 +322,6 @@ func LdapIdentityProviderResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "How many days before the password warning to be displayed to the user.",
 						MarkdownDescription: "How many days before the password warning to be displayed to the user.",
-						Default:             int64default.StaticInt64(5),
 					},
 				},
 

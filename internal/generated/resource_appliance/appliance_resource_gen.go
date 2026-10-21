@@ -9,10 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -57,7 +54,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Source configuration to allow via iptables.",
 					},
 					"hostname": schema.StringAttribute{
-						Required:            true,
+						Optional:            true,
+						Computed:            true,
 						Description:         "Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Set it to \"automatic.hostname.assignment\" for cloud appliances in order for it to automatically configure the hostname on activation.",
 						MarkdownDescription: "Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Set it to \"automatic.hostname.assignment\" for cloud appliances in order for it to automatically configure the hostname on activation.",
 					},
@@ -68,7 +66,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"https_ciphers": schema.ListAttribute{
 						ElementType:         types.StringType,
-						Required:            true,
+						Optional:            true,
+						Computed:            true,
 						Description:         "The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.",
 						MarkdownDescription: "The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.",
 					},
@@ -110,7 +109,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Port to connect for admin services.",
 						MarkdownDescription: "Port to connect for admin services.",
-						Default:             int64default.StaticInt64(8443),
 					},
 					"https_signed_certificate_pem": schema.StringAttribute{
 						Optional:            true,
@@ -161,7 +159,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Port to connect for the Clients that connect to Gateways on QUIC if enabled.",
 						MarkdownDescription: "Port to connect for the Clients that connect to Gateways on QUIC if enabled.",
-						Default:             int64default.StaticInt64(443),
 					},
 					"hostname": schema.StringAttribute{
 						Required:            true,
@@ -173,7 +170,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Port to connect for the Client specific services.",
 						MarkdownDescription: "Port to connect for the Client specific services.",
-						Default:             int64default.StaticInt64(443),
 					},
 					"local_hostname": schema.StringAttribute{
 						Optional:            true,
@@ -198,7 +194,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "To enable/disable Proxy protocol on this Appliance.",
 						MarkdownDescription: "To enable/disable Proxy protocol on this Appliance.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"stun_port": schema.Int64Attribute{
 						Optional:            true,
@@ -237,7 +232,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the Connection Broker is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the Connection Broker is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"sites": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -291,7 +285,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Use this connector client as a default gw for local resources",
 									MarkdownDescription: "Use this connector client as a default gw for local resources",
-									Default:             booldefault.StaticBool(false),
 								},
 								"device_id": schema.StringAttribute{
 									Optional:            true,
@@ -320,10 +313,10 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Apply destination NAT to traffic from tunnel into a resource",
 									MarkdownDescription: "Apply destination NAT to traffic from tunnel into a resource",
-									Default:             booldefault.StaticBool(false),
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Name for the Client. It will be mapped to the user claim 'clientName'.",
 									MarkdownDescription: "Name for the Client. It will be mapped to the user claim 'clientName'.",
 								},
@@ -332,14 +325,12 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Use Source NAT for the resources.",
 									MarkdownDescription: "Use Source NAT for the resources.",
-									Default:             booldefault.StaticBool(true),
 								},
 								"snat_to_tunnel": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
 									Description:         "Use Source NAT for the Client tunnel.",
 									MarkdownDescription: "Use Source NAT for the Client tunnel.",
-									Default:             booldefault.StaticBool(true),
 								},
 							},
 						},
@@ -353,7 +344,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the Connector is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the Connector is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"express_clients": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -362,12 +352,14 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"address": schema.StringAttribute{
-												Required:            true,
+												Optional:            true,
+												Computed:            true,
 												Description:         "IP address",
 												MarkdownDescription: "IP address",
 											},
 											"netmask": schema.Int64Attribute{
-												Required:            true,
+												Optional:            true,
+												Computed:            true,
 												Description:         "netmask",
 												MarkdownDescription: "netmask",
 											},
@@ -389,10 +381,10 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Apply destination NAT to traffic from tunnel into a resource",
 									MarkdownDescription: "Apply destination NAT to traffic from tunnel into a resource",
-									Default:             booldefault.StaticBool(false),
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Name for the Client. It will be mapped to the user claim 'clientName'.",
 									MarkdownDescription: "Name for the Client. It will be mapped to the user claim 'clientName'.",
 								},
@@ -401,7 +393,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Use SNAT for outgoing traffic from the Express Connector, endpoints will see traffic as coming from the Connector itself",
 									MarkdownDescription: "Use SNAT for outgoing traffic from the Express Connector, endpoints will see traffic as coming from the Connector itself",
-									Default:             booldefault.StaticBool(true),
 								},
 							},
 						},
@@ -424,7 +415,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the Controller is enabled on this appliance or not. Cannot be enabled on an inactive Appliance since some checks need to be done first.",
 						MarkdownDescription: "Whether the Controller is enabled on this appliance or not. Cannot be enabled on an inactive Appliance since some checks need to be done first.",
-						Default:             booldefault.StaticBool(false),
 					},
 				},
 
@@ -451,14 +441,12 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the Gateway is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the Gateway is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"suspended": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Whether the Gateway is in suspended mode or not. Suspended state will keep the existing Client connections but will reject new ones.",
 						MarkdownDescription: "Whether the Gateway is in suspended mode or not. Suspended state will keep the existing Client connections but will reject new ones.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"vpn": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -478,7 +466,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 											MarkdownDescription: "Netmask to use with address for allowing connections.",
 										},
 										"nic": schema.StringAttribute{
-											Required:            true,
+											Optional:            true,
+											Computed:            true,
 											Description:         "NIC name to accept connections on.",
 											MarkdownDescription: "NIC name to accept connections on.",
 										},
@@ -500,7 +489,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "Load balancing weight.",
 								MarkdownDescription: "Load balancing weight.",
-								Default:             int64default.StaticInt64(100),
 							},
 						},
 
@@ -551,14 +539,12 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the Healthcheck Server is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the Healthcheck Server is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"port": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Port to connect for Healthcheck Server.",
 						MarkdownDescription: "Port to connect for Healthcheck Server.",
-						Default:             int64default.StaticInt64(5555),
 					},
 				},
 
@@ -618,7 +604,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Batch size for the stream. Used only for \"Stream\" type.",
 									MarkdownDescription: "Batch size for the stream. Used only for \"Stream\" type.",
-									Default:             int64default.StaticInt64(400),
 								},
 								"filter": schema.StringAttribute{
 									Optional:            true,
@@ -631,15 +616,16 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Number of partition keys to use for the stream. Used only for \"Stream\" type.",
 									MarkdownDescription: "Number of partition keys to use for the stream. Used only for \"Stream\" type.",
-									Default:             int64default.StaticInt64(10),
 								},
 								"stream_name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Name of the stream.",
 									MarkdownDescription: "Name of the stream.",
 								},
 								"type": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "AWS Kinesis type",
 									MarkdownDescription: "AWS Kinesis type",
 									Validators: []validator.String{
@@ -666,7 +652,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"app_id": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "App ID to use for authentication.",
 									MarkdownDescription: "App ID to use for authentication.",
 								},
@@ -678,7 +665,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "App secret to use for authentication.",
 								},
 								"log_destination_url": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "URL of Azure Monitor to forward logs to.",
 									MarkdownDescription: "URL of Azure Monitor to forward logs to.",
 								},
@@ -687,10 +675,10 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Scope that the log forwarder will use in its tokens requests.",
 									MarkdownDescription: "Scope that the log forwarder will use in its tokens requests.",
-									Default:             stringdefault.StaticString("https://monitor.azure.com/.default"),
 								},
 								"token_request_url": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "URL for Azure Monitor to request token from.",
 									MarkdownDescription: "URL for Azure Monitor to request token from.",
 								},
@@ -705,28 +693,33 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"application_name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Application name to use for the logs.",
 									MarkdownDescription: "Application name to use for the logs.",
 								},
 								"private_key": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Sensitive:           true,
 									Description:         "Private key to use for authentication.",
 									MarkdownDescription: "Private key to use for authentication.",
 								},
 								"subsystem_name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Subsystem name to use for the logs.",
 									MarkdownDescription: "Subsystem name to use for the logs.",
 								},
 								"url": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "URL of the Coralogix collector to connect to.",
 									MarkdownDescription: "URL of the Coralogix collector to connect to.",
 								},
 								"uuid": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "UUID of the Coralogix collector to connect to.",
 									MarkdownDescription: "UUID of the Coralogix collector to connect to.",
 								},
@@ -741,18 +734,21 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"api_key": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Sensitive:           true,
 									Description:         "API key to use for authentication.",
 									MarkdownDescription: "API key to use for authentication.",
 								},
 								"site": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Datadog site to send logs to.",
 									MarkdownDescription: "Datadog site to send logs to.",
 								},
 								"source": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Source to use for the logs.",
 									MarkdownDescription: "Source to use for the logs.",
 								},
@@ -775,13 +771,15 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 							"authentication": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{
 									"token": schema.StringAttribute{
-										Required:            true,
+										Optional:            true,
+										Computed:            true,
 										Sensitive:           true,
 										Description:         "The token to be used for authentication.",
 										MarkdownDescription: "The token to be used for authentication.",
 									},
 									"type": schema.StringAttribute{
-										Required:            true,
+										Optional:            true,
+										Computed:            true,
 										Description:         "The type of authentication to use.",
 										MarkdownDescription: "The type of authentication to use.",
 										Validators: []validator.String{
@@ -824,7 +822,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "Which version of Elasticsearch that logs are forwarded to.",
 								MarkdownDescription: "Which version of Elasticsearch that logs are forwarded to.",
-								Default:             int64default.StaticInt64(6),
 							},
 							"retention_days": schema.Int64Attribute{
 								Optional:            true,
@@ -833,7 +830,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 								MarkdownDescription: "Optional field to enable log retention on the configured AWS elasticsearch. Defines how many days the audit logs will be kept.",
 							},
 							"url": schema.StringAttribute{
-								Required:            true,
+								Optional:            true,
+								Computed:            true,
 								Description:         "The URL of the elasticsearch server.",
 								MarkdownDescription: "The URL of the elasticsearch server.",
 							},
@@ -855,13 +853,13 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the LogForwarder is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the LogForwarder is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"falcon_log_scales": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"collector_url": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "URL of the Falcon LogScale collector.",
 									MarkdownDescription: "URL of the Falcon LogScale collector.",
 								},
@@ -912,7 +910,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 											"token",
 										),
 									},
-									Default: stringdefault.StaticString("none"),
 								},
 								"authorization_token": schema.StringAttribute{
 									Optional:            true,
@@ -923,7 +920,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bootstrap_servers": schema.SetAttribute{
 									ElementType:         types.StringType,
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "List of Kafka bootstrap servers (hostname or IP).",
 									MarkdownDescription: "List of Kafka bootstrap servers (hostname or IP).",
 									Validators: []validator.Set{
@@ -962,7 +960,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Whether to use TLS for Kafka connections.",
 									MarkdownDescription: "Whether to use TLS for Kafka connections.",
-									Default:             booldefault.StaticBool(true),
 								},
 								"username": schema.StringAttribute{
 									Optional:            true,
@@ -994,7 +991,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Token to use for authentication.",
 								},
 								"url": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "URL of the Splunk collector to connect to.",
 									MarkdownDescription: "URL of the Splunk collector to connect to.",
 								},
@@ -1009,7 +1007,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"url": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "URL of the Sumo Logic collector to connect to.",
 									MarkdownDescription: "URL of the Sumo Logic collector to connect to.",
 								},
@@ -1030,7 +1029,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "JMESPath expression to filter audit logs to forward.",
 								},
 								"format": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "The format to send the audit logs.",
 									MarkdownDescription: "The format to send the audit logs.",
 									Validators: []validator.String{
@@ -1041,17 +1041,20 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								"host": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Hostname or the IP address of the endpoint.",
 									MarkdownDescription: "Hostname or the IP address of the endpoint.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Name of the endpoint.",
 									MarkdownDescription: "Name of the endpoint.",
 								},
 								"port": schema.Int64Attribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Port of the endpoint.",
 									MarkdownDescription: "Port of the endpoint.",
 								},
@@ -1082,14 +1085,12 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the Log Server is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the Log Server is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"retention_days": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "How many days of audit logs will be kept.",
 						MarkdownDescription: "How many days of audit logs will be kept.",
-						Default:             int64default.StaticInt64(30),
 					},
 				},
 
@@ -1105,7 +1106,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the Metrics Aggregator is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the Metrics Aggregator is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"prometheus_exporter": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1161,14 +1161,12 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "Enable basic auth for Prometheus Exporter.",
 								MarkdownDescription: "Enable basic auth for Prometheus Exporter.",
-								Default:             booldefault.StaticBool(false),
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Whether the Prometheus Exporter is enabled on this appliance or not.",
 								MarkdownDescription: "Whether the Prometheus Exporter is enabled on this appliance or not.",
-								Default:             booldefault.StaticBool(false),
 							},
 							"https_p12": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{
@@ -1215,7 +1213,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "Port to connect for Prometheus Exporter.",
 								MarkdownDescription: "Port to connect for Prometheus Exporter.",
-								Default:             int64default.StaticInt64(5556),
 							},
 							"use_https": schema.BoolAttribute{
 								Optional:            true,
@@ -1524,7 +1521,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"hostname": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Hostname or IP of the NTP server.",
 									MarkdownDescription: "Hostname or IP of the NTP server.",
 								},
@@ -1617,7 +1615,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the Portal is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the Portal is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"external_profiles": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1657,7 +1654,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Automatic 80->443 redirection for Portal.",
 						MarkdownDescription: "Automatic 80->443 redirection for Portal.",
-						Default:             booldefault.StaticBool(true),
 					},
 					"https_ciphers": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -1738,7 +1734,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Portal will verify upstream certificate of the endpoints.",
 									MarkdownDescription: "Portal will verify upstream certificate of the endpoints.",
-									Default:             booldefault.StaticBool(true),
 								},
 							},
 						},
@@ -1803,12 +1798,14 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"app_domain": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "The fully-qualified internal app domain that traffic is proxied to. Does not need to be publicly resolvable. It is resolved through the client's VPN tunnel.",
 									MarkdownDescription: "The fully-qualified internal app domain that traffic is proxied to. Does not need to be publicly resolvable. It is resolved through the client's VPN tunnel.",
 								},
 								"subdomain": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "The leftmost DNS label of the public alias (e.g. 'crm'). Must be a valid DNS label: letters, digits, and hyphens only, no leading or trailing hyphen, maximum 63 characters.",
 									MarkdownDescription: "The leftmost DNS label of the public alias (e.g. 'crm'). Must be a valid DNS label: letters, digits, and hyphens only, no leading or trailing hyphen, maximum 63 characters.",
 								},
@@ -1817,7 +1814,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Whether to verify the app domain's TLS certificate when proxying. Set to false if the app server uses a self-signed or internally-signed certificate. Defaults to true.",
 									MarkdownDescription: "Whether to verify the app domain's TLS certificate when proxying. Set to false if the app server uses a self-signed or internally-signed certificate. Defaults to true.",
-									Default:             booldefault.StaticBool(true),
 								},
 							},
 						},
@@ -1887,14 +1883,12 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Enable basic auth for Prometheus Exporter.",
 						MarkdownDescription: "Enable basic auth for Prometheus Exporter.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Whether the Prometheus Exporter is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the Prometheus Exporter is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"https_p12": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1941,7 +1935,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Port to connect for Prometheus Exporter.",
 						MarkdownDescription: "Port to connect for Prometheus Exporter.",
-						Default:             int64default.StaticInt64(5556),
 					},
 					"use_https": schema.BoolAttribute{
 						Optional:            true,
@@ -1965,7 +1958,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"destination": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Description:         "Rsyslog server destination.",
 							MarkdownDescription: "Rsyslog server destination.",
 						},
@@ -1974,14 +1968,12 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Rsyslog selector.",
 							MarkdownDescription: "Rsyslog selector.",
-							Default:             stringdefault.StaticString("*.*"),
 						},
 						"template": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
 							Description:         "Rsyslog template to forward logs with.",
 							MarkdownDescription: "Rsyslog template to forward logs with.",
-							Default:             stringdefault.StaticString("%HOSTNAME% %msg%"),
 						},
 					},
 				},
@@ -2036,7 +2028,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the SNMP Server os enabled on this appliance or not.",
 						MarkdownDescription: "Whether the SNMP Server os enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"snmpdconf": schema.StringAttribute{
 						Optional:            true,
@@ -2098,21 +2089,18 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether the SSH Server is enabled on this appliance or not.",
 						MarkdownDescription: "Whether the SSH Server is enabled on this appliance or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"password_authentication": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Whether SSH allows password authentication or not.",
 						MarkdownDescription: "Whether SSH allows password authentication or not.",
-						Default:             booldefault.StaticBool(true),
 					},
 					"port": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "SSH port.",
 						MarkdownDescription: "SSH port.",
-						Default:             int64default.StaticInt64(22),
 					},
 				},
 
@@ -2141,12 +2129,14 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "The Datadog API key.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Name used to identify the exporter, must be unique.",
 									MarkdownDescription: "Name used to identify the exporter, must be unique.",
 								},
 								"site": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "The Datadog site to export telemetry to.",
 									MarkdownDescription: "The Datadog site to export telemetry to.",
 								},
@@ -2162,7 +2152,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether TelemetryAggregator is enabled on this appliance or not. Enabling it requires the Observability license.",
 						MarkdownDescription: "Whether TelemetryAggregator is enabled on this appliance or not. Enabling it requires the Observability license.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"otlp_exporters": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -2172,7 +2161,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Whether to enable compression on the OTLP transport.",
 									MarkdownDescription: "Whether to enable compression on the OTLP transport.",
-									Default:             booldefault.StaticBool(true),
 								},
 								"encoding": schema.StringAttribute{
 									Optional:            true,
@@ -2185,10 +2173,10 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 											"json",
 										),
 									},
-									Default: stringdefault.StaticString("proto"),
 								},
 								"endpoint": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "The OTLP endpoint to export telemetry to.",
 									MarkdownDescription: "The OTLP endpoint to export telemetry to.",
 								},
@@ -2196,7 +2184,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"name": schema.StringAttribute{
-												Required:            true,
+												Optional:            true,
+												Computed:            true,
 												Description:         "The header name.",
 												MarkdownDescription: "The header name.",
 											},
@@ -2215,7 +2204,8 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Additional HTTP headers to send with each OTLP request. Header names must be unique within an exporter.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Name used to identify the exporter, must be unique.",
 									MarkdownDescription: "Name used to identify the exporter, must be unique.",
 								},
@@ -2230,7 +2220,6 @@ func ApplianceResourceSchema(ctx context.Context) schema.Schema {
 											"grpc",
 										),
 									},
-									Default: stringdefault.StaticString("http"),
 								},
 							},
 						},

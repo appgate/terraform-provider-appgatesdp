@@ -48,6 +48,15 @@ func mergeIR(irs []versionedIR) (map[string]any, error) {
 			if err != nil {
 				return nil, fmt.Errorf("%s %s: %w", strings.TrimSuffix(kind, "s"), name, err)
 			}
+			for _, a := range attrs {
+				_, body := attrType(a.(map[string]any))
+				if _, nested := nestedAttributes(body); nested != nil {
+					stripNestedDefaults(nested)
+					if c := body["computed_optional_required"]; c == computed || c == computedOptional {
+						computeChildren(nested)
+					}
+				}
+			}
 			if kind == "resources" {
 				attrs = resourceOverlay(attrs)
 			} else {
@@ -164,6 +173,41 @@ func mergeAttributes(inputs []versionedAttrs, parents []string) ([]any, error) {
 		out = append(out, map[string]any{"name": name, newest.typ: body})
 	}
 	return out, nil
+}
+
+// stripNestedDefaults removes defaults below the root level.
+// terraform-plugin-framework applies nested defaults wherever the
+// configuration is null, including elements that only exist in prior state
+// because the controller created them (e.g. a site's built-in DNS resolver
+// uses update_interval 300 while the specification default is 60). The
+// result would be a permanent diff, so unset nested attributes take the
+// API's value instead.
+func stripNestedDefaults(attrs []any) {
+	for _, a := range attrs {
+		_, body := attrType(a.(map[string]any))
+		delete(body, "default")
+		if _, nested := nestedAttributes(body); nested != nil {
+			stripNestedDefaults(nested)
+		}
+	}
+}
+
+// computeChildren makes every attribute below a computed parent computed.
+// The controller fills computed objects and lists itself (e.g. a site's
+// built-in DNS resolver). Terraform core treats a non-computed child value
+// in prior state as proof the configuration once set the parent, and plans
+// to remove it when the configuration does not. Required children are still
+// enforced per API version at plan time from the version metadata.
+func computeChildren(attrs []any) {
+	for _, a := range attrs {
+		_, body := attrType(a.(map[string]any))
+		if c := body["computed_optional_required"]; c == required || c == optional {
+			body["computed_optional_required"] = computedOptional
+		}
+		if _, nested := nestedAttributes(body); nested != nil {
+			computeChildren(nested)
+		}
+	}
 }
 
 // mergeComputability picks the least restrictive computability that is valid

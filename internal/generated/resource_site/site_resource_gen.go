@@ -8,9 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -31,14 +29,12 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "When enabled, the Client uses this Site as the Default Default for all IPV4 traffic.",
 						MarkdownDescription: "When enabled, the Client uses this Site as the Default Default for all IPV4 traffic.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"enabled_v6": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "When enabled, the Client uses this Site as the Default Default for all IPv6 traffic.",
 						MarkdownDescription: "When enabled, the Client uses this Site as the Default Default for all IPv6 traffic.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"excluded_subnets": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -126,7 +122,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									"Allocation",
 								),
 							},
-							Default: stringdefault.StaticString("Translation"),
 						},
 					},
 				},
@@ -142,7 +137,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Enables the Local Site Detection feature.",
 						MarkdownDescription: "Enables the Local Site Detection feature.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"public_ips": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -234,7 +228,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Proxy address to use while communicating with AWS. format: https://username:password@ip/hostname:port",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Identifier name. Has no functional effect.",
 									MarkdownDescription: "Identifier name. Has no functional effect.",
 								},
@@ -243,7 +238,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "What AWS partition to use such as 'aws-cn' or 'aws-us-gov'",
 									MarkdownDescription: "What AWS partition to use such as 'aws-cn' or 'aws-us-gov'",
-									Default:             stringdefault.StaticString("aws"),
 								},
 								"rds": schema.BoolAttribute{
 									Optional:            true,
@@ -276,7 +270,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "How often will the resolver poll the server. In seconds.",
 									MarkdownDescription: "How often will the resolver poll the server. In seconds.",
-									Default:             int64default.StaticInt64(60),
 								},
 								"use_iamrole": schema.BoolAttribute{
 									Optional:            true,
@@ -314,7 +307,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Azure client id, also called app id. Visible for a given application using the azure cli command `azure ad app show`.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Identifier name. Has no functional effect.",
 									MarkdownDescription: "Identifier name. Has no functional effect.",
 								},
@@ -349,14 +343,12 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "How often will the resolver poll the server. In seconds.",
 									MarkdownDescription: "How often will the resolver poll the server. In seconds.",
-									Default:             int64default.StaticInt64(60),
 								},
 								"use_managed_identities": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
 									Description:         "Uses the built-in Managed Identities in Azure instances to authenticate against the API.",
 									MarkdownDescription: "Uses the built-in Managed Identities in Azure instances to authenticate against the API.",
-									Default:             booldefault.StaticBool(false),
 								},
 							},
 						},
@@ -369,12 +361,14 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"hostname": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Hostname of the Claroty CTD server.",
 									MarkdownDescription: "Hostname of the Claroty CTD server.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Identifier name. Has no functional effect.",
 									MarkdownDescription: "Identifier name. Has no functional effect.",
 								},
@@ -390,17 +384,16 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Port number of the Claroty CTD server.",
 									MarkdownDescription: "Port number of the Claroty CTD server.",
-									Default:             int64default.StaticInt64(443),
 								},
 								"update_interval": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
 									Description:         "How often will the resolver poll the server. In seconds.",
 									MarkdownDescription: "How often will the resolver poll the server. In seconds.",
-									Default:             int64default.StaticInt64(60),
 								},
 								"username": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Username with access to the Claroty CTD server.",
 									MarkdownDescription: "Username with access to the Claroty CTD server.",
 								},
@@ -415,17 +408,20 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"cluster_name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "The hostname of the ColorTokens cluster used as the base URL for API requests.",
 									MarkdownDescription: "The hostname of the ColorTokens cluster used as the base URL for API requests.",
 								},
 								"fingerprint": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Key fingerprint of the ColorTokens Resolver.",
 									MarkdownDescription: "Key fingerprint of the ColorTokens Resolver.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Identifier name. Has no functional effect.",
 									MarkdownDescription: "Identifier name. Has no functional effect.",
 								},
@@ -437,7 +433,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Private key for authentication.",
 								},
 								"tenant_id": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Tenant ID of the ColorTokens Resolver.",
 									MarkdownDescription: "Tenant ID of the ColorTokens Resolver.",
 								},
@@ -446,10 +443,10 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "How often will the resolver poll the server. In seconds.",
 									MarkdownDescription: "How often will the resolver poll the server. In seconds.",
-									Default:             int64default.StaticInt64(60),
 								},
 								"user_id": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "User ID of the ColorTokens Resolver.",
 									MarkdownDescription: "User ID of the ColorTokens Resolver.",
 								},
@@ -466,18 +463,21 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"address": schema.StringAttribute{
-											Required:            true,
+											Optional:            true,
+											Computed:            true,
 											Description:         "IP address",
 											MarkdownDescription: "IP address",
 										},
 										"netmask": schema.Int64Attribute{
-											Required:            true,
+											Optional:            true,
+											Computed:            true,
 											Description:         "netmask",
 											MarkdownDescription: "netmask",
 										},
 									},
 								},
-								Required:            true,
+								Optional:            true,
+								Computed:            true,
 								Description:         "A list of subnets to allow access.",
 								MarkdownDescription: "A list of subnets to allow access.",
 							},
@@ -549,7 +549,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "The DNS resolver will only attempt to resolve names matching the match domains. If match domains are not specified the DNS resolver will attempt to resolve all hostnames.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Identifier name. Has no functional effect.",
 									MarkdownDescription: "Identifier name. Has no functional effect.",
 								},
@@ -558,7 +559,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Perform AAAA lookups.",
 									MarkdownDescription: "Perform AAAA lookups.",
-									Default:             booldefault.StaticBool(false),
 								},
 								"servers": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -572,14 +572,12 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "How often will the resolver poll the server. In seconds.",
 									MarkdownDescription: "How often will the resolver poll the server. In seconds.",
-									Default:             int64default.StaticInt64(60),
 								},
 								"zones_transfers": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
 									Description:         "Perform zones transfer.",
 									MarkdownDescription: "Perform zones transfer.",
-									Default:             booldefault.StaticBool(false),
 								},
 							},
 						},
@@ -592,12 +590,14 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"hostname": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Hostname of the vCenter.",
 									MarkdownDescription: "Hostname of the vCenter.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Identifier name. Has no functional effect.",
 									MarkdownDescription: "Identifier name. Has no functional effect.",
 								},
@@ -613,10 +613,10 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "How often will the resolver poll the server. In seconds.",
 									MarkdownDescription: "How often will the resolver poll the server. In seconds.",
-									Default:             int64default.StaticInt64(60),
 								},
 								"username": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Username with admin access to the vCenter.",
 									MarkdownDescription: "Username with admin access to the vCenter.",
 								},
@@ -643,7 +643,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "GCP instance filter.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Identifier name. Has no functional effect.",
 									MarkdownDescription: "Identifier name. Has no functional effect.",
 								},
@@ -658,7 +659,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "How often will the resolver poll the server. In seconds.",
 									MarkdownDescription: "How often will the resolver poll the server. In seconds.",
-									Default:             int64default.StaticInt64(60),
 								},
 							},
 						},
@@ -671,17 +671,20 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"hostname": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Hostname of the Illumio Resolver.",
 									MarkdownDescription: "Hostname of the Illumio Resolver.",
 								},
 								"name": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Identifier name. Has no functional effect.",
 									MarkdownDescription: "Identifier name. Has no functional effect.",
 								},
 								"org_id": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Organization ID of the Illumio Resolver.",
 									MarkdownDescription: "Organization ID of the Illumio Resolver.",
 								},
@@ -693,7 +696,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Password for the username.",
 								},
 								"port": schema.Int64Attribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Port number of the Illumio Resolver.",
 									MarkdownDescription: "Port number of the Illumio Resolver.",
 								},
@@ -702,10 +706,10 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "How often will the resolver poll the server. In seconds.",
 									MarkdownDescription: "How often will the resolver poll the server. In seconds.",
-									Default:             int64default.StaticInt64(60),
 								},
 								"username": schema.StringAttribute{
-									Required:            true,
+									Optional:            true,
+									Computed:            true,
 									Description:         "Username with access to the Illumio Resolver.",
 									MarkdownDescription: "Username with access to the Illumio Resolver.",
 								},
@@ -721,7 +725,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Name resolution to use Appliance's /etc/hosts file.",
 						MarkdownDescription: "Name resolution to use Appliance's /etc/hosts file.",
-						Default:             booldefault.StaticBool(false),
 					},
 				},
 
@@ -779,7 +782,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional: true,
 								Computed: true,
-								Default:  booldefault.StaticBool(false),
 							},
 						},
 
@@ -799,14 +801,12 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether to log NAT traffic or not.",
 						MarkdownDescription: "Whether to log NAT traffic or not.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"quic": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
 								Optional: true,
 								Computed: true,
-								Default:  booldefault.StaticBool(false),
 							},
 						},
 
@@ -841,14 +841,12 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Source NAT.",
 						MarkdownDescription: "Source NAT.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"tls": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
 								Optional: true,
 								Computed: true,
-								Default:  booldefault.StaticBool(true),
 							},
 							"version": schema.StringAttribute{
 								Optional:            true,
@@ -901,7 +899,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Gateway will verify upstream certificate of the endpoints.",
 									MarkdownDescription: "Gateway will verify upstream certificate of the endpoints.",
-									Default:             booldefault.StaticBool(true),
 								},
 							},
 						},

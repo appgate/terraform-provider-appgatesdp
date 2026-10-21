@@ -50,14 +50,11 @@ resource "appgatesdp_appliance_controller_activation" "second" {
 <a id="nestedatt--admin_interface"></a>
 ### Nested Schema for `admin_interface`
 
-Required:
-
-- `hostname` (String) Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Set it to "automatic.hostname.assignment" for cloud appliances in order for it to automatically configure the hostname on activation.
-- `https_ciphers` (List of String) The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.
-
 Optional:
 
 - `allow_sources` (Attributes List) Source configuration to allow via iptables. (see [below for nested schema](#nestedatt--admin_interface--allow_sources))
+- `hostname` (String) Hostname to connect to the admin interface. This hostname will be used to validate the appliance certificate. Set it to "automatic.hostname.assignment" for cloud appliances in order for it to automatically configure the hostname on activation.
+- `https_ciphers` (List of String) The type of TLS ciphers to allow. See: https://www.openssl.org/docs/man1.0.2/apps/ciphers.html for all supported ciphers.
 - `https_p12` (Attributes) PKCS12 object with X.509 certificate and private key. (see [below for nested schema](#nestedatt--admin_interface--https_p12))
 - `https_port` (Number) Port to connect for admin services.
 - `https_signed_certificate_pem` (String, Sensitive) A PEM-encoded signed certificate to complete a pending CSR flow. Provide this field when submitting the CA-signed certificate obtained after generating a CSR. Requires a pending CSR key pair (generated via POST /appliances/{id}/admin-interface/csr). The certificate must match the public key from the CSR and cover the appliance hostname. Supported in API versions: v25.

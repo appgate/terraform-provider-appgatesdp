@@ -94,11 +94,6 @@ Optional:
 <a id="nestedatt--app_shortcuts"></a>
 ### Nested Schema for `app_shortcuts`
 
-Required:
-
-- `name` (String) Name for the App Shortcut which will be visible on the Client UI.
-- `url` (String) The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL.
-
 Optional:
 
 - `color_code` (Number) The color code of the shortcut on the client.
@@ -124,3 +119,5 @@ Optional:
 - 20: Near Black
 - `description` (String) Description for the App Shortcut which will be visible on the Client UI.
 - `group_name` (String) The group name this shortcut is to be grouped by Supported in API versions: v22, v23, v24, v25.
+- `name` (String) Name for the App Shortcut which will be visible on the Client UI.
+- `url` (String) The URL that will be triggered on the OS to be handled. For example, an HTTPS URL will start the browser for the given URL.

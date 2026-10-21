@@ -100,10 +100,6 @@ Optional:
 <a id="nestedatt--name_resolution--aws_resolvers"></a>
 ### Nested Schema for `name_resolution.aws_resolvers`
 
-Required:
-
-- `name` (String) Identifier name. Has no functional effect.
-
 Optional:
 
 - `access_key_id` (String) ID of the access key.
@@ -112,6 +108,7 @@ Optional:
 - `ec2` (Boolean) Resolve EC2 resources. Supported in API versions: v22, v23, v24, v25.
 - `eks` (Boolean) Resolve EKS resources. Supported in API versions: v22, v23, v24, v25.
 - `https_proxy` (String) Proxy address to use while communicating with AWS. format: https://username:password@ip/hostname:port
+- `name` (String) Identifier name. Has no functional effect.
 - `partition` (String) What AWS partition to use such as 'aws-cn' or 'aws-us-gov'
 - `rds` (Boolean) Resolve RDS resources. Supported in API versions: v22, v23, v24, v25.
 - `regions` (List of String) Amazon regions.
@@ -137,13 +134,10 @@ Optional:
 <a id="nestedatt--name_resolution--azure_resolvers"></a>
 ### Nested Schema for `name_resolution.azure_resolvers`
 
-Required:
-
-- `name` (String) Identifier name. Has no functional effect.
-
 Optional:
 
 - `client_id` (String) Azure client id, also called app id. Visible for a given application using the azure cli command `azure ad app show`.
+- `name` (String) Identifier name. Has no functional effect.
 - `secret` (String, Sensitive) Azure client secret. For Azure AD Apps this is done by creating a key for the app.
 - `subscription_id_auto_discovery` (Boolean) Use subscription auto discovery. Supported in API versions: v22, v23, v24, v25.
 - `subscription_ids` (List of String) Subscription IDs to resolve names for. Supported in API versions: v22, v23, v24, v25.
@@ -155,45 +149,36 @@ Optional:
 <a id="nestedatt--name_resolution--claroty_ctd_resolvers"></a>
 ### Nested Schema for `name_resolution.claroty_ctd_resolvers`
 
-Required:
+Optional:
 
 - `hostname` (String) Hostname of the Claroty CTD server.
 - `name` (String) Identifier name. Has no functional effect.
-- `username` (String) Username with access to the Claroty CTD server.
-
-Optional:
-
 - `password` (String, Sensitive) Password for the username.
 - `port` (Number) Port number of the Claroty CTD server.
 - `update_interval` (Number) How often will the resolver poll the server. In seconds.
+- `username` (String) Username with access to the Claroty CTD server.
 
 
 <a id="nestedatt--name_resolution--color_tokens_resolvers"></a>
 ### Nested Schema for `name_resolution.color_tokens_resolvers`
 
-Required:
+Optional:
 
 - `cluster_name` (String) The hostname of the ColorTokens cluster used as the base URL for API requests.
 - `fingerprint` (String) Key fingerprint of the ColorTokens Resolver.
 - `name` (String) Identifier name. Has no functional effect.
-- `tenant_id` (String) Tenant ID of the ColorTokens Resolver.
-- `user_id` (String) User ID of the ColorTokens Resolver.
-
-Optional:
-
 - `private_key` (String, Sensitive) Private key for authentication.
+- `tenant_id` (String) Tenant ID of the ColorTokens Resolver.
 - `update_interval` (Number) How often will the resolver poll the server. In seconds.
+- `user_id` (String) User ID of the ColorTokens Resolver.
 
 
 <a id="nestedatt--name_resolution--dns_forwarding"></a>
 ### Nested Schema for `name_resolution.dns_forwarding`
 
-Required:
-
-- `allow_destinations` (Attributes List) A list of subnets to allow access. (see [below for nested schema](#nestedatt--name_resolution--dns_forwarding--allow_destinations))
-
 Optional:
 
+- `allow_destinations` (Attributes List) A list of subnets to allow access. (see [below for nested schema](#nestedatt--name_resolution--dns_forwarding--allow_destinations))
 - `auto_client_dns` (Boolean) This will configure Client machines' DNS according to this forwarder if the Client connects to this Site. Supported in API versions: v22, v23, v24, v25.
 - `default_ttl_seconds` (Number) Deprecated as of 6.4. This will apply whenever Gateway gets a DNS response which has no TTL set. Supported in API versions: v21, v22, v23.
 - `dns_servers` (List of String) DNS Servers to use for resolving endpoints. Leave it empty to use the Gateways' own DNS configuration.
@@ -204,7 +189,7 @@ Optional:
 <a id="nestedatt--name_resolution--dns_forwarding--allow_destinations"></a>
 ### Nested Schema for `name_resolution.dns_forwarding.allow_destinations`
 
-Required:
+Optional:
 
 - `address` (String) IP address
 - `netmask` (Number) netmask
@@ -214,15 +199,12 @@ Required:
 <a id="nestedatt--name_resolution--dns_resolvers"></a>
 ### Nested Schema for `name_resolution.dns_resolvers`
 
-Required:
-
-- `name` (String) Identifier name. Has no functional effect.
-
 Optional:
 
 - `auto_client_dns` (Boolean) This will configure Client machines' DNS according to this resolver if the Client connects to this Site.
 - `default_ttl_seconds` (Number) Deprecated as of 6.4. This will apply whenever Gateway gets a DNS response which has no TTL set. Supported in API versions: v21, v22, v23, v24.
 - `match_domains` (List of String) The DNS resolver will only attempt to resolve names matching the match domains. If match domains are not specified the DNS resolver will attempt to resolve all hostnames.
+- `name` (String) Identifier name. Has no functional effect.
 - `query_aaaa` (Boolean) Perform AAAA lookups.
 - `servers` (List of String) DNS Server addresses that will be used to resolve hostnames within the Site. Leave it empty to use the Gateways' own DNS configuration.
 - `update_interval` (Number) How often will the resolver poll the server. In seconds.
@@ -232,29 +214,23 @@ Optional:
 <a id="nestedatt--name_resolution--esx_resolvers"></a>
 ### Nested Schema for `name_resolution.esx_resolvers`
 
-Required:
+Optional:
 
 - `hostname` (String) Hostname of the vCenter.
 - `name` (String) Identifier name. Has no functional effect.
-- `username` (String) Username with admin access to the vCenter.
-
-Optional:
-
 - `password` (String, Sensitive) Password for the username.
 - `update_interval` (Number) How often will the resolver poll the server. In seconds.
+- `username` (String) Username with admin access to the vCenter.
 
 
 <a id="nestedatt--name_resolution--gcp_resolvers"></a>
 ### Nested Schema for `name_resolution.gcp_resolvers`
 
-Required:
-
-- `name` (String) Identifier name. Has no functional effect.
-
 Optional:
 
 - `forwarding_rules_filter` (String) GCP forwarding rules filter.
 - `instance_filter` (String) GCP instance filter.
+- `name` (String) Identifier name. Has no functional effect.
 - `project_filter` (String) GCP project filter.
 - `update_interval` (Number) How often will the resolver poll the server. In seconds.
 
@@ -262,18 +238,15 @@ Optional:
 <a id="nestedatt--name_resolution--illumio_resolvers"></a>
 ### Nested Schema for `name_resolution.illumio_resolvers`
 
-Required:
+Optional:
 
 - `hostname` (String) Hostname of the Illumio Resolver.
 - `name` (String) Identifier name. Has no functional effect.
 - `org_id` (String) Organization ID of the Illumio Resolver.
-- `port` (Number) Port number of the Illumio Resolver.
-- `username` (String) Username with access to the Illumio Resolver.
-
-Optional:
-
 - `password` (String, Sensitive) Password for the username.
+- `port` (Number) Port number of the Illumio Resolver.
 - `update_interval` (Number) How often will the resolver poll the server. In seconds.
+- `username` (String) Username with access to the Illumio Resolver.
 
 
 
