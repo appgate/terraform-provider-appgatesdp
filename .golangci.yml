@@ -1,0 +1,39 @@
+# golangci-lint v2 configuration. Run with `make lint`.
+version: "2"
+
+run:
+  timeout: 10m
+
+linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused
+  enable:
+    - bodyclose
+    - copyloopvar
+    - errorlint
+    - gosec
+    - misspell
+    - nolintlint
+    - unconvert
+    - usestdlibvars
+  settings:
+    gosec:
+      excludes:
+        - G304 # file paths come from provider/generator configuration by design
+        - G204 # the generator runs git and `go tool` with controlled arguments
+  exclusions:
+    # Generated code is linted like hand-written code; see the rules below
+    # for the narrowly scoped exceptions.
+    generated: disable
+    rules:
+      # Tests use fixed fixture paths and permissive temp file modes.
+      - path: _test\.go
+        linters: [gosec]
+      # The generator writes source files into the repository and walks only
+      # its own output directory; source trees use 0644/0755 by convention.
+      - path: internal/codegen/
+        linters: [gosec]
+        text: "G301|G306|G122|G703"
+
+formatters:
+  enable:
+    - gofmt

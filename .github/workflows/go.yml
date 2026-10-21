@@ -1,55 +1,61 @@
-name: Go
+name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
+
+permissions:
+  contents: read
 
 jobs:
-
-  build:
-    name: Build
+  check:
+    name: Quality gates
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
 
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v5
-      with:
-        go-version: ^1.26
-      id: go
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v4
-
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-
-    - name: Fmt check
-      run: make fmtcheck
-
-    - name: Unit tests
-      run: make test
-
-    - name: Build
-      run: make build
-  lint:
-    name: "Static analysis"
-    runs-on: "ubuntu-latest"
-    steps:
-      - uses: WillAbides/setup-go-faster@v1.15.0
+      - uses: actions/setup-go@v5
         with:
-          go-version: "1.26.x"
-      - run: "GO111MODULE=on go install honnef.co/go/tools/cmd/staticcheck@v0.6.1"
-      - uses: actions/checkout@v1
+          go-version-file: go.mod
+
+      - uses: hashicorp/setup-terraform@v3
         with:
-          fetch-depth: 1
-      - uses: actions/cache@v4
+          terraform_wrapper: false
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v8
         with:
-          path: ~/.cache/staticcheck
-          key: staticcheck-${{ github.sha }}
-          restore-keys: |
-            staticcheck-
-      - run: "go vet ./..."
-      - run: "$(go env GOPATH)/bin/staticcheck -go 1.26 ./..."
+          version: v2.15.0
+          install-only: true
+
+      - name: Cache fetched specifications
+        uses: actions/cache@v4
+        with:
+          path: .cache/specs
+          key: sdp-specs-${{ hashFiles('internal/apiversion/versions.json') }}
+
+      - name: Formatting
+        run: make fmt-check
+
+      - name: Vet
+        run: make vet
+
+      - name: Lint
+        run: make lint
+
+      - name: Build
+        run: make build
+
+      - name: Tests with race detector
+        run: make test-race
+
+      - name: Module files are tidy
+        run: make tidy-check
+
+      - name: Generated code is reproducible
+        run: make generate-check
+
+      - name: Documentation is up to date
+        run: make docs-check
