@@ -1,0 +1,119 @@
+# Terraform resources and data sources generated from the SDP Admin API
+# specifications. The list is shared by every API version: a definition whose
+# path (or variant) is missing from a version's specification is reported as
+# unsupported for that version, see codegen/reports/<version>.md.
+#
+#   path:             collection path; objects live at <path>/{id}
+#   singleton:        one object at <path> (GET/PUT), e.g. global settings
+#   variant:          fixed discriminator for polymorphic collections
+#   adopt:            built-in object; create adopts it by name, delete forgets it
+#   ignore:           JSON property paths left out of the Terraform schema
+#   data_source_only: generate only a data source
+#
+# APIs that are not plain collections:
+#   create_method:    method creating the object on <path> (default POST, PUT for singletons)
+#   read_list:        objects are read from this list property of GET <path>
+#   id_property:      JSON property identifying an object (default id)
+#   delete_path:      specification path deleting an object
+#   immutable:        no update; every change replaces the object
+#   sensitive:        extra JSON properties to mark sensitive
+#   required:         extra request JSON properties the API requires
+resources:
+  administrative_role: {path: /administrative-roles}
+  admin_mfa_settings: {path: /admin-mfa-settings, singleton: true}
+  appliance: {path: /appliances}
+  appliance_customization: {path: /appliance-customizations}
+  certificate_authority: {path: /certificate-authority/ca, singleton: true, data_source_only: true}
+  client_profile:
+    path: /client-profiles
+    variant: {property: type, value: Profile}
+  condition: {path: /conditions}
+  criteria_script: {path: /criteria-scripts}
+  device_script: {path: /device-scripts}
+  entitlement:
+    path: /entitlements
+    variant: {property: type, value: Network}
+  entitlement_script: {path: /entitlement-scripts}
+  global_settings: {path: /global-settings, singleton: true}
+  identity_provider: {path: /identity-providers, data_source_only: true}
+  ip_pool: {path: /ip-pools}
+  local_user: {path: /local-users}
+  mfa_provider: {path: /mfa-providers}
+  replication_target: {path: /replication-targets}
+  ringfence_rule: {path: /ringfence-rules}
+  site: {path: /sites}
+  trusted_certificate: {path: /trusted-certificates}
+  user_claim_script: {path: /user-scripts}
+
+  blacklist_user:
+    path: /blacklist
+    read_list: data
+    id_property: userDistinguishedName
+    required: [userDistinguishedName]
+    delete_path: /blacklist/{distinguished-name}
+    immutable: true
+  license:
+    path: /license
+    read_list: licenses
+    delete_path: /license/{id}
+    immutable: true
+    sensitive: [license]
+  replication_source:
+    path: /replication-source
+    singleton: true
+    create_method: POST
+    immutable: true
+
+  # Policies share /policies and are told apart by `type`.
+  policy: {path: /policies}
+  access_policy: {path: /policies, variant: {property: type, value: Access}}
+  admin_policy: {path: /policies, variant: {property: type, value: Admin}}
+  device_policy: {path: /policies, variant: {property: type, value: Device}}
+  dns_policy: {path: /policies, variant: {property: type, value: Dns}}
+  stop_policy: {path: /policies, variant: {property: type, value: Stop}}
+
+  # Identity providers share /identity-providers and are told apart by `type`.
+  connector_identity_provider:
+    path: /identity-providers
+    variant: {property: type, value: Connector}
+    adopt: true
+  ldap_certificate_identity_provider:
+    path: /identity-providers
+    variant: {property: type, value: LdapCertificate}
+  ldap_identity_provider:
+    path: /identity-providers
+    variant: {property: type, value: Ldap}
+  local_database_identity_provider:
+    path: /identity-providers
+    variant: {property: type, value: LocalDatabase}
+    adopt: true
+  oidc_identity_provider:
+    path: /identity-providers
+    variant: {property: type, value: Oidc}
+  radius_identity_provider:
+    path: /identity-providers
+    variant: {property: type, value: Radius}
+  saml_identity_provider:
+    path: /identity-providers
+    variant: {property: type, value: Saml}
+
+data_sources:
+  - administrative_role
+  - appliance
+  - appliance_customization
+  - client_profile
+  - condition
+  - criteria_script
+  - device_script
+  - entitlement
+  - entitlement_script
+  - global_settings
+  - ip_pool
+  - local_user
+  - mfa_provider
+  - policy
+  - replication_target
+  - ringfence_rule
+  - site
+  - trusted_certificate
+  - user_claim_script

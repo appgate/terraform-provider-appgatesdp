@@ -1,0 +1,31 @@
+parameters:
+  id:
+    name: id
+    in: path
+    required: true
+    schema:
+      type: string
+responses:
+  NotFound:
+    description: Not found.
+definitions:
+  BaseEntity:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+        description: Name of the object.
+      created:
+        type: string
+        format: date-time
+        readOnly: true
+      tags:
+        type: array
+        uniqueItems: true
+        items:
+          type: string

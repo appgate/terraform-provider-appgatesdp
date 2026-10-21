@@ -9,3 +9,6 @@ terraform.tfstate*
 state-migrate
 appgate/test-fixtures/appliance_customization_file_test.zip
 .idea/
+
+# Code generation cache (fetched specifications, generator inputs)
+/.cache/

@@ -1,0 +1,177 @@
+widgets:
+  post:
+    requestBody:
+      $ref: '#/requestBodies/Widget'
+    responses:
+      '200':
+        description: Created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/AnyWidget'
+widgets-id:
+  get:
+    parameters:
+      - $ref: './common.yml#/parameters/id'
+    responses:
+      '200':
+        description: Widget.
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/AnyWidget'
+      '404':
+        $ref: './common.yml#/responses/NotFound'
+  put:
+    requestBody:
+      $ref: '#/requestBodies/Widget'
+    responses:
+      '200':
+        description: Updated.
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/AnyWidget'
+  delete:
+    responses:
+      '204':
+        description: Deleted.
+settings:
+  get:
+    responses:
+      '200':
+        description: Settings.
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Settings'
+  put:
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Settings'
+    responses:
+      '200':
+        description: Settings.
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Settings'
+tokens:
+  get:
+    responses:
+      '200':
+        description: All tokens.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tokens:
+                  type: array
+                  items:
+                    $ref: '#/definitions/Token'
+  post:
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              value:
+                type: string
+              owner:
+                type: string
+    responses:
+      '200':
+        description: Created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Token'
+tokens-id:
+  delete:
+    responses:
+      '204':
+        description: Deleted.
+requestBodies:
+  Widget:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/definitions/AnyWidget'
+definitions:
+  AnyWidget:
+    type: object
+    discriminator:
+      propertyName: type
+      mapping:
+        Round: '#/definitions/RoundWidget'
+        Square: '#/definitions/SquareWidget'
+  BaseWidget:
+    allOf:
+      - $ref: './common.yml#/definitions/BaseEntity'
+      - description: Fragment without a type, merged into the widget.
+      - type: object
+        required:
+          - type
+        properties:
+          type:
+            type: string
+            enum: [Round, Square]
+          secret:
+            type: string
+            writeOnly: true
+          code:
+            type: string
+            pattern: '^(?!bad)[a-z]+$'
+          parent:
+            $ref: '#/definitions/BaseWidget'
+          labels:
+            type: object
+            additionalProperties:
+              type: string
+  RoundWidget:
+    allOf:
+      - $ref: '#/definitions/BaseWidget'
+      - type: object
+        required: [radius]
+        properties:
+          radius:
+            type: integer
+            default: 5
+  SquareWidget:
+    allOf:
+      - $ref: '#/definitions/BaseWidget'
+      - type: object
+        properties:
+          side:
+            type: number
+            format: double
+          corners:
+            type: array
+            items:
+              type: object
+              properties:
+                rounded:
+                  type: boolean
+  Token:
+    type: object
+    properties:
+      tokenId:
+        type: string
+      owner:
+        type: string
+      expires:
+        type: string
+        format: date-time
+  Settings:
+    type: object
+    properties:
+      mode:
+        type: string
+        default: fast
+      apiKey:
+        type: string

@@ -1,0 +1,17 @@
+openapi: 3.0.0
+info:
+  title: Fixture SDP API
+  version: API version 98.0
+paths:
+  /login:
+    $ref: './login.yml#/login'
+  /widgets:
+    $ref: './widget.yml#/widgets'
+  /widgets/{id}:
+    $ref: './widget.yml#/widgets-id'
+  /tokens:
+    $ref: './widget.yml#/tokens'
+  /tokens/{token-id}:
+    $ref: './widget.yml#/tokens-id'
+  /settings:
+    $ref: './widget.yml#/settings'

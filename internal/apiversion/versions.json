@@ -1,0 +1,35 @@
+{
+  "repository": "https://github.com/appgate/sdp-api-specification.git",
+  "versions": [
+    {
+      "api_version": "v21",
+      "sdp_version": "6.4",
+      "branch": "version-21",
+      "commit": "b41713aa5f3d196039e0594d9cd14c37ac333a7c"
+    },
+    {
+      "api_version": "v22",
+      "sdp_version": "6.5",
+      "branch": "version-22",
+      "commit": "20b6ab6bf1d553683f3b9cab1c856f2f951543b5"
+    },
+    {
+      "api_version": "v23",
+      "sdp_version": "6.6",
+      "branch": "version-23",
+      "commit": "d68bc5adf39fb22bd69ceabaf1b1046b74f569f3"
+    },
+    {
+      "api_version": "v24",
+      "sdp_version": "6.7",
+      "branch": "version-24",
+      "commit": "dd376a23cb9bc7ed707a961b55e7542658c189a0"
+    },
+    {
+      "api_version": "v25",
+      "sdp_version": "7.0",
+      "branch": "version-25",
+      "commit": "4d21f5ac71adea3f2f1ff15699939e74b2d4f606"
+    }
+  ]
+}
