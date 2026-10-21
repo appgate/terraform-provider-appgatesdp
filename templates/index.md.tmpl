@@ -1,0 +1,75 @@
+---
+page_title: "Provider: Appgate SDP"
+description: |-
+  Manage Appgate SDP through the Admin API.
+---
+
+# Appgate SDP Provider
+
+The `appgatesdp` provider manages [Appgate SDP](https://www.appgate.com/) collectives
+through the controller Admin API. One provider release supports several SDP releases:
+
+| SDP version | Admin API version | `api_version` |
+|---|---|---|
+| 7.0 | v25 | `"v25"` |
+| 6.7 | v24 | `"v24"` |
+| 6.6 | v23 | `"v23"` |
+| 6.5 | v22 | `"v22"` |
+| 6.4 | v21 | `"v21"` |
+
+Resources and attributes that differ between API versions are listed in the
+[supported API versions guide](guides/api-versions). Upgrading from 1.x? See the
+[migration guide](guides/migrating-to-v2).
+
+## Example Usage
+
+{{ tffile "examples/provider/provider.tf" }}
+
+## API version selection
+
+Set `api_version` to the Admin API version of your controller. If it is unset, the provider
+asks the controller which versions it accepts at the first request and uses the newest one
+both sides support.
+
+Terraform loads resource schemas before the provider is configured, so every resource
+exposes the union of the attributes of all supported API versions. The configured version
+decides what is accepted:
+
+* using a resource that does not exist in that version, or setting an attribute it does not
+  support, is an error at plan time, before any API call;
+* attributes the version requires are enforced at plan time;
+* only attributes known to that version are sent to the API.
+
+## Authentication
+
+Credentials are resolved in this order: the file referenced by `config_path`, the provider
+block, then environment variables.
+
+* **Username and password** (`username`, `password`, optionally `provider` for a non-local
+  identity provider). The token is cached and renewed automatically when it expires. While a
+  controller is starting, login is retried on connection errors and HTTP 5xx for up to
+  `login_timeout`.
+* **Bearer token** (`bearer_token`) obtained outside Terraform, for example from an MFA
+  enabled login.
+
+The API user must be exempt from Admin MFA to use username and password.
+
+TLS certificates are verified when `insecure = false`; set `pem_filepath` to the controller
+CA when it is not trusted by the system. `insecure` defaults to `true` for compatibility with
+earlier releases, which is not recommended in production.
+
+### `config_path` file format
+
+```json
+{
+  "appgate_url": "https://controller.example.com:8443/admin",
+  "appgate_username": "admin",
+  "appgate_password": "secret",
+  "appgate_provider": "local",
+  "appgate_api_version": "v25",
+  "appgate_pem_filepath": "/etc/ssl/controller-ca.pem",
+  "appgate_login_timeout": "10m"
+}
+```
+
+{{ .SchemaMarkdown | trimspace }}
