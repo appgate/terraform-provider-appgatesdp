@@ -81,9 +81,11 @@ make testacc                                   # read-only: compares live API re
 SDP_ACC_ALLOW_DESTRUCTIVE=1 make testacc       # also creates, updates and deletes test objects
 ```
 
-Tests only create objects named `tf-acc-*` and remove them afterwards. Run
+Tests only create objects named `tf-acc-*` (or `tf_acc_*` where names must be identifiers)
+and remove them afterwards. Run
 `SDP_ACC_ALLOW_DESTRUCTIVE=1 make testacc TESTARGS='-run TestAccSweep'` to clean up after an
 interrupted run. Destructive tests never run unless `SDP_ACC_ALLOW_DESTRUCTIVE=1` is set.
+Features the test collective is not licensed for (HTTP 402) are skipped with the reason.
 
 ## Contributing
 

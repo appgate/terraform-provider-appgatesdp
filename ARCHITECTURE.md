@@ -141,6 +141,14 @@ endpoints live in the metadata.
 ### Generator output post-processing
 
 * **IR merge and overlay** (`merge.go`):
+  * nested attributes have no defaults. The framework applies nested defaults
+    wherever configuration is null, including elements the controller created.
+    For example, a site's built-in DNS resolver uses `update_interval` 300 while
+    the specification default is 60, which would be a permanent diff;
+  * every attribute below a computed parent is computed. Terraform core treats
+    a non-computed child value in prior state as proof the parent was
+    configured, and plans to remove server-created elements. Required children
+    are still enforced per version at plan time;
   * every resource gets a stable `id` with `UseStateForUnknown`;
   * user-chosen ids also get `RequiresReplaceIfConfigured`;
   * data sources take `id` or `name` as lookup arguments;
@@ -178,6 +186,7 @@ The generic engine (`convert.go`) applies SDP-specific reconciliation rules:
 | Optional, non-computed attributes stay null when the API returns a zero value | The API fills unset fields with zero values. |
 | Lists of strings keep the configured order and case if the API returns the same elements | The API lowercases and sorts values such as tags. |
 | Update is GET, then overlay the plan, then PUT the whole object | The SDP API requires the complete object on PUT; fields Terraform does not manage are kept. |
+| After create and update, state is built from a fresh GET, not from the write response | Write responses are not canonical: timestamps have nanosecond rather than microsecond precision, and server-set fields (e.g. `blacklistedAt`) are missing. |
 | 404 on read removes the resource from state | Out-of-band deletion leads to re-creation. |
 | Discriminator mismatch on read removes the resource from state | The object's type changed outside Terraform. |
 
@@ -235,19 +244,29 @@ resources.
 | HTTP client: login, token cache, re-login, retries, TLS, errors, negotiation | `internal/sdp` | no |
 | Conversion and validation units | `internal/provider/*_test.go` | no |
 | Terraform lifecycle (plan/apply/import/refresh/drift/destroy) with the Terraform CLI against the in-memory controller `internal/sdptest`, table-driven over all versions; every resource of every version round-trips | `internal/provider` | no |
-| Acceptance: schema conformance (read-only), lifecycle, references, sweep | `internal/acctest` | yes (gated) |
+| Acceptance: schema conformance (read-only), lifecycle, references, a resource matrix (create, clean re-plan, import, destroy), built-in data sources, replication source status and token rejection, sweep | `internal/acctest` | yes (gated) |
 
 `internal/sdptest` is version-aware. It serves the collections of the version's metadata,
 checks the Accept header, rejects unknown fields and missing required fields like a strict
 controller, never returns write-only fields, and can inject failures. The acceptance suite is
 also run against it (`TestAcceptanceSuiteAgainstMock`), so the suite itself is tested.
 
+Run `make testacc` against a controller of every registered version before a
+release; adding a version only needs its `SDP_ACC_V<N>_*` variables. Features
+the collective is not licensed for (HTTP 402) are skipped with the reason, not
+failed.
+
 ## Known limitations and open items
 
 * Attributes that come from additional endpoints are not available
   (`client_profile.url`, `replication_target.registration_token`, `certificate_authority.pem`).
 * Licenses are not covered by destructive acceptance tests, to avoid replacing the license of a
-  test collective.
+  test collective. A real replication source registration is not covered either, because it
+  turns the test collective into a replica of another one.
+* Controllers return some fields their specification branch does not list. For example, SDP
+  6.6 returns `clientInterface.stunPort`, `connectionBroker`, `geoIpSettings` and `vpn.quic`,
+  which `version-23` only adds in v24. The provider follows the specification, so these are
+  rejected at plan time for v23. `TestAccSchemaConformance` lists such gaps.
 * The generator output still needs validation against real controllers. Attributes that the
   API fills with server defaults but the specification does not mark as defaults may show
   diffs. `TestAccSchemaConformance` and the acceptance lifecycle tests are designed to find
