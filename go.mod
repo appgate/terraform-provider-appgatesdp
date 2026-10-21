@@ -7,13 +7,12 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-framework v1.19.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.19.0
+	github.com/hashicorp/terraform-plugin-go v0.31.0
+	github.com/hashicorp/terraform-plugin-testing v1.16.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require (
-	github.com/hashicorp/terraform-plugin-go v0.31.0 // indirect
-	golang.org/x/oauth2 v0.36.0 // indirect
-)
+require golang.org/x/oauth2 v0.36.0 // indirect
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect

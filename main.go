@@ -1,4 +1,3 @@
-//go:generate go run gen/gen-accessors.go
 package main
 
 import (
@@ -6,27 +5,24 @@ import (
 	"flag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 
-	"github.com/appgate/terraform-provider-appgatesdp/appgate"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/provider"
+	"github.com/appgate/terraform-provider-appgatesdp/version"
 )
 
-func main() {
-	var debugMode bool
+//go:generate go run ./cmd/sdpgen generate
 
-	flag.BoolVar(&debugMode, "debuggable", false, "set to true to run the provider with support for debuggers like delve")
+func main() {
+	var debug bool
+	flag.BoolVar(&debug, "debug", false, "run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	if debugMode {
-		err := plugin.Debug(context.Background(), "registry.terraform.io/appgate/appgatesdp",
-			&plugin.ServeOpts{
-				ProviderFunc: appgate.Provider,
-			})
-		if err != nil {
-			log.Println(err.Error())
-		}
-	} else {
-		plugin.Serve(&plugin.ServeOpts{
-			ProviderFunc: appgate.Provider})
+	err := providerserver.Serve(context.Background(), provider.New(version.ProviderVersion), providerserver.ServeOpts{
+		Address: "registry.terraform.io/appgate/appgatesdp",
+		Debug:   debug,
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
 }
