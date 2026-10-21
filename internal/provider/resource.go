@@ -129,6 +129,17 @@ func (r *genericResource) objectPath(m *apimeta.Resource, id string) string {
 	return m.ObjectPath(url.PathEscape(id))
 }
 
+// reread returns the object as GET returns it. Write responses are not
+// canonical: controllers return timestamps with a different precision and
+// omit server-set fields (e.g. blacklistedAt) that later reads include, which
+// would surface as changes on the next refresh.
+func (r *genericResource) reread(ctx context.Context, m *apimeta.Resource, id string, written map[string]any) (map[string]any, error) {
+	if id == "" && !m.Singleton {
+		return written, nil
+	}
+	return r.getObject(ctx, m, id)
+}
+
 // getObject reads one object. APIs without an object endpoint (ReadList)
 // return all objects in a list property of the collection.
 func (r *genericResource) getObject(ctx context.Context, m *apimeta.Resource, id string) (map[string]any, error) {
@@ -181,6 +192,14 @@ func (r *genericResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 	if err != nil {
 		resp.Diagnostics.AddError("Cannot create "+TypePrefix+r.name, err.Error())
+		return
+	}
+	id, _ := out[m.ID()].(string)
+	if id == "" {
+		id = stringAttr(req.Plan.Raw, "id")
+	}
+	if out, err = r.reread(ctx, m, id, out); err != nil {
+		resp.Diagnostics.AddError("Cannot read "+TypePrefix+r.name+" after create", err.Error())
 		return
 	}
 	r.setState(&resp.State, &resp.Diagnostics, out, m, req.Plan.Raw, afterApply)
@@ -244,6 +263,10 @@ func (r *genericResource) Update(ctx context.Context, req resource.UpdateRequest
 	var out map[string]any
 	if err := c.Do(ctx, http.MethodPut, r.objectPath(m, id), nil, current, &out); err != nil {
 		resp.Diagnostics.AddError("Cannot update "+TypePrefix+r.name, err.Error())
+		return
+	}
+	if out, err = r.reread(ctx, m, id, out); err != nil {
+		resp.Diagnostics.AddError("Cannot read "+TypePrefix+r.name+" after update", err.Error())
 		return
 	}
 	r.setState(&resp.State, &resp.Diagnostics, out, m, req.Plan.Raw, afterApply)

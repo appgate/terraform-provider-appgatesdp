@@ -231,7 +231,8 @@ provider "appgatesdp" {
 		},
 		"unexpected response": {
 			setup: func(srv *sdptest.Server) {
-				srv.Fail("POST", "/conditions", 200, `{"id":"x","name":["not","a","string"]}`, 1)
+				srv.Seed("/conditions", map[string]any{"id": "x", "name": []any{"not", "a", "string"}})
+				srv.Fail("POST", "/conditions", 200, `{"id":"x"}`, 1)
 			},
 			want: `Unexpected API response for appgatesdp_condition`,
 		},
