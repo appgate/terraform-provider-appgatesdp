@@ -4,7 +4,9 @@ Terraform provider for [Appgate SDP](https://www.appgate.com/products/zero-trust
 It is generated from the official
 [SDP Admin API OpenAPI specifications](https://github.com/appgate/sdp-api-specification) with
 HashiCorp's [provider code generation](https://developer.hashicorp.com/terraform/plugin/code-generation)
-tools. One release supports every listed SDP version.
+tools. One release supports every listed SDP version. Resources and data sources are
+discovered from each version's specification: every collection, variant, settings object and
+read-only endpoint the version offers is available (action endpoints are not).
 
 | SDP version | Admin API | Specification branch |
 |---|---|---|

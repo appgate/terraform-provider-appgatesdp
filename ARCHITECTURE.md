@@ -8,12 +8,13 @@ Admin API version, and adding a new SDP release is a generation and validation t
 
 ```
 internal/apiversion/versions.json        registry: API version → SDP version, branch, pinned commit
-codegen/resources.yml                    which Terraform resources/data sources exist and where they live in the API
+codegen/resources.yml                    explicit definitions, names and exclusions that tune discovery
             │
             ▼  make generate  (cmd/sdpgen → internal/codegen)
 ┌───────────────────────────────────────────────────────────────────────────────────────────┐
 │ per API version                                                                           │
 │  1. fetch      git: branch version-N exists, pinned commit is on it, tree declares API N  │
+│  1b. discover  classify every path: resource, data source, action or excluded             │
 │  2. normalize  resolve multi-file $refs, flatten allOf/oneOf/discriminators, split        │
 │                request/response by readOnly/writeOnly, select variants, drop what the     │
 │                generator cannot express → one synthetic generator-input spec              │
@@ -118,6 +119,30 @@ Generation never uses a branch head. `make pin [API_VERSION=vN]` moves the pins 
 heads; the change to `versions.json` is reviewed like any other change. Each report in
 `codegen/reports/vN.md` and the versions guide records the branch and commit used.
 
+### Discovery (`internal/codegen/discover.go`)
+
+Each version's specification decides what that version offers. Every path is classified, and
+the classification is listed in `codegen/reports/vN.md`:
+
+| Shape | Becomes |
+|---|---|
+| POST `/x` and GET `/x/{id}` | A collection resource. A discriminated request body gives one resource per variant, named `<variant>_<singular>` (e.g. `/secrets` → `credentials_secret`, `generic_secret`, `ssh_key_secret`). |
+| GET and PUT `/x` | A singleton resource named after the path (`auto_update_settings`). |
+| GET, POST and DELETE `/x`, without objects | A registration: an immutable singleton created with POST (`ztp_registration`). |
+| Any other GET returning JSON | A read-only data source named after the path's literal segments (`/sites/{id}/resources` → `sites_resources`). Path and query parameters become attributes. |
+| Everything else | An action: bulk upserts, reboots, upgrades, diagnostics, tests. Actions have no state and are not exposed. |
+
+Every resource also gets a data source that looks objects up by `id` or exact `name`.
+
+`codegen/resources.yml` only tunes discovery:
+* explicit `resources` take precedence and keep established names and behavior (e.g. the
+  typed policies, the adopted built-in identity providers);
+* `names` renames discovered resources;
+* `exclude` skips paths, with a reason.
+
+New collections, variants and endpoints of a new API version therefore appear without any
+change. Name collisions fail generation with instructions.
+
 ### Normalization (`internal/codegen/normalize.go`, `build.go`)
 
 The SDP specification uses constructs `tfplugingen-openapi` v0.3.0 cannot handle. The
@@ -132,6 +157,8 @@ normalizer rewrites them:
 | Secrets marked only `writeOnly` | Sensitivity comes only from `format: password` | Write-only and secret-named strings get `format: password`. |
 | ECMA regex `pattern` | Generated code uses `regexp.MustCompile` | Patterns RE2 cannot compile are dropped and reported. |
 | Recursive references | Infinite schema | Dropped at re-entry and reported. |
+| Free-form objects (`additionalProperties: true`, no declared properties, untyped values) | Not representable | A JSON-encoded string attribute (`jsonencode`/`jsondecode`), compared by content. A body that is entirely free-form (`/my-preferences`) is exposed as one `value` attribute. |
+| Object-valued query parameters (`filterBy`, `geolocationQuery`) | Not representable as parameters | Dropped from read-only data sources and reported. |
 | `uniqueItems` primitive arrays | — | Become sets. |
 
 Each resource gets synthetic paths (`/condition`, `/condition/{id}`) in the generator input, so
@@ -190,9 +217,15 @@ The generic engine (`convert.go`) applies SDP-specific reconciliation rules:
 | 404 on read removes the resource from state | Out-of-band deletion leads to re-creation. |
 | Discriminator mismatch on read removes the resource from state | The object's type changed outside Terraform. |
 
-Resource kinds come from `codegen/resources.yml`:
+| JSON attributes keep their configured text if the API returns the same JSON | Key order and formatting are not changes. |
+| Values outside the configured version's enum are rejected at plan time | The shared schema only validates values every version accepts. |
+
+Resource kinds (discovered, or set in `codegen/resources.yml`):
 * **collection**: POST, then GET/PUT/DELETE on `/{id}`;
-* **singleton**: PUT to create; DELETE resets to defaults if supported;
+* **singleton**: always exists. Create works like update: GET, overlay the plan, PUT, so
+  settings the configuration does not mention keep their values. DELETE resets to defaults if
+  supported;
+* **registration**: POST to create, DELETE to remove, any change replaces it;
 * **variant**: the discriminator is injected and checked;
 * **adopt**: a built-in object is looked up by name; destroy only removes it from state;
 * **non-collection APIs** (`create_method`, `read_list`, `id_property`, `delete_path`,
@@ -200,6 +233,12 @@ Resource kinds come from `codegen/resources.yml`:
   `licenses` list of GET `/license` and deleted with DELETE `/license/{id}`; blacklist entries
   are identified by `userDistinguishedName`. Immutable objects have no update, so every input
   change is planned as a replacement. Schemas stay generated per version.
+
+Data source kinds:
+* **lookup**: by `id`, or by exact `name` within the resource's discriminator;
+* **singleton**: GET of the settings;
+* **read-only**: GET of an endpoint with path parameters substituted and query parameters
+  added from the configuration.
 
 Hand-written code is limited to:
 * `hooks.go`: an activated appliance is deactivated before delete;
@@ -222,7 +261,8 @@ Hand-written code is limited to:
    make generate API_VERSION=v26
    ```
 4. Review the diff:
-   * `codegen/reports/v26.md` (unsupported resources, normalization warnings);
+   * `codegen/reports/v26.md` (path classification, unsupported resources, normalization
+     warnings);
    * `codegen/ir/v26.json`;
    * `templates/guides/api-versions.md.tmpl` (new and removed attributes);
    * the merged schema.
@@ -230,9 +270,9 @@ Hand-written code is limited to:
 6. Optionally, run acceptance tests against a v26 controller with `SDP_ACC_V26_URL`.
 7. Release.
 
-If the new version adds a new API collection that should become a resource, add one line to
-`codegen/resources.yml`. No Go code changes are needed for new versions, attributes or
-resources.
+New collections, variants, singletons and read-only endpoints are discovered. Only add
+`names` or `exclude` entries to `codegen/resources.yml` where the defaults do not fit. No Go
+code changes are needed for new versions, attributes, resources or data sources.
 
 ## Testing
 
@@ -257,6 +297,11 @@ the collective is not licensed for (HTTP 402) are skipped with the reason, not
 failed.
 
 ## Known limitations and open items
+
+* Action endpoints (bulk upserts, reboots, upgrades, diagnostics, connection tests, CA
+  switch) are intentionally not exposed: they have no state to manage.
+* Endpoints with non-JSON responses (appliance metrics, recorded session downloads, session
+  observation) are not exposed.
 
 * Attributes that come from additional endpoints are not available
   (`client_profile.url`, `replication_target.registration_token`, `certificate_authority.pem`).
