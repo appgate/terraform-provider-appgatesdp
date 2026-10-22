@@ -38,10 +38,51 @@ type Resource struct {
 	DeletePath string `json:"delete_path,omitempty"`
 	// Immutable objects have no update; every change replaces them.
 	Immutable bool `json:"immutable,omitempty"`
+	// Wrapped resources have a free-form JSON body, exposed as the single
+	// attribute WrapProperty.
+	Wrapped bool `json:"wrapped,omitempty"`
+	// ReadOnly data sources read one GET endpoint (Path, with Params filled
+	// in) instead of looking objects up by id or name.
+	ReadOnly bool `json:"read_only,omitempty"`
+	// Params are the path and query parameters of read-only data sources.
+	Params []Param `json:"params,omitempty"`
 	// Discriminator is a fixed JSON property injected into requests and used
 	// to filter responses, e.g. type=Access for access policies.
 	Discriminator *Discriminator    `json:"discriminator,omitempty"`
 	Fields        map[string]*Field `json:"fields"`
+}
+
+// WrapProperty is the attribute holding the body of Wrapped resources.
+const WrapProperty = "value"
+
+// Wrap returns the body of an API object in the shape of the field metadata.
+func (r *Resource) Wrap(body map[string]any) map[string]any {
+	if !r.Wrapped {
+		return body
+	}
+	return map[string]any{WrapProperty: body}
+}
+
+// Unwrap returns the request body for a Terraform-shaped object.
+func (r *Resource) Unwrap(obj map[string]any) map[string]any {
+	if !r.Wrapped {
+		return obj
+	}
+	body, _ := obj[WrapProperty].(map[string]any)
+	if body == nil {
+		body = map[string]any{}
+	}
+	return body
+}
+
+// Param is a path or query parameter set from a Terraform attribute.
+type Param struct {
+	Name string `json:"name"`
+	// In is "path" or "query".
+	In       string   `json:"in"`
+	TF       string   `json:"tf"`
+	Required bool     `json:"required,omitempty"`
+	Enum     []string `json:"enum,omitempty"`
 }
 
 // Discriminator is a fixed JSON property value identifying a variant.
@@ -53,7 +94,8 @@ type Discriminator struct {
 // Field maps one Terraform attribute onto a JSON property.
 type Field struct {
 	JSON string `json:"json"`
-	// Type is one of string, int64, number, bool, object, list, set, map.
+	// Type is one of string, int64, number, bool, object, list, set, map, or
+	// json for free-form values held as JSON encoded strings.
 	Type string `json:"type"`
 	// Elem is the element type of list, set and map fields.
 	Elem      string `json:"elem,omitempty"`

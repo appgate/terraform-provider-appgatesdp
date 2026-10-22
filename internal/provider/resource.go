@@ -140,13 +140,14 @@ func (r *genericResource) reread(ctx context.Context, m *apimeta.Resource, id st
 	return r.getObject(ctx, m, id)
 }
 
-// getObject reads one object. APIs without an object endpoint (ReadList)
-// return all objects in a list property of the collection.
+// getObject reads one object in the shape of the field metadata. APIs
+// without an object endpoint (ReadList) return all objects in a list
+// property of the collection.
 func (r *genericResource) getObject(ctx context.Context, m *apimeta.Resource, id string) (map[string]any, error) {
 	if m.ReadList == "" {
 		var out map[string]any
 		err := r.data.client.Do(ctx, http.MethodGet, r.objectPath(m, id), nil, nil, &out)
-		return out, err
+		return m.Wrap(out), err
 	}
 	var list map[string]any
 	if err := r.data.client.Do(ctx, http.MethodGet, m.Path, nil, nil, &list); err != nil {
@@ -161,45 +162,72 @@ func (r *genericResource) getObject(ctx context.Context, m *apimeta.Resource, id
 	return nil, &sdp.Error{Status: http.StatusNotFound, Method: http.MethodGet, Path: m.Path, Message: fmt.Sprintf("%s %q not found in %s", m.ID(), id, m.ReadList)}
 }
 
+// put replaces an existing object with the plan. PUT replaces the whole
+// object, so it starts from the current object: fields Terraform does not
+// manage, or that are unknown in the plan, keep their values.
+func (r *genericResource) put(ctx context.Context, m *apimeta.Resource, id string, plan tftypes.Value) (map[string]any, error) {
+	current, err := r.getObject(ctx, m, id)
+	if err != nil {
+		return nil, fmt.Errorf("read before update: %w", err)
+	}
+	if current == nil {
+		current = map[string]any{}
+	}
+	if err := overlayJSON(current, plan, m.Fields); err != nil {
+		return nil, fmt.Errorf("convert plan to API request: %w", err)
+	}
+	body := m.Unwrap(current)
+	setDiscriminator(body, m)
+	if !m.Singleton {
+		body["id"] = id
+	}
+	if err := r.data.client.Do(ctx, http.MethodPut, r.objectPath(m, id), nil, body, nil); err != nil {
+		return nil, err
+	}
+	return r.reread(ctx, m, id, nil)
+}
+
 func (r *genericResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	m := r.meta(&resp.Diagnostics)
 	if m == nil {
 		return
 	}
-	body, err := objectToJSON(req.Plan.Raw, m.Fields)
-	if err != nil {
-		resp.Diagnostics.AddError("Cannot convert plan to API request", err.Error())
-		return
-	}
-	setDiscriminator(body, m)
 	c := r.data.client
 	var out map[string]any
+	var err error
 	switch {
-	case m.CreateMethod != "":
-		err = c.Do(ctx, m.CreateMethod, m.Path, nil, body, &out)
-	case m.Singleton:
-		err = c.Do(ctx, http.MethodPut, m.Path, nil, body, &out)
+	case m.Singleton && m.CreateMethod == "":
+		// Singletons always exist: configure them like an update so settings
+		// the configuration does not mention keep their values.
+		out, err = r.put(ctx, m, "", req.Plan.Raw)
 	case m.Adopt:
+		name := stringAttr(req.Plan.Raw, "name")
 		var existing map[string]any
-		name, _ := body["name"].(string)
 		if existing, err = findByName(ctx, c, m, name); err == nil {
-			id := fmt.Sprint(existing["id"])
-			body["id"] = id
-			err = c.Do(ctx, http.MethodPut, r.objectPath(m, id), nil, body, &out)
+			out, err = r.put(ctx, m, fmt.Sprint(existing["id"]), req.Plan.Raw)
 		}
 	default:
-		err = c.Do(ctx, http.MethodPost, m.Path, nil, body, &out)
+		var body map[string]any
+		if body, err = objectToJSON(req.Plan.Raw, m.Fields); err != nil {
+			resp.Diagnostics.AddError("Cannot convert plan to API request", err.Error())
+			return
+		}
+		body = m.Unwrap(body)
+		setDiscriminator(body, m)
+		method := m.CreateMethod
+		if method == "" {
+			method = http.MethodPost
+		}
+		if err = c.Do(ctx, method, m.Path, nil, body, &out); err == nil {
+			id, _ := out[m.ID()].(string)
+			if id == "" {
+				id = stringAttr(req.Plan.Raw, "id")
+			}
+			out, err = r.reread(ctx, m, id, m.Wrap(out))
+		}
 	}
 	if err != nil {
 		resp.Diagnostics.AddError("Cannot create "+TypePrefix+r.name, err.Error())
-		return
-	}
-	id, _ := out[m.ID()].(string)
-	if id == "" {
-		id = stringAttr(req.Plan.Raw, "id")
-	}
-	if out, err = r.reread(ctx, m, id, out); err != nil {
-		resp.Diagnostics.AddError("Cannot read "+TypePrefix+r.name+" after create", err.Error())
 		return
 	}
 	r.setState(&resp.State, &resp.Diagnostics, out, m, req.Plan.Raw, afterApply)
@@ -235,38 +263,17 @@ func (r *genericResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 	id := stringAttr(req.State.Raw, "id")
-	c := r.data.client
-	// PUT replaces the whole object. Start from the current object so fields
-	// Terraform does not manage (or that are unknown in the plan) are kept.
-	current, err := r.getObject(ctx, m, id)
-	if err != nil {
-		resp.Diagnostics.AddError("Cannot read "+TypePrefix+r.name+" before update", err.Error())
-		return
-	}
+	var out map[string]any
+	var err error
 	if m.Immutable {
 		// Every input change replaces the object (ModifyPlan); only computed
 		// values can differ here, so the current object is the new state.
-		r.setState(&resp.State, &resp.Diagnostics, current, m, req.Plan.Raw, afterApply)
-		return
+		out, err = r.getObject(ctx, m, id)
+	} else {
+		out, err = r.put(ctx, m, id, req.Plan.Raw)
 	}
-	if current == nil {
-		current = map[string]any{}
-	}
-	if err := overlayJSON(current, req.Plan.Raw, m.Fields); err != nil {
-		resp.Diagnostics.AddError("Cannot convert plan to API request", err.Error())
-		return
-	}
-	setDiscriminator(current, m)
-	if !m.Singleton {
-		current["id"] = id
-	}
-	var out map[string]any
-	if err := c.Do(ctx, http.MethodPut, r.objectPath(m, id), nil, current, &out); err != nil {
+	if err != nil {
 		resp.Diagnostics.AddError("Cannot update "+TypePrefix+r.name, err.Error())
-		return
-	}
-	if out, err = r.reread(ctx, m, id, out); err != nil {
-		resp.Diagnostics.AddError("Cannot read "+TypePrefix+r.name+" after update", err.Error())
 		return
 	}
 	r.setState(&resp.State, &resp.Diagnostics, out, m, req.Plan.Raw, afterApply)

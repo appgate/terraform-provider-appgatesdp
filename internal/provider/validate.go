@@ -2,6 +2,8 @@ package provider
 
 import (
 	"fmt"
+	"slices"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -48,6 +50,15 @@ func checkConfigured(diags *diag.Diagnostics, p path.Path, v tftypes.Value, fiel
 		case f.ReadOnly:
 			diags.AddAttributeError(ap, "Attribute is read-only in API version",
 				fmt.Sprintf("%s is read-only in SDP Admin API %s and cannot be configured.", ap, version))
+		case len(f.Enum) > 0 && av.IsKnown() && av.Type().Is(tftypes.String):
+			// The shared schema only validates values every version accepts;
+			// each version's own values are enforced here.
+			var s string
+			_ = av.As(&s)
+			if !slices.Contains(f.Enum, s) {
+				diags.AddAttributeError(ap, "Value not supported by API version",
+					fmt.Sprintf("%s = %q is not accepted by SDP Admin API %s. Allowed values: %s.", ap, s, version, strings.Join(f.Enum, ", ")))
+			}
 		default:
 			forEachObject(ap, av, f, func(op path.Path, ov tftypes.Value) {
 				checkConfigured(diags, op, ov, f.Fields, version)

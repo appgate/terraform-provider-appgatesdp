@@ -43,12 +43,15 @@ type Server struct {
 	MinVersion, MaxVersion int
 	api                    *apimeta.API
 
-	mu       sync.Mutex
-	token    string
-	objects  map[string]map[string]map[string]any // collection path -> id -> object
-	singles  map[string]map[string]any
-	requests []Request
-	failures []failure
+	mu      sync.Mutex
+	token   string
+	objects map[string]map[string]map[string]any // collection path -> id -> object
+	singles map[string]map[string]any
+	// endpoints holds responses of read-only data source paths, by pattern
+	// (e.g. /sites/{id}/resources).
+	endpoints map[string]map[string]any
+	requests  []Request
+	failures  []failure
 	// LowercaseTags mimics the controller lowercasing tag values.
 	LowercaseTags bool
 	// PendingStatusPolls is the number of /appliances/status responses that
@@ -73,11 +76,16 @@ func New(t testing.TB, api *apimeta.API) *Server {
 	}
 	s := &Server{
 		t: t, version: n, MinVersion: n, MaxVersion: n, api: api,
-		token:   uuid.NewString(),
-		objects: map[string]map[string]map[string]any{},
-		singles: map[string]map[string]any{},
+		token:     uuid.NewString(),
+		objects:   map[string]map[string]map[string]any{},
+		singles:   map[string]map[string]any{},
+		endpoints: map[string]map[string]any{},
 	}
 	for _, r := range allResources(api) {
+		if r.ReadOnly {
+			s.endpoints[r.Path] = map[string]any{}
+			continue
+		}
 		if r.Singleton {
 			if s.singles[r.Path] == nil {
 				s.singles[r.Path] = map[string]any{}
@@ -106,6 +114,27 @@ func (s *Server) Fail(method, path string, status int, body string, times int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.failures = append(s.failures, failure{method, path, status, body, times})
+}
+
+// SeedEndpoint sets the response of a read-only endpoint pattern.
+func (s *Server) SeedEndpoint(pattern string, obj map[string]any) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.endpoints[pattern] = obj
+}
+
+// matchPattern reports whether path matches a pattern with {param} segments.
+func matchPattern(pattern, path string) bool {
+	ps, xs := strings.Split(pattern, "/"), strings.Split(path, "/")
+	if len(ps) != len(xs) {
+		return false
+	}
+	for i := range ps {
+		if ps[i] != xs[i] && !strings.HasPrefix(ps[i], "{") {
+			return false
+		}
+	}
+	return true
 }
 
 // Token returns the token issued by successful logins.
@@ -257,6 +286,14 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	if r.Method == http.MethodGet {
+		if obj, ok := s.endpoints[path]; ok {
+			writeJSON(w, http.StatusOK, obj)
+			return
+		}
+	}
+	// Exact paths win over patterns (/discovered-apps/configuration is a
+	// singleton, /discovered-apps/{id} an endpoint).
 	if single, ok := s.singles[path]; ok {
 		s.serveSingleton(w, r, path, single, body)
 		return
@@ -264,6 +301,14 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	if coll, ok := s.objects[path]; ok {
 		s.serveCollection(w, r, path, coll, body)
 		return
+	}
+	if r.Method == http.MethodGet {
+		for _, pattern := range sortedKeys(s.endpoints) {
+			if strings.Contains(pattern, "{") && matchPattern(pattern, path) {
+				writeJSON(w, http.StatusOK, s.endpoints[pattern])
+				return
+			}
+		}
 	}
 	if collPath, id := splitObjectPath(path); s.objects[collPath] != nil {
 		s.serveObject(w, r, collPath, id, body)

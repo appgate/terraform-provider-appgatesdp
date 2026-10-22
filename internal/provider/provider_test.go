@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
@@ -91,6 +92,7 @@ func TestEveryResourceRoundTrip(t *testing.T) {
 				continue
 			}
 			t.Run(name, func(t *testing.T) {
+				parallelTerraform(t)
 				srv := newServer(t, v.APIVersion)
 				body, ok := minimalConfig(m.Fields)
 				if !ok {
@@ -140,7 +142,11 @@ func minimalConfig(fields map[string]*apimeta.Field) (string, bool) {
 				}
 				v = "[{\n" + inner + "}]"
 			} else {
-				v = "[]"
+				// One element satisfies minimum sizes.
+				v = map[string]string{"string": fmt.Sprintf("[%q]", uuid.NewString()), "int64": "[1]", "number": "[1]", "bool": "[true]"}[f.Elem]
+				if v == "" {
+					return "", false
+				}
 			}
 		case "object":
 			inner, ok := minimalConfig(f.Fields)
@@ -330,5 +336,57 @@ data "appgatesdp_appliance_seed" "active" {
 				resource.TestCheckResourceAttr("data.appgatesdp_appliance_seed.active", "seed_file", ""),
 			),
 		}},
+	})
+}
+
+// TestEveryDataSourceReads reads every data source of every version: lookups
+// by id of a seeded object, singletons, and read-only endpoints with their
+// path parameters set.
+func TestEveryDataSourceReads(t *testing.T) {
+	forEachVersion(t, func(t *testing.T, v apiversion.Version) {
+		api, _ := generated.API(v.APIVersion)
+		for _, name := range sortedNames(api.DataSources) {
+			m := api.DataSources[name]
+			t.Run(name, func(t *testing.T) {
+				parallelTerraform(t)
+				srv := newServer(t, v.APIVersion)
+				var args string
+				switch {
+				case m.ReadOnly:
+					attrs := generatedDataSourceSchemas[name](context.Background()).Attributes
+					for _, p := range m.Params {
+						if !p.Required {
+							continue
+						}
+						value := "x"
+						if len(p.Enum) > 0 {
+							value = p.Enum[0]
+						}
+						if _, isString := attrs[p.TF].(dschema.StringAttribute); isString {
+							args += fmt.Sprintf("  %s = %q\n", p.TF, value)
+						} else {
+							args += fmt.Sprintf("  %s = 1\n", p.TF)
+						}
+					}
+				case m.Singleton:
+				default:
+					obj := map[string]any{"name": "seeded"}
+					if m.Discriminator != nil {
+						obj[m.Discriminator.Property] = m.Discriminator.Value
+					}
+					id := uuid.NewString()
+					obj["id"], obj[m.ID()] = id, id
+					srv.Seed(m.Path, obj)
+					args = fmt.Sprintf("  id = %q\n", id)
+				}
+				resource.UnitTest(t, resource.TestCase{
+					ProtoV6ProviderFactories: protoV6Factories,
+					Steps: []resource.TestStep{{
+						Config: providerConfig(srv, v.APIVersion) + fmt.Sprintf("data %q \"test\" {\n%s}\n", "appgatesdp_"+name, args),
+						Check:  resource.ComposeAggregateTestCheckFunc(resource.TestCheckResourceAttrSet("data.appgatesdp_"+name+".test", "id"), checkAcceptHeaders(srv, v)),
+					}},
+				})
+			})
+		}
 	})
 }

@@ -222,3 +222,47 @@ func TestOverlayJSONKeepsUnmanagedFields(t *testing.T) {
 		t.Fatalf("got  %v\nwant %v", current, want)
 	}
 }
+
+func TestJSONFields(t *testing.T) {
+	typ := tftypes.Object{AttributeTypes: map[string]tftypes.Type{"prefs": tftypes.String}}
+	fields := map[string]*apimeta.Field{"prefs": {JSON: "prefs", Type: "json"}}
+	plan := tftypes.NewValue(typ, map[string]tftypes.Value{"prefs": str(`{ "b": [1, 2],  "a": "x" }`)})
+	body, err := objectToJSON(plan, fields)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]any{"prefs": map[string]any{"a": "x", "b": []any{json.Number("1"), json.Number("2")}}}
+	if !reflect.DeepEqual(body, want) {
+		t.Fatalf("got %#v", body)
+	}
+	// The API reorders keys: the configured formatting is kept.
+	got, err := objectFromJSON(decode(t, `{"prefs":{"a":"x","b":[1,2]}}`), typ, fields, nil, plan, afterApply)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !attr(t, got, "prefs").Equal(str(`{ "b": [1, 2],  "a": "x" }`)) {
+		t.Fatalf("semantically equal JSON must keep the prior value, got %s", attr(t, got, "prefs"))
+	}
+	// A real change is reported in canonical form.
+	got, _ = objectFromJSON(decode(t, `{"prefs":{"a":"y"}}`), typ, fields, nil, plan, refresh)
+	if !attr(t, got, "prefs").Equal(str(`{"a":"y"}`)) {
+		t.Fatalf("got %s", attr(t, got, "prefs"))
+	}
+	if _, err := objectToJSON(tftypes.NewValue(typ, map[string]tftypes.Value{"prefs": str("{")}), fields); err == nil {
+		t.Fatal("invalid JSON must fail")
+	}
+}
+
+func TestValidateEnumPerVersion(t *testing.T) {
+	typ := tftypes.Object{AttributeTypes: map[string]tftypes.Type{"mode": tftypes.String}}
+	fields := map[string]*apimeta.Field{"mode": {JSON: "mode", Type: "string", Enum: []string{"a", "b"}}}
+	bad := tftypes.NewValue(typ, map[string]tftypes.Value{"mode": str("c")})
+	diags := validateForVersion(bad, bad, fields, "v21")
+	if len(diags) != 1 || diags[0].Summary() != "Value not supported by API version" {
+		t.Fatalf("got %v", diags)
+	}
+	ok := tftypes.NewValue(typ, map[string]tftypes.Value{"mode": str("b")})
+	if diags := validateForVersion(ok, ok, fields, "v21"); diags.HasError() {
+		t.Fatal(diags)
+	}
+}

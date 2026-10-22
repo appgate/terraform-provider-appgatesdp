@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"reflect"
 	"slices"
 	"strings"
 
@@ -23,7 +24,7 @@ import (
 func typeMatches(t tftypes.Type, f *apimeta.Field) bool {
 	switch {
 	case t.Is(tftypes.String):
-		return f.Type == "string"
+		return f.Type == "string" || f.Type == "json"
 	case t.Is(tftypes.Number):
 		return f.Type == "int64" || f.Type == "number"
 	case t.Is(tftypes.Bool):
@@ -79,6 +80,12 @@ func objectToJSON(v tftypes.Value, fields map[string]*apimeta.Field) (map[string
 func valueToJSON(v tftypes.Value, f *apimeta.Field) (any, error) {
 	t := v.Type()
 	switch {
+	case t.Is(tftypes.String) && f.Type == "json":
+		var s string
+		if err := v.As(&s); err != nil {
+			return nil, err
+		}
+		return decodeJSON(s)
 	case t.Is(tftypes.String):
 		var s string
 		err := v.As(&s)
@@ -203,6 +210,19 @@ func objectFromJSON(data map[string]any, typ tftypes.Object, fields map[string]*
 
 func valueFromJSON(raw any, t tftypes.Type, f *apimeta.Field, sh shape, prior tftypes.Value, m mode) (tftypes.Value, error) {
 	switch {
+	case t.Is(tftypes.String) && f.Type == "json":
+		b, err := json.Marshal(raw)
+		if err != nil {
+			return tftypes.Value{}, err
+		}
+		// Keep the configured formatting when the value is the same JSON.
+		var p string
+		if prior.IsKnown() && !prior.IsNull() && prior.As(&p) == nil {
+			if pv, err := decodeJSON(p); err == nil && reflect.DeepEqual(pv, normalizeJSON(raw)) {
+				return prior, nil
+			}
+		}
+		return tftypes.NewValue(t, string(b)), nil
 	case t.Is(tftypes.String):
 		switch r := raw.(type) {
 		case string:
@@ -290,6 +310,31 @@ func valueFromJSON(raw any, t tftypes.Type, f *apimeta.Field, sh shape, prior tf
 		return tftypes.NewValue(t, elems), nil
 	}
 	return tftypes.Value{}, fmt.Errorf("unexpected API value %v (%T) for %s field", raw, raw, f.Type)
+}
+
+// decodeJSON parses a JSON encoded attribute, keeping numbers exact.
+func decodeJSON(s string) (any, error) {
+	dec := json.NewDecoder(strings.NewReader(s))
+	dec.UseNumber()
+	var v any
+	if err := dec.Decode(&v); err != nil {
+		return nil, fmt.Errorf("invalid JSON: %w", err)
+	}
+	return v, nil
+}
+
+// normalizeJSON re-decodes an API value so it compares equal to decodeJSON
+// output.
+func normalizeJSON(v any) any {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return v
+	}
+	out, err := decodeJSON(string(b))
+	if err != nil {
+		return v
+	}
+	return out
 }
 
 // knownOrNull returns v if it is fully known, otherwise null. State may not

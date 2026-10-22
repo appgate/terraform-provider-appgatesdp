@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -20,6 +21,19 @@ const testDeviceID = "4c07bc67-57ea-42dd-b702-c2d6c45419fc"
 
 var protoV6Factories = map[string]func() (tfprotov6.ProviderServer, error){
 	"appgatesdp": providerserver.NewProtocol6WithError(New("test")()),
+}
+
+// terraformSlots bounds how many per-resource subtests drive Terraform at
+// once. Each step starts Terraform and a provider server; too many at once
+// makes provider startup time out ("timeout waiting on reattach config").
+var terraformSlots = make(chan struct{}, max(2, runtime.NumCPU()/3))
+
+// parallelTerraform runs a subtest in parallel within the Terraform limit.
+func parallelTerraform(t *testing.T) {
+	t.Helper()
+	t.Parallel()
+	terraformSlots <- struct{}{}
+	t.Cleanup(func() { <-terraformSlots })
 }
 
 // forEachVersion runs fn once per registered API version.
