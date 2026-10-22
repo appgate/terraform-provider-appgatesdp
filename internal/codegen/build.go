@@ -8,12 +8,16 @@ import (
 	"github.com/appgate/terraform-provider-appgatesdp/internal/apimeta"
 )
 
-// Definitions is the hand-maintained list of Terraform resources and data
-// sources, shared by every API version (codegen/resources.yml).
+// Definitions tune what is discovered from each API version's specification
+// (codegen/resources.yml). Every resource also gets a data source.
 type Definitions struct {
+	// Resources are explicit definitions. They take precedence over
+	// discovery and keep established names (e.g. the typed policies).
 	Resources map[string]Definition `yaml:"resources"`
-	// DataSources lists resource names that also get a data source.
-	DataSources []string `yaml:"data_sources"`
+	// Names renames discovered resources, keyed by path or path#variant.
+	Names map[string]string `yaml:"names"`
+	// Exclude skips paths with the reason why they are not generated.
+	Exclude map[string]string `yaml:"exclude"`
 }
 
 // Definition locates a Terraform resource in the SDP Admin API.
@@ -50,6 +54,18 @@ type Definition struct {
 	// Required lists request JSON properties the API requires although the
 	// specification does not say so.
 	Required []string `yaml:"required"`
+
+	// discovered is set for definitions derived from the specification.
+	discovered bool
+	// itemPath is the object path of discovered collections (e.g. /files/{filename}).
+	itemPath string
+}
+
+func (d Definition) objectSpecPath() string {
+	if d.itemPath != "" {
+		return d.itemPath
+	}
+	return d.Path + "/{id}"
 }
 
 // noObjectPath reports whether objects have no GET Path/{id} endpoint.
@@ -65,18 +81,6 @@ func (d Definition) createMethod() string {
 	return "post"
 }
 
-// dataSourceNames returns every definition that gets a data source.
-func (d Definitions) dataSourceNames() []string {
-	names := slices.Clone(d.DataSources)
-	for name, def := range d.Resources {
-		if def.DataSourceOnly && !slices.Contains(names, name) {
-			names = append(names, name)
-		}
-	}
-	slices.Sort(names)
-	return names
-}
-
 // buildResult is everything derived from one API version's specification.
 type buildResult struct {
 	// spec is the generator input: one synthetic path per resource.
@@ -86,7 +90,9 @@ type buildResult struct {
 	api    *apimeta.API
 	// unsupported maps definitions missing from this version to the reason.
 	unsupported map[string]string
-	warnings    []string
+	// classes classifies every path of the specification.
+	classes  map[string]pathClass
+	warnings []string
 }
 
 // build derives the generator input and API metadata for one version from the
@@ -102,12 +108,11 @@ func build(version, dir string, defs Definitions) (*buildResult, error) {
 	if len(paths) == 0 {
 		return nil, fmt.Errorf("%s: api_specs.yml has no paths", version)
 	}
-	for _, name := range defs.DataSources {
-		if _, ok := defs.Resources[name]; !ok {
-			return nil, fmt.Errorf("data source %s has no resource definition", name)
-		}
-	}
 	n := &normalizer{l: l}
+	disc, err := n.discover(paths, defs)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", version, err)
+	}
 	res := &buildResult{
 		api:         &apimeta.API{Version: version, Resources: map[string]*apimeta.Resource{}, DataSources: map[string]*apimeta.Resource{}},
 		unsupported: map[string]string{},
@@ -117,8 +122,8 @@ func build(version, dir string, defs Definitions) (*buildResult, error) {
 	genDataSources := map[string]any{}
 	schemas := map[string]*resourceSchemas{}
 
-	for _, name := range sortedKeys(defs.Resources) {
-		def := defs.Resources[name]
+	for _, name := range sortedKeys(disc.resources) {
+		def := disc.resources[name]
 		r, err := n.resource(paths, name, def)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %s: %w", version, name, err)
@@ -152,12 +157,9 @@ func build(version, dir string, defs Definitions) (*buildResult, error) {
 			"delete": map[string]any{"path": item, "method": "DELETE"},
 		}, def)
 	}
-	for _, name := range defs.dataSourceNames() {
-		def := defs.Resources[name]
-		r, ok := schemas[name]
-		if !ok {
-			continue
-		}
+	for _, name := range sortedKeys(schemas) {
+		def := disc.resources[name]
+		r := schemas[name]
 		res.api.DataSources[name] = r.meta
 		_, item := syntheticPaths(name, def)
 		ops, _ := specPaths[item].(map[string]any)
@@ -168,6 +170,24 @@ func build(version, dir string, defs Definitions) (*buildResult, error) {
 		ops["get"] = operation(nil, r.response, !def.Singleton)
 		genDataSources[name] = withIgnores(map[string]any{"read": map[string]any{"path": item, "method": "GET"}}, def)
 	}
+	for _, name := range sortedKeys(disc.readOnly) {
+		if _, dup := res.api.DataSources[name]; dup {
+			return nil, fmt.Errorf("%s: read-only data source %s collides with a resource data source", version, name)
+		}
+		r, synthetic, err := n.readOnlyDataSource(paths, name, disc.readOnly[name])
+		if err != nil {
+			return nil, fmt.Errorf("%s: data source %s: %w", version, name, err)
+		}
+		if r.unsupported != "" {
+			res.unsupported[name] = r.unsupported
+			disc.classes[disc.readOnly[name].path] = pathClass{"excluded", r.unsupported}
+			continue
+		}
+		res.api.DataSources[name] = r.meta
+		specPaths[synthetic] = map[string]any{"get": r.op}
+		genDataSources[name] = map[string]any{"read": map[string]any{"path": synthetic, "method": "GET"}}
+	}
+	res.classes = disc.classes
 
 	res.warnings = n.warnings
 	res.spec = map[string]any{
@@ -204,6 +224,8 @@ func withIgnores(op map[string]any, def Definition) map[string]any {
 type resourceSchemas struct {
 	request, response map[string]any
 	meta              *apimeta.Resource
+	// op is the synthetic generator operation of read-only data sources.
+	op map[string]any
 	// unsupported is set when the version does not provide the definition.
 	unsupported string
 }
@@ -216,8 +238,8 @@ func (n *normalizer) resource(paths map[string]any, name string, def Definition)
 	}
 	item := coll
 	if !def.noObjectPath() {
-		if item, ok = paths[def.Path+"/{id}"]; !ok {
-			return &resourceSchemas{unsupported: "path " + def.Path + "/{id} not in specification"}, nil
+		if item, ok = paths[def.objectSpecPath()]; !ok {
+			return &resourceSchemas{unsupported: "path " + def.objectSpecPath() + " not in specification"}, nil
 		}
 	}
 	deleteItem := item
@@ -236,11 +258,17 @@ func (n *normalizer) resource(paths map[string]any, name string, def Definition)
 	}
 	respFile, respNode, err := n.body(itemFile, itemItem, "get", "responses")
 	if err != nil {
+		if def.discovered {
+			return &resourceSchemas{unsupported: err.Error()}, nil
+		}
 		return nil, err
 	}
 	reqFile, reqNode := respFile, respNode
 	if !def.DataSourceOnly {
 		if reqFile, reqNode, err = n.body(collFile, collItem, def.createMethod(), "requestBody"); err != nil {
+			if def.discovered {
+				return &resourceSchemas{unsupported: err.Error()}, nil
+			}
 			return nil, err
 		}
 	}
@@ -272,7 +300,18 @@ func (n *normalizer) resource(paths map[string]any, name string, def Definition)
 			}
 		}
 	}
+	wrap := reqSchema != nil && respSchema != nil && reqSchema["format"] == "json" && respSchema["format"] == "json"
+	if wrap {
+		// The whole body is free-form JSON: expose it as one attribute.
+		wrapped := func(s map[string]any) map[string]any {
+			return map[string]any{"type": "object", "properties": map[string]any{apimeta.WrapProperty: s}}
+		}
+		reqSchema, respSchema = wrapped(reqSchema), wrapped(respSchema)
+	}
 	if reqSchema == nil || respSchema == nil || reqSchema["type"] != "object" || respSchema["type"] != "object" {
+		if def.discovered {
+			return &resourceSchemas{unsupported: "request or response of " + def.Path + " has no properties the generator can map"}, nil
+		}
 		return nil, fmt.Errorf("request or response of %s is not an object schema", def.Path)
 	}
 	meta := &apimeta.Resource{
@@ -284,6 +323,7 @@ func (n *normalizer) resource(paths map[string]any, name string, def Definition)
 		IDProperty:   def.IDProperty,
 		DeletePath:   def.DeletePath,
 		Immutable:    def.Immutable,
+		Wrapped:      wrap,
 	}
 	_, del, err := n.l.deref("api_specs.yml", deleteItem)
 	if err != nil {
@@ -312,6 +352,69 @@ func (n *normalizer) resource(paths map[string]any, name string, def Definition)
 	}
 	meta.Fields = fields(reqSchema, respSchema)
 	return &resourceSchemas{request: reqSchema, response: respSchema, meta: meta}, nil
+}
+
+// readOnlyDataSource maps a GET endpoint to a data source. Path and query
+// parameters become attributes; the synthetic generator path carries the
+// path parameters so the generator makes them required.
+func (n *normalizer) readOnlyDataSource(paths map[string]any, name string, def readOnlyDef) (*resourceSchemas, string, error) {
+	file, node, err := n.l.deref("api_specs.yml", paths[def.path])
+	if err != nil {
+		return nil, "", err
+	}
+	item, _ := node.(map[string]any)
+	op, _ := item["get"].(map[string]any)
+	respFile, respNode, err := n.body(file, item, "get", "responses")
+	if err != nil {
+		return &resourceSchemas{unsupported: err.Error()}, "", nil
+	}
+	resp := n.schema(respFile, respNode, response, name+"(response)", nil)
+	if resp == nil || resp["type"] != "object" {
+		return &resourceSchemas{unsupported: "response of GET " + def.path + " is not an object"}, "", nil
+	}
+	synthetic := "/" + name
+	var params []any
+	var metaParams []apimeta.Param
+	raw := append(listOf(item["parameters"]), listOf(op["parameters"])...)
+	for _, rp := range raw {
+		pf, pn, err := n.l.deref(file, rp)
+		if err != nil {
+			return nil, "", err
+		}
+		pm, _ := pn.(map[string]any)
+		pname, _ := pm["name"].(string)
+		in, _ := pm["in"].(string)
+		if in != "path" && in != "query" {
+			continue
+		}
+		ps := n.schema(pf, pm["schema"], request, name+"(param "+pname+")", nil)
+		if ps == nil || (ps["type"] == "object") {
+			n.warnf("%s: dropped parameter %s with unsupported schema", name, pname)
+			continue
+		}
+		tf := TerraformIdentifier(pname)
+		if slices.ContainsFunc(metaParams, func(p apimeta.Param) bool { return p.TF == tf }) {
+			continue
+		}
+		if in == "path" {
+			synthetic += "/{" + pname + "}"
+		}
+		param := map[string]any{"name": pname, "in": in, "required": in == "path" || pm["required"] == true, "schema": ps}
+		if desc, ok := pm["description"].(string); ok {
+			param["description"] = desc
+		}
+		params = append(params, param)
+		metaParams = append(metaParams, apimeta.Param{Name: pname, In: in, TF: tf, Required: param["required"] == true, Enum: stringList(ps["enum"])})
+	}
+	opOut := operation(nil, resp, false)
+	if len(params) > 0 {
+		opOut["parameters"] = params
+	}
+	return &resourceSchemas{
+		response: resp,
+		op:       opOut,
+		meta:     &apimeta.Resource{Path: def.path, ReadOnly: true, Params: metaParams, Fields: fields(resp, resp)},
+	}, synthetic, nil
 }
 
 // body returns the JSON schema of an operation's request body or 2xx response.
@@ -475,6 +578,9 @@ func orEmpty(s map[string]any) map[string]any {
 func fieldType(s map[string]any) (typ, elem string) {
 	switch s["type"] {
 	case "string":
+		if s["format"] == "json" {
+			return "json", ""
+		}
 		return "string", ""
 	case "integer":
 		return "int64", ""

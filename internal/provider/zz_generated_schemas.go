@@ -8,62 +8,166 @@ import (
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_access_policy"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_active_brokered_sessions"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_admin_messages"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_admin_messages_summarize"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_admin_mfa_settings"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_admin_policy"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_administrative_role"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_administrative_roles_type_target_map"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_appliance"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_appliance_customization"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_appliances_backup_status"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_appliances_change"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_appliances_name_resolution_status"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_appliances_status"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_appliances_upgrade"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_authorization"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_auto_update_settings"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_blacklist_user"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_brokered_rdp_entitlement"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_brokered_ssh_entitlement"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_certificate_authority"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_certificate_authority_ca_next"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_certificate_authority_ca_pem"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_certificate_authority_crl"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_certificate_authority_crl_next"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_certificate_authority_issued_certificates"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_claims_names"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_client_profile"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_client_profile_group"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_client_profiles_barcode"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_client_profiles_url"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_colors"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_condition"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_connector_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_credentials_secret"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_criteria_script"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_device_policy"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_device_script"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_device_scripts_download"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_discovered_app"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_discovered_apps"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_discovered_apps_configuration"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_discovered_apps_stats"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_discovered_apps_top_groups"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_dns_policy"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_entitlement"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_entitlement_script"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_entitlements_app_shortcuts_groups"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_entitlements_optimization"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_entitlements_optimization_stats"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_fido2_devices"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_file"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_generic_secret"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_global_settings"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_health_app_connectivity"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_identity_providers_names"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ip_pool"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ip_pools_allocated_ips"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ldap_certificate_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ldap_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_license"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_license_next"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_license_users"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_local_database_identity_provider"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_local_user"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_mfa_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_my_preferences"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_oidc_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_on_boarded_devices"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_otp_seeds"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_policy"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_protocol_template"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_radius_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_recorded_sessions"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_replication_source"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_replication_target"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_replication_targets_export"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ringfence_rule"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_risk_model"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_saml_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_secret"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_service_database_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_service_user"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_session_info"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_site"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_sites_resources"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_sites_status"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ssh_key_secret"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stats_active_sessions"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stats_active_sessions_dashboard"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stats_active_sessions_dn"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stats_app_discovery"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stats_appliances"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stats_on_boarded_devices"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stats_top_entitlements"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stats_user_logins"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_stop_policy"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_tag"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_token_records_dn"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_trusted_certificate"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_user_claim_script"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_version"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ztp_registration"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ztp_services_version"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/datasource_ztp_settings"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_access_policy"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_admin_mfa_settings"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_admin_policy"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_administrative_role"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_appliance"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_appliance_customization"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_auto_update_settings"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_blacklist_user"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_brokered_rdp_entitlement"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_brokered_ssh_entitlement"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_client_profile"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_client_profile_group"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_condition"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_connector_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_credentials_secret"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_criteria_script"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_device_policy"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_device_script"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_discovered_apps_configuration"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_dns_policy"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_entitlement"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_entitlement_script"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_file"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_generic_secret"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_global_settings"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_ip_pool"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_ldap_certificate_identity_provider"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_ldap_identity_provider"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_license"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_license_next"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_local_database_identity_provider"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_local_user"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_mfa_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_my_preferences"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_oidc_identity_provider"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_policy"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_protocol_template"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_radius_identity_provider"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_replication_source"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_replication_target"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_ringfence_rule"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_risk_model"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_saml_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_secret"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_service_database_identity_provider"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_service_user"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_site"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_ssh_key_secret"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_stop_policy"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_tag"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_trusted_certificate"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_user_claim_script"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_ztp_registration"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/generated/resource_ztp_settings"
 )
 
 // generatedResourceSchemas lists the superset schema of every generated resource.
@@ -74,58 +178,162 @@ var generatedResourceSchemas = map[string]func(context.Context) rschema.Schema{
 	"administrative_role":                resource_administrative_role.AdministrativeRoleResourceSchema,
 	"appliance":                          resource_appliance.ApplianceResourceSchema,
 	"appliance_customization":            resource_appliance_customization.ApplianceCustomizationResourceSchema,
+	"auto_update_settings":               resource_auto_update_settings.AutoUpdateSettingsResourceSchema,
 	"blacklist_user":                     resource_blacklist_user.BlacklistUserResourceSchema,
+	"brokered_rdp_entitlement":           resource_brokered_rdp_entitlement.BrokeredRdpEntitlementResourceSchema,
+	"brokered_ssh_entitlement":           resource_brokered_ssh_entitlement.BrokeredSshEntitlementResourceSchema,
 	"client_profile":                     resource_client_profile.ClientProfileResourceSchema,
+	"client_profile_group":               resource_client_profile_group.ClientProfileGroupResourceSchema,
 	"condition":                          resource_condition.ConditionResourceSchema,
 	"connector_identity_provider":        resource_connector_identity_provider.ConnectorIdentityProviderResourceSchema,
+	"credentials_secret":                 resource_credentials_secret.CredentialsSecretResourceSchema,
 	"criteria_script":                    resource_criteria_script.CriteriaScriptResourceSchema,
 	"device_policy":                      resource_device_policy.DevicePolicyResourceSchema,
 	"device_script":                      resource_device_script.DeviceScriptResourceSchema,
+	"discovered_apps_configuration":      resource_discovered_apps_configuration.DiscoveredAppsConfigurationResourceSchema,
 	"dns_policy":                         resource_dns_policy.DnsPolicyResourceSchema,
 	"entitlement":                        resource_entitlement.EntitlementResourceSchema,
 	"entitlement_script":                 resource_entitlement_script.EntitlementScriptResourceSchema,
+	"file":                               resource_file.FileResourceSchema,
+	"generic_secret":                     resource_generic_secret.GenericSecretResourceSchema,
 	"global_settings":                    resource_global_settings.GlobalSettingsResourceSchema,
 	"ip_pool":                            resource_ip_pool.IpPoolResourceSchema,
 	"ldap_certificate_identity_provider": resource_ldap_certificate_identity_provider.LdapCertificateIdentityProviderResourceSchema,
 	"ldap_identity_provider":             resource_ldap_identity_provider.LdapIdentityProviderResourceSchema,
 	"license":                            resource_license.LicenseResourceSchema,
+	"license_next":                       resource_license_next.LicenseNextResourceSchema,
 	"local_database_identity_provider":   resource_local_database_identity_provider.LocalDatabaseIdentityProviderResourceSchema,
 	"local_user":                         resource_local_user.LocalUserResourceSchema,
 	"mfa_provider":                       resource_mfa_provider.MfaProviderResourceSchema,
+	"my_preferences":                     resource_my_preferences.MyPreferencesResourceSchema,
 	"oidc_identity_provider":             resource_oidc_identity_provider.OidcIdentityProviderResourceSchema,
 	"policy":                             resource_policy.PolicyResourceSchema,
+	"protocol_template":                  resource_protocol_template.ProtocolTemplateResourceSchema,
 	"radius_identity_provider":           resource_radius_identity_provider.RadiusIdentityProviderResourceSchema,
 	"replication_source":                 resource_replication_source.ReplicationSourceResourceSchema,
 	"replication_target":                 resource_replication_target.ReplicationTargetResourceSchema,
 	"ringfence_rule":                     resource_ringfence_rule.RingfenceRuleResourceSchema,
+	"risk_model":                         resource_risk_model.RiskModelResourceSchema,
 	"saml_identity_provider":             resource_saml_identity_provider.SamlIdentityProviderResourceSchema,
+	"secret":                             resource_secret.SecretResourceSchema,
+	"service_database_identity_provider": resource_service_database_identity_provider.ServiceDatabaseIdentityProviderResourceSchema,
+	"service_user":                       resource_service_user.ServiceUserResourceSchema,
 	"site":                               resource_site.SiteResourceSchema,
+	"ssh_key_secret":                     resource_ssh_key_secret.SshKeySecretResourceSchema,
 	"stop_policy":                        resource_stop_policy.StopPolicyResourceSchema,
+	"tag":                                resource_tag.TagResourceSchema,
 	"trusted_certificate":                resource_trusted_certificate.TrustedCertificateResourceSchema,
 	"user_claim_script":                  resource_user_claim_script.UserClaimScriptResourceSchema,
+	"ztp_registration":                   resource_ztp_registration.ZtpRegistrationResourceSchema,
+	"ztp_settings":                       resource_ztp_settings.ZtpSettingsResourceSchema,
 }
 
 // generatedDataSourceSchemas lists the superset schema of every generated data source.
 var generatedDataSourceSchemas = map[string]func(context.Context) dschema.Schema{
-	"administrative_role":     datasource_administrative_role.AdministrativeRoleDataSourceSchema,
-	"appliance":               datasource_appliance.ApplianceDataSourceSchema,
-	"appliance_customization": datasource_appliance_customization.ApplianceCustomizationDataSourceSchema,
-	"certificate_authority":   datasource_certificate_authority.CertificateAuthorityDataSourceSchema,
-	"client_profile":          datasource_client_profile.ClientProfileDataSourceSchema,
-	"condition":               datasource_condition.ConditionDataSourceSchema,
-	"criteria_script":         datasource_criteria_script.CriteriaScriptDataSourceSchema,
-	"device_script":           datasource_device_script.DeviceScriptDataSourceSchema,
-	"entitlement":             datasource_entitlement.EntitlementDataSourceSchema,
-	"entitlement_script":      datasource_entitlement_script.EntitlementScriptDataSourceSchema,
-	"global_settings":         datasource_global_settings.GlobalSettingsDataSourceSchema,
-	"identity_provider":       datasource_identity_provider.IdentityProviderDataSourceSchema,
-	"ip_pool":                 datasource_ip_pool.IpPoolDataSourceSchema,
-	"local_user":              datasource_local_user.LocalUserDataSourceSchema,
-	"mfa_provider":            datasource_mfa_provider.MfaProviderDataSourceSchema,
-	"policy":                  datasource_policy.PolicyDataSourceSchema,
-	"replication_target":      datasource_replication_target.ReplicationTargetDataSourceSchema,
-	"ringfence_rule":          datasource_ringfence_rule.RingfenceRuleDataSourceSchema,
-	"site":                    datasource_site.SiteDataSourceSchema,
-	"trusted_certificate":     datasource_trusted_certificate.TrustedCertificateDataSourceSchema,
-	"user_claim_script":       datasource_user_claim_script.UserClaimScriptDataSourceSchema,
+	"access_policy":                             datasource_access_policy.AccessPolicyDataSourceSchema,
+	"active_brokered_sessions":                  datasource_active_brokered_sessions.ActiveBrokeredSessionsDataSourceSchema,
+	"admin_messages":                            datasource_admin_messages.AdminMessagesDataSourceSchema,
+	"admin_messages_summarize":                  datasource_admin_messages_summarize.AdminMessagesSummarizeDataSourceSchema,
+	"admin_mfa_settings":                        datasource_admin_mfa_settings.AdminMfaSettingsDataSourceSchema,
+	"admin_policy":                              datasource_admin_policy.AdminPolicyDataSourceSchema,
+	"administrative_role":                       datasource_administrative_role.AdministrativeRoleDataSourceSchema,
+	"administrative_roles_type_target_map":      datasource_administrative_roles_type_target_map.AdministrativeRolesTypeTargetMapDataSourceSchema,
+	"appliance":                                 datasource_appliance.ApplianceDataSourceSchema,
+	"appliance_customization":                   datasource_appliance_customization.ApplianceCustomizationDataSourceSchema,
+	"appliances_backup_status":                  datasource_appliances_backup_status.AppliancesBackupStatusDataSourceSchema,
+	"appliances_change":                         datasource_appliances_change.AppliancesChangeDataSourceSchema,
+	"appliances_name_resolution_status":         datasource_appliances_name_resolution_status.AppliancesNameResolutionStatusDataSourceSchema,
+	"appliances_status":                         datasource_appliances_status.AppliancesStatusDataSourceSchema,
+	"appliances_upgrade":                        datasource_appliances_upgrade.AppliancesUpgradeDataSourceSchema,
+	"authorization":                             datasource_authorization.AuthorizationDataSourceSchema,
+	"auto_update_settings":                      datasource_auto_update_settings.AutoUpdateSettingsDataSourceSchema,
+	"blacklist_user":                            datasource_blacklist_user.BlacklistUserDataSourceSchema,
+	"brokered_rdp_entitlement":                  datasource_brokered_rdp_entitlement.BrokeredRdpEntitlementDataSourceSchema,
+	"brokered_ssh_entitlement":                  datasource_brokered_ssh_entitlement.BrokeredSshEntitlementDataSourceSchema,
+	"certificate_authority":                     datasource_certificate_authority.CertificateAuthorityDataSourceSchema,
+	"certificate_authority_ca_next":             datasource_certificate_authority_ca_next.CertificateAuthorityCaNextDataSourceSchema,
+	"certificate_authority_ca_pem":              datasource_certificate_authority_ca_pem.CertificateAuthorityCaPemDataSourceSchema,
+	"certificate_authority_crl":                 datasource_certificate_authority_crl.CertificateAuthorityCrlDataSourceSchema,
+	"certificate_authority_crl_next":            datasource_certificate_authority_crl_next.CertificateAuthorityCrlNextDataSourceSchema,
+	"certificate_authority_issued_certificates": datasource_certificate_authority_issued_certificates.CertificateAuthorityIssuedCertificatesDataSourceSchema,
+	"claims_names":                              datasource_claims_names.ClaimsNamesDataSourceSchema,
+	"client_profile":                            datasource_client_profile.ClientProfileDataSourceSchema,
+	"client_profile_group":                      datasource_client_profile_group.ClientProfileGroupDataSourceSchema,
+	"client_profiles_barcode":                   datasource_client_profiles_barcode.ClientProfilesBarcodeDataSourceSchema,
+	"client_profiles_url":                       datasource_client_profiles_url.ClientProfilesUrlDataSourceSchema,
+	"colors":                                    datasource_colors.ColorsDataSourceSchema,
+	"condition":                                 datasource_condition.ConditionDataSourceSchema,
+	"connector_identity_provider":               datasource_connector_identity_provider.ConnectorIdentityProviderDataSourceSchema,
+	"credentials_secret":                        datasource_credentials_secret.CredentialsSecretDataSourceSchema,
+	"criteria_script":                           datasource_criteria_script.CriteriaScriptDataSourceSchema,
+	"device_policy":                             datasource_device_policy.DevicePolicyDataSourceSchema,
+	"device_script":                             datasource_device_script.DeviceScriptDataSourceSchema,
+	"device_scripts_download":                   datasource_device_scripts_download.DeviceScriptsDownloadDataSourceSchema,
+	"discovered_app":                            datasource_discovered_app.DiscoveredAppDataSourceSchema,
+	"discovered_apps":                           datasource_discovered_apps.DiscoveredAppsDataSourceSchema,
+	"discovered_apps_configuration":             datasource_discovered_apps_configuration.DiscoveredAppsConfigurationDataSourceSchema,
+	"discovered_apps_stats":                     datasource_discovered_apps_stats.DiscoveredAppsStatsDataSourceSchema,
+	"discovered_apps_top_groups":                datasource_discovered_apps_top_groups.DiscoveredAppsTopGroupsDataSourceSchema,
+	"dns_policy":                                datasource_dns_policy.DnsPolicyDataSourceSchema,
+	"entitlement":                               datasource_entitlement.EntitlementDataSourceSchema,
+	"entitlement_script":                        datasource_entitlement_script.EntitlementScriptDataSourceSchema,
+	"entitlements_app_shortcuts_groups":         datasource_entitlements_app_shortcuts_groups.EntitlementsAppShortcutsGroupsDataSourceSchema,
+	"entitlements_optimization":                 datasource_entitlements_optimization.EntitlementsOptimizationDataSourceSchema,
+	"entitlements_optimization_stats":           datasource_entitlements_optimization_stats.EntitlementsOptimizationStatsDataSourceSchema,
+	"fido2_devices":                             datasource_fido2_devices.Fido2DevicesDataSourceSchema,
+	"file":                                      datasource_file.FileDataSourceSchema,
+	"generic_secret":                            datasource_generic_secret.GenericSecretDataSourceSchema,
+	"global_settings":                           datasource_global_settings.GlobalSettingsDataSourceSchema,
+	"health_app_connectivity":                   datasource_health_app_connectivity.HealthAppConnectivityDataSourceSchema,
+	"identity_provider":                         datasource_identity_provider.IdentityProviderDataSourceSchema,
+	"identity_providers_names":                  datasource_identity_providers_names.IdentityProvidersNamesDataSourceSchema,
+	"ip_pool":                                   datasource_ip_pool.IpPoolDataSourceSchema,
+	"ip_pools_allocated_ips":                    datasource_ip_pools_allocated_ips.IpPoolsAllocatedIpsDataSourceSchema,
+	"ldap_certificate_identity_provider":        datasource_ldap_certificate_identity_provider.LdapCertificateIdentityProviderDataSourceSchema,
+	"ldap_identity_provider":                    datasource_ldap_identity_provider.LdapIdentityProviderDataSourceSchema,
+	"license":                                   datasource_license.LicenseDataSourceSchema,
+	"license_next":                              datasource_license_next.LicenseNextDataSourceSchema,
+	"license_users":                             datasource_license_users.LicenseUsersDataSourceSchema,
+	"local_database_identity_provider":          datasource_local_database_identity_provider.LocalDatabaseIdentityProviderDataSourceSchema,
+	"local_user":                                datasource_local_user.LocalUserDataSourceSchema,
+	"mfa_provider":                              datasource_mfa_provider.MfaProviderDataSourceSchema,
+	"my_preferences":                            datasource_my_preferences.MyPreferencesDataSourceSchema,
+	"oidc_identity_provider":                    datasource_oidc_identity_provider.OidcIdentityProviderDataSourceSchema,
+	"on_boarded_devices":                        datasource_on_boarded_devices.OnBoardedDevicesDataSourceSchema,
+	"otp_seeds":                                 datasource_otp_seeds.OtpSeedsDataSourceSchema,
+	"policy":                                    datasource_policy.PolicyDataSourceSchema,
+	"protocol_template":                         datasource_protocol_template.ProtocolTemplateDataSourceSchema,
+	"radius_identity_provider":                  datasource_radius_identity_provider.RadiusIdentityProviderDataSourceSchema,
+	"recorded_sessions":                         datasource_recorded_sessions.RecordedSessionsDataSourceSchema,
+	"replication_source":                        datasource_replication_source.ReplicationSourceDataSourceSchema,
+	"replication_target":                        datasource_replication_target.ReplicationTargetDataSourceSchema,
+	"replication_targets_export":                datasource_replication_targets_export.ReplicationTargetsExportDataSourceSchema,
+	"ringfence_rule":                            datasource_ringfence_rule.RingfenceRuleDataSourceSchema,
+	"risk_model":                                datasource_risk_model.RiskModelDataSourceSchema,
+	"saml_identity_provider":                    datasource_saml_identity_provider.SamlIdentityProviderDataSourceSchema,
+	"secret":                                    datasource_secret.SecretDataSourceSchema,
+	"service_database_identity_provider":        datasource_service_database_identity_provider.ServiceDatabaseIdentityProviderDataSourceSchema,
+	"service_user":                              datasource_service_user.ServiceUserDataSourceSchema,
+	"session_info":                              datasource_session_info.SessionInfoDataSourceSchema,
+	"site":                                      datasource_site.SiteDataSourceSchema,
+	"sites_resources":                           datasource_sites_resources.SitesResourcesDataSourceSchema,
+	"sites_status":                              datasource_sites_status.SitesStatusDataSourceSchema,
+	"ssh_key_secret":                            datasource_ssh_key_secret.SshKeySecretDataSourceSchema,
+	"stats_active_sessions":                     datasource_stats_active_sessions.StatsActiveSessionsDataSourceSchema,
+	"stats_active_sessions_dashboard":           datasource_stats_active_sessions_dashboard.StatsActiveSessionsDashboardDataSourceSchema,
+	"stats_active_sessions_dn":                  datasource_stats_active_sessions_dn.StatsActiveSessionsDnDataSourceSchema,
+	"stats_app_discovery":                       datasource_stats_app_discovery.StatsAppDiscoveryDataSourceSchema,
+	"stats_appliances":                          datasource_stats_appliances.StatsAppliancesDataSourceSchema,
+	"stats_on_boarded_devices":                  datasource_stats_on_boarded_devices.StatsOnBoardedDevicesDataSourceSchema,
+	"stats_top_entitlements":                    datasource_stats_top_entitlements.StatsTopEntitlementsDataSourceSchema,
+	"stats_user_logins":                         datasource_stats_user_logins.StatsUserLoginsDataSourceSchema,
+	"stop_policy":                               datasource_stop_policy.StopPolicyDataSourceSchema,
+	"tag":                                       datasource_tag.TagDataSourceSchema,
+	"token_records_dn":                          datasource_token_records_dn.TokenRecordsDnDataSourceSchema,
+	"trusted_certificate":                       datasource_trusted_certificate.TrustedCertificateDataSourceSchema,
+	"user_claim_script":                         datasource_user_claim_script.UserClaimScriptDataSourceSchema,
+	"version":                                   datasource_version.VersionDataSourceSchema,
+	"ztp_registration":                          datasource_ztp_registration.ZtpRegistrationDataSourceSchema,
+	"ztp_services_version":                      datasource_ztp_services_version.ZtpServicesVersionDataSourceSchema,
+	"ztp_settings":                              datasource_ztp_settings.ZtpSettingsDataSourceSchema,
 }

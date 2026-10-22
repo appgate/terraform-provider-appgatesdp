@@ -71,8 +71,35 @@ func TestBuildFixture(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.unsupported["gadget"] == "" || res.unsupported["oval_widget"] == "" {
-		t.Fatalf("gadget (missing path) and oval_widget (missing variant) must be unsupported: %v", res.unsupported)
+	if res.unsupported["oval_widget"] == "" {
+		t.Fatalf("oval_widget (missing variant) must be unsupported: %v", res.unsupported)
+	}
+	for name := range res.api.Resources {
+		if strings.Contains(name, "gadget") {
+			t.Errorf("v98 has no /gadgets, got %s", name)
+		}
+	}
+	status := res.api.DataSources["widget_status_report"]
+	switch {
+	case status == nil || !status.ReadOnly || status.Path != "/widgets/{id}/status":
+		t.Fatalf("read-only endpoint must become a renamed data source, got %+v", status)
+	case len(status.Params) != 3:
+		t.Errorf("params %+v", status.Params)
+	case status.Fields["details"] == nil || status.Fields["details"].Type != "json":
+		t.Error("free-form objects must become JSON attributes")
+	}
+	for _, p := range status.Params {
+		if p.TF == "level" && (!p.Required || len(p.Enum) != 2) {
+			t.Errorf("required enum query parameter not recorded: %+v", p)
+		}
+	}
+	for path, want := range map[string]string{"/login": "excluded", "/widgets": "resource", "/widgets/{id}/status": "data source", "/tokens/{token-id}": "resource"} {
+		if got := res.classes[path].Kind; got != want {
+			t.Errorf("%s classified %q, want %q", path, got, want)
+		}
+	}
+	if _, ok := res.api.DataSources["round_widget"]; !ok {
+		t.Error("every resource needs a data source")
 	}
 	round := res.api.Resources["round_widget"]
 	if round.Discriminator == nil || round.Discriminator.Value != "Round" || !round.Delete {
@@ -204,7 +231,8 @@ func TestGeneratePipeline(t *testing.T) {
 		"codegen/reports/v98.md", "codegen/reports/v99.md",
 		"internal/apiversion/generated/v98.json", "internal/apiversion/generated/v99.json",
 		"internal/generated/resource_round_widget/round_widget_resource_gen.go",
-		"internal/generated/resource_gadget/gadget_resource_gen.go",
+		"internal/generated/resource_round_gadget/round_gadget_resource_gen.go",
+		"internal/generated/datasource_widget_status_report/widget_status_report_data_source_gen.go",
 		"internal/generated/datasource_round_widget/round_widget_data_source_gen.go",
 		SchemaIndexFile, VersionsDoc,
 	} {
@@ -217,7 +245,7 @@ func TestGeneratePipeline(t *testing.T) {
 	}
 	var v98 apimeta.API
 	_ = json.Unmarshal([]byte(first["internal/apiversion/generated/v98.json"]), &v98)
-	if _, ok := v98.Resources["gadget"]; ok {
+	if _, ok := v98.Resources["round_gadget"]; ok {
 		t.Error("v98 must not use the v99 specification")
 	}
 	if v98.Resources["round_widget"].Fields["color"] != nil {

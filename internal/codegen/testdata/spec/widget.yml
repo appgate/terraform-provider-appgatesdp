@@ -58,6 +58,33 @@ settings:
           application/json:
             schema:
               $ref: '#/definitions/Settings'
+widget-status:
+  get:
+    parameters:
+      - $ref: './common.yml#/parameters/id'
+      - name: verbose
+        in: query
+        schema:
+          type: boolean
+      - name: level
+        in: query
+        required: true
+        schema:
+          type: string
+          enum: [basic, full]
+    responses:
+      '200':
+        description: Widget status.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                healthy:
+                  type: boolean
+                details:
+                  type: object
+                  additionalProperties: true
 tokens:
   get:
     responses:

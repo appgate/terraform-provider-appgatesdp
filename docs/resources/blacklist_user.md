@@ -28,6 +28,7 @@ resource "appgatesdp_blacklist_user" "alice" {
 
 ### Optional
 
+- `id` (String) ID of the object.
 - `provider_name` (String) The provider name of the user, same as the one in the user Distinguished Name.
 - `reason` (String) The reason for blacklisting. The value is stored and logged.
 - `username` (String) The username, same as the one in the user Distinguished Name.
@@ -35,7 +36,6 @@ resource "appgatesdp_blacklist_user" "alice" {
 ### Read-Only
 
 - `blacklisted_at` (String) The date and time of the blacklisting.
-- `id` (String) ID of the object.
 
 ## Import
 

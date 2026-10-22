@@ -199,7 +199,11 @@ func verifyIR(api *apimeta.API, ir map[string]any) error {
 				return fmt.Errorf("tfplugingen-openapi did not generate %s %s; see generator output", kind, name)
 			}
 			schema, _ := r["schema"].(map[string]any)
-			if err := verifyAttrs(name, listOf(schema["attributes"]), want[name].Fields, true); err != nil {
+			extra := []string{"id"}
+			for _, p := range want[name].Params {
+				extra = append(extra, p.TF)
+			}
+			if err := verifyAttrs(name, listOf(schema["attributes"]), want[name].Fields, extra); err != nil {
 				return err
 			}
 		}
@@ -211,20 +215,22 @@ func verifyIR(api *apimeta.API, ir map[string]any) error {
 	return check("datasources", api.DataSources)
 }
 
-func verifyAttrs(at string, attrs []any, fields map[string]*apimeta.Field, root bool) error {
+// verifyAttrs checks generated attributes against the API fields; extra
+// lists root attributes that are not JSON fields (id, request parameters).
+func verifyAttrs(at string, attrs []any, fields map[string]*apimeta.Field, extra []string) error {
 	for _, a := range attrs {
 		am := a.(map[string]any)
 		name := am["name"].(string)
 		f, ok := fields[name]
 		if !ok {
-			if root && name == "id" {
+			if slices.Contains(extra, name) {
 				continue
 			}
 			return fmt.Errorf("%s.%s: generated attribute has no API field mapping", at, name)
 		}
 		_, body := attrType(am)
 		if _, nested := nestedAttributes(body); nested != nil {
-			if err := verifyAttrs(at+"."+name, nested, f.Fields, false); err != nil {
+			if err := verifyAttrs(at+"."+name, nested, f.Fields, nil); err != nil {
 				return err
 			}
 		}
@@ -248,7 +254,15 @@ func generateMerged(ctx context.Context, o Options, reg apiversion.Registry) err
 		apis[v.APIVersion] = &api
 	}
 	o.logf("merging %d API versions", len(irs))
-	merged, err := mergeIR(irs)
+	readOnly := map[string]bool{}
+	for _, api := range apis {
+		for name, ds := range api.DataSources {
+			if ds.ReadOnly {
+				readOnly[name] = true
+			}
+		}
+	}
+	merged, err := mergeIR(irs, readOnly)
 	if err != nil {
 		return err
 	}

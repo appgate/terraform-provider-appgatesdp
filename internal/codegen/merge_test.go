@@ -185,7 +185,7 @@ func TestMergeIRNestedOverlay(t *testing.T) {
 	}})
 	root := attr("mode", "string", computedOptional, map[string]any{"default": map[string]any{"static": "a"}})
 	ir := map[string]any{"resources": []any{map[string]any{"name": "site", "schema": map[string]any{"attributes": []any{nested, root}}}}}
-	merged, err := mergeIR([]versionedIR{{"v1", ir}})
+	merged, err := mergeIR([]versionedIR{{"v1", ir}}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

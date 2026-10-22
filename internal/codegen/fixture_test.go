@@ -108,8 +108,6 @@ const fixtureDefinitions = `resources:
   oval_widget:
     path: /widgets
     variant: {property: type, value: Oval}
-  gadget:
-    path: /gadgets
   settings:
     path: /settings
     singleton: true
@@ -121,8 +119,10 @@ const fixtureDefinitions = `resources:
     immutable: true
     sensitive: [value]
     required: [owner]
-data_sources:
-  - round_widget
+names:
+  /widgets/{id}/status: widget_status_report
+exclude:
+  /login: authentication is handled by the provider configuration
 `
 
 // newFixtureRoot creates a repository root with a registry and definitions.

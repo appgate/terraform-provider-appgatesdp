@@ -81,6 +81,11 @@ func writeReport(path string, v apiversion.Version, res *buildResult) error {
 	for _, name := range sortedKeys(res.unsupported) {
 		fmt.Fprintf(&b, "- `%s`: %s\n", name, res.unsupported[name])
 	}
+	b.WriteString("\n## Path classification\n\nEvery path of the specification and how the provider exposes it.\n\n| Path | Exposed as | Detail |\n|---|---|---|\n")
+	for _, p := range sortedKeys(res.classes) {
+		c := res.classes[p]
+		fmt.Fprintf(&b, "| `%s` | %s | %s |\n", p, c.Kind, c.Detail)
+	}
 	b.WriteString("\n## Normalization warnings\n\nSchema constructs the generator cannot express and that were dropped or simplified.\n\n")
 	if len(res.warnings) == 0 {
 		b.WriteString("None.\n")

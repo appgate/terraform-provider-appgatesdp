@@ -22,7 +22,9 @@ type versionedIR struct {
 // provider exposes. Terraform fixes schemas before the provider is configured,
 // so every attribute of every version must be present; version-specific
 // support is enforced at plan time using the per-version API metadata.
-func mergeIR(irs []versionedIR) (map[string]any, error) {
+// readOnly names data sources that read an endpoint instead of looking an
+// object up by id or name.
+func mergeIR(irs []versionedIR, readOnly map[string]bool) (map[string]any, error) {
 	out := map[string]any{
 		"provider": map[string]any{"name": "appgatesdp"},
 		"version":  "0.1",
@@ -57,9 +59,12 @@ func mergeIR(irs []versionedIR) (map[string]any, error) {
 					}
 				}
 			}
-			if kind == "resources" {
+			switch {
+			case kind == "resources":
 				attrs = resourceOverlay(attrs)
-			} else {
+			case readOnly[name]:
+				attrs = readOnlyOverlay(attrs)
+			default:
 				attrs = dataSourceOverlay(attrs)
 			}
 			if err := checkReservedNames(attrs); err != nil {
@@ -296,6 +301,15 @@ func dataSourceOverlay(attrs []any) []any {
 		if body, ok := name["string"].(map[string]any); ok {
 			body["computed_optional_required"] = computedOptional
 		}
+	}
+	return attrs
+}
+
+// readOnlyOverlay gives read-only data sources an id attribute (their
+// parameters, including a path parameter called id, stay as generated).
+func readOnlyOverlay(attrs []any) []any {
+	if findAttr(attrs, "id") == nil {
+		attrs = insertSorted(attrs, map[string]any{"name": "id", "string": map[string]any{"computed_optional_required": computed, "description": "Identifier of the data source."}})
 	}
 	return attrs
 }

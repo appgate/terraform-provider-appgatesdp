@@ -19,11 +19,13 @@ func BlacklistUserResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "The date and time of the blacklisting.",
 			},
 			"id": schema.StringAttribute{
+				Optional:            true,
 				Computed:            true,
 				Description:         "ID of the object.",
 				MarkdownDescription: "ID of the object.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 				},
 			},
 			"provider_name": schema.StringAttribute{

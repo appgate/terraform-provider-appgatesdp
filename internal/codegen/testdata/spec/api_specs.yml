@@ -13,5 +13,7 @@ paths:
     $ref: './widget.yml#/tokens'
   /tokens/{token-id}:
     $ref: './widget.yml#/tokens-id'
+  /widgets/{id}/status:
+    $ref: './widget.yml#/widget-status'
   /settings:
     $ref: './widget.yml#/settings'

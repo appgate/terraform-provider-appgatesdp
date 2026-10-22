@@ -186,7 +186,11 @@ func (n *normalizer) finalize(f *flat, dir direction, at string) map[string]any 
 		} else {
 			delete(out, "additionalProperties")
 			if len(resolvedProps) == 0 {
-				n.warnf("%s: dropped object without properties", at)
+				if len(props) == 0 {
+					return freeForm(out)
+				}
+				// Every property is read-only (request) or write-only (response).
+				n.warnf("%s: dropped object without properties in this direction", at)
 				return nil
 			}
 			out["properties"] = resolvedProps
@@ -217,8 +221,8 @@ func (n *normalizer) finalize(f *flat, dir direction, at string) map[string]any 
 		delete(out, "items")
 		delete(out, "additionalProperties")
 	default:
-		n.warnf("%s: dropped schema without a supported type", at)
-		return nil
+		// No type, properties or items: any JSON value.
+		return freeForm(out)
 	}
 	out["type"] = typ
 	delete(out, "uniqueItems")
@@ -240,12 +244,28 @@ var secretName = regexp.MustCompile(`(?i)(password|secret|passphrase)|(token|pri
 // sensitivity from `format: password`, while the SDP specification marks
 // many secrets only as writeOnly (e.g. LDAP adminPassword) or not at all.
 func markSecret(name string, s map[string]any) {
-	if s["type"] != "string" || (s["format"] != nil && s["format"] != "password") {
+	if s["type"] != "string" || (s["format"] != nil && s["format"] != "password") || s["format"] == "json" {
 		return
 	}
 	if s["writeOnly"] == true || secretName.MatchString(name) {
 		s["format"] = "password"
 	}
+}
+
+// freeForm represents schemas without declared structure (free-form objects,
+// untyped values) as JSON encoded strings, Terraform's convention for
+// arbitrary JSON (jsonencode/jsondecode). The runtime compares them
+// semantically.
+func freeForm(s map[string]any) map[string]any {
+	out := map[string]any{"type": "string", "format": "json"}
+	desc, _ := s["description"].(string)
+	out["description"] = strings.TrimSpace(desc + " JSON encoded value; use jsonencode() and jsondecode().")
+	for _, k := range []string{"readOnly", "writeOnly"} {
+		if v, ok := s[k]; ok {
+			out[k] = v
+		}
+	}
+	return out
 }
 
 // mergeVariants flattens polymorphic schemas into one object holding the

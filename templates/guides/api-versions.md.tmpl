@@ -24,35 +24,54 @@ page_title: "Supported SDP API versions"
 | `appgatesdp_administrative_role` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_appliance` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_appliance_customization` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_auto_update_settings` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_blacklist_user` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_brokered_rdp_entitlement` | — | — | — | — | ✓ |
+| `appgatesdp_brokered_ssh_entitlement` | — | — | — | — | ✓ |
 | `appgatesdp_client_profile` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_client_profile_group` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_condition` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_connector_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_credentials_secret` | — | — | — | — | ✓ |
 | `appgatesdp_criteria_script` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_device_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_device_script` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_discovered_apps_configuration` | — | — | — | ✓ | ✓ |
 | `appgatesdp_dns_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_entitlement` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_entitlement_script` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_file` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_generic_secret` | — | — | — | — | ✓ |
 | `appgatesdp_global_settings` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_ip_pool` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_ldap_certificate_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_ldap_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_license` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_license_next` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_local_database_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_local_user` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_mfa_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_my_preferences` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_oidc_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_protocol_template` | — | — | — | — | ✓ |
 | `appgatesdp_radius_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_replication_source` | — | — | — | ✓ | ✓ |
 | `appgatesdp_replication_target` | — | — | — | ✓ | ✓ |
 | `appgatesdp_ringfence_rule` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_risk_model` | ✓ | ✓ | ✓ | ✓ | — |
 | `appgatesdp_saml_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_secret` | ✓ | ✓ | ✓ | ✓ | — |
+| `appgatesdp_service_database_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_service_user` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_site` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ssh_key_secret` | — | — | — | — | ✓ |
 | `appgatesdp_stop_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_tag` | — | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_trusted_certificate` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_user_claim_script` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ztp_registration` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ztp_settings` | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### Attributes that differ between API versions
 
@@ -112,7 +131,16 @@ Attributes listed with the API versions that support them. Setting an attribute 
   - `telemetry_aggregator.otlp_exporters.protocol`: v25
 - `appgatesdp_appliance_customization`
   - `read_only`: v24, v25
+- `appgatesdp_auto_update_settings`
+  - `red_hat`: v24, v25
+  - `red_hat.url`: v24, v25
+  - `red_hat.version`: v24, v25
+  - `red_hat8`: v21, v22, v23, v24
+  - `red_hat8.url`: v21, v22, v23, v24
+  - `red_hat8.version`: v21, v22, v23, v24
 - `appgatesdp_client_profile`
+  - `read_only`: v24, v25
+- `appgatesdp_client_profile_group`
   - `read_only`: v24, v25
 - `appgatesdp_condition`
   - `read_only`: v24, v25
@@ -197,6 +225,53 @@ Attributes listed with the API versions that support them. Setting an attribute 
   - `verified_dns_names`: v24, v25
   - `verified_dns_names.hashes`: v24, v25
   - `verified_dns_names.names`: v24, v25
+- `appgatesdp_license_next`
+  - `entitled.brokered_access_lease_time_hours`: v25
+  - `entitled.collective_replication`: v24, v25
+  - `entitled.max_access_policies`: v22, v23, v24
+  - `entitled.max_brokered_access`: v25
+  - `entitled.max_session_governance`: v25
+  - `entitled.max_users_single_site`: v25
+  - `entitled.observability`: v25
+  - `entitled.operational_technology`: v25
+  - `entitled.optimizer`: v25
+  - `entitled.session_governance_lease_time_hours`: v25
+  - `entitled.users_single_site_lease_time_hours`: v25
+  - `entitled.verified_dns_names`: v24, v25
+  - `entitled.verified_dns_names.hashes`: v24, v25
+  - `entitled.verified_dns_names.names`: v24, v25
+  - `licenses.brokered_access_lease_time_hours`: v25
+  - `licenses.collective_replication`: v24, v25
+  - `licenses.max_access_policies`: v22, v23, v24
+  - `licenses.max_brokered_access`: v25
+  - `licenses.max_session_governance`: v25
+  - `licenses.max_users_single_site`: v25
+  - `licenses.observability`: v25
+  - `licenses.operational_technology`: v25
+  - `licenses.optimizer`: v25
+  - `licenses.session_governance_lease_time_hours`: v25
+  - `licenses.users_single_site_lease_time_hours`: v25
+  - `licenses.verified_dns_names`: v24, v25
+  - `licenses.verified_dns_names.hashes`: v24, v25
+  - `licenses.verified_dns_names.names`: v24, v25
+  - `usage.brokered_access_slots`: v25
+  - `usage.client_types`: v22, v23, v24, v25
+  - `usage.client_types.connector`: v22, v23, v24, v25
+  - `usage.client_types.full`: v22, v23, v24, v25
+  - `usage.client_types.full_always_on`: v22, v23, v24, v25
+  - `usage.client_types.full_multi`: v22, v23, v24, v25
+  - `usage.client_types.headless`: v22, v23, v24, v25
+  - `usage.client_types.headless_always_on`: v22, v23, v24, v25
+  - `usage.client_types.lite`: v22, v23, v24, v25
+  - `usage.client_types.sso`: v22, v23, v24, v25
+  - `usage.client_types.unknown`: v22, v23, v24, v25
+  - `usage.client_types.web`: v22, v23, v24, v25
+  - `usage.geo_location_updates`: v24, v25
+  - `usage.multi_user_clients`: v21, v22, v23
+  - `usage.risk_model`: v21, v22, v23, v24
+  - `usage.session_governance_slots`: v25
+  - `usage.single_site_users`: v25
+  - `usage.sites_connected_via_broker`: v24, v25
 - `appgatesdp_local_database_identity_provider`
   - `block_local_dns_requests`: v21, v22, v23, v24
   - `dns_search_domains`: v21, v22, v23, v24
@@ -226,6 +301,14 @@ Attributes listed with the API versions that support them. Setting an attribute 
   - `block_local_dns_requests`: v21, v22, v23, v24
   - `dns_search_domains`: v21, v22, v23, v24
   - `dns_servers`: v21, v22, v23, v24
+  - `read_only`: v24, v25
+- `appgatesdp_secret`
+  - `read_only`: v24
+- `appgatesdp_service_database_identity_provider`
+  - `dns_search_domains`: v21, v22, v23, v24
+  - `dns_servers`: v21, v22, v23, v24
+  - `read_only`: v24, v25
+- `appgatesdp_service_user`
   - `read_only`: v24, v25
 - `appgatesdp_site`
   - `name_resolution.aws_resolvers.api_gateway`: v23, v24, v25
@@ -262,33 +345,126 @@ Attributes listed with the API versions that support them. Setting an attribute 
 - `appgatesdp_stop_policy`
   - `block_local_dns_requests`: v23, v24, v25
   - `read_only`: v24, v25
+- `appgatesdp_tag`
+  - `read_only`: v24, v25
 - `appgatesdp_trusted_certificate`
   - `read_only`: v24, v25
 - `appgatesdp_user_claim_script`
   - `read_only`: v24, v25
+- `appgatesdp_ztp_settings`
+  - `application_discovery`: v22, v23, v24
+  - `application_discovery.enabled`: v22, v23, v24
+  - `optimizer`: v25
+  - `optimizer.enabled`: v25
+  - `risk_engine.dynamic_alerts`: v24, v25
 
 ## Data sources
 
 | Name | v21 | v22 | v23 | v24 | v25 |
 |---|---|---|---|---|---|
+| `appgatesdp_access_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_active_brokered_sessions` | — | — | — | — | ✓ |
+| `appgatesdp_admin_messages` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_admin_messages_summarize` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_admin_mfa_settings` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_admin_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_administrative_role` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_administrative_roles_type_target_map` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_appliance` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_appliance_customization` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_appliances_backup_status` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_appliances_change` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_appliances_name_resolution_status` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_appliances_status` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_appliances_upgrade` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_authorization` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_auto_update_settings` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_blacklist_user` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_brokered_rdp_entitlement` | — | — | — | — | ✓ |
+| `appgatesdp_brokered_ssh_entitlement` | — | — | — | — | ✓ |
 | `appgatesdp_certificate_authority` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_certificate_authority_ca_next` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_certificate_authority_ca_pem` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_certificate_authority_crl` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_certificate_authority_crl_next` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_certificate_authority_issued_certificates` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_claims_names` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_client_profile` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_client_profile_group` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_client_profiles_barcode` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_client_profiles_url` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_colors` | — | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_condition` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_connector_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_credentials_secret` | — | — | — | — | ✓ |
 | `appgatesdp_criteria_script` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_device_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_device_script` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_device_scripts_download` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_discovered_app` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_discovered_apps` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_discovered_apps_configuration` | — | — | — | ✓ | ✓ |
+| `appgatesdp_discovered_apps_stats` | — | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_discovered_apps_top_groups` | — | — | — | ✓ | ✓ |
+| `appgatesdp_dns_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_entitlement` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_entitlement_script` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_entitlements_app_shortcuts_groups` | — | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_entitlements_optimization` | — | — | — | — | ✓ |
+| `appgatesdp_entitlements_optimization_stats` | — | — | — | — | ✓ |
+| `appgatesdp_fido2_devices` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_file` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_generic_secret` | — | — | — | — | ✓ |
 | `appgatesdp_global_settings` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_health_app_connectivity` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_identity_providers_names` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_ip_pool` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ip_pools_allocated_ips` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ldap_certificate_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ldap_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_license` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_license_next` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_license_users` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_local_database_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_local_user` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_mfa_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_my_preferences` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_oidc_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_on_boarded_devices` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_otp_seeds` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_protocol_template` | — | — | — | — | ✓ |
+| `appgatesdp_radius_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_recorded_sessions` | — | — | — | — | ✓ |
+| `appgatesdp_replication_source` | — | — | — | ✓ | ✓ |
 | `appgatesdp_replication_target` | — | — | — | ✓ | ✓ |
+| `appgatesdp_replication_targets_export` | — | — | — | ✓ | ✓ |
 | `appgatesdp_ringfence_rule` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_risk_model` | ✓ | ✓ | ✓ | ✓ | — |
+| `appgatesdp_saml_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_secret` | ✓ | ✓ | ✓ | ✓ | — |
+| `appgatesdp_service_database_identity_provider` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_service_user` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_session_info` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_site` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_sites_resources` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_sites_status` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ssh_key_secret` | — | — | — | — | ✓ |
+| `appgatesdp_stats_active_sessions` | ✓ | — | — | — | — |
+| `appgatesdp_stats_active_sessions_dashboard` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_stats_active_sessions_dn` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_stats_app_discovery` | ✓ | — | — | — | — |
+| `appgatesdp_stats_appliances` | ✓ | ✓ | ✓ | ✓ | — |
+| `appgatesdp_stats_on_boarded_devices` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_stats_top_entitlements` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_stats_user_logins` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_stop_policy` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_tag` | — | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_token_records_dn` | ✓ | — | — | — | — |
 | `appgatesdp_trusted_certificate` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `appgatesdp_user_claim_script` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_version` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ztp_registration` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ztp_services_version` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `appgatesdp_ztp_settings` | ✓ | ✓ | ✓ | ✓ | ✓ |
