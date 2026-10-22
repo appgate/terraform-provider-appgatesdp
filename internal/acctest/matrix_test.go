@@ -1,7 +1,9 @@
 package acctest_test
 
 import (
+	"context"
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
@@ -10,13 +12,17 @@ import (
 	"encoding/pem"
 	"fmt"
 	"math/big"
+	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"golang.org/x/crypto/ssh"
 
 	"github.com/appgate/terraform-provider-appgatesdp/internal/acctest"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/sdp"
 )
 
 // selfSignedPEM returns a throwaway CA certificate for certificate fields.
@@ -38,9 +44,43 @@ func selfSignedPEM(t *testing.T) string {
 	return strings.TrimSpace(string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der})))
 }
 
+// brokeredConfig is a brokered entitlement on the default site with a
+// condition, which entitlements require.
+func brokeredConfig(kind string, port int) string {
+	return fmt.Sprintf(`data "appgatesdp_site" "default" {
+  name = "Default Site"
+}
+resource "appgatesdp_condition" "always" {
+  name       = "%%[1]s-condition"
+  expression = "return true;"
+}
+resource "appgatesdp_brokered_%[1]s_entitlement" "test" {
+  name         = %%[1]q
+  site         = data.appgatesdp_site.default.id
+  conditions   = [appgatesdp_condition.always.id]
+  host         = "%[1]s.invalid"
+  port         = %[2]d
+  app_shortcut = { name = %%[1]q }
+}`, kind, port)
+}
+
+// sshKeyPEM returns a throwaway OpenSSH private key.
+func sshKeyPEM(t *testing.T) string {
+	t.Helper()
+	_, key, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	block, err := ssh.MarshalPrivateKey(key, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return strings.TrimSpace(string(pem.EncodeToMemory(block)))
+}
+
 type matrixCase struct {
-	// config is a resource block named "test"; %[1]s is a unique name and
-	// %[2]s a PEM certificate.
+	// config is a resource block named "test"; %[1]s is a unique name,
+	// %[2]s a PEM certificate and %[3]s an SSH private key.
 	config string
 	// ignore lists write-only attributes the API never returns.
 	ignore []string
@@ -70,6 +110,42 @@ var matrix = map[string]matrixCase{
   name             = %[1]q
   replication_tags = ["tf-acc"]
 }`},
+	"service_user": {config: `resource "appgatesdp_service_user" "test" {
+  name     = %[1]q
+  password = "Tf-acc-Passw0rd!"
+}`, ignore: []string{"password"}},
+	"tag": {config: `resource "appgatesdp_tag" "test" {
+  name = %[1]q
+}`},
+	"client_profile_group": {config: `resource "appgatesdp_client_profile_group" "test" {
+  name = %[1]q
+}`},
+	"service_database_identity_provider": {config: `resource "appgatesdp_service_database_identity_provider" "test" {
+  name = %[1]q
+}`},
+	"protocol_template": {config: `resource "appgatesdp_protocol_template" "test" {
+  name    = %[1]q
+  subtype = "tcp_up"
+  ports   = ["443"]
+}`},
+	"credentials_secret": {config: `resource "appgatesdp_credentials_secret" "test" {
+  name     = %[1]q
+  username = "tf-acc"
+  password = "tf-acc-secret"
+}`, ignore: []string{"password"}},
+	"generic_secret": {config: `resource "appgatesdp_generic_secret" "test" {
+  name   = %[1]q
+  secret = "tf-acc-secret"
+}`, ignore: []string{"secret"}},
+	"ssh_key_secret": {config: `resource "appgatesdp_ssh_key_secret" "test" {
+  name        = %[1]q
+  username    = "tf-acc"
+  private_key = <<-KEY
+%[3]s
+KEY
+}`, ignore: []string{"private_key"}},
+	"brokered_rdp_entitlement": {config: brokeredConfig("rdp", 3389)},
+	"brokered_ssh_entitlement": {config: brokeredConfig("ssh", 22)},
 	"site": {config: `resource "appgatesdp_site" "test" {
   name            = %[1]q
   network_subnets = ["10.99.0.0/24"]
@@ -177,7 +253,7 @@ func TestAccResourceMatrix(t *testing.T) {
 		acctest.RequireDestructive(t)
 		sweepAfter(t, env)
 		_, api := env.Client(t)
-		pemCert := selfSignedPEM(t)
+		pemCert, sshKey := selfSignedPEM(t), sshKeyPEM(t)
 		for _, name := range sortedNames(matrix) {
 			tc := matrix[name]
 			t.Run(name, func(t *testing.T) {
@@ -189,8 +265,13 @@ func TestAccResourceMatrix(t *testing.T) {
 				if tc.identifier {
 					objName = acctest.Identifier(name)
 				}
-				cfg := env.ProviderConfig() + fmt.Sprintf(tc.config, objName, pemCert)
-				check := resource.TestCheckResourceAttrSet(addr, "id")
+				cfg := env.ProviderConfig() + fmt.Sprintf(tc.config, objName, pemCert, sshKey) +
+					// Every resource has a data source reading it back by id.
+					fmt.Sprintf("\ndata %q \"by_id\" {\n  id = %s.id\n}\n", "appgatesdp_"+name, addr)
+				check := resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet(addr, "id"),
+					resource.TestCheckResourceAttrPair("data.appgatesdp_"+name+".by_id", "id", addr, "id"),
+				)
 				if name == "appliance" {
 					check = resource.ComposeAggregateTestCheckFunc(check, resource.TestCheckResourceAttrWith("data.appgatesdp_appliance_seed.test", "seed_file", func(v string) error {
 						if v == "" {
@@ -231,4 +312,93 @@ data "appgatesdp_certificate_authority" "ca" {}
 			}},
 		})
 	})
+}
+
+// TestAccSingletons applies every settings singleton without attributes. The
+// provider then PUTs the current settings back, so nothing changes; the plan
+// must be empty afterwards and the singleton must import. Singletons whose
+// destroy resets collective settings, and registrations, are left out.
+func TestAccSingletons(t *testing.T) {
+	acctest.ForEachEnv(t, func(t *testing.T, env acctest.Env) {
+		acctest.RequireDestructive(t)
+		_, api := env.Client(t)
+		for _, name := range sortedNames(api.Resources) {
+			r := api.Resources[name]
+			if !r.Singleton || r.Delete || r.CreateMethod != "" {
+				continue
+			}
+			t.Run(name, func(t *testing.T) {
+				addr := "appgatesdp_" + name + ".test"
+				resource.Test(t, resource.TestCase{
+					ProtoV6ProviderFactories: factories,
+					ErrorCheck:               acctest.SkipUnlicensed(t),
+					Steps: []resource.TestStep{
+						{Config: env.ProviderConfig() + fmt.Sprintf("resource %q \"test\" {}\ndata %q \"test\" {}\n", "appgatesdp_"+name, "appgatesdp_"+name)},
+						{ResourceName: addr, ImportState: true, ImportStateId: name, ImportStateVerify: true},
+					},
+				})
+			})
+		}
+	})
+}
+
+// TestAccReadOnlyDataSources reads every read-only endpoint data source of
+// the version. Path parameters are taken from an existing object of the
+// parent collection (e.g. a site for /sites/{id}/resources).
+func TestAccReadOnlyDataSources(t *testing.T) {
+	acctest.ForEachEnv(t, func(t *testing.T, env acctest.Env) {
+		c, api := env.Client(t)
+		for _, name := range sortedNames(api.DataSources) {
+			ds := api.DataSources[name]
+			if !ds.ReadOnly {
+				continue
+			}
+			t.Run(name, func(t *testing.T) {
+				var args string
+				for _, p := range ds.Params {
+					if !p.Required {
+						continue
+					}
+					var value string
+					switch {
+					case p.In == "path":
+						value = firstObjectID(t, c, ds.Path, p.Name)
+					case len(p.Enum) > 0:
+						value = p.Enum[0]
+					default:
+						t.Skipf("required parameter %s has no known value", p.Name)
+					}
+					args += fmt.Sprintf("  %s = %q\n", p.TF, value)
+				}
+				resource.Test(t, resource.TestCase{
+					ProtoV6ProviderFactories: factories,
+					ErrorCheck:               acctest.SkipUnlicensed(t),
+					Steps: []resource.TestStep{{
+						Config: env.ProviderConfig() + fmt.Sprintf("data %q \"test\" {\n%s}\n", "appgatesdp_"+name, args),
+						Check:  resource.TestCheckResourceAttrSet("data.appgatesdp_"+name+".test", "id"),
+					}},
+				})
+			})
+		}
+	})
+}
+
+// firstObjectID returns the id of the first object of the collection that
+// precedes {param} in path, or skips the test.
+func firstObjectID(t *testing.T, c *sdp.Client, path, param string) string {
+	t.Helper()
+	parent, _, _ := strings.Cut(path, "/{"+param+"}")
+	if param != "id" || strings.Contains(parent, "{") {
+		t.Skipf("no generic value for path parameter %s of %s", param, path)
+	}
+	var list struct {
+		Data []map[string]any `json:"data"`
+	}
+	if err := c.Do(context.Background(), http.MethodGet, parent, url.Values{"range": {"0-1"}}, nil, &list); err != nil {
+		t.Skipf("cannot list %s for a parameter value: %v", parent, err)
+	}
+	if len(list.Data) == 0 {
+		t.Skipf("%s has no objects to read %s for", parent, path)
+	}
+	return fmt.Sprint(list.Data[0]["id"])
 }
