@@ -18,6 +18,47 @@ type Definitions struct {
 	Names map[string]string `yaml:"names"`
 	// Exclude skips paths with the reason why they are not generated.
 	Exclude map[string]string `yaml:"exclude"`
+	// Corrections fix specification defects found against real controllers,
+	// keyed by path (collection, object or endpoint path).
+	Corrections map[string]Correction `yaml:"corrections"`
+}
+
+// Correction fixes how one path's specification differs from the API.
+type Correction struct {
+	// Reason documents the defect; it is listed in the generation report.
+	Reason string `yaml:"reason"`
+	// Accept is the media type the endpoint expects instead of the versioned
+	// one (e.g. application/json for /version).
+	Accept string `yaml:"accept"`
+	// JSON lists properties (dot separated JSON paths) whose API value does
+	// not match the specified schema; they are exposed as JSON strings.
+	JSON []string `yaml:"json"`
+}
+
+// apply corrects normalized schemas and metadata of one path.
+func (c Correction) apply(n *normalizer, path string, meta *apimeta.Resource, schemas ...map[string]any) {
+	n.warnf("%s: corrected: %s", path, c.Reason)
+	meta.Accept = c.Accept
+	for _, s := range schemas {
+		for _, prop := range c.JSON {
+			setFreeForm(s, prop)
+		}
+	}
+}
+
+// setFreeForm replaces a dot separated property of a schema by a JSON string.
+func setFreeForm(s map[string]any, path string) {
+	head, rest, nested := strings.Cut(path, ".")
+	props, _ := s["properties"].(map[string]any)
+	child, ok := props[head].(map[string]any)
+	if !ok {
+		return
+	}
+	if nested {
+		setFreeForm(child, rest)
+		return
+	}
+	props[head] = freeForm(child)
 }
 
 // Definition locates a Terraform resource in the SDP Admin API.
@@ -108,7 +149,7 @@ func build(version, dir string, defs Definitions) (*buildResult, error) {
 	if len(paths) == 0 {
 		return nil, fmt.Errorf("%s: api_specs.yml has no paths", version)
 	}
-	n := &normalizer{l: l}
+	n := &normalizer{l: l, corrections: defs.Corrections}
 	disc, err := n.discover(paths, defs)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", version, err)
@@ -350,6 +391,9 @@ func (n *normalizer) resource(paths map[string]any, name string, def Definition)
 		// Data sources only read; nothing is sent.
 		reqSchema = respSchema
 	}
+	if c, ok := n.corrections[def.Path]; ok {
+		c.apply(n, def.Path, meta, reqSchema, respSchema)
+	}
 	meta.Fields = fields(reqSchema, respSchema)
 	return &resourceSchemas{request: reqSchema, response: respSchema, meta: meta}, nil
 }
@@ -406,15 +450,16 @@ func (n *normalizer) readOnlyDataSource(paths map[string]any, name string, def r
 		params = append(params, param)
 		metaParams = append(metaParams, apimeta.Param{Name: pname, In: in, TF: tf, Required: param["required"] == true, Enum: stringList(ps["enum"])})
 	}
+	meta := &apimeta.Resource{Path: def.path, ReadOnly: true, Params: metaParams}
+	if c, ok := n.corrections[def.path]; ok {
+		c.apply(n, def.path, meta, resp)
+	}
+	meta.Fields = fields(resp, resp)
 	opOut := operation(nil, resp, false)
 	if len(params) > 0 {
 		opOut["parameters"] = params
 	}
-	return &resourceSchemas{
-		response: resp,
-		op:       opOut,
-		meta:     &apimeta.Resource{Path: def.path, ReadOnly: true, Params: metaParams, Fields: fields(resp, resp)},
-	}, synthetic, nil
+	return &resourceSchemas{response: resp, op: opOut, meta: meta}, synthetic, nil
 }
 
 // body returns the JSON schema of an operation's request body or 2xx response.

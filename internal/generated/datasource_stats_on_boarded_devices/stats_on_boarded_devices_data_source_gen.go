@@ -6,7 +6,6 @@ package datasource_stats_on_boarded_devices
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 func StatsOnBoardedDevicesDataSourceSchema(ctx context.Context) schema.Schema {
@@ -17,11 +16,10 @@ func StatsOnBoardedDevicesDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "The time the stats was generated. Deprecated as of 6.4 Supported in API versions: v21, v22, v23.",
 				MarkdownDescription: "The time the stats was generated. Deprecated as of 6.4 Supported in API versions: v21, v22, v23.",
 			},
-			"data": schema.MapAttribute{
-				ElementType:         types.NumberType,
+			"data": schema.StringAttribute{
 				Computed:            true,
-				Description:         "A dictionary of Device On-Boardings Per hour. The key is the hour, the value is the amount of on-boards. For example 8:24 means, between 08:00 - 09:00, 24 on-boards have occurred. Times are UTC based and if the hour number is after the current time, it represents the day before.",
-				MarkdownDescription: "A dictionary of Device On-Boardings Per hour. The key is the hour, the value is the amount of on-boards. For example 8:24 means, between 08:00 - 09:00, 24 on-boards have occurred. Times are UTC based and if the hour number is after the current time, it represents the day before.",
+				Description:         "A dictionary of Device On-Boardings Per hour. The key is the hour, the value is the amount of on-boards. For example 8:24 means, between 08:00 - 09:00, 24 on-boards have occurred. Times are UTC based and if the hour number is after the current time, it represents the day before. JSON encoded value; use jsonencode() and jsondecode().",
+				MarkdownDescription: "A dictionary of Device On-Boardings Per hour. The key is the hour, the value is the amount of on-boards. For example 8:24 means, between 08:00 - 09:00, 24 on-boards have occurred. Times are UTC based and if the hour number is after the current time, it represents the day before. JSON encoded value; use jsonencode() and jsondecode().",
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,

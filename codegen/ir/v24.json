@@ -21920,14 +21920,11 @@
       "schema": {
         "attributes": [
           {
-            "map": {
+            "name": "data",
+            "string": {
               "computed_optional_required": "computed",
-              "description": "A dictionary of Device On-Boardings Per hour. The key is the hour, the value is the amount of on-boards. For example 8:24 means, between 08:00 - 09:00, 24 on-boards have occurred. Times are UTC based and if the hour number is after the current time, it represents the day before.",
-              "element_type": {
-                "number": {}
-              }
-            },
-            "name": "data"
+              "description": "A dictionary of Device On-Boardings Per hour. The key is the hour, the value is the amount of on-boards. For example 8:24 means, between 08:00 - 09:00, 24 on-boards have occurred. Times are UTC based and if the hour number is after the current time, it represents the day before. JSON encoded value; use jsonencode() and jsondecode()."
+            }
           }
         ]
       }
@@ -21978,14 +21975,11 @@
       "schema": {
         "attributes": [
           {
-            "map": {
+            "name": "data",
+            "string": {
               "computed_optional_required": "computed",
-              "description": "A dictionary of User Logins Per Hour. The key is the hour, the value is a map of Users Logins per controller. For example `8: {'total': '30'}` means, between 08:00 - 09:00, total 30 Logins have occurred to all controllers. Times are UTC based and if the hour number is after the current time, it represents the day before.",
-              "element_type": {
-                "number": {}
-              }
-            },
-            "name": "data"
+              "description": "A dictionary of User Logins Per Hour. The key is the hour, the value is a map of Users Logins per controller. For example `8: {'total': '30'}` means, between 08:00 - 09:00, total 30 Logins have occurred to all controllers. Times are UTC based and if the hour number is after the current time, it represents the day before. JSON encoded value; use jsonencode() and jsondecode()."
+            }
           }
         ]
       }

@@ -21282,8 +21282,7 @@
         },
         "data": {
           "json": "data",
-          "type": "map",
-          "elem": "number"
+          "type": "json"
         },
         "name": {
           "json": "name",
@@ -21357,8 +21356,7 @@
         },
         "data": {
           "json": "data",
-          "type": "map",
-          "elem": "number"
+          "type": "json"
         },
         "name": {
           "json": "name",
@@ -21823,6 +21821,7 @@
     },
     "version": {
       "path": "/version",
+      "accept": "application/json",
       "read_only": true,
       "fields": {
         "lowest_peer_version_supported": {

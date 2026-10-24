@@ -7,6 +7,7 @@ import (
 	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -87,6 +88,12 @@ func TestBuildFixture(t *testing.T) {
 		t.Errorf("params %+v", status.Params)
 	case status.Fields["details"] == nil || status.Fields["details"].Type != "json":
 		t.Error("free-form objects must become JSON attributes")
+	}
+	if status.Accept != "application/json" || status.Fields["healthy"].Type != "json" {
+		t.Errorf("correction not applied: accept %q, healthy %+v", status.Accept, status.Fields["healthy"])
+	}
+	if !slices.ContainsFunc(res.warnings, func(w string) bool { return strings.Contains(w, "corrected: healthy is returned as a string") }) {
+		t.Error("corrections must be reported")
 	}
 	for _, p := range status.Params {
 		if p.TF == "level" && (!p.Required || len(p.Enum) != 2) {

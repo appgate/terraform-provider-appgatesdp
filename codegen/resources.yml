@@ -10,6 +10,7 @@
 #              names and behavior (see the keys below)
 #   names:     names for discovered resources, keyed by path or path#variant
 #   exclude:   paths that are not generated, with the reason
+#   corrections: fixes for specification defects found on real controllers
 #
 # Definition keys:
 #   path:             collection path; objects live at <path>/{id}
@@ -106,3 +107,20 @@ names:
   /ztp: ztp_registration
 
 exclude: {}
+
+corrections:
+  /version:
+    reason: >-
+      The API documents /version as the one endpoint that expects
+      Accept application/json instead of the versioned media type.
+    accept: application/json
+  /stats/user-logins:
+    reason: >-
+      data is a list of hour-keyed objects ([{"0": {"total": 0}}, ...]);
+      the schema declares a map of numbers.
+    json: [data]
+  /stats/on-boarded-devices:
+    reason: >-
+      data is a list of hour-keyed numbers ([{"0": 0}, ...]); the schema
+      declares a map.
+    json: [data]

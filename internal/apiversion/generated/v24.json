@@ -25403,8 +25403,7 @@
       "fields": {
         "data": {
           "json": "data",
-          "type": "map",
-          "elem": "number"
+          "type": "json"
         }
       }
     },
@@ -25454,8 +25453,7 @@
       "fields": {
         "data": {
           "json": "data",
-          "type": "map",
-          "elem": "number"
+          "type": "json"
         }
       }
     },
@@ -25936,6 +25934,7 @@
     },
     "version": {
       "path": "/version",
+      "accept": "application/json",
       "read_only": true,
       "fields": {
         "lowest_peer_version_supported": {

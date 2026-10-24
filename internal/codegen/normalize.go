@@ -23,8 +23,9 @@ const (
 // constructs the generator cannot express. Every lossy decision is recorded in
 // warnings so it shows up in the generation report.
 type normalizer struct {
-	l        *specLoader
-	warnings []string
+	l           *specLoader
+	corrections map[string]Correction
+	warnings    []string
 }
 
 // keptKeys are the schema keywords forwarded to the generator.

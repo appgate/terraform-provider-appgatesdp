@@ -18,7 +18,7 @@ Supported SDP Admin API versions: v21, v22, v23, v24, v25.
 ### Read-Only
 
 - `creation_date` (String) The time the stats was generated. Deprecated as of 6.4 Supported in API versions: v21, v22, v23.
-- `data` (Map of Number) A dictionary of Device On-Boardings Per hour. The key is the hour, the value is the amount of on-boards. For example 8:24 means, between 08:00 - 09:00, 24 on-boards have occurred. Times are UTC based and if the hour number is after the current time, it represents the day before.
+- `data` (String) A dictionary of Device On-Boardings Per hour. The key is the hour, the value is the amount of on-boards. For example 8:24 means, between 08:00 - 09:00, 24 on-boards have occurred. Times are UTC based and if the hour number is after the current time, it represents the day before. JSON encoded value; use jsonencode() and jsondecode().
 - `id` (String) Identifier of the data source.
 - `name` (String) User-friendly name for the stats. Deprecated as of 6.4 Supported in API versions: v21, v22, v23.
 - `refresh_interval` (Number) Recommended refresh interval in minutes. Deprecated as of 6.4 Supported in API versions: v21, v22, v23.

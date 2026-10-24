@@ -123,6 +123,11 @@ names:
   /widgets/{id}/status: widget_status_report
 exclude:
   /login: authentication is handled by the provider configuration
+corrections:
+  /widgets/{id}/status:
+    reason: healthy is returned as a string
+    accept: application/json
+    json: [healthy]
 `
 
 // newFixtureRoot creates a repository root with a registry and definitions.
