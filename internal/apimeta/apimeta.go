@@ -38,6 +38,8 @@ type Resource struct {
 	DeletePath string `json:"delete_path,omitempty"`
 	// Immutable objects have no update; every change replaces them.
 	Immutable bool `json:"immutable,omitempty"`
+	// Accept overrides the versioned media type for this path.
+	Accept string `json:"accept,omitempty"`
 	// Wrapped resources have a free-form JSON body, exposed as the single
 	// attribute WrapProperty.
 	Wrapped bool `json:"wrapped,omitempty"`

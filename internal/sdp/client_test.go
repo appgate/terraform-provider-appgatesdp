@@ -238,3 +238,22 @@ func TestEscapedPathsAreSentOnce(t *testing.T) {
 		t.Fatalf("path %s, want %s", got, want)
 	}
 }
+
+func TestDoAcceptOverridesMediaType(t *testing.T) {
+	var got string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = r.Header.Get("Accept")
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer srv.Close()
+	c, err := New(Config{URL: srv.URL, BearerToken: "t"}, 25)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := c.DoAccept(context.Background(), "application/json", http.MethodGet, "/version", nil, nil, nil); err != nil || got != "application/json" {
+		t.Fatalf("accept %q, err %v", got, err)
+	}
+	if err := c.Do(context.Background(), http.MethodGet, "/x", nil, nil, nil); err != nil || got != "application/vnd.appgate.peer-v25+json" {
+		t.Fatalf("default accept %q, err %v", got, err)
+	}
+}

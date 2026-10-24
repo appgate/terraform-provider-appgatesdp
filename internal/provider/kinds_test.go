@@ -294,3 +294,26 @@ data "appgatesdp_condition" "by_name" { name = "always" }
 		})
 	})
 }
+
+// TestSingletonCreatedOnFirstWrite: a singleton that does not exist until
+// first written (GET 404, e.g. /my-preferences) is created from the plan.
+func TestSingletonCreatedOnFirstWrite(t *testing.T) {
+	srv := newServer(t, "v25")
+	srv.Fail(http.MethodGet, "/my-preferences", http.StatusNotFound, `{"id":"not found","message":"Not found."}`, 1)
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6Factories,
+		Steps: []resource.TestStep{{
+			Config: providerConfig(srv, "v25") + `
+resource "appgatesdp_my_preferences" "test" {
+  value = jsonencode({ theme = "dark" })
+}
+`,
+			Check: func(*terraform.State) error {
+				if body := lastRequest(srv, http.MethodPut, "/my-preferences"); body["theme"] != "dark" {
+					return fmt.Errorf("PUT body %v", body)
+				}
+				return nil
+			},
+		}},
+	})
+}

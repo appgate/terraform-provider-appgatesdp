@@ -167,6 +167,10 @@ func (r *genericResource) getObject(ctx context.Context, m *apimeta.Resource, id
 // manage, or that are unknown in the plan, keep their values.
 func (r *genericResource) put(ctx context.Context, m *apimeta.Resource, id string, plan tftypes.Value) (map[string]any, error) {
 	current, err := r.getObject(ctx, m, id)
+	if m.Singleton && sdp.IsNotFound(err) {
+		// Some singletons only exist once written (e.g. /my-preferences).
+		current, err = map[string]any{}, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("read before update: %w", err)
 	}

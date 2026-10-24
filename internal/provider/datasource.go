@@ -47,7 +47,7 @@ func readEndpoint(ctx context.Context, c *sdp.Client, m *apimeta.Resource, confi
 		}
 	}
 	var out map[string]any
-	err := c.Do(ctx, http.MethodGet, path, query, nil, &out)
+	err := c.DoAccept(ctx, m.Accept, http.MethodGet, path, query, nil, &out)
 	return out, err
 }
 

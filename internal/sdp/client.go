@@ -168,11 +168,19 @@ func IsNotFound(err error) bool {
 // Do sends a request and decodes the JSON response into out (if non-nil).
 // The client logs in on first use and once more if the token was rejected.
 func (c *Client) Do(ctx context.Context, method, path string, query url.Values, body, out any) error {
+	return c.DoAccept(ctx, "", method, path, query, body, out)
+}
+
+// DoAccept is Do with an explicit Accept header for endpoints that do not
+// use the versioned media type; empty means the versioned one.
+func (c *Client) DoAccept(ctx context.Context, accept, method, path string, query url.Values, body, out any) error {
 	token, err := c.ensureToken(ctx)
 	if err != nil {
 		return err
 	}
-	accept := c.acceptHeader()
+	if accept == "" {
+		accept = c.acceptHeader()
+	}
 	err = c.do(ctx, accept, method, path, query, body, out, token)
 	var apiErr *Error
 	if errors.As(err, &apiErr) && apiErr.Status == http.StatusUnauthorized && c.cfg.BearerToken == "" {

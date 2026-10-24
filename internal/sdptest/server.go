@@ -123,6 +123,20 @@ func (s *Server) SeedEndpoint(pattern string, obj map[string]any) {
 	s.endpoints[pattern] = obj
 }
 
+// AcceptOverride reports whether an endpoint documents its own media type.
+func (s *Server) AcceptOverride(path, accept string) bool {
+	return s.acceptOverride(path, accept)
+}
+
+func (s *Server) acceptOverride(path, accept string) bool {
+	for _, r := range allResources(s.api) {
+		if r.Accept != "" && r.Accept == accept && matchPattern(r.Path, path) {
+			return true
+		}
+	}
+	return false
+}
+
 // matchPattern reports whether path matches a pattern with {param} segments.
 func matchPattern(pattern, path string) bool {
 	ps, xs := strings.Split(pattern, "/"), strings.Split(path, "/")
@@ -235,7 +249,7 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var v int
-	if _, err := fmt.Sscanf(r.Header.Get("Accept"), "application/vnd.appgate.peer-v%d+json", &v); err != nil || v < s.MinVersion || v > s.MaxVersion {
+	if _, err := fmt.Sscanf(r.Header.Get("Accept"), "application/vnd.appgate.peer-v%d+json", &v); (err != nil || v < s.MinVersion || v > s.MaxVersion) && !s.acceptOverride(path, r.Header.Get("Accept")) {
 		writeJSON(w, http.StatusNotAcceptable, map[string]any{
 			"id": "not acceptable", "message": "Invalid Accept header",
 			"minSupportedVersion": s.MinVersion, "maxSupportedVersion": s.MaxVersion,
@@ -355,7 +369,8 @@ func (s *Server) serveSingleton(w http.ResponseWriter, r *http.Request, path str
 	case http.MethodGet:
 		writeJSON(w, http.StatusOK, s.view(res, obj))
 	case http.MethodPut, http.MethodPost:
-		if errs := validate(res.Fields, body, ""); len(errs) > 0 {
+		// Wrapped bodies are free-form and accepted as they are.
+		if errs := validate(res.Fields, body, ""); len(errs) > 0 && !res.Wrapped {
 			writeValidation(w, errs)
 			return
 		}

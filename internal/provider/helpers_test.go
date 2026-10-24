@@ -78,7 +78,7 @@ provider "appgatesdp" {
 func checkAcceptHeaders(srv *sdptest.Server, v apiversion.Version) func(*terraform.State) error {
 	return func(*terraform.State) error {
 		for _, r := range srv.Requests() {
-			if r.Accept != v.AcceptHeader() {
+			if r.Accept != v.AcceptHeader() && !srv.AcceptOverride(r.Path, r.Accept) {
 				return fmt.Errorf("%s %s sent Accept %q, want %q", r.Method, r.Path, r.Accept, v.AcceptHeader())
 			}
 		}
