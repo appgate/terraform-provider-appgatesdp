@@ -34,7 +34,7 @@ func TestConformance(t *testing.T) {
 	}
 	got := Summarize(Conformance("condition", decode(t, `{"name":"n","mode":"c","port":1.5,"tags":["x",1],"rules":[{"on":"yes","extra":1}],"undocumented":true}`), fields))
 	for _, want := range []string{
-		`error condition.mode: value "c" not in enum [a b]`,
+		`warning condition.mode: value "c" not in enum [a b]`,
 		"error condition.port: expected integer, got 1.5",
 		"error condition.tags[1]: expected string",
 		"error condition.rules[0].on: expected bool",

@@ -101,28 +101,35 @@ func RequireDestructive(t *testing.T) {
 	}
 }
 
-// Name returns a unique object name with NamePrefix.
+// Name returns a unique object name with NamePrefix of at most 30
+// characters: 32 is a common API limit, leaving room for a short suffix.
 func Name(kind string) string {
-	return NamePrefix + kind + "-" + uuid.NewString()[:8]
+	if len(kind) > 14 {
+		kind = kind[:14]
+	}
+	return NamePrefix + strings.Trim(kind, "-_") + "-" + uuid.NewString()[:8]
 }
 
 // Identifier returns a unique JavaScript identifier with IdentifierPrefix.
 func Identifier(kind string) string {
-	return IdentifierPrefix + strings.ReplaceAll(kind, "-", "_") + "_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
+	return strings.ReplaceAll(Name(kind), "-", "_")
 }
 
-// isTestObject reports whether a name or identifier was created by tests.
+// isTestObject reports whether a name or identifier was created by tests,
+// in any letter case (some names must be upper case, e.g. secrets).
 func isTestObject(s string) bool {
+	s = strings.ToLower(s)
 	return strings.HasPrefix(s, NamePrefix) || strings.HasPrefix(s, IdentifierPrefix) || strings.Contains(s, NamePrefix)
 }
 
-// SkipUnlicensed is a TestCase.ErrorCheck that skips the test when the
-// collective's license does not include the feature (HTTP 402); that is a
-// property of the environment, not of the provider.
-func SkipUnlicensed(t *testing.T) func(error) error {
+// SkipUnavailable is a TestCase.ErrorCheck that skips the test when the
+// environment cannot offer the feature: it is not licensed (HTTP 402) or a
+// prerequisite is missing (HTTP 412, e.g. the collective is not registered
+// to ZTP). Both are properties of the environment, not of the provider.
+func SkipUnavailable(t *testing.T) func(error) error {
 	return func(err error) error {
-		if err != nil && strings.Contains(err.Error(), "HTTP 402 insufficient license") {
-			t.Skipf("feature not licensed in this environment: %v", err)
+		if err != nil && (strings.Contains(err.Error(), "HTTP 402 insufficient license") || strings.Contains(err.Error(), "HTTP 412")) {
+			t.Skipf("not available in this environment: %v", err)
 		}
 		return err
 	}

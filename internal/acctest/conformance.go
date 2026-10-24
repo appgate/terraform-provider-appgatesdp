@@ -22,8 +22,8 @@ type Finding struct {
 func (f Finding) String() string { return fmt.Sprintf("%s %s: %s", f.Severity, f.Path, f.Message) }
 
 // Conformance compares an API object with the field metadata.
-//   - error: a field has a different JSON type than specified, or a value
-//     is not in the specified enum;
+//   - error: a field has a different JSON type than specified;
+//   - warning: a value is not in the specified enum;
 //   - info: the API returned a field the specification does not describe
 //     (the provider ignores it, but the spec may be incomplete).
 func Conformance(path string, obj map[string]any, fields map[string]*apimeta.Field) []Finding {
@@ -58,7 +58,9 @@ func conformValue(p string, v any, typ string, f *apimeta.Field) []Finding {
 			return mismatch()
 		}
 		if len(f.Enum) > 0 && !slices.Contains(f.Enum, s) {
-			return []Finding{{"error", p, fmt.Sprintf("value %q not in enum %v", s, f.Enum)}}
+			// The provider never validates API values against enums, so this
+			// is a specification defect rather than a provider failure.
+			return []Finding{{"warning", p, fmt.Sprintf("value %q not in enum %v", s, f.Enum)}}
 		}
 	case "bool":
 		if _, ok := v.(bool); !ok {

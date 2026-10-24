@@ -22,6 +22,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/appgate/terraform-provider-appgatesdp/internal/acctest"
+	"github.com/appgate/terraform-provider-appgatesdp/internal/apimeta"
 	"github.com/appgate/terraform-provider-appgatesdp/internal/sdp"
 )
 
@@ -86,6 +87,8 @@ type matrixCase struct {
 	ignore []string
 	// identifier uses a JavaScript identifier as name.
 	identifier bool
+	// upper uses an upper case name (secrets: [A-Z0-9_-] only).
+	upper bool
 }
 
 var matrix = map[string]matrixCase{
@@ -108,7 +111,7 @@ var matrix = map[string]matrixCase{
 }`, ignore: []string{"file"}},
 	"replication_target": {config: `resource "appgatesdp_replication_target" "test" {
   name             = %[1]q
-  replication_tags = ["tf-acc"]
+  replication_tags = ["tf-acc-tag"]
 }`},
 	"service_user": {config: `resource "appgatesdp_service_user" "test" {
   name     = %[1]q
@@ -117,27 +120,40 @@ var matrix = map[string]matrixCase{
 	"tag": {config: `resource "appgatesdp_tag" "test" {
   name = %[1]q
 }`},
-	"client_profile_group": {config: `resource "appgatesdp_client_profile_group" "test" {
-  name = %[1]q
-}`},
-	"service_database_identity_provider": {config: `resource "appgatesdp_service_database_identity_provider" "test" {
-  name = %[1]q
-}`},
 	"protocol_template": {config: `resource "appgatesdp_protocol_template" "test" {
   name    = %[1]q
   subtype = "tcp_up"
   ports   = ["443"]
 }`},
-	"credentials_secret": {config: `resource "appgatesdp_credentials_secret" "test" {
+	"client_profile": {config: `resource "appgatesdp_client_profile" "test" {
+  name                   = %[1]q
+  identity_provider_name = "local"
+}`},
+	"client_profile_group": {config: `resource "appgatesdp_client_profile" "member" {
+  name                   = "%[1]s-p"
+  identity_provider_name = "local"
+}
+data "appgatesdp_client_profiles_url" "member" {
+  id = appgatesdp_client_profile.member.id
+}
+resource "appgatesdp_client_profile_group" "test" {
+  name         = %[1]q
+  profile_urls = [{ url = data.appgatesdp_client_profiles_url.member.url }]
+}`},
+	"secret": {upper: true, config: `resource "appgatesdp_secret" "test" {
+  name   = %[1]q
+  secret = "tf-acc-secret"
+}`, ignore: []string{"secret"}},
+	"credentials_secret": {upper: true, config: `resource "appgatesdp_credentials_secret" "test" {
   name     = %[1]q
   username = "tf-acc"
   password = "tf-acc-secret"
 }`, ignore: []string{"password"}},
-	"generic_secret": {config: `resource "appgatesdp_generic_secret" "test" {
+	"generic_secret": {upper: true, config: `resource "appgatesdp_generic_secret" "test" {
   name   = %[1]q
   secret = "tf-acc-secret"
 }`, ignore: []string{"secret"}},
-	"ssh_key_secret": {config: `resource "appgatesdp_ssh_key_secret" "test" {
+	"ssh_key_secret": {upper: true, config: `resource "appgatesdp_ssh_key_secret" "test" {
   name        = %[1]q
   username    = "tf-acc"
   private_key = <<-KEY
@@ -265,6 +281,9 @@ func TestAccResourceMatrix(t *testing.T) {
 				if tc.identifier {
 					objName = acctest.Identifier(name)
 				}
+				if tc.upper {
+					objName = strings.ToUpper(objName)
+				}
 				cfg := env.ProviderConfig() + fmt.Sprintf(tc.config, objName, pemCert, sshKey) +
 					// Every resource has a data source reading it back by id.
 					fmt.Sprintf("\ndata %q \"by_id\" {\n  id = %s.id\n}\n", "appgatesdp_"+name, addr)
@@ -282,10 +301,10 @@ func TestAccResourceMatrix(t *testing.T) {
 				}
 				resource.Test(t, resource.TestCase{
 					ProtoV6ProviderFactories: factories,
-					ErrorCheck:               acctest.SkipUnlicensed(t),
+					ErrorCheck:               acctest.SkipUnavailable(t),
 					Steps: []resource.TestStep{
 						{Config: cfg, Check: check},
-						{ResourceName: addr, ImportState: true, ImportStateVerify: true, ImportStateVerifyIgnore: tc.ignore},
+						{ResourceName: addr, ImportState: true, ImportStateVerify: true, ImportStateVerifyIgnore: append(tc.ignore, writeOnlyPaths("", api.Resources[name].Fields)...)},
 					},
 				})
 			})
@@ -331,9 +350,11 @@ func TestAccSingletons(t *testing.T) {
 				addr := "appgatesdp_" + name + ".test"
 				resource.Test(t, resource.TestCase{
 					ProtoV6ProviderFactories: factories,
-					ErrorCheck:               acctest.SkipUnlicensed(t),
+					ErrorCheck:               acctest.SkipUnavailable(t),
 					Steps: []resource.TestStep{
-						{Config: env.ProviderConfig() + fmt.Sprintf("resource %q \"test\" {}\ndata %q \"test\" {}\n", "appgatesdp_"+name, "appgatesdp_"+name)},
+						// The data source reads after the resource: some singletons
+						// only exist once written (/my-preferences).
+						{Config: env.ProviderConfig() + fmt.Sprintf("resource %q \"test\" {}\ndata %q \"test\" {\n  depends_on = [%s.test]\n}\n", "appgatesdp_"+name, "appgatesdp_"+name, "appgatesdp_"+name)},
 						{ResourceName: addr, ImportState: true, ImportStateId: name, ImportStateVerify: true},
 					},
 				})
@@ -343,8 +364,11 @@ func TestAccSingletons(t *testing.T) {
 }
 
 // TestAccReadOnlyDataSources reads every read-only endpoint data source of
-// the version. Path parameters are taken from an existing object of the
-// parent collection (e.g. a site for /sites/{id}/resources).
+// the version. Path parameters are taken from existing objects of the parent
+// collection (e.g. a site for /sites/{id}/resources). Each candidate is first
+// probed with a raw GET: when the environment cannot serve the endpoint
+// (unlicensed, missing prerequisite, nothing to read) the test is skipped with
+// the API's message; when the raw GET works, the Terraform read must as well.
 func TestAccReadOnlyDataSources(t *testing.T) {
 	acctest.ForEachEnv(t, func(t *testing.T, env acctest.Env) {
 		c, api := env.Client(t)
@@ -354,25 +378,12 @@ func TestAccReadOnlyDataSources(t *testing.T) {
 				continue
 			}
 			t.Run(name, func(t *testing.T) {
-				var args string
-				for _, p := range ds.Params {
-					if !p.Required {
-						continue
-					}
-					var value string
-					switch {
-					case p.In == "path":
-						value = firstObjectID(t, c, ds.Path, p.Name)
-					case len(p.Enum) > 0:
-						value = p.Enum[0]
-					default:
-						t.Skipf("required parameter %s has no known value", p.Name)
-					}
-					args += fmt.Sprintf("  %s = %q\n", p.TF, value)
+				args, err := readableArgs(t, c, ds)
+				if err != nil {
+					t.Skipf("not available in this environment: %v", err)
 				}
 				resource.Test(t, resource.TestCase{
 					ProtoV6ProviderFactories: factories,
-					ErrorCheck:               acctest.SkipUnlicensed(t),
 					Steps: []resource.TestStep{{
 						Config: env.ProviderConfig() + fmt.Sprintf("data %q \"test\" {\n%s}\n", "appgatesdp_"+name, args),
 						Check:  resource.TestCheckResourceAttrSet("data.appgatesdp_"+name+".test", "id"),
@@ -383,22 +394,130 @@ func TestAccReadOnlyDataSources(t *testing.T) {
 	})
 }
 
-// firstObjectID returns the id of the first object of the collection that
-// precedes {param} in path, or skips the test.
-func firstObjectID(t *testing.T, c *sdp.Client, path, param string) string {
+// readableArgs returns data source arguments for which a raw GET of the
+// endpoint succeeds, trying every object of the parent collection for an
+// {id} path parameter.
+func readableArgs(t *testing.T, c *sdp.Client, ds *apimeta.Resource) (string, error) {
 	t.Helper()
-	parent, _, _ := strings.Cut(path, "/{"+param+"}")
-	if param != "id" || strings.Contains(parent, "{") {
-		t.Skipf("no generic value for path parameter %s of %s", param, path)
+	fixed := map[string]string{}
+	var idParam *apimeta.Param
+	for i, p := range ds.Params {
+		switch {
+		case !p.Required:
+		case p.In == "path" && p.Name == "id" && idParam == nil:
+			idParam = &ds.Params[i]
+		case len(p.Enum) > 0:
+			fixed[p.TF] = p.Enum[0]
+		default:
+			t.Skipf("no generic value for required parameter %s of %s", p.Name, ds.Path)
+		}
 	}
-	var list struct {
-		Data []map[string]any `json:"data"`
+	candidates := []string{""}
+	if idParam != nil {
+		parent, _, _ := strings.Cut(ds.Path, "/{id}")
+		if strings.Contains(parent, "{") {
+			t.Skipf("no generic value for the parameters of %s", ds.Path)
+		}
+		var list struct {
+			Data []map[string]any `json:"data"`
+		}
+		if err := c.Do(context.Background(), http.MethodGet, parent, url.Values{"range": {"0-20"}}, nil, &list); err != nil {
+			return "", fmt.Errorf("list %s for a parameter value: %w", parent, err)
+		}
+		if len(list.Data) == 0 {
+			return "", fmt.Errorf("%s has no objects", parent)
+		}
+		candidates = nil
+		for _, obj := range list.Data {
+			candidates = append(candidates, fmt.Sprint(obj["id"]))
+		}
 	}
-	if err := c.Do(context.Background(), http.MethodGet, parent, url.Values{"range": {"0-1"}}, nil, &list); err != nil {
-		t.Skipf("cannot list %s for a parameter value: %v", parent, err)
+	var lastErr error
+	for _, id := range candidates {
+		path, query := ds.Path, url.Values{}
+		for _, p := range ds.Params {
+			if v, ok := fixed[p.TF]; ok && p.In == "query" {
+				query.Set(p.Name, v)
+			} else if ok {
+				path = strings.Replace(path, "{"+p.Name+"}", url.PathEscape(v), 1)
+			}
+		}
+		if idParam != nil {
+			path = strings.Replace(path, "{id}", url.PathEscape(id), 1)
+		}
+		lastErr = c.DoAccept(context.Background(), ds.Accept, http.MethodGet, path, query, nil, nil)
+		if lastErr == nil {
+			args := ""
+			for _, k := range sortedNames(fixed) {
+				args += fmt.Sprintf("  %s = %q\n", k, fixed[k])
+			}
+			if idParam != nil {
+				args += fmt.Sprintf("  %s = %q\n", idParam.TF, id)
+			}
+			return args, nil
+		}
 	}
-	if len(list.Data) == 0 {
-		t.Skipf("%s has no objects to read %s for", parent, path)
+	return "", lastErr
+}
+
+// TestAccBuiltInIdentityProviders adopts every built-in identity provider
+// (local, Connector, service) by its name. Without other attributes the
+// current configuration is written back unchanged; destroy only removes
+// the resource from state.
+func TestAccBuiltInIdentityProviders(t *testing.T) {
+	acctest.ForEachEnv(t, func(t *testing.T, env acctest.Env) {
+		acctest.RequireDestructive(t)
+		c, api := env.Client(t)
+		var list struct {
+			Data []map[string]any `json:"data"`
+		}
+		if err := c.Do(context.Background(), http.MethodGet, "/identity-providers", nil, nil, &list); err != nil {
+			t.Fatal(err)
+		}
+		for _, name := range sortedNames(api.Resources) {
+			r := api.Resources[name]
+			if !r.Adopt || r.Discriminator == nil {
+				continue
+			}
+			t.Run(name, func(t *testing.T) {
+				var builtIn string
+				for _, idp := range list.Data {
+					if idp[r.Discriminator.Property] == r.Discriminator.Value {
+						builtIn, _ = idp["name"].(string)
+					}
+				}
+				if builtIn == "" {
+					t.Skipf("no built-in %s identity provider", r.Discriminator.Value)
+				}
+				addr := "appgatesdp_" + name + ".test"
+				resource.Test(t, resource.TestCase{
+					ProtoV6ProviderFactories: factories,
+					Steps: []resource.TestStep{
+						{Config: env.ProviderConfig() + fmt.Sprintf("resource %q \"test\" {\n  name = %q\n}\n", "appgatesdp_"+name, builtIn)},
+						{ResourceName: addr, ImportState: true, ImportStateVerify: true},
+					},
+				})
+			})
+		}
+	})
+}
+
+// writeOnlyPaths returns state paths of nested write-only fields of this
+// API version: the API never returns them, so they cannot be imported
+// (e.g. client profile group profile_urls[].url in v23).
+func writeOnlyPaths(prefix string, fields map[string]*apimeta.Field) []string {
+	var out []string
+	for name, f := range fields {
+		switch {
+		case f.WriteOnly && prefix != "":
+			out = append(out, prefix+name)
+		case f.Fields != nil && f.Type == "object":
+			out = append(out, writeOnlyPaths(prefix+name+".", f.Fields)...)
+		case f.Fields != nil:
+			for i := range 5 {
+				out = append(out, writeOnlyPaths(fmt.Sprintf("%s%s.%d.", prefix, name, i), f.Fields)...)
+			}
+		}
 	}
-	return fmt.Sprint(list.Data[0]["id"])
+	return out
 }

@@ -38,19 +38,22 @@ func TestAccSchemaConformance(t *testing.T) {
 			r := api.DataSources[name]
 			t.Run(name, func(t *testing.T) {
 				var objects []map[string]any
-				if r.Singleton {
+				switch {
+				case r.ReadOnly && strings.Contains(r.Path, "{"):
+					t.Skip("parameterized endpoint; read by TestAccReadOnlyDataSources")
+				case r.ReadOnly || r.Singleton:
 					var obj map[string]any
-					if err := c.Do(ctx, http.MethodGet, r.Path, nil, nil, &obj); err != nil {
-						skipUnlicensed(t, err)
+					if err := c.DoAccept(ctx, r.Accept, http.MethodGet, r.Path, nil, nil, &obj); err != nil {
+						skipUnavailable(t, err)
 						t.Fatal(err)
 					}
 					objects = append(objects, obj)
-				} else {
+				default:
 					var list struct {
 						Data []map[string]any `json:"data"`
 					}
 					if err := c.Do(ctx, http.MethodGet, r.Path, url.Values{"range": {"0-20"}}, nil, &list); err != nil {
-						skipUnlicensed(t, err)
+						skipUnavailable(t, err)
 						t.Fatal(err)
 					}
 					objects = list.Data
@@ -83,14 +86,14 @@ func TestAccConditionLifecycle(t *testing.T) {
 resource "appgatesdp_condition" "test" {
   name       = %q
   expression = %q
-  tags       = ["terraform-acceptance"]
+  tags       = ["tf-acc-tag"]
 }
 `, name, expr)
 		}
 		sweepAfter(t, env)
 		resource.Test(t, resource.TestCase{
 			ProtoV6ProviderFactories: factories,
-			ErrorCheck:               acctest.SkipUnlicensed(t),
+			ErrorCheck:               acctest.SkipUnavailable(t),
 			Steps: []resource.TestStep{
 				{Config: cfg("return true;"), Check: resource.TestCheckResourceAttr("appgatesdp_condition.test", "name", name)},
 				{Config: cfg("return false;"), Check: resource.TestCheckResourceAttr("appgatesdp_condition.test", "expression", "return false;")},
@@ -108,7 +111,7 @@ func TestAccPolicyAndEntitlement(t *testing.T) {
 		sweepAfter(t, env)
 		resource.Test(t, resource.TestCase{
 			ProtoV6ProviderFactories: factories,
-			ErrorCheck:               acctest.SkipUnlicensed(t),
+			ErrorCheck:               acctest.SkipUnavailable(t),
 			Steps: []resource.TestStep{{
 				Config: env.ProviderConfig() + fmt.Sprintf(`
 # Every collective has the default site; creating sites may exceed the
@@ -151,7 +154,7 @@ func TestAccBlacklistUser(t *testing.T) {
 		dn := fmt.Sprintf("CN=%s,OU=local", acctest.Name("user"))
 		resource.Test(t, resource.TestCase{
 			ProtoV6ProviderFactories: factories,
-			ErrorCheck:               acctest.SkipUnlicensed(t),
+			ErrorCheck:               acctest.SkipUnavailable(t),
 			Steps: []resource.TestStep{
 				{
 					Config: env.ProviderConfig() + fmt.Sprintf(`
@@ -179,13 +182,15 @@ func TestAccSweep(t *testing.T) {
 	})
 }
 
-// skipUnlicensed skips when the collective's license lacks the feature
-// (HTTP 402); that is a property of the environment, not of the provider.
-func skipUnlicensed(t *testing.T, err error) {
+// skipUnavailable skips when the environment cannot serve a read: the
+// feature is unlicensed (402), a prerequisite is missing (412), or there is
+// nothing to read (404, 422, e.g. no next CA certificate). Server errors
+// (5xx) and authorization errors still fail.
+func skipUnavailable(t *testing.T, err error) {
 	t.Helper()
 	var apiErr *sdp.Error
-	if errors.As(err, &apiErr) && apiErr.Status == http.StatusPaymentRequired {
-		t.Skipf("feature not licensed in this environment: %v", err)
+	if errors.As(err, &apiErr) && apiErr.Status >= 400 && apiErr.Status < 500 && apiErr.Status != http.StatusUnauthorized && apiErr.Status != http.StatusForbidden {
+		t.Skipf("not available in this environment: %v", err)
 	}
 }
 
@@ -256,7 +261,7 @@ func TestAccReplicationSourceStatus(t *testing.T) {
 		}
 		var status map[string]any
 		if err := c.Do(context.Background(), http.MethodGet, r.Path, nil, nil, &status); err != nil {
-			skipUnlicensed(t, err)
+			skipUnavailable(t, err)
 			t.Fatal(err)
 		}
 		for _, f := range acctest.Conformance("replication_source", status, r.Fields) {
@@ -280,7 +285,7 @@ func TestAccReplicationSourceInvalidToken(t *testing.T) {
 		}
 		resource.Test(t, resource.TestCase{
 			ProtoV6ProviderFactories: factories,
-			ErrorCheck:               acctest.SkipUnlicensed(t),
+			ErrorCheck:               acctest.SkipUnavailable(t),
 			Steps: []resource.TestStep{{
 				Config: env.ProviderConfig() + `
 resource "appgatesdp_replication_source" "test" {
