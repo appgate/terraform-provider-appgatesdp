@@ -7,7 +7,6 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -43,7 +42,6 @@ func DiscoveredAppsConfigurationResourceSchema(ctx context.Context) schema.Schem
 				Computed:            true,
 				Description:         "The claim used to extract group information from the token.",
 				MarkdownDescription: "The claim used to extract group information from the token.",
-				Default:             stringdefault.StaticString("claims.user.groups"),
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,

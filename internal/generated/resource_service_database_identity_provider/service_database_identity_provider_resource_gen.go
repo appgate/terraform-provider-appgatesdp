@@ -6,7 +6,6 @@ package resource_service_database_identity_provider
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -59,7 +58,6 @@ func ServiceDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.S
 				Computed:            true,
 				Description:         "The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.",
 				MarkdownDescription: "The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.",
-				Default:             int64default.StaticInt64(100),
 			},
 			"dns_search_domains": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -102,7 +100,6 @@ func ServiceDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.S
 				Computed:            true,
 				Description:         "Minimum password length requirement for local users.",
 				MarkdownDescription: "Minimum password length requirement for local users.",
-				Default:             int64default.StaticInt64(0),
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
@@ -137,14 +134,12 @@ func ServiceDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.S
 				Computed:            true,
 				Description:         "For how long lockout will last for local users.",
 				MarkdownDescription: "For how long lockout will last for local users.",
-				Default:             int64default.StaticInt64(1),
 			},
 			"user_lockout_threshold": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
 				Description:         "After how many failed authentication attempts will a local user be locked out from authenticating again.",
 				MarkdownDescription: "After how many failed authentication attempts will a local user be locked out from authenticating again.",
-				Default:             int64default.StaticInt64(5),
 			},
 			"user_scripts": schema.ListAttribute{
 				ElementType:         types.StringType,

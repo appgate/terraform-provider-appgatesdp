@@ -6686,6 +6686,7 @@
     "service_database_identity_provider": {
       "path": "/identity-providers",
       "delete": true,
+      "adopt": true,
       "discriminator": {
         "property": "type",
         "value": "ServiceDatabase"
@@ -18990,6 +18991,7 @@
     "service_database_identity_provider": {
       "path": "/identity-providers",
       "delete": true,
+      "adopt": true,
       "discriminator": {
         "property": "type",
         "value": "ServiceDatabase"

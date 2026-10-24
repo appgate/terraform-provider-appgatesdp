@@ -22,9 +22,17 @@ type versionedIR struct {
 // provider exposes. Terraform fixes schemas before the provider is configured,
 // so every attribute of every version must be present; version-specific
 // support is enforced at plan time using the per-version API metadata.
-// readOnly names data sources that read an endpoint instead of looking an
-// object up by id or name.
-func mergeIR(irs []versionedIR, readOnly map[string]bool) (map[string]any, error) {
+// mergeKinds tells the merge which definitions need special overlays.
+type mergeKinds struct {
+	// readOnly names data sources that read an endpoint instead of looking
+	// an object up by id or name.
+	readOnly map[string]bool
+	// existing names resources whose object exists before Terraform manages
+	// it (settings singletons, adopted built-ins).
+	existing map[string]bool
+}
+
+func mergeIR(irs []versionedIR, kinds mergeKinds) (map[string]any, error) {
 	out := map[string]any{
 		"provider": map[string]any{"name": "appgatesdp"},
 		"version":  "0.1",
@@ -59,10 +67,18 @@ func mergeIR(irs []versionedIR, readOnly map[string]bool) (map[string]any, error
 					}
 				}
 			}
+			if kind == "resources" && kinds.existing[name] {
+				// Specification defaults describe new objects. Applied to an
+				// object that already exists they would overwrite its current
+				// settings (e.g. adminProvider=false on the built-in local
+				// identity provider is refused as removing the last admin
+				// provider); unset attributes keep the server's value instead.
+				stripDefaults(attrs)
+			}
 			switch {
 			case kind == "resources":
 				attrs = resourceOverlay(attrs)
-			case readOnly[name]:
+			case kinds.readOnly[name]:
 				attrs = readOnlyOverlay(attrs)
 			default:
 				attrs = dataSourceOverlay(attrs)
@@ -178,6 +194,20 @@ func mergeAttributes(inputs []versionedAttrs, parents []string) ([]any, error) {
 		out = append(out, map[string]any{"name": name, newest.typ: body})
 	}
 	return out, nil
+}
+
+// stripDefaults removes the defaults of attributes and nested attributes.
+func stripDefaults(attrs []any) {
+	for _, a := range attrs {
+		_, body := attrType(a.(map[string]any))
+		delete(body, "default")
+	}
+	for _, a := range attrs {
+		_, body := attrType(a.(map[string]any))
+		if _, nested := nestedAttributes(body); nested != nil {
+			stripNestedDefaults(nested)
+		}
+	}
 }
 
 // stripNestedDefaults removes defaults below the root level.

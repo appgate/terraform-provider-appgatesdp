@@ -185,7 +185,7 @@ func TestMergeIRNestedOverlay(t *testing.T) {
 	}})
 	root := attr("mode", "string", computedOptional, map[string]any{"default": map[string]any{"static": "a"}})
 	ir := map[string]any{"resources": []any{map[string]any{"name": "site", "schema": map[string]any{"attributes": []any{nested, root}}}}}
-	merged, err := mergeIR([]versionedIR{{"v1", ir}}, nil)
+	merged, err := mergeIR([]versionedIR{{"v1", ir}}, mergeKinds{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,5 +200,23 @@ func TestMergeIRNestedOverlay(t *testing.T) {
 	}
 	if _, mode := attrType(findAttr(attrs, "mode")); mode["default"] == nil {
 		t.Error("root defaults must be kept")
+	}
+}
+
+func TestMergeIRNoDefaultsForExistingObjects(t *testing.T) {
+	ir := map[string]any{"resources": []any{
+		map[string]any{"name": "settings", "schema": map[string]any{"attributes": []any{attr("admin", "bool", computedOptional, map[string]any{"default": map[string]any{"static": false}})}}},
+		map[string]any{"name": "fresh", "schema": map[string]any{"attributes": []any{attr("admin", "bool", computedOptional, map[string]any{"default": map[string]any{"static": false}})}}},
+	}}
+	merged, err := mergeIR([]versionedIR{{"v1", ir}}, mergeKinds{existing: map[string]bool{"settings": true}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range merged["resources"].([]any) {
+		rm := r.(map[string]any)
+		_, body := attrType(findAttr(listOf(rm["schema"].(map[string]any)["attributes"]), "admin"))
+		if _, has := body["default"]; has != (rm["name"] == "fresh") {
+			t.Errorf("%s: default kept=%v", rm["name"], has)
+		}
 	}
 }

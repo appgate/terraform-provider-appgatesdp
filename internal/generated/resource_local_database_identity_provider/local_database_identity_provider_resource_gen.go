@@ -7,8 +7,6 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -23,7 +21,6 @@ func LocalDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.Sch
 				Computed:            true,
 				Description:         "Whether the provider will be listed in the Admin UI or not.",
 				MarkdownDescription: "Whether the provider will be listed in the Admin UI or not.",
-				Default:             booldefault.StaticBool(false),
 			},
 			"block_local_dns_requests": schema.BoolAttribute{
 				Optional:            true,
@@ -75,7 +72,6 @@ func LocalDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.Sch
 				Computed:            true,
 				Description:         "The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.",
 				MarkdownDescription: "The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded.",
-				Default:             int64default.StaticInt64(100),
 			},
 			"dns_search_domains": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -112,7 +108,6 @@ func LocalDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.Sch
 				Computed:            true,
 				Description:         "(Desktop) clients will sign out automatically after the user has been inactive on the device for the configured duration. Set it to 0 to disable.",
 				MarkdownDescription: "(Desktop) clients will sign out automatically after the user has been inactive on the device for the configured duration. Set it to 0 to disable.",
-				Default:             int64default.StaticInt64(0),
 			},
 			"ip_pool_v4": schema.StringAttribute{
 				Optional:            true,
@@ -131,7 +126,6 @@ func LocalDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.Sch
 				Computed:            true,
 				Description:         "Minimum password length requirement for local users.",
 				MarkdownDescription: "Minimum password length requirement for local users.",
-				Default:             int64default.StaticInt64(0),
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
@@ -143,7 +137,6 @@ func LocalDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.Sch
 				Computed:            true,
 				Description:         "Whether or not to take network inactivity into account when measuring client inactivity timeout.",
 				MarkdownDescription: "Whether or not to take network inactivity into account when measuring client inactivity timeout.",
-				Default:             booldefault.StaticBool(false),
 			},
 			"notes": schema.StringAttribute{
 				Optional:            true,
@@ -288,14 +281,12 @@ func LocalDatabaseIdentityProviderResourceSchema(ctx context.Context) schema.Sch
 				Computed:            true,
 				Description:         "For how long lockout will last for local users.",
 				MarkdownDescription: "For how long lockout will last for local users.",
-				Default:             int64default.StaticInt64(1),
 			},
 			"user_lockout_threshold": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
 				Description:         "After how many failed authentication attempts will a local user be locked out from authenticating again.",
 				MarkdownDescription: "After how many failed authentication attempts will a local user be locked out from authenticating again.",
-				Default:             int64default.StaticInt64(5),
 			},
 			"user_scripts": schema.ListAttribute{
 				ElementType:         types.StringType,

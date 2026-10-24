@@ -83,6 +83,10 @@ resources:
   ldap_identity_provider:
     path: /identity-providers
     variant: {property: type, value: Ldap}
+  service_database_identity_provider:
+    path: /identity-providers
+    variant: {property: type, value: ServiceDatabase}
+    adopt: true
   local_database_identity_provider:
     path: /identity-providers
     variant: {property: type, value: LocalDatabase}

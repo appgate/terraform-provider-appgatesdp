@@ -33515,9 +33515,6 @@
             "name": "groups_claim",
             "string": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": "claims.user.groups"
-              },
               "description": "The claim used to extract group information from the token."
             }
           },
@@ -37396,9 +37393,6 @@
           {
             "bool": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": false
-              },
               "description": "Whether the provider will be listed in the Admin UI or not."
             },
             "name": "admin_provider"
@@ -37459,9 +37453,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 100
-              },
               "description": "The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded."
             },
             "name": "device_limit_per_user"
@@ -37525,9 +37516,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 0
-              },
               "description": "(Desktop) clients will sign out automatically after the user has been inactive on the device for the configured duration. Set it to 0 to disable."
             },
             "name": "inactivity_timeout_minutes"
@@ -37549,9 +37537,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 0
-              },
               "description": "Minimum password length requirement for local users."
             },
             "name": "min_password_length"
@@ -37566,9 +37551,6 @@
           {
             "bool": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": false
-              },
               "description": "Whether or not to take network inactivity into account when measuring client inactivity timeout."
             },
             "name": "network_inactivity_timeout_enabled"
@@ -37730,9 +37712,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 1
-              },
               "description": "For how long lockout will last for local users."
             },
             "name": "user_lockout_duration_minutes"
@@ -37740,9 +37719,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 5
-              },
               "description": "After how many failed authentication attempts will a local user be locked out from authenticating again."
             },
             "name": "user_lockout_threshold"
@@ -43148,9 +43124,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 100
-              },
               "description": "The device limit per user. The existing on-boarded devices will still be able to sign in even if the limit is exceeded."
             },
             "name": "device_limit_per_user"
@@ -43221,9 +43194,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 0
-              },
               "description": "Minimum password length requirement for local users."
             },
             "name": "min_password_length"
@@ -43269,9 +43239,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 1
-              },
               "description": "For how long lockout will last for local users."
             },
             "name": "user_lockout_duration_minutes"
@@ -43279,9 +43246,6 @@
           {
             "int64": {
               "computed_optional_required": "computed_optional",
-              "default": {
-                "static": 5
-              },
               "description": "After how many failed authentication attempts will a local user be locked out from authenticating again."
             },
             "name": "user_lockout_threshold"

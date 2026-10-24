@@ -254,15 +254,20 @@ func generateMerged(ctx context.Context, o Options, reg apiversion.Registry) err
 		apis[v.APIVersion] = &api
 	}
 	o.logf("merging %d API versions", len(irs))
-	readOnly := map[string]bool{}
+	kinds := mergeKinds{readOnly: map[string]bool{}, existing: map[string]bool{}}
 	for _, api := range apis {
 		for name, ds := range api.DataSources {
 			if ds.ReadOnly {
-				readOnly[name] = true
+				kinds.readOnly[name] = true
+			}
+		}
+		for name, r := range api.Resources {
+			if r.Adopt || (r.Singleton && r.CreateMethod == "") {
+				kinds.existing[name] = true
 			}
 		}
 	}
-	merged, err := mergeIR(irs, readOnly)
+	merged, err := mergeIR(irs, kinds)
 	if err != nil {
 		return err
 	}
