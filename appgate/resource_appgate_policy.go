@@ -751,8 +751,13 @@ func resourceAppgatePolicyRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if currentVersion.GreaterThanOrEqual(Appliance62Version) {
-		d.Set("override_nearest_site", policy.GetOverrideNearestSite())
-		d.Set("apply_fallback_site", policy.GetApplyFallbackSite())
+		// Only access and DNS policies have these attributes; d.Get returns nil when the schema lacks them.
+		if v := d.Get("override_nearest_site"); v != nil {
+			d.Set("override_nearest_site", policy.GetOverrideNearestSite())
+		}
+		if v := d.Get("apply_fallback_site"); v != nil {
+			d.Set("apply_fallback_site", policy.GetApplyFallbackSite())
+		}
 	}
 
 	return diags
