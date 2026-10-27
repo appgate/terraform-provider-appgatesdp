@@ -754,7 +754,8 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	if site.LocalSiteDetection != nil {
+	// The API always returns a default localSiteDetection; only store it when set, to avoid a perpetual diff.
+	if lsd := site.LocalSiteDetection; lsd != nil && (lsd.GetEnabled() || len(lsd.GetPublicIps()) > 0 || d.Get("local_site_detection").(*schema.Set).Len() > 0) {
 		if err := d.Set("local_site_detection", flattenSiteLocalSiteDetection(site.GetLocalSiteDetection())); err != nil {
 			return err
 		}
