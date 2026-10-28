@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/appgate/sdp-api-client-go/api/v24/openapi"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceAppgateSite() *schema.Resource {
@@ -59,6 +61,60 @@ func resourceAppgateSite() *schema.Resource {
 				Description: "Network subnets in CIDR format to define the Site's boundaries. They are added as routes by the Client.",
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"geolocation": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "Geolocation of the Site",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"latitude": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+						},
+						"longitude": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+						},
+					},
+				},
+			},
+
+			"fallback_site": {
+				Type:             schema.TypeString,
+				Description:      "When the Client fails to connect to the Site for a certain period of time, configured Entitlements will be moved to this 'Fallback' site",
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     validation.IsUUID,
+				DiffSuppressFunc: supressComputedResourceID,
+			},
+
+			"local_site_detection": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "Local Site Detection settings",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Default:  false,
+							Optional: true,
+						},
+						"public_ips": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+
+			"use_for_nearest_site_selection": {
+				Type:        schema.TypeBool,
+				Description: "If enabled, this Site will be included in the nearest Site override selection in Policies",
+				Default:     false,
+				Optional:    true,
 			},
 
 			"ip_pool_mappings": {
@@ -593,6 +649,30 @@ func resourceAppgateSiteCreate(d *schema.ResourceData, meta interface{}) error {
 		args.SetNetworkSubnets(networkSubnets)
 	}
 
+	if v, ok := d.GetOk("geolocation"); ok {
+		geolocation, err := readGeolocation(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetGeolocation(geolocation)
+	}
+
+	if v, ok := d.GetOk("fallback_site"); ok {
+		args.SetFallbackSite(v.(string))
+	}
+
+	if v, ok := d.GetOk("local_site_detection"); ok {
+		localSiteDetection, err := readLocalSiteDetection(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.SetLocalSiteDetection(localSiteDetection)
+	}
+
+	if v, ok := d.GetOk("use_for_nearest_site_selection"); ok {
+		args.SetUseForNearestSiteSelection(v.(bool))
+	}
+
 	if v, ok := d.GetOk("ip_pool_mappings"); ok {
 		ipPoolMappings, err := readIPPoolMappingsFromConfig(v.(*schema.Set).List())
 		if err != nil {
@@ -665,6 +745,22 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("notes", site.GetNotes())
 	d.Set("tags", site.GetTags())
 	d.Set("network_subnets", site.NetworkSubnets)
+	d.Set("fallback_site", site.GetFallbackSite())
+	d.Set("use_for_nearest_site_selection", site.GetUseForNearestSiteSelection())
+
+	if site.Geolocation != nil {
+		if err := d.Set("geolocation", flattenSiteGeolocation(site.GetGeolocation())); err != nil {
+			return err
+		}
+	}
+
+	// The API always returns a default localSiteDetection; only store it when set, to avoid a perpetual diff.
+	if lsd := site.LocalSiteDetection; lsd != nil && (lsd.GetEnabled() || len(lsd.GetPublicIps()) > 0 || d.Get("local_site_detection").(*schema.Set).Len() > 0) {
+		if err := d.Set("local_site_detection", flattenSiteLocalSiteDetection(site.GetLocalSiteDetection())); err != nil {
+			return err
+		}
+	}
+
 	if site.IpPoolMappings != nil {
 		if err = d.Set("ip_pool_mappings", flattenSiteIPpoolmappning(site.GetIpPoolMappings())); err != nil {
 			return err
@@ -699,6 +795,30 @@ func resourceAppgateSiteRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+// float32ToFloat64 keeps the shortest decimal form of the API's float32, so 59.3293 is not read back as 59.32929992675781.
+func float32ToFloat64(v float32) float64 {
+	f, _ := strconv.ParseFloat(strconv.FormatFloat(float64(v), 'g', -1, 32), 64)
+	return f
+}
+
+func flattenSiteGeolocation(in openapi.SiteAllOfGeolocation) []interface{} {
+	m := make(map[string]interface{})
+	m["latitude"] = float32ToFloat64(in.GetLatitude())
+	m["longitude"] = float32ToFloat64(in.GetLongitude())
+	return []interface{}{m}
+}
+
+func flattenSiteLocalSiteDetection(in openapi.SiteAllOfLocalSiteDetection) []interface{} {
+	m := make(map[string]interface{})
+	m["enabled"] = in.GetEnabled()
+	publicIps := make([]interface{}, 0, len(in.GetPublicIps()))
+	for _, publicIp := range in.GetPublicIps() {
+		publicIps = append(publicIps, publicIp)
+	}
+	m["public_ips"] = publicIps
+	return []interface{}{m}
 }
 
 func flattenSiteIPpoolmappning(in []openapi.SiteAllOfIpPoolMappings) []map[string]interface{} {
@@ -1034,6 +1154,34 @@ func resourceAppgateSiteUpdate(d *schema.ResourceData, meta interface{}) error {
 		orginalSite.SetNetworkSubnets(networkSubnets)
 	}
 
+	if d.HasChange("geolocation") {
+		_, v := d.GetChange("geolocation")
+		geolocation, err := readGeolocation(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalSite.SetGeolocation(geolocation)
+	}
+
+	if d.HasChange("fallback_site") {
+		_, v := d.GetChange("fallback_site")
+		orginalSite.SetFallbackSite(v.(string))
+	}
+
+	if d.HasChange("local_site_detection") {
+		_, v := d.GetChange("local_site_detection")
+		localSiteDetection, err := readLocalSiteDetection(v.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		orginalSite.SetLocalSiteDetection(localSiteDetection)
+	}
+
+	if d.HasChange("use_for_nearest_site_selection") {
+		_, v := d.GetChange("use_for_nearest_site_selection")
+		orginalSite.SetUseForNearestSiteSelection(v.(bool))
+	}
+
 	if d.HasChange("ip_pool_mappings") {
 		_, n := d.GetChange("ip_pool_mappings")
 		ipPoolMappings, err := readIPPoolMappingsFromConfig(n.(*schema.Set).List())
@@ -1112,6 +1260,44 @@ func readIPPoolMappingsFromConfig(maps []interface{}) ([]openapi.SiteAllOfIpPool
 		}
 
 		result = append(result, r)
+	}
+	return result, nil
+}
+
+func readGeolocation(maps []interface{}) (openapi.SiteAllOfGeolocation, error) {
+	result := openapi.SiteAllOfGeolocation{}
+	for _, geolocation := range maps {
+		if geolocation == nil {
+			continue
+		}
+		raw := geolocation.(map[string]interface{})
+		if v, ok := raw["latitude"]; ok {
+			result.SetLatitude(float32(v.(float64)))
+		}
+		if v, ok := raw["longitude"]; ok {
+			result.SetLongitude(float32(v.(float64)))
+		}
+	}
+	return result, nil
+}
+
+func readLocalSiteDetection(maps []interface{}) (openapi.SiteAllOfLocalSiteDetection, error) {
+	result := openapi.SiteAllOfLocalSiteDetection{}
+	for _, localSiteDetection := range maps {
+		if localSiteDetection == nil {
+			continue
+		}
+		raw := localSiteDetection.(map[string]interface{})
+		if v, ok := raw["enabled"]; ok {
+			result.SetEnabled(v.(bool))
+		}
+		if v, ok := raw["public_ips"]; ok {
+			publicIps, err := readArrayOfStringsFromConfig(v.([]interface{}))
+			if err != nil {
+				return result, fmt.Errorf("Failed to resolve public ips for local site detection")
+			}
+			result.SetPublicIps(publicIps)
+		}
 	}
 	return result, nil
 }

@@ -27,6 +27,18 @@ resource "appgatesdp_site" "gbg_site" {
         enabled_v6       = false
         excluded_subnets = []
     }
+    fallback_site = data.appgatesdp_site.default.id
+    geolocation {
+        latitude  = 59.3293
+        longitude = 18.0686
+    }
+    local_site_detection {
+        enabled = true
+        public_ips = [
+            "192.168.1.1/32"
+        ]
+    }
+    use_for_nearest_site_selection = true
     ip_pool_mappings {
         from = "64cbd0ca-688d-4b55-a8a4-4069d8be6ce5"
         to   = "699d9d61-67bb-4cc3-9365-7666d2ddd0a8"
@@ -153,6 +165,10 @@ The following arguments are supported:
 * `entitlement_based_routing`: (Optional) When enabled, the routes are sent to the Client by the Gateways according to the user's Entitlements "networkSubnets" should be left be empty if it's enabled.
 * `vpn`: (Optional) VPN configuration for this Site.
 * `name_resolution`: (Optional) Settings for asset name resolution.
+* `local_site_detection`: (Optional) Local Site Detection feature settings.
+* `fallback_site`: (Optional) When the Client fails to connect to the Site for a certain period of time, configured Entitlements will be moved to this 'Fallback' Site.
+* `geolocation`: (Optional) Geolocation of the Site.
+* `use_for_nearest_site_selection`: (Optional) If enabled, this Site will be included in the nearest Site override selection in Policies.
 
 ### ip_pool_mappings
 List of IP Pool mappings for this specific Site. When IPs are allocated this Site, they will be mapped to a new one using this setting.
@@ -166,6 +182,14 @@ Default Gateway configuration.
 * `enabled_v6`:  (Required - See Note below) default value `false` When enabled, the Client uses this Site as the Default for all IPv6 traffic.
 * `excluded_subnets`:  (Optional) Network subnets to exclude when Default Gateway is enabled. The traffic for these subnets will not go through the Gateway in this Site. Deprecated as of 6.0. Use action type 'exclude' in Entitlements instead.
 > Note: At least one of `enabled_v4` or `enabled_v6` must be set
+
+### geolocation
+* `latitude`: (Optional) Latitude of the Site.
+* `longitude`: (Optional) Longitude of the Site.
+
+### local_site_detection
+* `enabled`: (Optional) default value `false` Enables the Local Site Detection feature.
+* `public_ips`: (Optional) The public IPs or the CIDRs of the clients that will be considered local to this Site. Those clients will connect to Gateways with the configured local hostname and local weights in Appliance configuration.
 
 ### vpn
 VPN configuration for this Site.
