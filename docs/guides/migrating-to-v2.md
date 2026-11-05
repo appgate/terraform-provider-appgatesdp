@@ -34,6 +34,7 @@ did change: follow the steps below instead of upgrading in place.
 |---|---|
 | `client_version = 22` | `api_version = "v22"`. `client_version` still works but is deprecated. |
 | client version negotiated when unset | Unchanged. When `api_version` is unset, the newest common version is negotiated. |
+| `insecure` defaulted to `true` | Defaults to `false`: TLS certificates are verified. Set `pem_filepath` to the controller CA, or `insecure = true` (`APPGATE_INSECURE=true`) to keep skipping verification. |
 | `debug` | No effect. Use `TF_LOG=DEBUG`. |
 | `HTTP_PROXY` used for HTTPS requests too | Standard Go proxy variables: `HTTPS_PROXY`, `HTTP_PROXY`, `NO_PROXY`. |
 
