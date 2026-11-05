@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"slices"
@@ -70,6 +71,17 @@ type failure struct {
 // New starts a server for the given API version metadata.
 func New(t testing.TB, api *apimeta.API) *Server {
 	t.Helper()
+	return start(t, api, false)
+}
+
+// NewTLS is New over HTTPS with a self-signed certificate (s.Certificate()).
+func NewTLS(t testing.TB, api *apimeta.API) *Server {
+	t.Helper()
+	return start(t, api, true)
+}
+
+func start(t testing.TB, api *apimeta.API, useTLS bool) *Server {
+	t.Helper()
 	var n int
 	if _, err := fmt.Sscanf(api.Version, "v%d", &n); err != nil {
 		t.Fatalf("bad version %q", api.Version)
@@ -94,7 +106,13 @@ func New(t testing.TB, api *apimeta.API) *Server {
 			s.objects[r.Path] = map[string]map[string]any{}
 		}
 	}
-	s.Server = httptest.NewServer(http.HandlerFunc(s.serve))
+	s.Server = httptest.NewUnstartedServer(http.HandlerFunc(s.serve))
+	s.Config.ErrorLog = log.New(io.Discard, "", 0) // rejected TLS handshakes are expected in tests
+	if useTLS {
+		s.StartTLS()
+	} else {
+		s.Start()
+	}
 	t.Cleanup(s.Close)
 	return s
 }
