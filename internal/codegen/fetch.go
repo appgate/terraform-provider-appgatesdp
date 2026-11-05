@@ -39,6 +39,15 @@ func (f *Fetcher) git(ctx context.Context, args ...string) ([]byte, error) {
 func (f *Fetcher) repoDir() string { return filepath.Join(f.CacheDir, "sdp-api-specification.git") }
 
 func (f *Fetcher) ensureRepo(ctx context.Context) error {
+	if _, err := os.Stat(f.repoDir()); err == nil {
+		// The cache is disposable: recreate it if it is no longer a valid
+		// repository (e.g. its files were removed by a cleanup tool).
+		if _, err := f.git(ctx, "rev-parse", "--git-dir"); err != nil {
+			if err := os.RemoveAll(f.repoDir()); err != nil {
+				return err
+			}
+		}
+	}
 	if _, err := os.Stat(f.repoDir()); errors.Is(err, os.ErrNotExist) {
 		if err := os.MkdirAll(f.repoDir(), 0o755); err != nil {
 			return err

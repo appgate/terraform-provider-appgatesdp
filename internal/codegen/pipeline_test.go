@@ -337,3 +337,19 @@ func TestPin(t *testing.T) {
 		t.Fatalf("pin must only move the selected version: %+v", reg.Versions)
 	}
 }
+
+// TestFetchRecoversFromBrokenCache: a cache whose repository files were
+// removed (leaving empty directories) is recreated instead of failing.
+func TestFetchRecoversFromBrokenCache(t *testing.T) {
+	repo := newFixtureRepo(t)
+	cache := t.TempDir()
+	for _, dir := range []string{"objects/pack", "refs/heads"} {
+		if err := os.MkdirAll(filepath.Join(cache, "sdp-api-specification.git", dir), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	f := &Fetcher{Repository: repo.dir, CacheDir: cache}
+	if _, err := f.Fetch(context.Background(), fixtureVersion("98", repo.commits["v98"])); err != nil {
+		t.Fatalf("broken cache must be recreated: %v", err)
+	}
+}
