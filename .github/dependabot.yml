@@ -1,6 +1,14 @@
 version: 2
 updates:
+  # v2 (master)
   - package-ecosystem: "gomod"
     directory: "/"
+    schedule:
+      interval: "weekly"
+  # v1 maintenance branch, supported until October 3, 2027 (SDP 6.7 end of
+  # life). Dependabot only reads this file from the default branch.
+  - package-ecosystem: "gomod"
+    directory: "/"
+    target-branch: "release/1.x"
     schedule:
       interval: "weekly"
