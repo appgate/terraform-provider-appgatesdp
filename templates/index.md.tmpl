@@ -54,9 +54,9 @@ block, then environment variables.
 
 The API user must be exempt from Admin MFA to use username and password.
 
-TLS certificates are verified when `insecure = false`; set `pem_filepath` to the controller
-CA when it is not trusted by the system. `insecure` defaults to `true` for compatibility with
-earlier releases, which is not recommended in production.
+TLS certificates are always verified unless `insecure = true`. Set `pem_filepath` to the
+controller CA when it is not trusted by the system; use `insecure` only for test
+environments.
 
 ### `config_path` file format
 

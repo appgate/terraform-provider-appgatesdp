@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"encoding/base64"
+	"encoding/pem"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -178,7 +179,7 @@ func TestResolveSettings(t *testing.T) {
 	t.Setenv("APPGATE_PASSWORD", "env-pass")
 	t.Setenv("APPGATE_API_VERSION", "")
 	t.Setenv("APPGATE_CLIENT_VERSION", "")
-	t.Setenv("APPGATE_INSECURE", "false")
+	t.Setenv("APPGATE_INSECURE", "")
 	t.Setenv("APPGATE_DEVICE_ID", "")
 	t.Setenv("APPGATE_CONFIG_PATH", "")
 	t.Setenv("APPGATE_LOGIN_TIMEOUT", "")
@@ -187,9 +188,20 @@ func TestResolveSettings(t *testing.T) {
 	if diags.HasError() {
 		t.Fatal(diags)
 	}
-	if s.URL != "https://env.example.com" || s.Username != "block-user" || s.Password != "env-pass" || s.Insecure {
+	if s.URL != "https://env.example.com" || s.Username != "block-user" || s.Password != "env-pass" {
 		t.Fatalf("unexpected settings %+v", s)
 	}
+	if s.Insecure {
+		t.Fatal("TLS verification must be on by default")
+	}
+	t.Setenv("APPGATE_INSECURE", "true")
+	if s, _ := resolveSettings(providerModel{}); !s.Insecure {
+		t.Fatal("APPGATE_INSECURE=true must disable TLS verification")
+	}
+	if s, _ := resolveSettings(providerModel{Insecure: types.BoolValue(false)}); s.Insecure {
+		t.Fatal("the provider block takes precedence over APPGATE_INSECURE")
+	}
+	t.Setenv("APPGATE_INSECURE", "")
 	if s.apiVersion != "v23" || s.LoginTimeout != 10*time.Minute {
 		t.Fatalf("client_version must map to api_version, got %q %s", s.apiVersion, s.LoginTimeout)
 	}
@@ -388,5 +400,37 @@ func TestEveryDataSourceReads(t *testing.T) {
 				})
 			})
 		}
+	})
+}
+
+// TestTLSVerifiedByDefault: certificates are verified unless insecure is set;
+// a private CA is trusted through pem_filepath.
+func TestTLSVerifiedByDefault(t *testing.T) {
+	api, _ := generated.API("v25")
+	srv := sdptest.NewTLS(t, api)
+	caFile := filepath.Join(t.TempDir(), "ca.pem")
+	if err := os.WriteFile(caFile, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: srv.Certificate().Raw}), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg := func(extra string) string {
+		return fmt.Sprintf(`
+provider "appgatesdp" {
+  url         = %q
+  username    = %q
+  password    = %q
+  api_version = "v25"
+  %s
+}
+data "appgatesdp_global_settings" "test" {}
+`, srv.URL, sdptest.Username, sdptest.Password, extra)
+	}
+	t.Setenv("APPGATE_INSECURE", "")
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6Factories,
+		Steps: []resource.TestStep{
+			{Config: cfg(""), ExpectError: regexp.MustCompile(`(?s)certificate.*set\s+pem_filepath`)},
+			{Config: cfg(fmt.Sprintf("pem_filepath = %q", caFile))},
+			{Config: cfg("insecure = true")},
+		},
 	})
 }

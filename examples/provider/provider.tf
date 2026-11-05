@@ -12,7 +12,6 @@ provider "appgatesdp" {
   username     = var.username
   password     = var.password
   api_version  = "v25" # SDP 7.0; omit to negotiate with the controller
-  insecure     = false
   pem_filepath = "controller-ca.pem"
 }
 

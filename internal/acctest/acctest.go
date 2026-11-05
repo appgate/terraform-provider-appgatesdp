@@ -137,9 +137,11 @@ func SkipUnavailable(t *testing.T) func(error) error {
 
 // ProviderConfig renders the provider block of an environment.
 func (e Env) ProviderConfig() string {
-	pem := ""
+	// Without a CA file TLS verification is skipped explicitly: test
+	// controllers usually have self-signed certificates.
+	tls := "insecure = true"
 	if e.PEMFile != "" {
-		pem = fmt.Sprintf("pem_filepath = %q\n  insecure = false", e.PEMFile)
+		tls = fmt.Sprintf("pem_filepath = %q", e.PEMFile)
 	}
 	return fmt.Sprintf(`
 provider "appgatesdp" {
@@ -150,7 +152,7 @@ provider "appgatesdp" {
   api_version = %q
   %s
 }
-`, e.URL, e.Username, e.Password, e.Provider, e.Version.APIVersion, pem)
+`, e.URL, e.Username, e.Password, e.Provider, e.Version.APIVersion, tls)
 }
 
 // Client returns an API client for the environment.

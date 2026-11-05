@@ -80,7 +80,7 @@ func (p *appgateProvider) Schema(_ context.Context, _ provider.SchemaRequest, re
 			"username": schema.StringAttribute{Optional: true, Description: "Admin username. Env: APPGATE_USERNAME."},
 			"password": schema.StringAttribute{Optional: true, Sensitive: true, Description: "Admin password. Env: APPGATE_PASSWORD."},
 			"provider": schema.StringAttribute{Optional: true, Description: "Identity provider used to log in. Defaults to `local`. Env: APPGATE_PROVIDER."},
-			"insecure": schema.BoolAttribute{Optional: true, Description: "Skip TLS certificate verification. Defaults to `true` for compatibility with earlier releases; set `false` together with `pem_filepath` in production. Env: APPGATE_INSECURE."},
+			"insecure": schema.BoolAttribute{Optional: true, Description: "Skip TLS certificate verification. Defaults to `false`; prefer `pem_filepath` for controllers with a private CA. Env: APPGATE_INSECURE."},
 			"debug":    schema.BoolAttribute{Optional: true, DeprecationMessage: "HTTP debugging is controlled by TF_LOG=DEBUG; this attribute has no effect.", Description: "Deprecated. Env: APPGATE_HTTP_DEBUG."},
 			"api_version": schema.StringAttribute{Optional: true, Description: fmt.Sprintf(
 				"SDP Admin API version, one of %s. When unset, the newest version supported by both the controller and the provider is negotiated at login. Env: APPGATE_API_VERSION.",
@@ -141,7 +141,7 @@ func resolveSettings(m providerModel) (settings, diag.Diagnostics) {
 		BearerToken: str(m.BearerToken, "APPGATE_BEARER_TOKEN"),
 		PEMFile:     str(m.PEMFilePath, "APPGATE_PEM_FILEPATH"),
 		DeviceID:    str(m.DeviceID, "APPGATE_DEVICE_ID"),
-		Insecure:    boolean(m.Insecure, "APPGATE_INSECURE", true),
+		Insecure:    boolean(m.Insecure, "APPGATE_INSECURE", false),
 	}}
 	s.apiVersion = str(m.APIVersion, "APPGATE_API_VERSION")
 	clientVersion := os.Getenv("APPGATE_CLIENT_VERSION")

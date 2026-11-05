@@ -38,7 +38,6 @@ provider "appgatesdp" {
   username     = var.username
   password     = var.password
   api_version  = "v25" # SDP 7.0; omit to negotiate with the controller
-  insecure     = false
   pem_filepath = "controller-ca.pem"
 }
 
@@ -81,9 +80,9 @@ block, then environment variables.
 
 The API user must be exempt from Admin MFA to use username and password.
 
-TLS certificates are verified when `insecure = false`; set `pem_filepath` to the controller
-CA when it is not trusted by the system. `insecure` defaults to `true` for compatibility with
-earlier releases, which is not recommended in production.
+TLS certificates are always verified unless `insecure = true`. Set `pem_filepath` to the
+controller CA when it is not trusted by the system; use `insecure` only for test
+environments.
 
 ### `config_path` file format
 
@@ -110,7 +109,7 @@ earlier releases, which is not recommended in production.
 - `config_path` (String) Path to a JSON file with provider settings (keys appgate_url, appgate_username, ...). Env: APPGATE_CONFIG_PATH.
 - `debug` (Boolean, Deprecated) Deprecated. Env: APPGATE_HTTP_DEBUG.
 - `device_id` (String) UUID identifying this client in login requests. Defaults to a UUID derived from the machine ID. Env: APPGATE_DEVICE_ID.
-- `insecure` (Boolean) Skip TLS certificate verification. Defaults to `true` for compatibility with earlier releases; set `false` together with `pem_filepath` in production. Env: APPGATE_INSECURE.
+- `insecure` (Boolean) Skip TLS certificate verification. Defaults to `false`; prefer `pem_filepath` for controllers with a private CA. Env: APPGATE_INSECURE.
 - `login_timeout` (String) How long to retry login while the controller is starting, as a duration (default `10m`). Env: APPGATE_LOGIN_TIMEOUT.
 - `password` (String, Sensitive) Admin password. Env: APPGATE_PASSWORD.
 - `pem_filepath` (String) Path to the controller CA certificate in PEM format. Env: APPGATE_PEM_FILEPATH.
